@@ -174,7 +174,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
-                                    result.Unknown++;
+                                    result.Unsupported++;
                                     result.SkippedSize += file.Length;
                                     break;
                             }
@@ -220,7 +220,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
-                                    result.Unknown++;
+                                    result.Unsupported++;
                                     result.SkippedSize += file.Length;
                                     break;
                             }
@@ -233,6 +233,8 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, subdirectory + file.Extension);
+                result.Unsupported++;
+                result.SkippedSize += file.Length;
             }
             stream.Close();
         }
@@ -330,6 +332,8 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, subdirectory + Extension);
+                result.Unsupported++;
+                result.SkippedSize += stream.Length;
             }
             stream.Close();
         }
@@ -469,7 +473,7 @@ namespace DolphinTextureExtraction_tool
                 }
                 result.Hash.Add(Hash);
 
-                Log.Write(FileAction.Extract, subdirectory, $"Hash:{Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} mips:{tex.Count != 1}");
+                Log.Write(FileAction.Extract, subdirectory, $"Hash:{Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "") }");
 
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)

@@ -50,6 +50,7 @@ namespace DolphinTextureExtraction_tool
             new Filetyp("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
             new Filetyp("dat",new Header("FREB"), FileTyp.Archive, "Rune Factory"),
             new Filetyp("pos",new Header("POSD"), FileTyp.Else, "FREB Archive Info"),
+            new Filetyp("clz",new Header("CLZ"), FileTyp.Archive, "Harvest Moon compressed"),
             new Filetyp("PAK", FileTyp.Archive, "Retro Studios"), //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)
             new Filetyp("dat", FileTyp.Archive, "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
             new Filetyp("fsys",new Header("FSYS"), FileTyp.Archive, "Pokemon"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/

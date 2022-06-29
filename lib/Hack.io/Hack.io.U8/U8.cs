@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Hack.io.U8
 {
@@ -53,7 +52,7 @@ namespace Hack.io.U8
                 throw new Exception($"Invalid Magic. Expected \"{Magic}\"");
 
             uint OffsetToNodeSection = BitConverter.ToUInt32(U8File.ReadReverse(0, 4), 0); //usually 0x20
-            uint NodeSectionSize = BitConverter.ToUInt32(U8File.ReadReverse(0, 4), 0); 
+            uint NodeSectionSize = BitConverter.ToUInt32(U8File.ReadReverse(0, 4), 0);
             uint FileDataOffset = BitConverter.ToUInt32(U8File.ReadReverse(0, 4), 0);
             U8File.Position += 0x10; //Skip reserved bytes. All are 0xCC
 
@@ -126,9 +125,16 @@ namespace Hack.io.U8
                 }
                 else
                 {
+                    //if there is already an ellement with the names.
+                    if (DirectoryStack.Peek().Items.ContainsKey(((dynamic)FlatItems[i]).Name))
+                    {
+                        string name = ((ArchiveFile)FlatItems[i]).Name;
+                        ((ArchiveFile)FlatItems[i]).Name = Path.GetFileName(name) + i + Path.GetExtension(name);
+                    }
+
                     DirectoryStack.Peek().Items.Add(((dynamic)FlatItems[i]).Name, FlatItems[i]);
                 }
-                if (i == entries[FlatItems.IndexOf(DirectoryStack.Peek())].Size-1)
+                if (i == entries[FlatItems.IndexOf(DirectoryStack.Peek())].Size - 1)
                 {
                     DirectoryStack.Pop();
                 }
@@ -229,7 +235,7 @@ namespace Hack.io.U8
                     AddItems(subdirs[i]);
             }
         }
-        
+
         #region Internals
         /// <summary>
         /// Only used when Reading / Writing
@@ -269,7 +275,7 @@ namespace Hack.io.U8
             {
                 if (!(FlatFileList[i] is ArchiveFile file))
                     continue;
-                
+
                 if (Offsets.Any(OFF => OFF.Key.FileData.SequenceEqual(file.FileData)))
                 {
                     Offsets.Add(file, Offsets[Offsets.Keys.First(FILE => FILE.FileData.SequenceEqual(file.FileData))]);

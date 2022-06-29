@@ -10,7 +10,7 @@ Launch `DolphinTextureExtraction tool.exe` and
 Follow the instructions of the application
 
 ### Command-line
-- **Syntax:** `EXTRACT "_Input_" "_Output_" -mip`
+- **Syntax:** `EXTRACT "Input" "Output" -mip`
    > Extracts all textures and their mipmaps textures.
 
 - **Syntax:** `HELP`

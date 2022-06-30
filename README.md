@@ -18,7 +18,7 @@ Follow the instructions of the application
 
 ## Supported formats
 - RARC, U8, CPK Archives
-- YAZ, YAY Compressing
+- YAZ, YAY, CLZ Compressing
 - BTI, TPL, TEX1 Textures
 - BMD, BDL J3D Models
 
@@ -64,3 +64,6 @@ Follow the instructions of the application
 
 - [cpk-tools](https://github.com/ConnorKrammer/cpk-tools)
     - to read CRIWARE's CPK archive format
+	
+- [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
+    - to read CLZ Compressing

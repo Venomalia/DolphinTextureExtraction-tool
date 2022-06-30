@@ -8,6 +8,7 @@ using Hack.io.U8;
 using Hack.io.Util;
 using Hack.io.YAY0;
 using Hack.io.YAZ0;
+using CLZ;
 using LibCPK;
 using System;
 using System.Collections.Generic;
@@ -192,6 +193,9 @@ namespace DolphinTextureExtraction_tool
                                     stream.Close();
                                     Scan(YAY0.DecompressToMemoryStream(file.FullName), subdirectory);
                                     break;
+                                case "CLZ":
+                                    Scan(CLZ0.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);
                                     foreach (var item in bdlmodel.Textures.Textures)
@@ -295,6 +299,9 @@ namespace DolphinTextureExtraction_tool
                                 case "Yay0":
                                 case "YAY0":
                                     Scan(YAY0.Decompress(stream), subdirectory);
+                                    break;
+                                case "CLZ":
+                                    Scan(CLZ0.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);

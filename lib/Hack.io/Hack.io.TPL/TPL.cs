@@ -89,7 +89,7 @@ namespace Hack.io.TPL
                     current.Add(DecodeImage(TPLFile, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, x));
 
                     //Modification: Required to hash!
-                    if (i == 0)
+                    if (x == 0)
                     {
                         long ImageEndAddress = TPLFile.Position - HeaderStart - ImageDataAddress;
                         TPLFile.Position = HeaderStart + ImageDataAddress;

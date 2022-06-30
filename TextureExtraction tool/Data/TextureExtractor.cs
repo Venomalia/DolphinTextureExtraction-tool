@@ -476,7 +476,7 @@ namespace DolphinTextureExtraction_tool
                 //Skip duplicate textures
                 if (result.Hash.Contains(Hash))
                 {
-                    return;
+                    continue;
                 }
                 result.Hash.Add(Hash);
 

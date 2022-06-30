@@ -227,7 +227,7 @@ namespace DolphinTextureExtraction_tool
         static void PrintHeader()
         {
             Console.WriteLine("".PadLeft(64, '-'));
-            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
+            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now.ToString()}");
             Console.WriteLine("Supported formats: arc, szs, szp, cpk, bdl, bmd, tpl, bti");
             Console.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine("INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.");

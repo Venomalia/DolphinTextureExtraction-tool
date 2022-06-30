@@ -55,7 +55,7 @@ namespace DolphinTextureExtraction_tool
         {
             public TimeSpan TotalTime { get; internal set; }
 
-            public double ExtractionRate => Math.Round((double)100 / (ExtractedSize + SkippedSize) * ExtractedSize, 2);
+            public double ExtractionRate => Math.Round((double)100 / (ExtractedSize + SkippedSize) * ExtractedSize);
 
             public int Extracted => Hash.Count();
 

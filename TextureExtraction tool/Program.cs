@@ -36,9 +36,14 @@ namespace DolphinTextureExtraction_tool
                     Console.WriteLine();
                     Console.WriteLine("Output Path:");
                     Console.WriteLine("Specify a directory where the textures should be saved.");
+                    Console.WriteLine($"Or use default \t\"{GetGenOutputPath(InputDirectory)}\"");
                     do
                     {
                         OutputDirectory = Console.ReadLine().Trim('"');
+                        if (OutputDirectory == "")
+                        {
+                            OutputDirectory = GetGenOutputPath(InputDirectory);
+                        }
                         if (!PathIsValid(OutputDirectory))
                         {
                             Console.WriteLine("Path is invalid!");
@@ -146,13 +151,31 @@ namespace DolphinTextureExtraction_tool
                         PrintHelp();
                         break;
                     default:
+                        if (Directory.Exists(args[0]))
+                        {
+                            InputDirectory = args[0];
+                            OutputDirectory = GetGenOutputPath(InputDirectory);
+                            TextureExtractor.StartScan(InputDirectory, OutputDirectory);
+                            return;
+                        }
                         Console.WriteLine("Wrong syntax. use h for help");
                         break;
                 }
             }
         }
 
-
+        private static string GetGenOutputPath(string Input)
+        {
+            DirectoryInfo InputInfo = new DirectoryInfo(Input);
+            string Output = Path.Combine(InputInfo.Parent.FullName, '~' + InputInfo.Name);
+            int i = 2;
+            while (Directory.Exists(Output))
+            {
+                Output = Path.Combine(InputInfo.Parent.FullName, $"~{InputInfo.Name}_{i}");
+                i++;
+            }
+            return Output;
+        }
 
         static bool ConsoleReadBool(bool defaultvalue)
         {

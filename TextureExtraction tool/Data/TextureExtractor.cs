@@ -132,7 +132,7 @@ namespace DolphinTextureExtraction_tool
         private void Scan(FileInfo file)
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open);
-            Filetyp filetype = GetFiletype(stream, file.Extension);
+            FileTypInfo filetype = GetFiletype(stream, file.Extension);
 
             string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanDirectory + Path.DirectorySeparatorChar, ""));
 
@@ -245,7 +245,7 @@ namespace DolphinTextureExtraction_tool
 
         private void Scan(MemoryStream stream, string subdirectory, string Extension = "")
         {
-            Filetyp filetype = GetFiletype(stream, Extension);
+            FileTypInfo filetype = GetFiletype(stream, Extension);
 
             try
             {
@@ -407,7 +407,7 @@ namespace DolphinTextureExtraction_tool
                 {
                     if (entries.FileType == "FILE")
                     {
-                        if (Dictionary.Extension.TryGetValue(Path.GetExtension(entries.FileName.ToString()).ToLower(), out Filetyp filetype))
+                        if (Dictionary.Extension.TryGetValue(Path.GetExtension(entries.FileName.ToString()).ToLower(), out FileTypInfo filetype))
                         {
                             switch (filetype.Typ)
                             {
@@ -560,12 +560,12 @@ namespace DolphinTextureExtraction_tool
             return Path.Combine(Path.GetDirectoryName(directory), Path.GetFileNameWithoutExtension(directory));
         }
 
-        private static Filetyp GetFiletype(Stream stream, string Extension = "")
+        private static FileTypInfo GetFiletype(Stream stream, string Extension = "")
         {
             Header header = new Header(stream);
 
 
-            if (Dictionary.Header.TryGetValue(header.MagicASKI, out Filetyp filetype) || header.MagicASKI.Length > 4 && Dictionary.Header.TryGetValue(header.MagicASKI.Substring(0, 4), out filetype))
+            if (Dictionary.Header.TryGetValue(header.MagicASKI, out FileTypInfo filetype) || header.MagicASKI.Length > 4 && Dictionary.Header.TryGetValue(header.MagicASKI.Substring(0, 4), out filetype))
             {
                 return filetype;
             }
@@ -578,7 +578,7 @@ namespace DolphinTextureExtraction_tool
                 }
             }
 
-            return new Filetyp(Extension, header, FileTyp.Unknown);
+            return new FileTypInfo(Extension, header, FileTyp.Unknown);
         }
         #endregion
 

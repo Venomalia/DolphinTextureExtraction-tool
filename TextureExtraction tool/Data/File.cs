@@ -6,7 +6,7 @@ namespace DolphinTextureExtraction_tool
     { Unknown = -1, Archive, Texture, Audio, Model, Video, Text, Font, Layout, Animation, Executable, Else }
 
 
-    public class Filetyp : IEquatable<string>, IEquatable<Filetyp>
+    public class FileTypInfo : IEquatable<string>, IEquatable<FileTypInfo>
     {
         public readonly string Extension;
 
@@ -16,7 +16,7 @@ namespace DolphinTextureExtraction_tool
 
         public readonly string Description;
 
-        public Filetyp(string extension, FileTyp typ, string description = "")
+        public FileTypInfo(string extension, FileTyp typ, string description = "")
         {
             Extension = extension;
             Header = null;
@@ -24,7 +24,7 @@ namespace DolphinTextureExtraction_tool
             Description = description;
         }
 
-        public Filetyp(string extension, Header header, FileTyp typ, string description = "")
+        public FileTypInfo(string extension, Header header, FileTyp typ, string description = "")
         {
             Extension = extension;
             Header = header;
@@ -57,7 +57,7 @@ namespace DolphinTextureExtraction_tool
             return this.Extension.ToLower() == Extension.ToLower();
         }
 
-        public bool Equals(Filetyp other)
+        public bool Equals(FileTypInfo other)
         {
             return this.Extension.ToLower() == other.Extension.ToLower() || this.Header.Equals(other);
         }

@@ -6,9 +6,8 @@ using Hack.io.RARC;
 using Hack.io.TPL;
 using Hack.io.U8;
 using Hack.io.Util;
-using Hack.io.YAY0;
-using Hack.io.YAZ0;
-using CLZ;
+using AuroraLip.Compression;
+using AuroraLip.Compression.Formats;
 using LibCPK;
 using System;
 using System.Collections.Generic;
@@ -185,16 +184,14 @@ namespace DolphinTextureExtraction_tool
                             switch (filetype.Header.MagicASKI)
                             {
                                 case "Yaz0":
-                                    stream.Close();
-                                    Scan(YAZ0.DecompressToMemoryStream(file.FullName), subdirectory);
+                                    Scan(Compression<YAZ0>.Decompress(stream), subdirectory);
                                     break;
                                 case "Yay0":
                                 case "YAY0":
-                                    stream.Close();
-                                    Scan(YAY0.DecompressToMemoryStream(file.FullName), subdirectory);
+                                    Scan(Compression<YAY0>.Decompress(stream), subdirectory);
                                     break;
                                 case "CLZ":
-                                    Scan(CLZ0.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);
@@ -294,14 +291,14 @@ namespace DolphinTextureExtraction_tool
                             switch (filetype.Header.MagicASKI)
                             {
                                 case "Yaz0":
-                                    Scan(YAZ0.Decompress(stream), subdirectory);
+                                    Scan(Compression<YAZ0>.Decompress(stream), subdirectory);
                                     break;
                                 case "Yay0":
                                 case "YAY0":
-                                    Scan(YAY0.Decompress(stream), subdirectory);
+                                    Scan(Compression<YAY0>.Decompress(stream), subdirectory);
                                     break;
                                 case "CLZ":
-                                    Scan(CLZ0.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);

@@ -1,11 +1,50 @@
-﻿using System.IO;
+﻿using AuroraLip.Common;
+using System;
+using System.IO;
 
-namespace CLZ
+namespace AuroraLip.Compression.Formats
 {
-    public static class CLZ
+    /*
+     * sukharah 
+     * Library for Compressing and Decompressing CLZ files
+     * https://github.com/sukharah/CLZ-Compression
+     */
+    /// <summary>
+    /// CLZ compression algorithm, used in Games from Victor Interactive Software.
+    /// </summary>
+    public class CLZ : ICompression, IMagicNumber
     {
-        //Based on https://github.com/sukharah/CLZ-Compression/blob/master/source/CLZ.cpp
-        internal static void Unpack(Stream infile, Stream outfile)
+
+        public string Magic { get; } = "CLZ";
+
+        public bool CanCompress { get; } = false;
+
+        public bool CanDecompress { get; } = true;
+
+        public byte[] Compress(byte[] Data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public byte[] Decompress(byte[] Data)
+        {
+            using (MemoryStream outfile = new MemoryStream())
+            using (MemoryStream infile = new MemoryStream(Data))
+            {
+                Unpack(infile, outfile);
+                return outfile.ToArray();
+            }
+        }
+
+        public bool IsMatch(byte[] Data)
+        {
+            // CLZ files contain compressed data after a 16 byte header.
+            // CLZ = [67,76,90]
+            return Data.Length > 16 && Data[0] == 67 && Data[1] == 76 && Data[2] == 90;
+        }
+
+        //https://github.com/sukharah/CLZ-Compression/blob/master/source/CLZ.cpp
+        private static void Unpack(Stream infile, Stream outfile)
         {
             const int WINDOW_SIZE = 4096;
 
@@ -14,7 +53,7 @@ namespace CLZ
             int window_ofs = 0;
 
             //CLZ files contain compressed data after a 16 byte header.
-            infile.Seek(16,SeekOrigin.Begin);
+            infile.Seek(16, SeekOrigin.Begin);
             int bits = 0;
             int bit_count = 0;
 
@@ -33,7 +72,7 @@ namespace CLZ
                 {
                     if (!(infile.Position == infile.Length - 1))
                     {
-                        buffer_size = infile.Read(buffer_in,0, BUFFER_SIZE);
+                        buffer_size = infile.Read(buffer_in, 0, BUFFER_SIZE);
                         buffer_ofs = 0;
                         if (buffer_ofs < buffer_size)
                         {
@@ -72,7 +111,7 @@ namespace CLZ
                             {
                                 if (!(infile.Position == infile.Length - 1))
                                 {
-                                    buffer_size = infile.Read(buffer_in,0, BUFFER_SIZE);
+                                    buffer_size = infile.Read(buffer_in, 0, BUFFER_SIZE);
                                     buffer_ofs = 0;
                                     if (buffer_ofs < buffer_size)
                                     {
@@ -103,7 +142,7 @@ namespace CLZ
                                 {
                                     window[i] = window[(window_delta + i) % WINDOW_SIZE];
                                 }
-                                outfile.Write(window,0,WINDOW_SIZE);
+                                outfile.Write(window, 0, WINDOW_SIZE);
                                 window_ofs = window_ofs + length - WINDOW_SIZE;
                                 for (int i = 0; i < window_ofs; ++i)
                                 {
@@ -124,7 +163,7 @@ namespace CLZ
                             window[window_ofs++] = c;
                             if (window_ofs == WINDOW_SIZE)
                             {
-                                outfile.Write(window,0, WINDOW_SIZE);
+                                outfile.Write(window, 0, WINDOW_SIZE);
                                 window_ofs = 0;
                             }
                         }
@@ -135,8 +174,9 @@ namespace CLZ
             }
             if (window_ofs != 0)
             {
-                outfile.Write(window,0,window_ofs);
+                outfile.Write(window, 0, window_ofs);
             }
         }
-	}
+
+    }
 }

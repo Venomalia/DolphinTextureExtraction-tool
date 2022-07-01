@@ -1,76 +1,34 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using Hack.io;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Hack.io.YAY0
+namespace AuroraLip.Compression.Formats
 {
+    /*
+     * Super Hackio Incorporated
+     * IO Library for Compressing and Decompressing YAY0 files
+     * "Copyright © Super Hackio Incorporated 2020-2021"
+     * https://github.com/SuperHackio/Hack.io/blob/master/Hack.io.YAY0/YAY0.cs
+     */
+
     /// <summary>
-    /// Class containing methods to compress and decompress Data into Yay0
+    /// Nintendo YAY0 compression algorithm
     /// </summary>
-    public static class YAY0
+    public class YAY0 : ICompression, IMagicNumber
     {
-        private const string Magic = "Yay0";
-        /// <summary>
-        /// Decompress a File
-        /// </summary>
-        /// <param name="Filename">Full path to the file</param>
-        public static void Decompress(string Filename) => File.WriteAllBytes(Filename, Decomp(File.ReadAllBytes(Filename)));
-        /// <summary>
-        /// Decompress a MemoryStream
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <returns></returns>
-        public static MemoryStream Decompress(MemoryStream Data) => new MemoryStream(Decomp(Data.ToArray()));
-        /// <summary>
-        /// Decompress a byte[]
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <returns></returns>
-        public static byte[] Decompress(byte[] Data) => Decomp(Data);
-        /// <summary>
-        /// Compress a File
-        /// </summary>
-        /// <param name="Filename">File to compress</param>
-        /// <param name="Quick">If true, takes shorter time to compress, but is overall weaker then if disabled (resulting in larger files)</param>
-        public static void Compress(string Filename) => File.WriteAllBytes(Filename, DoCompression(File.ReadAllBytes(Filename)));
-        /// <summary>
-        /// Compress a MemoryStream
-        /// </summary>
-        /// <param name="YAZ0">MemoryStream to compress</param>
-        /// <param name="Quick">The Algorithm to use. True to use YAZ0 Fast</param>
-        public static MemoryStream Compress(MemoryStream YAZ0, bool Quick = false) => new MemoryStream(DoCompression(YAZ0.ToArray()));
-        /// <summary>
-        /// Compress a byte[]
-        /// </summary>
-        /// <param name="Data">The data to compress</param>
-        /// <param name="Quick">The Algorithm to use. True to use YAZ0 Fast</param>
-        /// <returns></returns>
-        public static byte[] Compress(byte[] Data, bool Quick = false) => DoCompression(Data);
-        /// <summary>
-        /// Checks a given file for Yay0 Encoding
-        /// </summary>
-        /// <param name="Filename">File to check</param>
-        /// <returns>true if the file is Yaz0 Encoded</returns>
-        public static bool Check(string Filename)
-        {
-            FileStream YAY0 = new FileStream(Filename, FileMode.Open);
-            bool Check = YAY0.ReadString(4) == Magic;
-            YAY0.Close();
-            return Check;
-        }
-        /// <summary>
-        /// Converts a Yay0 Encoded file to a Yay0 Decoded MemoryStream
-        /// </summary>
-        /// <param name="Filename">The file to decode into a MemoryStream</param>
-        /// <returns>The decoded MemoryStream</returns>
-        public static MemoryStream DecompressToMemoryStream(string Filename) => new MemoryStream(Decomp(File.ReadAllBytes(Filename)));
+
+        public string Magic { get; } = "Yay0";
+
+        public bool CanCompress { get; } = true;
+
+        public bool CanDecompress { get; } = true;
 
         //Based on https://github.com/Daniel-McCarthy/Mr-Peeps-Compressor/blob/master/PeepsCompress/PeepsCompress/Algorithm%20Classes/YAY0.cs
-        public static byte[] DoCompression(byte[] file)
+        public byte[] Compress(byte[] data)
         {
             List<byte> layoutBits = new List<byte>();
             List<byte> dictionary = new List<byte>();
@@ -83,13 +41,13 @@ namespace Hack.io.YAY0
             int minMatchLength = 3;
             int decompressedSize = 0;
 
-            for (int i = 0; i < file.Length; i++)
+            for (int i = 0; i < data.Length; i++)
             {
-                if (dictionary.Contains(file[i]))
+                if (dictionary.Contains(data[i]))
                 {
                     //check for best match
-                    int[] matches = FindAllMatches(ref dictionary, file[i]);
-                    int[] bestMatch = FindLargestMatch(ref dictionary, matches, ref file, i, maxMatchLength);
+                    int[] matches = FindAllMatches(ref dictionary, data[i]);
+                    int[] bestMatch = FindLargestMatch(ref dictionary, matches, ref data, i, maxMatchLength);
 
                     if (bestMatch[1] >= minMatchLength)
                     {
@@ -99,7 +57,7 @@ namespace Hack.io.YAY0
 
                         for (int j = 0; j < bestMatch[1]; j++)
                         {
-                            dictionary.Add(file[i + j]);
+                            dictionary.Add(data[i + j]);
                         }
 
                         i = i + bestMatch[1] - 1;
@@ -111,8 +69,8 @@ namespace Hack.io.YAY0
                     {
                         //add to uncompressed data
                         layoutBits.Add(1);
-                        uncompressedData.Add(file[i]);
-                        dictionary.Add(file[i]);
+                        uncompressedData.Add(data[i]);
+                        dictionary.Add(data[i]);
                         decompressedSize++;
                     }
                 }
@@ -120,8 +78,8 @@ namespace Hack.io.YAY0
                 {
                     //uncompressed data
                     layoutBits.Add(1);
-                    uncompressedData.Add(file[i]);
-                    dictionary.Add(file[i]);
+                    uncompressedData.Add(data[i]);
+                    dictionary.Add(data[i]);
                     decompressedSize++;
                 }
 
@@ -135,6 +93,84 @@ namespace Hack.io.YAY0
             return BuildYAY0CompressedBlock(ref layoutBits, ref uncompressedData, ref compressedData, decompressedSize, 0);
         }
 
+        //Based on https://github.com/LordNed/WArchive-Tools/blob/master/ArchiveToolsLib/Compression/Yay0Decoder.cs
+        public byte[] Decompress(byte[] Data)
+        {
+            MemoryStream YAY0 = new MemoryStream(Data);
+            if (YAY0.ReadString(4) != Magic)
+                throw new Exception($"{typeof(YAY0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
+
+            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0);
+
+            int maskBitCounter = 0, currentOffsetInDestBuffer = 0, currentMask = 0;
+
+            byte[] uncompressedData = new byte[uncompressedSize];
+
+            while (currentOffsetInDestBuffer < uncompressedSize)
+            {
+                // If we're out of bits, get the next mask.
+                if (maskBitCounter == 0)
+                {
+                    currentMask = BitConverter.ToInt32(YAY0.ReadReverse(0, 4), 0);
+                    maskBitCounter = 32;
+                }
+
+                // If the next bit is set, the chunk is non-linked and just copy it from the non-link table.
+                // Do a copy otherwise.
+                if (((uint)currentMask & (uint)0x80000000) == 0x80000000)
+                {
+                    long pauseposition = YAY0.Position;
+                    YAY0.Position = byteChunkAndCountModifiersOffset++;
+                    uncompressedData[currentOffsetInDestBuffer++] = (byte)YAY0.ReadByte();
+                    YAY0.Position = pauseposition;
+                }
+                else
+                {
+                    // Read 16-bit from the link table
+                    long pauseposition = YAY0.Position;
+                    YAY0.Position = linkTableOffset;
+                    ushort link = BitConverter.ToUInt16(YAY0.ReadReverse(0, 2), 0);
+                    linkTableOffset += 2;
+                    YAY0.Position = pauseposition;
+
+                    // Calculate the offset
+                    int offset = currentOffsetInDestBuffer - (link & 0xfff);
+
+                    // Calculate the count
+                    int count = link >> 12;
+
+                    if (count == 0)
+                    {
+                        pauseposition = YAY0.Position;
+                        YAY0.Position = byteChunkAndCountModifiersOffset++;
+                        byte countModifier = (byte)YAY0.ReadByte();
+                        YAY0.Position = pauseposition;
+                        count = countModifier + 18;
+                    }
+                    else
+                        count += 2;
+
+                    // Copy the block
+                    int blockCopy = offset;
+
+                    for (int i = 0; i < count; i++)
+                        uncompressedData[currentOffsetInDestBuffer++] = uncompressedData[blockCopy++ - 1];
+                }
+
+                // Get the next bit in the mask.
+                currentMask <<= 1;
+                maskBitCounter--;
+            }
+
+            return uncompressedData;
+        }
+
+        public bool IsMatch(byte[] Data)
+        {
+            return Data.Length > 4 && Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48 || Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48;
+        }
+
+        #region Helper
         private static int[] FindAllMatches(ref List<byte> dictionary, byte match)
         {
             List<int> matchPositons = new List<int>();
@@ -195,7 +231,7 @@ namespace Hack.io.YAY0
 
             //add Yay0 magic number
             finalYAY0Block.AddRange(Encoding.ASCII.GetBytes("Yay0"));
-            
+
             byte[] decompressedSizeArray = new byte[4];
             decompressedSizeArray[0] = (byte)((decompressedSize >> 24) & 0xFF);
             decompressedSizeArray[1] = (byte)((decompressedSize >> 16) & 0xFF);
@@ -310,77 +346,6 @@ namespace Hack.io.YAY0
 
             return finalYAY0Block.ToArray();
         }
-
-        //Based on https://github.com/LordNed/WArchive-Tools/blob/master/ArchiveToolsLib/Compression/Yay0Decoder.cs
-        private static byte[] Decomp(byte[] Data)
-        {
-            MemoryStream YAY0 = new MemoryStream(Data);
-            if (YAY0.ReadString(4) != Magic)
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-
-            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0);
-
-            int maskBitCounter = 0, currentOffsetInDestBuffer = 0, currentMask = 0;
-
-            byte[] uncompressedData = new byte[uncompressedSize];
-
-            while (currentOffsetInDestBuffer < uncompressedSize)
-            {
-                // If we're out of bits, get the next mask.
-                if (maskBitCounter == 0)
-                {
-                    currentMask = BitConverter.ToInt32(YAY0.ReadReverse(0, 4), 0);
-                    maskBitCounter = 32;
-                }
-
-                // If the next bit is set, the chunk is non-linked and just copy it from the non-link table.
-                // Do a copy otherwise.
-                if (((uint)currentMask & (uint)0x80000000) == 0x80000000)
-                {
-                    long pauseposition = YAY0.Position;
-                    YAY0.Position = byteChunkAndCountModifiersOffset++;
-                    uncompressedData[currentOffsetInDestBuffer++] = (byte)YAY0.ReadByte();
-                    YAY0.Position = pauseposition;
-                }
-                else
-                {
-                    // Read 16-bit from the link table
-                    long pauseposition = YAY0.Position;
-                    YAY0.Position = linkTableOffset;
-                    ushort link = BitConverter.ToUInt16(YAY0.ReadReverse(0, 2), 0);
-                    linkTableOffset += 2;
-                    YAY0.Position = pauseposition;
-
-                    // Calculate the offset
-                    int offset = currentOffsetInDestBuffer - (link & 0xfff);
-
-                    // Calculate the count
-                    int count = link >> 12;
-
-                    if (count == 0)
-                    {
-                        pauseposition = YAY0.Position;
-                        YAY0.Position = byteChunkAndCountModifiersOffset++;
-                        byte countModifier = (byte)YAY0.ReadByte();
-                        YAY0.Position = pauseposition;
-                        count = countModifier + 18;
-                    }
-                    else
-                        count += 2;
-
-                    // Copy the block
-                    int blockCopy = offset;
-
-                    for (int i = 0; i < count; i++)
-                        uncompressedData[currentOffsetInDestBuffer++] = uncompressedData[blockCopy++ - 1];
-                }
-
-                // Get the next bit in the mask.
-                currentMask <<= 1;
-                maskBitCounter--;
-            }
-
-            return uncompressedData;
-        }
+        #endregion
     }
 }

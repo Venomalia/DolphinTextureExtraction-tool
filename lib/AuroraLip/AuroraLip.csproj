@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BDDA5ADE-2D88-483D-854C-D295ED9F8089}</ProjectGuid>
+    <ProjectGuid>{CE629181-0090-46D0-81BC-16682E497573}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hack.io.YAZ0</RootNamespace>
-    <AssemblyName>Hack.io.YAZ0</AssemblyName>
+    <RootNamespace>AuroraLip</RootNamespace>
+    <AssemblyName>AuroraLip</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -22,8 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Debug\Hack.io.YAZ0.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,8 +30,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\Release\Hack.io.YAZ0.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -46,11 +42,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="YAZ0.cs" />
+    <Compile Include="Common\Extensions\StreamExtension.cs" />
+    <Compile Include="Common\Interfaces\IMagicNumber.cs" />
+    <Compile Include="Compression\Compression.cs" />
+    <Compile Include="Compression\Formats\CLZ.cs" />
+    <Compile Include="Compression\Formats\YAY0.cs" />
+    <Compile Include="Compression\Formats\YAZ0.cs" />
+    <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hack.io\Hack.io.csproj">
+    <ProjectReference Include="..\Hack.io\Hack.io\Hack.io.csproj">
       <Project>{389f751d-db2a-4746-b3bc-88e106c361ce}</Project>
       <Name>Hack.io</Name>
     </ProjectReference>

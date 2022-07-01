@@ -233,9 +233,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\lib\CLZ0\CLZ0.csproj">
-      <Project>{beb4ff5d-b4cc-480f-87a3-5b32938fe1b3}</Project>
-      <Name>CLZ0</Name>
+    <ProjectReference Include="..\lib\AuroraLip\AuroraLip.csproj">
+      <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
+      <Name>AuroraLip</Name>
     </ProjectReference>
     <ProjectReference Include="..\lib\LibCPK\LibCPK.csproj">
       <Project>{ba3a00e4-4f51-4ab4-a8fb-f4b64a874449}</Project>
@@ -270,16 +270,6 @@
     <ProjectReference Include="..\lib\Hack.io\Hack.io.U8\Hack.io.U8.csproj">
       <Project>{a611837c-0849-4133-ac82-04cea27f81e4}</Project>
       <Name>Hack.io.U8</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.YAY0\Hack.io.YAY0.csproj">
-      <Project>{2576022c-4a09-4a25-afb8-9f7df919e02c}</Project>
-      <Name>Hack.io.YAY0</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.YAZ0\Hack.io.YAZ0.csproj">
-      <Project>{bdda5ade-2d88-483d-854c-d295ed9f8089}</Project>
-      <Name>Hack.io.YAZ0</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
     <ProjectReference Include="..\lib\Hack.io\Hack.io\Hack.io.csproj">

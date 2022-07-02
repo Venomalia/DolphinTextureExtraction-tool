@@ -2,6 +2,10 @@
 
 namespace AuroraLip.Compression.Formats
 {
+
+    /// <summary>
+    /// Lempel–Ziv–Markov chain open-source compression algorithm, This algorithm uses a dictionary compression similar to the LZ77 algorithm
+    /// </summary>
     public class LZMA : ICompression
     {
         public bool CanCompress { get; } = false;

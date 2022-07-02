@@ -2,11 +2,10 @@
 
 namespace AuroraLip.Compression.Formats
 {
-
     /// <summary>
-    /// gzip open-source compression algorithm.
+    /// Nintendo LZ10 compression algorithm
     /// </summary>
-    public class GZip : ICompression
+    public class LZ10 : ICompression
     {
         public bool CanCompress { get; } = false;
 
@@ -24,7 +23,7 @@ namespace AuroraLip.Compression.Formats
 
         public bool IsMatch(byte[] Data)
         {
-            return Data.Length > 9 && Data[0] == 31 && Data[1] == 139 && Data[2] <= 8;
+            return Data.Length > 2 && Data[0] == 31 && Data[1] == 139;
         }
     }
 }

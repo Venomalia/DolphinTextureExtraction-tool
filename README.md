@@ -65,5 +65,8 @@ Follow the instructions of the application
 - [cpk-tools](https://github.com/ConnorKrammer/cpk-tools)
     - to read CRIWARE's CPK archive format
 	
+- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox)
+    - to read LZ11 Compressing
+
 - [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
     - to read CLZ Compressing

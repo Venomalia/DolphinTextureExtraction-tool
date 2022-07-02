@@ -3,6 +3,7 @@ using System;
 
 namespace AuroraLip.Compression.Formats
 {
+
     /// <summary>
     /// bzip2 open-source compression algorithm, uses the Burrows–Wheeler algorithm.
     /// </summary>

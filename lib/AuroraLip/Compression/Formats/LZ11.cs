@@ -14,11 +14,11 @@ namespace AuroraLip.Compression.Formats
     /// </summary>
     public class LZ11 : ICompression
     {
-        public bool CanCompress { get; } = false;
+        public bool CanCompress { get; } = true;
 
-        public bool CanDecompress { get; } = false;
+        public bool CanDecompress { get; } = true;
 
-        public byte[] Compress(byte[] Data)
+        public byte[] Compress(in byte[] Data)
         {
             int length = (int)Data.Length;
             MemoryStream memoryStream = new MemoryStream(Data);
@@ -98,7 +98,7 @@ namespace AuroraLip.Compression.Formats
             return memoryStream1.ToArray();
         }
 
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             int num, num1;
             uint data = (uint)(Data[1] | Data[2] << 8 | Data[3] << 16);
@@ -173,7 +173,7 @@ namespace AuroraLip.Compression.Formats
             }
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             return Data.Length > 4 && Data[0] == 17;
         }

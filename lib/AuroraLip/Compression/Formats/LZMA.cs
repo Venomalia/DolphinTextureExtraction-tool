@@ -12,17 +12,17 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanDecompress { get; } = false;
 
-        public byte[] Compress(byte[] Data)
+        public byte[] Compress(in byte[] Data)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             throw new NotImplementedException();
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             return Data.Length > 8 && Data[0] == 93;
         }

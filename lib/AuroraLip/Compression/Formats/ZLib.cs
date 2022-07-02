@@ -8,17 +8,17 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanDecompress { get; } = false;
 
-        public byte[] Compress(byte[] Data)
+        public byte[] Compress(in byte[] Data)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             throw new NotImplementedException();
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             byte num = (byte)(Data[0] & 15);
             float single = Data[0] << 8 | Data[1];

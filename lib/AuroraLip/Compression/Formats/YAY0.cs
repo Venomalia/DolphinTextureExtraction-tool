@@ -28,7 +28,7 @@ namespace AuroraLip.Compression.Formats
         public bool CanDecompress { get; } = true;
 
         //Based on https://github.com/Daniel-McCarthy/Mr-Peeps-Compressor/blob/master/PeepsCompress/PeepsCompress/Algorithm%20Classes/YAY0.cs
-        public byte[] Compress(byte[] data)
+        public byte[] Compress(in byte[] data)
         {
             List<byte> layoutBits = new List<byte>();
             List<byte> dictionary = new List<byte>();
@@ -47,7 +47,7 @@ namespace AuroraLip.Compression.Formats
                 {
                     //check for best match
                     int[] matches = FindAllMatches(ref dictionary, data[i]);
-                    int[] bestMatch = FindLargestMatch(ref dictionary, matches, ref data, i, maxMatchLength);
+                    int[] bestMatch = FindLargestMatch(ref dictionary, matches,in data, i, maxMatchLength);
 
                     if (bestMatch[1] >= minMatchLength)
                     {
@@ -94,7 +94,7 @@ namespace AuroraLip.Compression.Formats
         }
 
         //Based on https://github.com/LordNed/WArchive-Tools/blob/master/ArchiveToolsLib/Compression/Yay0Decoder.cs
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             MemoryStream YAY0 = new MemoryStream(Data);
             if (YAY0.ReadString(4) != Magic)
@@ -165,7 +165,7 @@ namespace AuroraLip.Compression.Formats
             return uncompressedData;
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             return Data.Length > 4 && Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48 || Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48;
         }
@@ -182,7 +182,7 @@ namespace AuroraLip.Compression.Formats
             return matchPositons.ToArray();
         }
 
-        private static int[] FindLargestMatch(ref List<byte> dictionary, int[] matchesFound, ref byte[] file, int fileIndex, int maxMatch)
+        private static int[] FindLargestMatch(ref List<byte> dictionary, int[] matchesFound, in byte[] file, int fileIndex, int maxMatch)
         {
             int[] matchSizes = new int[matchesFound.Length];
 

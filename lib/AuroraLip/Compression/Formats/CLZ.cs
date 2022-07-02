@@ -21,12 +21,12 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanDecompress { get; } = true;
 
-        public byte[] Compress(byte[] Data)
+        public byte[] Compress(in byte[] Data)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             using (MemoryStream outfile = new MemoryStream())
             using (MemoryStream infile = new MemoryStream(Data))
@@ -36,7 +36,7 @@ namespace AuroraLip.Compression.Formats
             }
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             // CLZ files contain compressed data after a 16 byte header.
             // CLZ = [67,76,90]

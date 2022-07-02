@@ -30,7 +30,7 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanDecompress { get; } = true;
 
-        public byte[] Compress(byte[] data)
+        public byte[] Compress(in byte[] data)
         {
             ByteCountA = 0;
             MatchPos = 0;
@@ -127,7 +127,7 @@ namespace AuroraLip.Compression.Formats
             return OutputFile.ToArray();
         }
 
-        public byte[] Decompress(byte[] Data)
+        public byte[] Decompress(in byte[] Data)
         {
             MemoryStream YAZ0 = new MemoryStream(Data);
             if (YAZ0.ReadString(4) != Magic)
@@ -159,7 +159,7 @@ namespace AuroraLip.Compression.Formats
             return Decoding.ToArray();
         }
 
-        public bool IsMatch(byte[] Data)
+        public bool IsMatch(in byte[] Data)
         {
             return Data.Length > 16 && Data[0] == 89 && Data[1] == 87 && Data[2] == 122 && Data[2] == 48;
         }

@@ -24,21 +24,21 @@ namespace AuroraLip.Compression
         /// Decompress a File
         /// </summary>
         /// <param name="filename">Full path to the file</param>
-        public static void Decompress(string filename) => Decompress(filename, filename);
+        public static void Decompress(in string filename) => Decompress(filename, filename);
 
         /// <summary>
         /// Decompress a file and save it to a new file
         /// </summary>
         /// <param name="InFilename">Full path to the file</param>
         /// <param name="OutFilename">Full path to the new file</param>
-        public static void Decompress(string InFilename, string OutFilename) => File.WriteAllBytes(OutFilename, new T().Decompress(File.ReadAllBytes(InFilename)));
+        public static void Decompress(in string InFilename, in string OutFilename) => File.WriteAllBytes(OutFilename, new T().Decompress(File.ReadAllBytes(InFilename)));
 
         /// <summary>
         /// Decompress a byte[]
         /// </summary>
         /// <param name="Data">Compressed data</param>
         /// <returns>Decompressed data</returns>
-        public static byte[] Decompress(byte[] Data) => new T().Decompress(Data);
+        public static byte[] Decompress(in byte[] Data) => new T().Decompress(in Data);
 
         /// <summary>
         /// Decompress a MemoryStream
@@ -61,21 +61,21 @@ namespace AuroraLip.Compression
         /// Compress a File
         /// </summary>
         /// <param name="filename">Full path to the file</param>
-        public static void Compress(string Filename) => Compress(Filename, Filename);
+        public static void Compress(in string Filename) => Compress(Filename, Filename);
 
         /// <summary>
         /// Compress a file and save it to a new file
         /// </summary>
         /// <param name="InFilename">Full path to the file</param>
         /// <param name="OutFilename">Full path to the new file</param>
-        public static void Compress(string InFilename, string OutFilename) => File.WriteAllBytes(OutFilename, new T().Compress(File.ReadAllBytes(InFilename)));
+        public static void Compress(in string InFilename, in string OutFilename) => File.WriteAllBytes(OutFilename, new T().Compress(File.ReadAllBytes(InFilename)));
 
         /// <summary>
         /// Compress a byte[]
         /// </summary>
         /// <param name="Data">Decompressed data</param>
         /// <returns>Compressed data</returns>
-        public static byte[] Compress(byte[] Data) => new T().Compress(Data);
+        public static byte[] Compress(in byte[] Data) => new T().Compress(in Data);
 
         /// <summary>
         /// Compress a MemoryStream
@@ -90,6 +90,7 @@ namespace AuroraLip.Compression
         /// </summary>
         /// <param name="Data"></param>
         /// <returns>"True" if it corresponds to the compression method.</returns>
-        public static bool IsMatch(byte[] Data) => new T().IsMatch(Data);
+        public static bool IsMatch(in byte[] Data) => new T().IsMatch(in Data);
+
     }
 }

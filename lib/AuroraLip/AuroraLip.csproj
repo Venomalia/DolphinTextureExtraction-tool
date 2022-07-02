@@ -45,9 +45,15 @@
     <Compile Include="Common\Extensions\StreamExtension.cs" />
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Compression\Compression.cs" />
+    <Compile Include="Compression\Enums\CompressionLevel.cs" />
+    <Compile Include="Compression\Formats\ZLib.cs" />
+    <Compile Include="Compression\Formats\LZMA.cs" />
+    <Compile Include="Compression\Formats\GZip.cs" />
+    <Compile Include="Compression\Formats\BZip2.cs" />
     <Compile Include="Compression\Formats\CLZ.cs" />
     <Compile Include="Compression\Formats\YAY0.cs" />
     <Compile Include="Compression\Formats\YAZ0.cs" />
+    <Compile Include="Compression\Interfaces\ICompressionLevel.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

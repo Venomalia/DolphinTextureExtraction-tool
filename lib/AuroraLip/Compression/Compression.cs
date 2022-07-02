@@ -60,8 +60,6 @@ namespace AuroraLip.Compression
                 return new MemoryStream(new T().Decompress(ms.ToArray()));
             }
         }
-
-
         #endregion
 
         #region Compress

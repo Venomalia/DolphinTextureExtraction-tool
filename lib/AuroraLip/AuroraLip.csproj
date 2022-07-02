@@ -45,6 +45,7 @@
     <Compile Include="Common\Extensions\StreamExtension.cs" />
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Compression\Compression%28T%29.cs" />
+    <Compile Include="Compression\Compression.cs" />
     <Compile Include="Compression\Enums\CompressionLevel.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
     <Compile Include="Compression\Formats\LZSS.cs" />

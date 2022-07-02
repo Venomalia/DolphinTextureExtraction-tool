@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using AuroraLip.Common;
+using System.IO;
 
 namespace AuroraLip.Compression
 {
@@ -52,14 +53,7 @@ namespace AuroraLip.Compression
         /// </summary>
         /// <param name="stream">Compressed MemoryStream</param>
         /// <returns>Decompressed MemoryStream</returns>
-        public static MemoryStream Decompress(Stream stream)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                stream.CopyTo(ms);
-                return new MemoryStream(new T().Decompress(ms.ToArray()));
-            }
-        }
+        public static MemoryStream Decompress(Stream stream) => new MemoryStream(new T().Decompress(stream.ToArray()));
         #endregion
 
         #region Compress

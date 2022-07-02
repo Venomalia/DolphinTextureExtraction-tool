@@ -1,5 +1,7 @@
-﻿using System;
+﻿using AuroraLip.Compression;
+using System;
 using System.IO;
+using System.Linq;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -228,7 +230,7 @@ namespace DolphinTextureExtraction_tool
         {
             Console.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now.ToString()}");
-            Console.WriteLine("Supported formats: arc, szs, szp, cpk, bdl, bmd, tpl, bti");
+            Console.WriteLine($"Supported formats: arc, szs, szp, cpk, bdl, bmd, tpl, bti, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
             Console.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine("INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");

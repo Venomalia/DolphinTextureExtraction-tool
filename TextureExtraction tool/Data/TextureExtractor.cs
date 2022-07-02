@@ -1,4 +1,7 @@
-﻿using Hack.io;
+﻿using AuroraLip.Common;
+using AuroraLip.Compression;
+using AuroraLip.Compression.Formats;
+using Hack.io;
 using Hack.io.BMD;
 using Hack.io.BTI;
 using Hack.io.J3D;
@@ -6,8 +9,6 @@ using Hack.io.RARC;
 using Hack.io.TPL;
 using Hack.io.U8;
 using Hack.io.Util;
-using AuroraLip.Compression;
-using AuroraLip.Compression.Formats;
 using LibCPK;
 using System;
 using System.Collections.Generic;
@@ -171,6 +172,26 @@ namespace DolphinTextureExtraction_tool
                                 case "bti":
                                     Save(new BTI(stream), subdirectory);
                                     result.ExtractedSize += stream.Length;
+                                    break;
+                                case "lz":
+
+                                    byte[] bytes = stream.ToArray();
+                                    if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                                    {
+                                        Scan(new MemoryStream(test), subdirectory);
+                                        break;
+                                    }
+
+                                    if (Compression.TryToFindMatch(in bytes, out algorithm))
+                                    {
+                                        Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        result.Unsupported++;
+                                        result.SkippedSize += file.Length;
+                                    }
+                                    else
+                                    {
+                                        goto default;
+                                    }
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
@@ -477,7 +498,7 @@ namespace DolphinTextureExtraction_tool
                 }
                 result.Hash.Add(Hash);
 
-                Log.Write(FileAction.Extract, subdirectory, $"Hash:{Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "") }");
+                Log.Write(FileAction.Extract, subdirectory, $"Hash:{Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "")}");
 
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)

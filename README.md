@@ -18,7 +18,7 @@ Follow the instructions of the application
 
 ## Supported formats
 - RARC, U8, CPK Archives
-- YAZ, YAY, CLZ Compressing
+- YAZ, YAY, CLZ, LZ11 Compressing
 - BTI, TPL, TEX1 Textures
 - BMD, BDL J3D Models
 
@@ -32,6 +32,8 @@ Follow the instructions of the application
 - Mario Kart Double Dash!
 - Paper Mario: The Thousand-Year Door
 - Super Mario Sunshine
+- Harvest Moon A Wonderful Life
+- Doshin the Giant
 
 ### Well supported games
 - LUIGI'S MANSION

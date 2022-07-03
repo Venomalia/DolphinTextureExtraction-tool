@@ -46,6 +46,8 @@ namespace DolphinTextureExtraction_tool
 
             //Not supported
             //Archives
+            new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
+            new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("LZ", FileTyp.Archive, "LZ compressed"),
             new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             new FileTypInfo("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
@@ -74,8 +76,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
-            new FileTypInfo("PNG", new Header(new byte[]{137,80,78,71,13}), FileTyp.Texture ),
-            new FileTypInfo("Jpg", new Header(new byte[]{255,216,255,22}), FileTyp.Texture ),
+            new FileTypInfo("PNG", new Header(new byte[]{137,80,78,71,13}), FileTyp.Texture, "Portable Network Graphics"),
+            new FileTypInfo("Jpg", new Header(new byte[]{255,216,255,224}), FileTyp.Texture, "JPEG"),
             new FileTypInfo("bmp", FileTyp.Texture, "bitmap"),
             new FileTypInfo(".bmp", new Header("BM8"), FileTyp.Texture),
             new FileTypInfo(".bmp", new Header("BMö"), FileTyp.Texture),
@@ -136,6 +138,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("ini", FileTyp.Text, "Configuration"),
             new FileTypInfo("msbt",new Header("MsgStdBn"), FileTyp.Text, "LMS data"),
             new FileTypInfo("msbf",new Header("MsgFlwBn"), FileTyp.Text, "LMS flow data"),
+            new FileTypInfo("msbp",new Header("MsgPrjBn"), FileTyp.Text, "LMS Prj data"),
             new FileTypInfo("bmg",new Header("MESGbmg1"), FileTyp.Text, "Binary message container"),
             new FileTypInfo("asrBE",new Header("Asura   TXTH"), FileTyp.Text, "Rebellion"),
             //Font
@@ -180,6 +183,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("pac", FileTyp.Else, "Banner"),
             //else
             new FileTypInfo("jpc",new Header("JPAC2-10"), FileTyp.Else , "JParticle container"),
+            new FileTypInfo("jpc",new Header("JPAC2-11"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpa",new Header("JEFFjpa1"), FileTyp.Else , "JParticle"),
             new FileTypInfo("blight",new Header("LGHT"), FileTyp.Else, "Light"),
             new FileTypInfo("bfog",new Header("FOGM"), FileTyp.Else, "Fog"),

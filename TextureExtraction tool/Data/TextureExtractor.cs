@@ -582,8 +582,13 @@ namespace DolphinTextureExtraction_tool
         {
             Header header = new Header(stream);
 
+            FileTypInfo filetype = Dictionary.Master.FirstOrDefault(x => x.Header?.Equals(header) == true);
+            if (filetype != null)
+            {
+                return filetype;
+            }
 
-            if (Dictionary.Header.TryGetValue(header.MagicASKI, out FileTypInfo filetype) || header.MagicASKI.Length > 4 && Dictionary.Header.TryGetValue(header.MagicASKI.Substring(0, 4), out filetype))
+            if (Dictionary.Header.TryGetValue(header.Magic, out filetype) || Dictionary.Header.TryGetValue(header.MagicASKI, out filetype) || header.MagicASKI.Length > 4 && Dictionary.Header.TryGetValue(header.MagicASKI.Substring(0, 4), out filetype))
             {
                 return filetype;
             }

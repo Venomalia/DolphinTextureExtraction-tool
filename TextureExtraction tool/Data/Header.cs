@@ -1,11 +1,12 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
 namespace DolphinTextureExtraction_tool
 {
-    public class Header : IEquatable<string>, IEquatable<Header>
+    public class Header : IEquatable<string>, IEquatable<Header>, IMagicNumber
     {
         public byte[] Bytes { get; }
 
@@ -100,7 +101,7 @@ namespace DolphinTextureExtraction_tool
 
         public bool Equals(Header other)
         {
-            return Bytes == other.Bytes;
+            return (Magic.Length > 2 && Magic == other.Magic) || MagicASKI.Length > 4 && MagicASKI == other.MagicASKI;
         }
     }
 }

@@ -59,7 +59,7 @@ namespace DolphinTextureExtraction_tool
 
         public bool Equals(FileTypInfo other)
         {
-            return this.Extension.ToLower() == other.Extension.ToLower() || this.Header.Equals(other);
+            return (this.Header != null && this.Header.Equals(other)) || this.Extension.ToLower() == other.Extension.ToLower();
         }
     }
 }

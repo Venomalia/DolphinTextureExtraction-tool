@@ -30,6 +30,7 @@ namespace DolphinTextureExtraction_tool
         /// </summary>
         public static readonly FileTypInfo[] Master =
         {
+            //new FileTypInfo("arc", FileTyp.Archive, "+ dir Bundle"),// https://pikmintkb.com/wiki/Paired_ARC%2BDIR_file
             new FileTypInfo("arc",new Header("RARC"), FileTyp.Archive),
             new FileTypInfo("arc",new Header(new byte[]{85,170,56,45}), FileTyp.Archive),
             new FileTypInfo("szs",new Header("Yaz0"), FileTyp.Archive, "compressed"),
@@ -39,6 +40,7 @@ namespace DolphinTextureExtraction_tool
 
             new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "model"),
+            new FileTypInfo("LZ", FileTyp.Archive, "LZ compressed"),
             //Textures
             new FileTypInfo("bti", FileTyp.Texture, "Image"),
             new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
@@ -49,7 +51,8 @@ namespace DolphinTextureExtraction_tool
             //Archives
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
-            new FileTypInfo("LZ", FileTyp.Archive, "LZ compressed"),
+            new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
+            new FileTypInfo("pk", FileTyp.Archive, "Archive"),
             new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             new FileTypInfo("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
             new FileTypInfo("dat",new Header("FREB"), FileTyp.Archive, "Rune Factory"),
@@ -74,6 +77,7 @@ namespace DolphinTextureExtraction_tool
             //Textures
             //new File("brtex","bres", FileTyp.Texture, "Wii"),
             new FileTypInfo("nut", new Header(new byte[]{78,85,84,67,128,2}), FileTyp.Texture ),
+            new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"), //https://pikmintkb.com/wiki/TXE_file
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
@@ -138,6 +142,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("csv", FileTyp.Text),
             new FileTypInfo("inf", FileTyp.Text, "info"),
             new FileTypInfo("ini", FileTyp.Text, "Configuration"),
+            new FileTypInfo("bmc",new Header("MGCLbmc1"), FileTyp.Text, "message data"),
             new FileTypInfo("msbt",new Header("MsgStdBn"), FileTyp.Text, "LMS data"),
             new FileTypInfo("msbf",new Header("MsgFlwBn"), FileTyp.Text, "LMS flow data"),
             new FileTypInfo("msbp",new Header("MsgPrjBn"), FileTyp.Text, "LMS Prj data"),
@@ -184,6 +189,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bnr",new Header(new byte[]{73,77,69,84},64), FileTyp.Else, "Banner"),
             new FileTypInfo("pac", FileTyp.Else, "Banner"),
             //else
+            new FileTypInfo("jpc",new Header("JPAC1-00"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpc",new Header("JPAC2-10"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpc",new Header("JPAC2-11"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpa",new Header("JEFFjpa1"), FileTyp.Else , "JParticle"),

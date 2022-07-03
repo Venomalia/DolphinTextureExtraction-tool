@@ -165,10 +165,6 @@ namespace DolphinTextureExtraction_tool
                         {
                             switch (filetype.Extension.ToLower())
                             {
-                                case "tpl":
-                                    Save(new TPL(stream), subdirectory);
-                                    result.ExtractedSize += stream.Length;
-                                    break;
                                 case "bti":
                                     Save(new BTI(stream), subdirectory);
                                     result.ExtractedSize += stream.Length;
@@ -213,6 +209,10 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 case "CLZ":
                                     Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    break;
+                                case " 0": //TPL
+                                    Save(new TPL(stream), subdirectory);
+                                    result.ExtractedSize += stream.Length;
                                     break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);
@@ -292,10 +292,6 @@ namespace DolphinTextureExtraction_tool
                         {
                             switch (filetype.Extension.ToLower())
                             {
-                                case "tpl":
-                                    Save(new TPL(stream), subdirectory);
-                                    result.ExtractedSize += stream.Length;
-                                    break;
                                 case "bti":
                                     Save(new BTI(stream), subdirectory);
                                     result.ExtractedSize += stream.Length;
@@ -320,6 +316,10 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 case "CLZ":
                                     Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    break;
+                                case " 0": //TPL
+                                    Save(new TPL(stream), subdirectory);
+                                    result.ExtractedSize += stream.Length;
                                     break;
                                 case "J3D2bdl4":
                                     BDL bdlmodel = new BDL(stream);

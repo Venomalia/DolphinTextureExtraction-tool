@@ -42,7 +42,7 @@ namespace DolphinTextureExtraction_tool
             //Textures
             new FileTypInfo("bti", FileTyp.Texture, "Image"),
             new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
-            new FileTypInfo(".TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture),
+            new FileTypInfo("TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture, "Palette Library"),
 
             //Not supported
             //Archives

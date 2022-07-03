@@ -149,15 +149,50 @@ namespace DolphinTextureExtraction_tool
                             if (TryBTI(stream, subdirectory)) break;
                         }
 
-                        Log.Write(FileAction.Unknown, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb",
-                            filetype.Header.Magic.Length > 3 ?
-                            $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
-                            $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");
-                        result.Unknown++;
-                        //Exclude files that are too small, for calculation purposes only half the size
-                        if (file.Length > 130) result.SkippedSize += file.Length / 2;
-                        if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension,FileTyp.Unknown);
-                        if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
+                        AddResultUnknown(stream, filetype, subdirectory + file.Extension);
+                        //Exclude files that are too small, for calculation purposes only half the size.
+                        if (stream.Length > 130) result.SkippedSize += stream.Length / 2;
+                        break;
+                    case FileTyp.Archive:
+                    case FileTyp.Texture:
+                        switch (filetype.Extension.ToLower())
+                        {
+                            case "cpk":
+                                stream.Close();
+                                scanCPK(file.FullName, subdirectory);
+                                break;
+                            default:
+                                Scan(stream, subdirectory, file.Extension);
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception t)
+            {
+                Log.WriteEX(t, subdirectory + file.Extension);
+                result.Unsupported++;
+                result.SkippedSize += file.Length;
+            }
+            stream.Close();
+        }
+
+        private void Scan(Stream stream, string subdirectory, string Extension = "")
+        {
+            FileTypInfo filetype = GetFiletype(stream, Extension);
+
+            try
+            {
+                switch (filetype.Typ)
+                {
+                    case FileTyp.Unknown:
+                        if (options.Force)
+                        {
+                            if (TryBTI(stream, subdirectory)) break;
+                        }
+                        AddResultUnknown(stream, filetype, subdirectory + Extension);
                         break;
                     case FileTyp.Texture:
                         if (options.Raw)
@@ -185,127 +220,15 @@ namespace DolphinTextureExtraction_tool
 
                                     if (Compression.TryToFindMatch(in bytes, out algorithm))
                                     {
-                                        Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
-                                        result.SkippedSize += file.Length;
+                                        result.SkippedSize += stream.Length;
                                     }
                                     else
                                     {
                                         goto default;
                                     }
-                                    break;
-                                default:
-                                    Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
-                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
-                                    result.Unsupported++;
-                                    result.SkippedSize += file.Length;
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            switch (filetype.Header.MagicASKI)
-                            {
-                                case "Yaz0":
-                                    Scan(Compression<YAZ0>.Decompress(stream), subdirectory);
-                                    break;
-                                case "Yay0":
-                                case "YAY0":
-                                    Scan(Compression<YAY0>.Decompress(stream), subdirectory);
-                                    break;
-                                case "CLZ":
-                                    Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
-                                    break;
-                                case " 0": //TPL
-                                    Save(new TPL(stream), subdirectory);
-                                    result.ExtractedSize += stream.Length;
-                                    break;
-                                case "J3D2bdl4":
-                                    BDL bdlmodel = new BDL(stream);
-                                    foreach (var item in bdlmodel.Textures.Textures)
-                                    {
-                                        Save(item, subdirectory);
-                                    }
-                                    result.ExtractedSize += stream.Length;
-                                    break;
-                                case "J3D2bmd3":
-                                    BMD bmdmodel = new BMD(stream);
-                                    foreach (var item in bmdmodel.Textures.Textures)
-                                    {
-                                        Save(item, subdirectory);
-                                    }
-                                    result.ExtractedSize += stream.Length;
-                                    break;
-                                case "CPK ":
-                                    stream.Close();
-                                    scanCPK(file.FullName, subdirectory);
-                                    break;
-                                case "U8-":
-                                    Scan(new U8(stream, file.FullName), subdirectory);
-                                    break;
-                                case RARC.Magic:
-                                    Scan(new RARC(stream, file.FullName), subdirectory);
-                                    break;
-                                default:
-                                    Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
-                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
-                                    result.Unsupported++;
-                                    result.SkippedSize += file.Length;
-                                    break;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception t)
-            {
-                Log.WriteEX(t, subdirectory + file.Extension);
-                result.Unsupported++;
-                result.SkippedSize += file.Length;
-            }
-            stream.Close();
-        }
-
-        private void Scan(MemoryStream stream, string subdirectory, string Extension = "")
-        {
-            FileTypInfo filetype = GetFiletype(stream, Extension);
-
-            try
-            {
-                switch (filetype.Typ)
-                {
-                    case FileTyp.Unknown:
-                        if (options.Force)
-                        {
-                            if (TryBTI(stream, subdirectory)) break;
-                        }
-
-                        Log.Write(FileAction.Unknown, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb",
-                            filetype.Header.Magic.Length > 3 ?
-                            $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
-                            $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");
-
-                        if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension, FileTyp.Unknown);
-                        if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
-                        result.Unknown++;
-                        break;
-                    case FileTyp.Texture:
-                        if (options.Raw)
-                        {
-                            Save(stream, Path.ChangeExtension(GetFullSaveDirectory(Path.Combine("Raw", subdirectory)), filetype.Extension));
-                        }
-                        goto case FileTyp.Archive;
-                    case FileTyp.Archive:
-                        if (filetype.Header == null)
-                        {
-                            switch (filetype.Extension.ToLower())
-                            {
-                                case "bti":
-                                    Save(new BTI(stream), subdirectory);
-                                    result.ExtractedSize += stream.Length;
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
@@ -581,6 +504,23 @@ namespace DolphinTextureExtraction_tool
         #endregion
 
         #region Helper
+
+        private void AddResultUnknown(Stream stream, FileTypInfo filetype, string file)
+        {
+            Log.Write(FileAction.Unknown, file + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb",
+                filetype.Header.Magic.Length > 3 ?
+                $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
+                $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");
+
+            if (stream.Length > 130) 
+            {
+                if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension, FileTyp.Unknown);
+                if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
+            }
+            result.Unknown++;
+        }
+
+
         private string GetFullSaveDirectory(string directory)
         {
             return Path.Combine(SaveDirectory, directory);

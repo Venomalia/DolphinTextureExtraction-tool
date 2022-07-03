@@ -74,6 +74,9 @@ namespace DolphinTextureExtraction_tool
             /// </summary>
             public List<ulong> Hash = new List<ulong>();
 
+            public List<FileTypInfo> UnsupportedFileTyp = new List<FileTypInfo>();
+
+            public List<FileTypInfo> UnknownFileTyp = new List<FileTypInfo>();
         }
 
 
@@ -153,6 +156,8 @@ namespace DolphinTextureExtraction_tool
                         result.Unknown++;
                         //Exclude files that are too small, for calculation purposes only half the size
                         if (file.Length > 130) result.SkippedSize += file.Length / 2;
+                        if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension,FileTyp.Unknown);
+                        if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
                         break;
                     case FileTyp.Texture:
                         if (options.Raw)
@@ -181,6 +186,7 @@ namespace DolphinTextureExtraction_tool
                                     if (Compression.TryToFindMatch(in bytes, out algorithm))
                                     {
                                         Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
                                         result.SkippedSize += file.Length;
                                     }
@@ -191,6 +197,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.SkippedSize += file.Length;
                                     break;
@@ -242,6 +249,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{Math.Round((double)file.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.SkippedSize += file.Length;
                                     break;
@@ -279,6 +287,9 @@ namespace DolphinTextureExtraction_tool
                             filetype.Header.Magic.Length > 3 ?
                             $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
                             $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");
+
+                        if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension, FileTyp.Unknown);
+                        if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
                         result.Unknown++;
                         break;
                     case FileTyp.Texture:
@@ -298,6 +309,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.SkippedSize += stream.Length;
                                     break;
@@ -345,6 +357,7 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.SkippedSize += stream.Length;
                                     break;

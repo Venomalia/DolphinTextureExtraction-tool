@@ -249,7 +249,9 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine($"Extracted textures: {result.Extracted}");
             Console.WriteLine($"Unsupported files: {result.Unsupported}");
+            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.Magic))}");
             Console.WriteLine($"Unknown files: {result.Unknown}");
+            if (result.UnknownFileTyp.Count != 0) Console.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.MagicASKI))}");
             Console.WriteLine($"Extraction rate: ~{result.ExtractionRate}%");
             Console.WriteLine($"Scan time: {result.TotalTime.TotalSeconds}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");

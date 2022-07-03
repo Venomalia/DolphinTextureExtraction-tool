@@ -43,6 +43,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bti", FileTyp.Texture, "Image"),
             new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
             new FileTypInfo("TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture, "Palette Library"),
+            new FileTypInfo("",new Header("TEX1"), FileTyp.Texture, "raw"),
 
             //Not supported
             //Archives
@@ -82,6 +83,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo(".bmp", new Header("BM8"), FileTyp.Texture),
             new FileTypInfo(".bmp", new Header("BMö"), FileTyp.Texture),
             new FileTypInfo("DDS", new Header("DDS |"), FileTyp.Texture, "Direct Draw Surface"),
+            new FileTypInfo("",new Header("TEX0"), FileTyp.Texture, "Wii raw"),
             //Roms
             new FileTypInfo("gba", new Header(new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}), FileTyp.Executable, "GBA Rom"),
             new FileTypInfo("nes", new Header(new byte[]{78,69,83,26,1,1}) , FileTyp.Executable, "Rom"),

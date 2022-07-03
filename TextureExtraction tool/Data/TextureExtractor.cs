@@ -252,6 +252,13 @@ namespace DolphinTextureExtraction_tool
                                 case "CLZ":
                                     Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
+                                case "TEX1":
+                                    foreach (var item in new BMD.TEX1(stream).Textures)
+                                    {
+                                        Save(item, subdirectory);
+                                    }
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case " 0": //TPL
                                     Save(new TPL(stream), subdirectory);
                                     result.ExtractedSize += stream.Length;

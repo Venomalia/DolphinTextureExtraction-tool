@@ -62,7 +62,7 @@ namespace DolphinTextureExtraction_tool
             LogFile.WriteLine($"Unknown files: {result.Unknown}");
             if (result.UnknownFileTyp.Count != 0) LogFile.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.MagicASKI))}");
             LogFile.WriteLine($"Extraction rate: ~{result.ExtractionRate}%");
-            LogFile.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 2)}s");
+            LogFile.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             LogFile.WriteLine("".PadLeft(64, '-'));
             LogFile.Flush();
         }

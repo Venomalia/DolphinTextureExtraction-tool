@@ -1,5 +1,7 @@
 # DolphinTextureExtraction-tool
-Dumping of GC and Wii textures, dumps all textures at once and compatible with dolphins textures hash.
+
+Is a GC and Wii texture dump tool, it dumps all textures at once and compatible with dolphins textures hash.
+it is still in an early stage, Currently, mainly typical gamecube formats are supported.
 
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  
@@ -9,6 +11,10 @@ Right click on a game -> **Properties** -> **Filesystem** -> right click on "**D
 Launch `DolphinTextureExtraction tool.exe` and
 Follow the instructions of the application
 
+### Drag and Drop
+Drop a folder on the `DolphinTextureExtraction tool.exe`,
+output to the same place only with a "~" in front of the folder.
+
 ### Command-line
 - **Syntax:** `EXTRACT "Input" "Output" -mip`
    > Extracts all textures and their mipmaps textures.
@@ -16,14 +22,8 @@ Follow the instructions of the application
 - **Syntax:** `HELP`
    > For a list with all commands.
 
-## Supported formats
-- RARC, U8, CPK Archives
-- YAZ, YAY, CLZ, LZ11 Compressing
-- BTI, TPL, TEX1 Textures
-- BMD, BDL J3D Models
-
-## Known results
-### Fully supported games
+## Known results 
+### Games ( 80-100% )
 - The Legend of Zelda Twilight
 - The Legend of Zelda Four Swords
 - THE LEGEND OF ZELDA The Wind Waker
@@ -34,24 +34,37 @@ Follow the instructions of the application
 - Super Mario Sunshine
 - Harvest Moon A Wonderful Life
 - Doshin the Giant
-
-### Well supported games
-- LUIGI'S MANSION
+- DONKEY KONG JUNGLE BEAT
 - Pikmin 2
 
-### Not supported games
-> When the unsupported archives are first unpacked with another tool, more or all textures can be dumped.
+### Games( 50-80% )
+- LUIGI'S MANSION
+
+### Games( 20-50% )
+- Mario Party 9
+- Pikmin 1
+
+### Not supported games ( 0-20% )
 - Smash Bros. Brawl
 - The Legend of Zelda Skyward Sword
+- Kirby Air Ride
 - MarioGolf Toadstool Tour
 - F-ZERO GX
-- Pikmin 1
+- SOULCALIBUR2
+- FFCC Crystal Bearers
 - Super Smash Bros Melee
 - Pokemon XD & Colosseum
-- Mario Party 4-9
+- Mario Party 4-8
 - Metroid Prime 1-3 + Trilogy
 - Pandora s Tower
 - Punch Out
+- Xenoblade Chronicles
+
+## Supported formats
+- RARC, U8, CPK Archives
+- YAZ, YAY, CLZ, LZ11 Compressing
+- BTI, TPL, TEX1 Textures
+- BMD, BDL J3D Models
 
 ## Credits
  

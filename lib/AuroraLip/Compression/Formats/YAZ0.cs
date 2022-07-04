@@ -1,13 +1,9 @@
 ﻿using AuroraLip.Common;
-using Hack.io;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraLip.Compression.Formats
 {
@@ -21,14 +17,29 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo YAZ0 compression algorithm
     /// </summary>
-    public class YAZ0 : ICompression, IMagicIdentify
+    public class YAZ0 : ICompression, IFileFormat, IMagicIdentify
     {
+
+        public FileType FileType => FileType.Archive;
+
+        public string Description => description;
+
+        private const string description = "Nintendo YAZ0 compression";
+
+        public string Extension => "";
 
         public string Magic { get; } = "Yaz0";
 
-        public bool CanCompress { get; } = true;
+        public bool CanWrite { get; } = true;
 
-        public bool CanDecompress { get; } = true;
+        public bool CanRead { get; } = true;
+
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.Length > 4 && stream.ReadByte() == 89 && stream.ReadByte() == 97 && stream.ReadByte() == 122 && stream.ReadByte() == 48;
+
+        public bool IsMatch(in byte[] Data)
+            => Data.Length > 16 && Data[0] == 89 && Data[1] == 87 && Data[2] == 122 && Data[2] == 48;
 
         public byte[] Compress(in byte[] data)
         {
@@ -133,7 +144,7 @@ namespace AuroraLip.Compression.Formats
             if (YAZ0.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAZ0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
 
-            uint DecompressedSize = BitConverter.ToUInt32(YAZ0.ReadReverse(0, 4), 0), CompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadReverse(0, 4), 0), UncompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadReverse(0, 4), 0);
+            uint DecompressedSize = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0), CompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0), UncompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0);
 
             List<byte> Decoding = new List<byte>();
             while (Decoding.Count < DecompressedSize)
@@ -157,11 +168,6 @@ namespace AuroraLip.Compression.Formats
                 }
             }
             return Decoding.ToArray();
-        }
-
-        public bool IsMatch(in byte[] Data)
-        {
-            return Data.Length > 16 && Data[0] == 89 && Data[1] == 87 && Data[2] == 122 && Data[2] == 48;
         }
 
         /*

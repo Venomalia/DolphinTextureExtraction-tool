@@ -12,12 +12,12 @@ namespace AuroraLip.Compression
         /// <summary>
         /// Can be decompress.
         /// </summary>
-        public static bool CanDecompress { get => new T().CanDecompress; }
+        public static bool CanDecompress { get => new T().CanRead; }
 
         /// <summary>
         /// Can be compress.
         /// </summary>
-        public static bool CanCompress { get => new T().CanCompress; }
+        public static bool CanCompress { get => new T().CanWrite; }
 
         #region Decompress
         /// <summary>

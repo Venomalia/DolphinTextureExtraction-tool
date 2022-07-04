@@ -17,13 +17,13 @@ namespace AuroraLip.Compression
         /// A list of all names of available decompress algorithms
         /// </summary>
         /// <returns>List of available algorithms</returns>
-        public static IEnumerable<Type> GetAvailablDecompress() => AvailableTypes.Where(x => ((ICompression)Activator.CreateInstance(x)).CanDecompress);
+        public static IEnumerable<Type> GetAvailablDecompress() => AvailableTypes.Where(x => ((ICompression)Activator.CreateInstance(x)).CanRead);
 
         /// <summary>
         /// A list of all names of available compress algorithms
         /// </summary>
         /// <returns>List of available algorithms</returns>
-        public static IEnumerable<Type> GetAvailablCompress() => AvailableTypes.Where(x => ((ICompression)Activator.CreateInstance(x)).CanCompress);
+        public static IEnumerable<Type> GetAvailablCompress() => AvailableTypes.Where(x => ((ICompression)Activator.CreateInstance(x)).CanWrite);
 
         /// <summary>
         /// Trying to find an algorithm that can decompress the data
@@ -54,7 +54,7 @@ namespace AuroraLip.Compression
             foreach (Type item in AvailableTypes)
             {
                 algorithm = (ICompression)Activator.CreateInstance(item);
-                if (algorithm.CanDecompress && algorithm.IsMatch(in indata))
+                if (algorithm.CanRead && algorithm.IsMatch(in indata))
                 {
                     try
                     {

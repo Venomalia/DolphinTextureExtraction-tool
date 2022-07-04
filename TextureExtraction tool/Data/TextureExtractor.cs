@@ -1,21 +1,17 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLip.Archives;
+using AuroraLip.Archives.Formats;
+using AuroraLip.Common;
 using AuroraLip.Compression;
 using AuroraLip.Compression.Formats;
-using Hack.io;
+using AuroraLip.Texture.Formats;
 using Hack.io.BMD;
-using Hack.io.BTI;
-using Hack.io.J3D;
-using Hack.io.RARC;
-using Hack.io.TPL;
-using Hack.io.U8;
-using Hack.io.Util;
 using LibCPK;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static Hack.io.J3D.JUtility;
+using static AuroraLip.Texture.J3D.JUtility;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -206,7 +202,7 @@ namespace DolphinTextureExtraction_tool
                             switch (filetype.Extension.ToLower())
                             {
                                 case "bti":
-                                    Save(new BTI(stream), subdirectory);
+                                    using (JUTTexture Texture = new BTI(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
                                     break;
                                 case "lz":
@@ -260,7 +256,7 @@ namespace DolphinTextureExtraction_tool
                                     result.ExtractedSize += stream.Length;
                                     break;
                                 case " 0": //TPL
-                                    Save(new TPL(stream), subdirectory);
+                                    using (JUTTexture Texture = new TPL(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
                                     break;
                                 case "J3D2bdl4":
@@ -282,7 +278,7 @@ namespace DolphinTextureExtraction_tool
                                 case "U8-":
                                     Scan(new U8(stream), subdirectory);
                                     break;
-                                case RARC.Magic:
+                                case "RARC":
                                     Scan(new RARC(stream), subdirectory);
                                     break;
                                 default:
@@ -433,22 +429,21 @@ namespace DolphinTextureExtraction_tool
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
-                ulong Hash = HashDepot.XXHash.Hash64(tex.RowDate);
                 //Skip duplicate textures
-                if (result.Hash.Contains(Hash))
+                if (result.Hash.Contains(tex.Hash))
                 {
                     continue;
                 }
-                result.Hash.Add(Hash);
+                result.Hash.Add(tex.Hash);
 
-                Log.Write(FileAction.Extract, subdirectory, $"Hash:{Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "")}");
+                Log.Write(FileAction.Extract, subdirectory, $"Hash:{tex.Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "")}");
 
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)
                 {
                     string path = GetFullSaveDirectory(subdirectory);
                     Directory.CreateDirectory(path);
-                    tex[i].Save(Path.Combine(path, GetDolphinTextureHash(tex[0].Width, tex[0].Height, tex.Count > 1, Hash, tex.Format, i) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                    tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
                     //skip mips?
                     if (!options.Mips) break;
@@ -481,8 +476,8 @@ namespace DolphinTextureExtraction_tool
         {
             if (Enum.IsDefined(typeof(GXImageFormat), (byte)stream.ReadByte()) && Enum.IsDefined(typeof(JUTTransparency), (byte)stream.ReadByte()))
             {
-                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadReverse(0, 2), 0);
-                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadReverse(0, 2), 0);
+                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(0, 2), 0);
+                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(0, 2), 0);
 
                 if (ImageWidth > 4 && ImageHeight > 4 && ImageWidth < 1024 && ImageHeight < 1024)
                 {
@@ -516,27 +511,6 @@ namespace DolphinTextureExtraction_tool
                 if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
             }
             result.Unknown++;
-        }
-
-        private static string GetDolphinTextureHash(int width, int height, bool hasmips, ulong Hash, GXImageFormat format, int mips = 0) => GetDolphinTextureHash(width, height, hasmips, Hash, 0, format, mips);
-
-        private static string GetDolphinTextureHash(int width, int height, bool hasmips, ulong Hash, ulong TlutHash, GXImageFormat format, int mips = 0)
-        {
-            return "tex1_" + width + 'x' + height + '_'
-                //Has mipmaps
-                + (hasmips
-                    ? "m_" : string.Empty)
-                // Hash
-                + Hash.ToString("x").PadLeft(16, '0') + '_'
-                // Tlut Hash
-                + (JUtility.IsPaletteFormat(format)
-                    ? TlutHash == 0
-                        ? "$" : Hash.ToString("x").PadLeft(16, '0') + '_' : string.Empty)
-                // Format
-                + (int)format
-                // mipmaps
-                + (mips != 0
-                    ? "_mip" + mips : string.Empty);
         }
 
         private string GetFullSaveDirectory(string directory)

@@ -60,10 +60,6 @@
     <Reference Include="Costura, Version=5.8.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.5.8.0-alpha0098\lib\netstandard1.0\Costura.dll</HintPath>
     </Reference>
-    <Reference Include="HashDepot, Version=2.0.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HashDepot.2.0.3\lib\netstandard2.0\HashDepot.dll</HintPath>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Win32.Primitives.4.3.0\lib\net46\Microsoft.Win32.Primitives.dll</HintPath>
       <Private>True</Private>
@@ -220,10 +216,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\ConsoleEx.cs" />
     <Compile Include="Data\File.cs" />
     <Compile Include="Data\Header.cs" />
     <Compile Include="Data\Dictionary.cs" />
     <Compile Include="Data\Logger.cs" />
+    <Compile Include="Data\QuickBms.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\TextureExtractor.cs" />
@@ -245,36 +243,6 @@
     <ProjectReference Include="..\lib\Hack.io\Hack.io.BMD\Hack.io.BMD.csproj">
       <Project>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</Project>
       <Name>Hack.io.BMD</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.BTI\Hack.io.BTI.csproj">
-      <Project>{524ff91a-b5f3-4ef8-9216-eb4128ded242}</Project>
-      <Name>Hack.io.BTI</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.J3D\Hack.io.J3D.csproj">
-      <Project>{a99f6dde-0aed-432e-8866-f25375e3c4fa}</Project>
-      <Name>Hack.io.J3D</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.RARC\Hack.io.RARC.csproj">
-      <Project>{4f4162cc-70ff-4eb9-ab34-d5ff98490c34}</Project>
-      <Name>Hack.io.RARC</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.TPL\Hack.io.TPL.csproj">
-      <Project>{8eb94ab1-3c3d-4ffe-b84b-64f35b5c2f52}</Project>
-      <Name>Hack.io.TPL</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.U8\Hack.io.U8.csproj">
-      <Project>{a611837c-0849-4133-ac82-04cea27f81e4}</Project>
-      <Name>Hack.io.U8</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io\Hack.io.csproj">
-      <Project>{389f751d-db2a-4746-b3bc-88e106c361ce}</Project>
-      <Name>Hack.io</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
   </ItemGroup>

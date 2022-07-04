@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using Hack.io;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,13 +11,11 @@ namespace DolphinTextureExtraction_tool
     {
         public byte[] Bytes { get; }
 
-        public string Magic => Encoding();
+        public string Magic => Bytes.ToValidString(b => b >= 32 && b != 127);
 
-        public string MagicASKI => Encoding(b => b >= 32 && b < 127);
+        public string MagicASKI => Bytes.ToValidString(b => b >= 32 && b < 127);
 
         public int Offset { get; } = 0;
-
-        private static Predicate<byte> Validbytes = b => b >= 32 && b != 127;
 
         public Header(byte[] bytes, int offset = 0)
         {
@@ -26,11 +25,9 @@ namespace DolphinTextureExtraction_tool
 
         public Header(string magic, int offset = 0)
         {
-            Bytes = System.Text.Encoding.GetEncoding(1252).GetBytes(magic);
+            Bytes = Encoding.GetEncoding(1252).GetBytes(magic);
             Offset = offset;
         }
-
-
 
         public Header(Stream stream, int length, int offset = 0)
         {
@@ -76,25 +73,6 @@ namespace DolphinTextureExtraction_tool
 
             Bytes = bytes.ToArray();
             stream.Position = position;
-        }
-
-        public string Encoding(Predicate<byte> validbytes) => Encoding(null, validbytes);
-
-        public string Encoding(Encoding encoder = null, Predicate<byte> validbytes = null)
-        {
-            if (validbytes == null) validbytes = Validbytes;
-
-            List<byte> magicbytes = new List<byte>();
-            foreach (byte b in Bytes)
-            {
-                if (validbytes.Invoke(b))
-                {
-                    magicbytes.Add(b);
-                }
-            }
-
-            if (encoder == null) encoder = System.Text.Encoding.GetEncoding(1252);
-            return encoder.GetString(magicbytes.ToArray());
         }
 
         public bool Equals(string magic) => Magic == magic || MagicASKI == magic;

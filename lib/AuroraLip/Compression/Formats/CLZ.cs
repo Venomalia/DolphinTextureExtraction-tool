@@ -12,14 +12,29 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// CLZ compression algorithm, used in Games from Victor Interactive Software.
     /// </summary>
-    public class CLZ : ICompression, IMagicIdentify
+    public class CLZ : ICompression, IFileFormat, IMagicIdentify
     {
+
+        public FileType FileType => FileType.Archive;
+
+        public string Description => description;
+
+        private const string description = "Victor Interactive compression";
+
+        public string Extension { get; } = ".clz";
+
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
 
         public string Magic { get; } = "CLZ";
 
-        public bool CanCompress { get; } = false;
 
-        public bool CanDecompress { get; } = true;
+        public bool IsMatch(in byte[] Data)
+            => Data.Length > 16 && Data[0] == 67 && Data[1] == 76 && Data[2] == 90;
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.Length > 16 && stream.ReadByte() == 67 && stream.ReadByte() == 76 && stream.ReadByte() == 90;
 
         public byte[] Compress(in byte[] Data)
         {
@@ -36,12 +51,6 @@ namespace AuroraLip.Compression.Formats
             }
         }
 
-        public bool IsMatch(in byte[] Data)
-        {
-            // CLZ files contain compressed data after a 16 byte header.
-            // CLZ = [67,76,90]
-            return Data.Length > 16 && Data[0] == 67 && Data[1] == 76 && Data[2] == 90;
-        }
 
         //https://github.com/sukharah/CLZ-Compression/blob/master/source/CLZ.cpp
         private static void Unpack(Stream infile, Stream outfile)

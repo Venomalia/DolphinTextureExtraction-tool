@@ -2,15 +2,23 @@
 {
     public interface ICompression
     {
-        /// <summary>
-        /// Can be compress.
-        /// </summary>
-        bool CanCompress { get; }
 
         /// <summary>
         /// Can be decompress.
         /// </summary>
-        bool CanDecompress { get; }
+        bool CanRead { get; }
+
+        /// <summary>
+        /// Can be compress.
+        /// </summary>
+        bool CanWrite { get; }
+
+        /// <summary>
+        /// Checks if the data compressed with this compression method
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <returns>"True" if it corresponds to the compression method.</returns>
+        bool IsMatch(in byte[] Data);
 
         /// <summary>
         /// Data Compress
@@ -26,11 +34,5 @@
         /// <returns>Decompress data</returns>
         byte[] Decompress(in byte[] Data);
 
-        /// <summary>
-        /// Checks if the data compressed with this compression method
-        /// </summary>
-        /// <param name="Data"></param>
-        /// <returns>"True" if it corresponds to the compression method.</returns>
-        bool IsMatch(in byte[] Data);
     }
 }

@@ -7,9 +7,9 @@ namespace AuroraLip.Compression.Formats
     /// </summary>
     public class LZ10 : ICompression
     {
-        public bool CanCompress { get; } = false;
+        public bool CanWrite { get; } = false;
 
-        public bool CanDecompress { get; } = false;
+        public bool CanRead { get; } = false;
 
         public byte[] Compress(in byte[] Data)
         {

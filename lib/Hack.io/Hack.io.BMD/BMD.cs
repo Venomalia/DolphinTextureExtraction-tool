@@ -1,16 +1,34 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Hack.io.J3D.JUtility;
-using System.Drawing;
+using static AuroraLip.Texture.J3D.JUtility;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BMD
+    public partial class BMD : IFileFormat, IMagicIdentify
     {
+
+        public FileType FileType => FileType.Model;
+
+        public virtual string Description => description;
+
+        private const string description = "Binary Display v3";
+
+        public virtual string Extension => ".bmd";
+
+        public virtual string Magic => magic;
+
+        private const string magic = "J3D2bmd3";
+
+        public virtual bool CanRead => true;
+
+        public virtual bool CanWrite => true;
+
+        public virtual bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(Magic);
+
+
         public string FileName { get; set; }
         public INF1 Scenegraph { get; protected set; }
         public VTX1 VertexData { get; protected set; }
@@ -21,7 +39,7 @@ namespace Hack.io.BMD
         public MAT3 Materials { get; protected set; }
         public TEX1 Textures { get; protected set; }
 
-        private static readonly string Magic = "J3D2bmd3";
+        public static readonly string Padding = "Hack.io © Super Hackio Incorporated 2018-2021";
 
         public BMD() { }
         public BMD(string Filename)
@@ -36,11 +54,11 @@ namespace Hack.io.BMD
         public static bool CheckFile(string Filename)
         {
             FileStream FS = new FileStream(Filename, FileMode.Open);
-            bool result = FS.ReadString(8).Equals(Magic);
+            bool result = FS.ReadString(8).Equals(magic);
             FS.Close();
             return result;
         }
-        public static bool CheckFile(Stream BMD) => BMD.ReadString(8).Equals(Magic);
+        public static bool CheckFile(Stream BMD) => BMD.ReadString(8).Equals(magic);
 
         public virtual void Save(string Filename)
         {
@@ -53,10 +71,10 @@ namespace Hack.io.BMD
 
         protected virtual void Read(Stream BMD)
         {
-            if (!BMD.ReadString(8).Equals(Magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+            if (!BMD.ReadString(8).Equals(magic))
+                throw new Exception($"Invalid Identifier. Expected \"{magic}\"");
 
-            BMD.Position += 0x08+16;
+            BMD.Position += 0x08 + 16;
             Scenegraph = new INF1(BMD, out int VertexCount);
             VertexData = new VTX1(BMD, VertexCount);
             SkinningEnvelopes = new EVP1(BMD);
@@ -68,10 +86,10 @@ namespace Hack.io.BMD
             Joints.InitBoneFamilies(Scenegraph);
             Joints.InitBoneMatricies(Scenegraph);
             Materials = new MAT3(BMD);
-            if (BitConverter.ToInt32(BMD.ReadReverse(0, 4), 0) == 0x4D444C33)
+            if (BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0) == 0x4D444C33)
             {
-                int mdl3Size = BitConverter.ToInt32(BMD.ReadReverse(0, 4), 0);
-                BMD.Position += mdl3Size-0x08;
+                int mdl3Size = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                BMD.Position += mdl3Size - 0x08;
             }
             else
                 BMD.Position -= 0x04;
@@ -82,7 +100,7 @@ namespace Hack.io.BMD
 
         protected virtual void Write(Stream BMD)
         {
-            BMD.WriteString(Magic);
+            BMD.WriteString(magic);
             bool IsBDL = false;
             BMD.Write(new byte[8] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, (byte)(IsBDL ? 0x09 : 0x08) }, 0, 8);
             BMD.Write(new byte[16], 0, 16);
@@ -98,7 +116,7 @@ namespace Hack.io.BMD
             Textures.Write(BMD);
 
             BMD.Position = 0x08;
-            BMD.WriteReverse(BitConverter.GetBytes((int)BMD.Length), 0, 4);
+            BMD.WriteBigEndian(BitConverter.GetBytes((int)BMD.Length), 0, 4);
         }
 
         public enum GXVertexAttribute
@@ -349,15 +367,5 @@ namespace Hack.io.BMD
                     return OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
             }
         }
-
-        //=====================================================================
-
-        /// <summary>
-        /// Cast a RARCFile to a BMD
-        /// </summary>
-        /// <param name="x"></param>
-        public static implicit operator BMD(RARC.RARC.File x) => new BMD((MemoryStream)x) { FileName = x.Name };
-
-        //=====================================================================
     }
 }

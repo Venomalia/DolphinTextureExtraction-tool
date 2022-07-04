@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using AuroraLip.Common;
+using System.Collections.Generic;
 using System.IO;
 
 namespace AuroraLip.Compression.Formats
@@ -12,11 +13,27 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo LZ11 compression algorithm
     /// </summary>
-    public class LZ11 : ICompression
+    public class LZ11 : ICompression, IFileFormat
     {
-        public bool CanCompress { get; } = true;
 
-        public bool CanDecompress { get; } = true;
+        public FileType FileType => FileType.Archive;
+
+        public string Description => description;
+
+        private const string description = "LZ11 compression";
+
+        public string Extension { get; } = "LZ";
+
+        public bool CanWrite { get; } = true;
+
+        public bool CanRead { get; } = true;
+
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => extension == Extension && stream.Length > 4 && stream.ReadByte() == 17;
+
+        public bool IsMatch(in byte[] Data)
+            => Data.Length > 4 && Data[0] == 17;
 
         public byte[] Compress(in byte[] Data)
         {
@@ -173,24 +190,15 @@ namespace AuroraLip.Compression.Formats
             }
         }
 
-        public bool IsMatch(in byte[] Data)
-        {
-            return Data.Length > 4 && Data[0] == 17;
-        }
-
         private class LzWindowDictionary
         {
+            private int WindowStart, WindowLength, BlockSize;
+
             private int WindowSize = 4096;
-
-            private int WindowStart;
-
-            private int WindowLength;
 
             private int MinMatchAmount = 3;
 
             private int MaxMatchAmount = 18;
-
-            private int BlockSize;
 
             private readonly List<int>[] OffsetList;
 

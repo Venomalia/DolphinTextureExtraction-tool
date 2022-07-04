@@ -22,9 +22,9 @@ namespace AuroraLip.Compression.Formats
 
         public int MagicOffset { get; } = 0;
 
-        public bool CanCompress { get; } = false;
+        public bool CanWrite { get; } = false;
 
-        public bool CanDecompress { get; } = true;
+        public bool CanRead { get; } = true;
 
         public byte[] Compress(in byte[] Data)
         {

@@ -46,35 +46,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BDL.cs" />
-    <Compile Include="BDL.MDL3.cs" />
+    <Compile Include="Content\BDL.MDL3.cs" />
     <Compile Include="BMD.cs" />
-    <Compile Include="BMD.DRW1.cs" />
-    <Compile Include="BMD.EVP1.cs" />
-    <Compile Include="BMD.INF1.cs" />
-    <Compile Include="BMD.JNT1.cs" />
-    <Compile Include="BMD.MAT3.cs" />
-    <Compile Include="BMD.SHP1.cs" />
-    <Compile Include="BMD.TEX1.cs" />
-    <Compile Include="BMD.VTX1.cs" />
+    <Compile Include="Content\BMD.DRW1.cs" />
+    <Compile Include="Content\BMD.EVP1.cs" />
+    <Compile Include="Content\BMD.INF1.cs" />
+    <Compile Include="Content\BMD.JNT1.cs" />
+    <Compile Include="Content\BMD.MAT3.cs" />
+    <Compile Include="Content\BMD.SHP1.cs" />
+    <Compile Include="Content\BMD.TEX1.cs" />
+    <Compile Include="Content\BMD.VTX1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hack.io.BTI\Hack.io.BTI.csproj">
-      <Project>{524ff91a-b5f3-4ef8-9216-eb4128ded242}</Project>
-      <Name>Hack.io.BTI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Hack.io.J3D\Hack.io.J3D.csproj">
-      <Project>{a99f6dde-0aed-432e-8866-f25375e3c4fa}</Project>
-      <Name>Hack.io.J3D</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Hack.io.RARC\Hack.io.RARC.csproj">
-      <Project>{4f4162cc-70ff-4eb9-ab34-d5ff98490c34}</Project>
-      <Name>Hack.io.RARC</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Hack.io\Hack.io.csproj">
-      <Project>{389f751d-db2a-4746-b3bc-88e106c361ce}</Project>
-      <Name>Hack.io</Name>
+    <ProjectReference Include="..\..\AuroraLip\AuroraLip.csproj">
+      <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
+      <Name>AuroraLip</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -30,7 +30,7 @@ namespace DolphinTextureExtraction_tool
 
                         if (!Directory.Exists(InputDirectory))
                         {
-                            Console.WriteLine("The directory could not be found!");
+                            ConsoleEx.WriteLineColoured("The directory could not be found!", ConsoleColor.Red);
                         }
                     } while (!Directory.Exists(InputDirectory));
 
@@ -48,7 +48,7 @@ namespace DolphinTextureExtraction_tool
                         }
                         if (!PathIsValid(OutputDirectory))
                         {
-                            Console.WriteLine("Path is invalid!");
+                            ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
                         }
 
                     } while (!PathIsValid(OutputDirectory));
@@ -58,15 +58,15 @@ namespace DolphinTextureExtraction_tool
                     PrintOptions(options);
 
                     Console.WriteLine();
-                    Console.WriteLine("Adjust settings? \tYes or (No)");
-                    if (ConsoleReadBool(false))
+                    Console.WriteLine("Adjust settings? Yes or (No)");
+                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo",ConsoleColor.Green, ConsoleColor.Red))
                     {
                         Console.WriteLine($"Extract mipmaps. \t(True) or False");
-                        options.Mips = ConsoleReadBool(true);
+                        options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"Extracts all raw images that are found. \tTrue or (False)");
-                        options.Raw = ConsoleReadBool(false);
+                        options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"Tries to extract textures from unknown files, may cause errors. \tTrue or (False)");
-                        options.Force = ConsoleReadBool(false);
+                        options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                     }
 
                     //Inputs correct?
@@ -77,7 +77,7 @@ namespace DolphinTextureExtraction_tool
 
                     Console.WriteLine();
                     Console.WriteLine("Are the settings correct? \t(Yes) or No");
-                    if (!ConsoleReadBool(true)) continue;
+                    if (!ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
 
                     //Start
                     Console.WriteLine($"Search and extract textures from {InputDirectory}");
@@ -179,28 +179,6 @@ namespace DolphinTextureExtraction_tool
             return Output;
         }
 
-        static bool ConsoleReadBool(bool defaultvalue)
-        {
-            while (true)
-            {
-                switch (Console.ReadLine().ToLower())
-                {
-                    case "t":
-                    case "true":
-                    case "y":
-                    case "yes":
-                        return true;
-                    case "f":
-                    case "false":
-                    case "n":
-                    case "no":
-                        return false;
-                    case "":
-                        return defaultvalue;
-                }
-            }
-        }
-
         static bool PathIsValid(string path)
         {
             try
@@ -228,25 +206,31 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintHeader()
         {
-            Console.WriteLine("".PadLeft(64, '-'));
-            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now.ToString()}");
+            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
             Console.WriteLine($"Supported formats: arc, szs, szp, cpk, bdl, bmd, tpl, bti, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
-            Console.WriteLine("".PadLeft(64, '-'));
-            Console.WriteLine("INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.");
+            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
+            Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
+            Console.ResetColor();
             Console.WriteLine();
         }
 
         static void PrintOptions(TextureExtractor.Options options)
         {
-            Console.WriteLine($"Extracts Mipmaps: {options.Mips}");
-            Console.WriteLine($"Extracts Raw Image fiels: {options.Raw}");
-            Console.WriteLine($"Extract textures from unknown files: {options.Force}");
+            Console.Write($"Extracts Mipmaps: ");
+            ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Extracts Raw Image fiels: ");
+            ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Extract textures from unknown files: ");
+            ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
         }
 
         static void PrintResult(TextureExtractor.Result result)
         {
-            Console.WriteLine("".PadLeft(64, '-'));
+            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
             Console.WriteLine($"Extracted textures: {result.Extracted}");
             Console.WriteLine($"Unsupported files: {result.Unsupported}");
             if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.Magic))}");
@@ -255,7 +239,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine($"Extraction rate: ~{result.ExtractionRate}%");
             Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
-            Console.WriteLine("".PadLeft(64, '-'));
+            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
         }
     }
 }

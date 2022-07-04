@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using Hack.io;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,14 +17,28 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo YAY0 compression algorithm
     /// </summary>
-    public class YAY0 : ICompression, IMagicIdentify
+    public class YAY0 : ICompression, IFileFormat, IMagicIdentify
     {
+
+        public FileType FileType => FileType.Archive;
+
+        public string Description => description;
+
+        private const string description = "Nintendo YAY0 compression";
+
+        public string Extension { get; } = "";
 
         public string Magic { get; } = "Yay0";
 
-        public bool CanCompress { get; } = true;
+        public bool CanWrite { get; } = true;
 
-        public bool CanDecompress { get; } = true;
+        public bool CanRead { get; } = true;
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.Length > 4 && stream.ReadByte() == 89 && stream.ReadByte() == 97 && stream.ReadByte() == 121 && stream.ReadByte() == 48;
+
+        public bool IsMatch(in byte[] Data)
+            => Data.Length > 4 && Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48;
 
         //Based on https://github.com/Daniel-McCarthy/Mr-Peeps-Compressor/blob/master/PeepsCompress/PeepsCompress/Algorithm%20Classes/YAY0.cs
         public byte[] Compress(in byte[] data)
@@ -47,7 +60,7 @@ namespace AuroraLip.Compression.Formats
                 {
                     //check for best match
                     int[] matches = FindAllMatches(ref dictionary, data[i]);
-                    int[] bestMatch = FindLargestMatch(ref dictionary, matches,in data, i, maxMatchLength);
+                    int[] bestMatch = FindLargestMatch(ref dictionary, matches, in data, i, maxMatchLength);
 
                     if (bestMatch[1] >= minMatchLength)
                     {
@@ -100,7 +113,7 @@ namespace AuroraLip.Compression.Formats
             if (YAY0.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAY0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
 
-            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadReverse(0, 4), 0);
+            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0);
 
             int maskBitCounter = 0, currentOffsetInDestBuffer = 0, currentMask = 0;
 
@@ -111,7 +124,7 @@ namespace AuroraLip.Compression.Formats
                 // If we're out of bits, get the next mask.
                 if (maskBitCounter == 0)
                 {
-                    currentMask = BitConverter.ToInt32(YAY0.ReadReverse(0, 4), 0);
+                    currentMask = BitConverter.ToInt32(YAY0.ReadBigEndian(0, 4), 0);
                     maskBitCounter = 32;
                 }
 
@@ -129,7 +142,7 @@ namespace AuroraLip.Compression.Formats
                     // Read 16-bit from the link table
                     long pauseposition = YAY0.Position;
                     YAY0.Position = linkTableOffset;
-                    ushort link = BitConverter.ToUInt16(YAY0.ReadReverse(0, 2), 0);
+                    ushort link = BitConverter.ToUInt16(YAY0.ReadBigEndian(0, 2), 0);
                     linkTableOffset += 2;
                     YAY0.Position = pauseposition;
 
@@ -163,11 +176,6 @@ namespace AuroraLip.Compression.Formats
             }
 
             return uncompressedData;
-        }
-
-        public bool IsMatch(in byte[] Data)
-        {
-            return Data.Length > 4 && Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48 || Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48;
         }
 
         #region Helper

@@ -1,13 +1,26 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.IO;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BDL : BMD
+    public partial class BDL : BMD, IFileFormat, IMagicIdentify
     {
+        public override string Description => description;
+
+        private const string description = "Binary Display Lists v4";
+
+        public override string Extension => ".bdl";
+
+        public override string Magic => magic;
+
+        private const string magic = "J3D2bdl4";
+
+        public override bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(Magic);
+
         public MDL3 MatDisplayList { get; private set; }
-        private static readonly string Magic = "J3D2bdl4";
 
         public BDL() : base()
         {
@@ -23,8 +36,8 @@ namespace Hack.io.BMD
 
         protected override void Read(Stream BDLFile)
         {
-            if (!BDLFile.ReadString(8).Equals(Magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+            if (!BDLFile.ReadString(8).Equals(magic))
+                throw new Exception($"Invalid Identifier. Expected \"{magic}\"");
 
             BDLFile.Position += 0x08 + 16;
             Scenegraph = new INF1(BDLFile, out int VertexCount);
@@ -336,17 +349,5 @@ namespace Hack.io.BMD
             SETTEXMTX8 = 0x00D8,
             SETTEXMTX9 = 0x00E4
         }
-
-
-
-        //=====================================================================
-
-        /// <summary>
-        /// Cast a RARCFile to a BDL
-        /// </summary>
-        /// <param name="x"></param>
-        public static implicit operator BDL(RARC.RARC.File x) => new BDL((MemoryStream)x) { FileName = x.Name };
-
-        //=====================================================================
     }
 }

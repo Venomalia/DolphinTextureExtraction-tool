@@ -12,7 +12,7 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// CLZ compression algorithm, used in Games from Victor Interactive Software.
     /// </summary>
-    public class CLZ : ICompression, IMagicNumber
+    public class CLZ : ICompression, IMagicIdentify
     {
 
         public string Magic { get; } = "CLZ";

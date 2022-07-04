@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DolphinTextureExtraction_tool
 {
-    public class Header : IEquatable<string>, IEquatable<Header>, IMagicNumber
+    public class Header : IEquatable<string>, IEquatable<Header>, IMagicIdentify
     {
         public byte[] Bytes { get; }
 

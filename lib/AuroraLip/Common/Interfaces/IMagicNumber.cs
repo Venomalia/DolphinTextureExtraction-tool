@@ -1,13 +1,14 @@
 ﻿namespace AuroraLip.Common
 {
     /// <summary>
-    /// Has a Magic Number
+    /// Has a Magic Identify
     /// </summary>
-    public interface IMagicNumber
+    public interface IMagicIdentify
     {
         /// <summary>
-        /// Magic Number
+        /// Magic Identify
         /// </summary>
         string Magic { get; }
+
     }
 }

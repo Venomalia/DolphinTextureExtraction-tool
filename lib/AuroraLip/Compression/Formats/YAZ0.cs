@@ -21,7 +21,7 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo YAZ0 compression algorithm
     /// </summary>
-    public class YAZ0 : ICompression, IMagicNumber
+    public class YAZ0 : ICompression, IMagicIdentify
     {
 
         public string Magic { get; } = "Yaz0";

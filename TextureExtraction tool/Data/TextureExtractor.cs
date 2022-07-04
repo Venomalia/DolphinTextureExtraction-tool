@@ -179,7 +179,7 @@ namespace DolphinTextureExtraction_tool
             stream.Close();
         }
 
-        private void Scan(Stream stream, string subdirectory, string Extension = "")
+        private void Scan(Stream stream, in string subdirectory, in string Extension = "")
         {
             FileTypInfo filetype = GetFiletype(stream, Extension);
 
@@ -310,7 +310,7 @@ namespace DolphinTextureExtraction_tool
 
         #region Archive
 
-        private void Scan(Archive archiv, string subdirectory)
+        private void Scan(Archive archiv, in string subdirectory)
         {
             foreach (var item in archiv.Root.Items)
             {
@@ -328,7 +328,7 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        private void Scan(ArchiveDirectory archivdirectory, string subdirectory)
+        private void Scan(ArchiveDirectory archivdirectory, in string subdirectory)
         {
 
             foreach (var item in archivdirectory.Items)
@@ -347,7 +347,7 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        private void Scan(ArchiveFile file, string subdirectory)
+        private void Scan(ArchiveFile file, in string subdirectory)
         {
             Scan((MemoryStream)file, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
         }
@@ -429,7 +429,7 @@ namespace DolphinTextureExtraction_tool
         /// </summary>
         /// <param name="texture"></param>
         /// <param name="subdirectory"></param>
-        private void Save(JUTTexture texture, string subdirectory)
+        private void Save(JUTTexture texture, in string subdirectory)
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
@@ -446,18 +446,9 @@ namespace DolphinTextureExtraction_tool
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)
                 {
-                    string filename = $"tex1_{tex[0].Width}x{tex[0].Height}_";
-                    if (tex.Count > 1) filename += "m_";
-                    filename += $"{Hash.ToString("x").PadLeft(16, '0')}";
-                    //Skip Palette Data hash
-                    if (JUtility.IsPaletteFormat(tex.Format)) filename += "_$";
-                    filename += $"_{((int)tex.Format)}";
-                    if (i != 0) filename += $"_mip{i}";
-                    filename += ".png";
-
                     string path = GetFullSaveDirectory(subdirectory);
                     Directory.CreateDirectory(path);
-                    tex[i].Save(Path.Combine(path, filename), System.Drawing.Imaging.ImageFormat.Png);
+                    tex[i].Save(Path.Combine(path, GetDolphinTextureHash(tex[0].Width, tex[0].Height, tex.Count > 1, Hash, tex.Format, i) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
                     //skip mips?
                     if (!options.Mips) break;
@@ -512,14 +503,14 @@ namespace DolphinTextureExtraction_tool
 
         #region Helper
 
-        private void AddResultUnknown(Stream stream, FileTypInfo filetype, string file)
+        private void AddResultUnknown(Stream stream, FileTypInfo filetype, in string file)
         {
             Log.Write(FileAction.Unknown, file + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb",
                 filetype.Header.Magic.Length > 3 ?
                 $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
                 $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");
 
-            if (stream.Length > 130) 
+            if (stream.Length > 130)
             {
                 if (filetype.Header.MagicASKI.Length < 3 || filetype.Header.MagicASKI.Length > 8) filetype = new FileTypInfo(filetype.Extension, FileTyp.Unknown);
                 if (!result.UnknownFileTyp.Contains(filetype)) result.UnknownFileTyp.Add(filetype);
@@ -527,6 +518,26 @@ namespace DolphinTextureExtraction_tool
             result.Unknown++;
         }
 
+        private static string GetDolphinTextureHash(int width, int height, bool hasmips, ulong Hash, GXImageFormat format, int mips = 0) => GetDolphinTextureHash(width, height, hasmips, Hash, 0, format, mips);
+
+        private static string GetDolphinTextureHash(int width, int height, bool hasmips, ulong Hash, ulong TlutHash, GXImageFormat format, int mips = 0)
+        {
+            return "tex1_" + width + 'x' + height + '_'
+                //Has mipmaps
+                + (hasmips
+                    ? "m_" : string.Empty)
+                // Hash
+                + Hash.ToString("x").PadLeft(16, '0') + '_'
+                // Tlut Hash
+                + (JUtility.IsPaletteFormat(format)
+                    ? TlutHash == 0
+                        ? "$" : Hash.ToString("x").PadLeft(16, '0') + '_' : string.Empty)
+                // Format
+                + (int)format
+                // mipmaps
+                + (mips != 0
+                    ? "_mip" + mips : string.Empty);
+        }
 
         private string GetFullSaveDirectory(string directory)
         {

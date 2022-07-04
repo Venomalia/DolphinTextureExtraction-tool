@@ -67,7 +67,7 @@ namespace DolphinTextureExtraction_tool
             LogFile.Flush();
         }
 
-        public void WriteEX(Exception ex, string strMessage = "")
+        public void WriteEX(Exception ex,in string strMessage = "")
         {
             LogFile.WriteLine("".PadLeft(64, '-'));
             LogFile.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
@@ -79,18 +79,18 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("".PadLeft(64, '-'));
         }
 
-        public void Write(FileAction action, string file, string value)
+        public void Write(FileAction action,in string file,in string value)
         {
             switch (action)
             {
                 case FileAction.Unknown:
-                    LogFile.Write("Unknown:");
+                    LogFile.WriteLine("Unknown:");
                     break;
                 case FileAction.Unsupported:
-                    LogFile.Write("Unsupported:");
+                    LogFile.WriteLine("Unsupported:");
                     break;
                 case FileAction.Extract:
-                    LogFile.Write("Extract:");
+                    LogFile.WriteLine("Extract:");
                     break;
             }
             LogFile.Write($"\"~{file}\"\n");

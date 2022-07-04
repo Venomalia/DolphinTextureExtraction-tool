@@ -7,7 +7,7 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// bzip2 open-source compression algorithm, uses the Burrows–Wheeler algorithm.
     /// </summary>
-    public class BZip2 : ICompression, IMagicNumber
+    public class BZip2 : ICompression, IMagicIdentify
     {
 
         public string Magic { get; } = "BZh";

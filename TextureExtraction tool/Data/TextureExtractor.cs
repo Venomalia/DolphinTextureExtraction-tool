@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using static AuroraLip.Texture.J3D.JUtility;
 
 namespace DolphinTextureExtraction_tool
@@ -115,6 +116,8 @@ namespace DolphinTextureExtraction_tool
 
         #region main
 
+        private static readonly ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4};
+
         private void Scan(DirectoryInfo directory)
         {
             foreach (DirectoryInfo subdirectory in directory.GetDirectories())
@@ -122,10 +125,10 @@ namespace DolphinTextureExtraction_tool
                 Scan(subdirectory);
             }
 
-            foreach (FileInfo file in directory.GetFiles())
+            Parallel.ForEach(directory.GetFiles(),ParallelOptions, (FileInfo file) =>
             {
                 Scan(file);
-            }
+            });
         }
 
         private void Scan(FileInfo file)

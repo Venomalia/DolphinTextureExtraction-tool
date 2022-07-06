@@ -208,7 +208,11 @@ namespace DolphinTextureExtraction_tool
         {
             ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
             Console.ForegroundColor = ConsoleColor.Cyan;
+#if DEBUG
+            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}\t\t*DEBUG");
+#else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
+#endif
             Console.WriteLine($"Supported formats: arc, szs, szp, cpk, bdl, bmd, tpl, bti, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
             ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);

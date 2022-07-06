@@ -67,6 +67,15 @@ namespace DolphinTextureExtraction_tool
                         options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"Tries to extract textures from unknown files, may cause errors. \tTrue or (False)");
                         options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
+                        if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
+                        {
+                            options.ParallelOptions.MaxDegreeOfParallelism = 4;
+                        }
+                        else
+                        {
+                            options.ParallelOptions.MaxDegreeOfParallelism = 1;
+                        }
                     }
 
                     //Inputs correct?
@@ -230,6 +239,8 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Extract textures from unknown files: ");
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"High performance mode (Multithreading): ");
+            ConsoleEx.WriteBoolPrint(options.ParallelOptions.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
         }
 
         static void PrintResult(TextureExtractor.Result result)

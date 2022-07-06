@@ -46,6 +46,11 @@ namespace DolphinTextureExtraction_tool
             /// </summary>
             public bool Force = false;
 
+            /// <summary>
+            /// Tries to extract textures from unknown files, may cause errors.
+            /// </summary>
+            public ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+
         }
 
         public class Result
@@ -116,8 +121,6 @@ namespace DolphinTextureExtraction_tool
 
         #region main
 
-        private static readonly ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4};
-
         private void Scan(DirectoryInfo directory)
         {
             foreach (DirectoryInfo subdirectory in directory.GetDirectories())
@@ -125,7 +128,7 @@ namespace DolphinTextureExtraction_tool
                 Scan(subdirectory);
             }
 
-            Parallel.ForEach(directory.GetFiles(),ParallelOptions, (FileInfo file) =>
+            Parallel.ForEach(directory.GetFiles(),options.ParallelOptions, (FileInfo file) =>
             {
                 Scan(file);
             });

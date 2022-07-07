@@ -96,10 +96,12 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        public static Result StartScan(string meindirectory, string savedirectory, Options options = null)
+        public static Result StartScan(string meindirectory, string savedirectory, Options options = null) => StartScan_Async(meindirectory, savedirectory, options).Result;
+
+        public static async Task<Result> StartScan_Async(string meindirectory, string savedirectory, Options options = null)
         {
             TextureExtractor Extractor = new TextureExtractor(meindirectory, savedirectory, options);
-            return Extractor.StartScan();
+            return await Task.Run(() => Extractor.StartScan()); ;
         }
 
         public Result StartScan()

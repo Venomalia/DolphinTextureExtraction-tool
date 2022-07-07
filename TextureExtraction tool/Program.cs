@@ -15,6 +15,11 @@ namespace DolphinTextureExtraction_tool
 
         static void Main(string[] args)
         {
+#if DEBUG
+            Console.Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
+#else
+            Console.Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+#endif
             if (args.Length == 0)
             {
                 PrintHeader();

@@ -46,6 +46,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
             new FileTypInfo("TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture, "Palette Library"),
             new FileTypInfo("",new Header("TEX1"), FileTyp.Texture, "raw"),
+            new FileTypInfo("nut", new Header(new byte[]{78,85,84,67}), FileTyp.Texture, "Namco Universal Texture"),
+            new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
 
             //Not supported
             //Archives
@@ -76,8 +78,6 @@ namespace DolphinTextureExtraction_tool
             
             //Textures
             //new File("brtex","bres", FileTyp.Texture, "Wii"),
-            new FileTypInfo("nut", new Header(new byte[]{78,85,84,67,128,2}), FileTyp.Texture ),
-            new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"), //https://pikmintkb.com/wiki/TXE_file
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)

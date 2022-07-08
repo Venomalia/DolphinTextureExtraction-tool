@@ -50,7 +50,7 @@ namespace AuroraLip.Texture.J3D
                     this.WrapS = WrapS;
                     this.WrapT = WrapT;
 
-                    byte[] RowDate = Stream.Read(0, GetCalculatedDataSize(Format, ImageWidth, ImageHeight));
+                    byte[] RowDate = Stream.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight));
                     Hash = HashDepot.XXHash.Hash64(RowDate);
                     if (IsPaletteFormat(Format)) TlutHash = HashDepot.XXHash.Hash64(PaletteData);
                     this.Add(DecodeImage(RowDate, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight));

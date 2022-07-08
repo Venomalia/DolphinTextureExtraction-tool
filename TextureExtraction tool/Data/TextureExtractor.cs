@@ -209,6 +209,10 @@ namespace DolphinTextureExtraction_tool
                         {
                             switch (filetype.Extension.ToLower())
                             {
+                                case "txe":
+                                    using (JUTTexture Texture = new TXE(stream)) Save(Texture, subdirectory);
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case "bti":
                                     using (JUTTexture Texture = new BTI(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
@@ -484,8 +488,8 @@ namespace DolphinTextureExtraction_tool
         {
             if (Enum.IsDefined(typeof(GXImageFormat), (byte)stream.ReadByte()) && Enum.IsDefined(typeof(JUTTransparency), (byte)stream.ReadByte()))
             {
-                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(0, 2), 0);
-                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(0, 2), 0);
+                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
 
                 if (ImageWidth > 4 && ImageHeight > 4 && ImageWidth < 1024 && ImageHeight < 1024)
                 {

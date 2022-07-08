@@ -74,7 +74,7 @@ namespace AuroraLip.Texture.J3D
                 ImageWidth /= 2;
                 ImageHeight /= 2;
             }
-            return DecodeImage(TextureFile.Read(0, GetCalculatedDataSize(Format, ImageWidth, ImageHeight)), PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight);
+            return DecodeImage(TextureFile.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight)), PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight);
         }
 
         public static Bitmap DecodeImage(in byte[] ImageData, in byte[] PaletteData, GXImageFormat Format, GXPaletteFormat? PaletteFormat, int? PaletteCount, int ImageWidth, int ImageHeight)

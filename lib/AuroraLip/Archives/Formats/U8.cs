@@ -70,9 +70,9 @@ namespace AuroraLip.Archives.Formats
             if (!IsMatch(U8File))
                 throw new Exception($"Invalid Magic. Expected \"{Magic}\"");
 
-            uint OffsetToNodeSection = BitConverter.ToUInt32(U8File.ReadBigEndian(0, 4), 0); //usually 0x20
-            uint NodeSectionSize = BitConverter.ToUInt32(U8File.ReadBigEndian(0, 4), 0);
-            uint FileDataOffset = BitConverter.ToUInt32(U8File.ReadBigEndian(0, 4), 0);
+            uint OffsetToNodeSection = BitConverter.ToUInt32(U8File.ReadBigEndian(4), 0); //usually 0x20
+            uint NodeSectionSize = BitConverter.ToUInt32(U8File.ReadBigEndian(4), 0);
+            uint FileDataOffset = BitConverter.ToUInt32(U8File.ReadBigEndian(4), 0);
             U8File.Position += 0x10; //Skip 16 reserved bytes. All are 0xCC
 
             //Node time
@@ -119,7 +119,7 @@ namespace AuroraLip.Archives.Formats
                     U8File.Position = StringTableLocation + entries[i].NameOffset;
                     file.Name = U8File.ReadString();
                     U8File.Position = entries[i].DataOffset;
-                    file.FileData = U8File.Read(0, entries[i].Size);
+                    file.FileData = U8File.Read(entries[i].Size);
                     FlatItems.Add(file);
                 }
                 U8File.Position = PausePosition;
@@ -223,10 +223,10 @@ namespace AuroraLip.Archives.Formats
 
             //Write the Header
             U8File.WriteString(Magic);
-            U8File.WriteBigEndian(BitConverter.GetBytes(0x20), 0, 4);
-            U8File.WriteBigEndian(BitConverter.GetBytes(Nodes.Count * 0x0C + StringBytes.Count), 0, 4);
-            U8File.WriteBigEndian(BitConverter.GetBytes(DataOffset), 0, 4);
-            U8File.WriteBigEndian(new byte[16] { 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC }, 0, 16);
+            U8File.WriteBigEndian(BitConverter.GetBytes(0x20), 4);
+            U8File.WriteBigEndian(BitConverter.GetBytes(Nodes.Count * 0x0C + StringBytes.Count), 4);
+            U8File.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);
+            U8File.WriteBigEndian(new byte[16] { 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC }, 16);
 
             //Write the Nodes
             for (int i = 0; i < Nodes.Count; i++)
@@ -271,17 +271,17 @@ namespace AuroraLip.Archives.Formats
             public U8Node(Stream U8File)
             {
                 IsDirectory = U8File.ReadByte() == 1;
-                NameOffset = BitConverterEx.ToInt24(U8File.ReadBigEndian(0, 3), 0);
-                DataOffset = BitConverter.ToInt32(U8File.ReadBigEndian(0, 4), 0);
-                Size = BitConverter.ToInt32(U8File.ReadBigEndian(0, 4), 0);
+                NameOffset = BitConverterEx.ToInt24(U8File.ReadBigEndian(3), 0);
+                DataOffset = BitConverter.ToInt32(U8File.ReadBigEndian(4), 0);
+                Size = BitConverter.ToInt32(U8File.ReadBigEndian(4), 0);
             }
 
             public void Write(Stream U8File)
             {
                 U8File.WriteByte((byte)(IsDirectory ? 0x01 : 0x00));
-                U8File.WriteBigEndian(BitConverterEx.GetBytes(NameOffset), 0, 3);
-                U8File.WriteBigEndian(BitConverter.GetBytes(DataOffset), 0, 4);
-                U8File.WriteBigEndian(BitConverter.GetBytes(Size), 0, 4);
+                U8File.WriteBigEndian(BitConverterEx.GetBytes(NameOffset), 3);
+                U8File.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);
+                U8File.WriteBigEndian(BitConverter.GetBytes(Size), 4);
             }
 
             public override string ToString() => $"{(IsDirectory ? "Directory" : "File")}: {NameOffset.ToString()} | {DataOffset.ToString()} | {Size.ToString()}";

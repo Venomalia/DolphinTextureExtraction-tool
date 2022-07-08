@@ -144,7 +144,7 @@ namespace AuroraLip.Compression.Formats
             if (YAZ0.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAZ0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
 
-            uint DecompressedSize = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0), CompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0), UncompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(0, 4), 0);
+            uint DecompressedSize = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0), CompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0), UncompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0);
 
             List<byte> Decoding = new List<byte>();
             while (Decoding.Count < DecompressedSize)

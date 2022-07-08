@@ -113,7 +113,7 @@ namespace AuroraLip.Compression.Formats
             if (YAY0.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAY0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
 
-            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(0, 4), 0);
+            uint uncompressedSize = BitConverter.ToUInt32(YAY0.ReadBigEndian(4), 0), linkTableOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(4), 0), byteChunkAndCountModifiersOffset = BitConverter.ToUInt32(YAY0.ReadBigEndian(4), 0);
 
             int maskBitCounter = 0, currentOffsetInDestBuffer = 0, currentMask = 0;
 
@@ -124,7 +124,7 @@ namespace AuroraLip.Compression.Formats
                 // If we're out of bits, get the next mask.
                 if (maskBitCounter == 0)
                 {
-                    currentMask = BitConverter.ToInt32(YAY0.ReadBigEndian(0, 4), 0);
+                    currentMask = BitConverter.ToInt32(YAY0.ReadBigEndian(4), 0);
                     maskBitCounter = 32;
                 }
 
@@ -142,7 +142,7 @@ namespace AuroraLip.Compression.Formats
                     // Read 16-bit from the link table
                     long pauseposition = YAY0.Position;
                     YAY0.Position = linkTableOffset;
-                    ushort link = BitConverter.ToUInt16(YAY0.ReadBigEndian(0, 2), 0);
+                    ushort link = BitConverter.ToUInt16(YAY0.ReadBigEndian(2), 0);
                     linkTableOffset += 2;
                     YAY0.Position = pauseposition;
 

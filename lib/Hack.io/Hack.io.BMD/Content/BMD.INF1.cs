@@ -24,12 +24,12 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                ScalingRule = (J3DLoadFlags)BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                ScalingRule = (J3DLoadFlags)BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 BMD.Position += 0x02;
                 BMD.Position += 0x04;
-                VertexCount = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int HierarchyOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                VertexCount = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int HierarchyOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
                 BMD.Position = ChunkStart + HierarchyOffset;
 
                 Node parent = new Node(BMD, null);
@@ -104,8 +104,8 @@ namespace Hack.io.BMD
                 public Node(Stream BMD, Node parent)
                 {
                     Parent = parent;
-                    Type = (NodeType)BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                    Index = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                    Type = (NodeType)BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    Index = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 }
 
                 public Node(NodeType type, int index, Node parent)

@@ -37,14 +37,14 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int entryCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int entryCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 BMD.Position += 0x02;
 
-                int weightCountsOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int boneIndicesOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int weightDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int inverseBindMatricesOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int weightCountsOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int boneIndicesOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int weightDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int inverseBindMatricesOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
                 List<int> counts = new List<int>();
                 List<float> weights = new List<float>();
@@ -59,7 +59,7 @@ namespace Hack.io.BMD
                 {
                     for (int j = 0; j < counts[i]; j++)
                     {
-                        indices.Add(BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0));
+                        indices.Add(BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0));
                     }
                 }
 
@@ -69,7 +69,7 @@ namespace Hack.io.BMD
                 {
                     for (int j = 0; j < counts[i]; j++)
                     {
-                        weights.Add(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                        weights.Add(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
                     }
                 }
 
@@ -92,9 +92,9 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < matrixCount; i++)
                 {
-                    Matrix3x4 invBind = new Matrix3x4(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0),
-                                                      BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0),
-                                                      BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                    Matrix3x4 invBind = new Matrix3x4(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0),
+                                                      BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0),
+                                                      BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
 
                     Matrix4 BindMatrix = new Matrix4(invBind.Row0, invBind.Row1, invBind.Row2, Vector4.UnitW);
                     BindMatrix.Transpose();

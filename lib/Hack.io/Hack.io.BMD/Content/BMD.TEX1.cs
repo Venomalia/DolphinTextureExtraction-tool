@@ -111,24 +111,24 @@ namespace Hack.io.BMD
                 if (!BMDFile.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int tex1Size = BitConverter.ToInt32(BMDFile.ReadBigEndian(0, 4), 0);
-                short texCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(0, 2), 0);
+                int tex1Size = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
+                short texCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
                 BMDFile.Position += 0x02;
 
-                int textureHeaderOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(0, 4), 0);
-                int textureNameTableOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(0, 4), 0);
+                int textureHeaderOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
+                int textureNameTableOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
 
                 List<string> names = new List<string>();
 
                 BMDFile.Seek(ChunkStart + textureNameTableOffset, System.IO.SeekOrigin.Begin);
 
-                short stringCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(0, 2), 0);
+                short stringCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
                 BMDFile.Position += 0x02;
 
                 for (int i = 0; i < stringCount; i++)
                 {
                     BMDFile.Position += 0x02;
-                    short nameOffset = BitConverter.ToInt16(BMDFile.ReadBigEndian(0, 2), 0);
+                    short nameOffset = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
                     long saveReaderPos = BMDFile.Position;
                     BMDFile.Position = ChunkStart + textureNameTableOffset + nameOffset;
 

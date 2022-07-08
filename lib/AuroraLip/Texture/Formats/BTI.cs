@@ -91,8 +91,8 @@ namespace AuroraLip.Texture.Formats
             long HeaderStart = BTIFile.Position;
             GXImageFormat Format = (GXImageFormat)BTIFile.ReadByte();
             AlphaSetting = (JUTTransparency)BTIFile.ReadByte();
-            ushort ImageWidth = BitConverter.ToUInt16(BTIFile.ReadBigEndian(0, 2), 0);
-            ushort ImageHeight = BitConverter.ToUInt16(BTIFile.ReadBigEndian(0, 2), 0);
+            ushort ImageWidth = BitConverter.ToUInt16(BTIFile.ReadBigEndian(2), 0);
+            ushort ImageHeight = BitConverter.ToUInt16(BTIFile.ReadBigEndian(2), 0);
             GXWrapMode WrapS = (GXWrapMode)BTIFile.ReadByte();
             GXWrapMode WrapT = (GXWrapMode)BTIFile.ReadByte();
             bool UsePalettes = BTIFile.ReadByte() > 0;
@@ -103,11 +103,11 @@ namespace AuroraLip.Texture.Formats
             if (UsePalettes)
             {
                 PaletteFormat = (GXPaletteFormat)BTIFile.ReadByte();
-                PaletteCount = BitConverter.ToInt16(BTIFile.ReadBigEndian(0, 2), 0);
-                PaletteDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(0, 4), 0);
+                PaletteCount = BitConverter.ToInt16(BTIFile.ReadBigEndian(2), 0);
+                PaletteDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(4), 0);
                 long PausePosition = BTIFile.Position;
                 BTIFile.Position = HeaderStart + PaletteDataAddress;
-                PaletteData = BTIFile.Read(0, PaletteCount * 2);
+                PaletteData = BTIFile.Read(PaletteCount * 2);
                 BTIFile.Position = PausePosition;
             }
             else
@@ -126,8 +126,8 @@ namespace AuroraLip.Texture.Formats
                 TotalImageCount = (byte)MaxLOD;
 
             BTIFile.Position++;
-            float LODBias = BitConverter.ToInt16(BTIFile.ReadBigEndian(0, 2), 0) / 100.0f;
-            uint ImageDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(0, 4), 0);
+            float LODBias = BitConverter.ToInt16(BTIFile.ReadBigEndian(2), 0) / 100.0f;
+            uint ImageDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(4), 0);
 
             BTIFile.Position = HeaderStart + ImageDataAddress;
             ushort ogwidth = ImageWidth, ogheight = ImageHeight;
@@ -155,16 +155,16 @@ namespace AuroraLip.Texture.Formats
             int ImageDataStart = (int)((DataOffset + PaletteData.Count) - HeaderStart), PaletteDataStart = (int)(DataOffset - HeaderStart);
             BTIFile.WriteByte((byte)this.Format);
             BTIFile.WriteByte((byte)AlphaSetting);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Width), 0, 2);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Height), 0, 2);
+            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Width), 2);
+            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Height), 2);
             BTIFile.WriteByte((byte)WrapS);
             BTIFile.WriteByte((byte)WrapT);
             if (Format.IsPaletteFormat())
             {
                 BTIFile.WriteByte(0x01);
                 BTIFile.WriteByte((byte)PaletteFormat);
-                BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count/2)), 0, 2);
-                BTIFile.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 0, 4);
+                BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count/2)), 2);
+                BTIFile.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
             }
             else
                 BTIFile.Write(new byte[8], 0, 8);
@@ -179,8 +179,8 @@ namespace AuroraLip.Texture.Formats
             BTIFile.WriteByte((byte)(MaxLOD * 8));
             BTIFile.WriteByte((byte)Count);
             BTIFile.WriteByte(0x00);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((short)(LODBias * 100)), 0, 2);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 0, 4);
+            BTIFile.WriteBigEndian(BitConverter.GetBytes((short)(LODBias * 100)), 2);
+            BTIFile.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 4);
 
             long Pauseposition = BTIFile.Position;
             BTIFile.Position = DataOffset;

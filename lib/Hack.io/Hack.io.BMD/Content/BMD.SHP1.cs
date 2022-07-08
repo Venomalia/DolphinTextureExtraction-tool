@@ -29,18 +29,18 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int shp1Size = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int ShapeEntryCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                int shp1Size = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int ShapeEntryCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 BMD.Position += 0x02;
 
-                int shapeHeaderDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int shapeRemapTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int StringTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int attributeDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int DRW1IndexTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int primitiveDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int MatrixDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int PacketInfoDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int shapeHeaderDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int shapeRemapTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int StringTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int attributeDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int DRW1IndexTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int primitiveDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int MatrixDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int PacketInfoDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
 
                 // Remap table
@@ -48,7 +48,7 @@ namespace Hack.io.BMD
                 int highestIndex = int.MinValue;
                 for (int i = 0; i < ShapeEntryCount; i++)
                 {
-                    RemapTable.Add(BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0));
+                    RemapTable.Add(BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0));
 
                     if (RemapTable[i] > highestIndex)
                         highestIndex = RemapTable[i];
@@ -68,10 +68,10 @@ namespace Hack.io.BMD
                     long ShapeStart = BMD.Position;
                     Shape CurrentShape = new Shape() { MatrixType = (DisplayFlags)BMD.ReadByte() };
                     BMD.Position++;
-                    ushort PacketCount = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                    ushort batchAttributeOffset = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                    ushort firstMatrixIndex = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                    ushort firstPacketIndex = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
+                    ushort PacketCount = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                    ushort batchAttributeOffset = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                    ushort firstMatrixIndex = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                    ushort firstPacketIndex = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
                     BMD.Position += 0x02;
                     BoundingVolume shapeVol = new BoundingVolume(BMD);
 
@@ -87,21 +87,21 @@ namespace Hack.io.BMD
                         // The packets are all stored linearly and then they point to the specific size and offset of the data for this particular packet.
                         BMD.Position = ChunkStart + PacketInfoDataOffset + ((firstPacketIndex + PacketID) * 0x8); /* 0x8 is the size of one Packet entry */
 
-                        int PacketSize = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                        int PacketOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                        int PacketSize = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                        int PacketOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
                         BMD.Position = ChunkStart +  MatrixDataOffset + (firstMatrixIndex + PacketID) * 0x08;
                         // 8 bytes long
-                        Pack.DRW1MatrixID = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                        short MatrixCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                        int StartingMatrix = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                        Pack.DRW1MatrixID = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                        short MatrixCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                        int StartingMatrix = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
 
                         BMD.Position = ChunkStart + DRW1IndexTableOffset + (StartingMatrix * 0x2);
                         int LastID = 0;
                         for (int m = 0; m < MatrixCount; m++)
                         {
-                            Pack.MatrixIndices.Add(BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0));
+                            Pack.MatrixIndices.Add(BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0));
                             if (Pack.MatrixIndices[m] == -1)
                                 Pack.MatrixIndices[m] = LastID;
                             else
@@ -413,14 +413,14 @@ namespace Hack.io.BMD
                     reader.Position = offset;
 
                     int index = 0;
-                    GXVertexAttribute attrib = (GXVertexAttribute)BitConverter.ToInt32(reader.ReadBigEndian(0, 4), 0);
+                    GXVertexAttribute attrib = (GXVertexAttribute)BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
 
                     while (attrib != GXVertexAttribute.Null)
                     {
-                        Attributes.Add(attrib, new Tuple<VertexInputType, int>((VertexInputType)BitConverter.ToInt32(reader.ReadBigEndian(0, 4), 0), index));
+                        Attributes.Add(attrib, new Tuple<VertexInputType, int>((VertexInputType)BitConverter.ToInt32(reader.ReadBigEndian( 4), 0), index));
 
                         index++;
-                        attrib = (GXVertexAttribute)BitConverter.ToInt32(reader.ReadBigEndian(0, 4), 0);
+                        attrib = (GXVertexAttribute)BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
                     }
                 }
 
@@ -618,7 +618,7 @@ namespace Hack.io.BMD
                     Vertices = new List<Vertex>();
 
                     PrimitiveType = (GXPrimitiveType)(reader.ReadByte() & 0xF8);
-                    int vertCount = BitConverter.ToInt16(reader.ReadBigEndian(0, 2), 0);
+                    int vertCount = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
 
                     for (int i = 0; i < vertCount; i++)
                     {
@@ -635,7 +635,7 @@ namespace Hack.io.BMD
                                     vert.SetAttributeIndex(attrib, (uint)reader.ReadByte());
                                     break;
                                 case VertexInputType.Index16:
-                                    ushort temp = BitConverter.ToUInt16(reader.ReadBigEndian(0, 2), 0);
+                                    ushort temp = BitConverter.ToUInt16(reader.ReadBigEndian( 2), 0);
                                     vert.SetAttributeIndex(attrib, temp);
                                     break;
                                 case VertexInputType.None:
@@ -955,10 +955,10 @@ namespace Hack.io.BMD
 
                 public BoundingVolume(Stream BMD)
                 {
-                    SphereRadius = BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0);
+                    SphereRadius = BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0);
 
-                    MinBounds = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
-                    MaxBounds = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                    MinBounds = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
+                    MaxBounds = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
                 }
 
                 public void GetBoundsValues(List<Vector3> positions)

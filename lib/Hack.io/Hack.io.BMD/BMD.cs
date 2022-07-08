@@ -86,9 +86,9 @@ namespace Hack.io.BMD
             Joints.InitBoneFamilies(Scenegraph);
             Joints.InitBoneMatricies(Scenegraph);
             Materials = new MAT3(BMD);
-            if (BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0) == 0x4D444C33)
+            if (BitConverter.ToInt32(BMD.ReadBigEndian(4), 0) == 0x4D444C33)
             {
-                int mdl3Size = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int mdl3Size = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
                 BMD.Position += mdl3Size - 0x08;
             }
             else
@@ -116,7 +116,7 @@ namespace Hack.io.BMD
             Textures.Write(BMD);
 
             BMD.Position = 0x08;
-            BMD.WriteBigEndian(BitConverter.GetBytes((int)BMD.Length), 0, 4);
+            BMD.WriteBigEndian(BitConverter.GetBytes((int)BMD.Length), 4);
         }
 
         public enum GXVertexAttribute

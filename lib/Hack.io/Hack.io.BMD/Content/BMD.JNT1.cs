@@ -23,25 +23,25 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int jnt1Size = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int jointCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                int jnt1Size = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int jointCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 BMD.Position += 0x02;
                 
-                int jointDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int internTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int nameTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int jointDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int internTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int nameTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
                 List<string> names = new List<string>();
 
                 BMD.Seek(ChunkStart + nameTableOffset, SeekOrigin.Begin);
 
-                short stringCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                short stringCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                 BMD.Position += 0x02;
 
                 for (int i = 0; i < stringCount; i++)
                 {
                     BMD.Position += 0x02;
-                    short nameOffset = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                    short nameOffset = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                     long saveReaderPos = BMD.Position;
                     BMD.Position = ChunkStart + nameTableOffset + nameOffset;
 
@@ -55,7 +55,7 @@ namespace Hack.io.BMD
                 BMD.Seek(ChunkStart + internTableOffset, SeekOrigin.Begin);
                 for (int i = 0; i < jointCount; i++)
                 {
-                    int test = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                    int test = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                     remapTable.Add(test);
 
                     if (test > highestRemap)
@@ -220,16 +220,16 @@ namespace Hack.io.BMD
                     Children = new List<Bone>();
 
                     Name = name;
-                    m_MatrixType = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                    m_MatrixType = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                     InheritParentScale = BMD.ReadByte() == 0;
 
                     BMD.Position++;
 
-                    m_Scale = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                    m_Scale = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
 
-                    short xRot = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                    short yRot = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                    short zRot = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                    short xRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    short yRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    short zRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
 
                     float xConvRot = (float)(xRot * 180.0 / 32767.0);
                     float yConvRot = (float)(yRot * 180.0 / 32767.0);
@@ -243,7 +243,7 @@ namespace Hack.io.BMD
 
                     BMD.Position += 0x02;
 
-                    m_Translation = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                    m_Translation = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
 
                     Bounds = new SHP1.BoundingVolume(BMD);
                     CompiledMatrix = TransformationMatrix;

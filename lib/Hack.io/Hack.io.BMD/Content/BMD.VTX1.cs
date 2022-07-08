@@ -24,30 +24,30 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
                 BMD.Position += 0x04;
                 int[] attribDataOffsets = new int[13]
                 {
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0),
-                    BitConverter.ToInt32(BMD.ReadBigEndian(0,4),0)
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0),
+                    BitConverter.ToInt32(BMD.ReadBigEndian(4),0)
                 };
-                GXVertexAttribute attrib = (GXVertexAttribute)BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                GXVertexAttribute attrib = (GXVertexAttribute)BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
 
                 while (attrib != GXVertexAttribute.Null)
                 {
-                    GXComponentCount componentCount = (GXComponentCount)BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                    GXDataType componentType = (GXDataType)BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                    GXComponentCount componentCount = (GXComponentCount)BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                    GXDataType componentType = (GXDataType)BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
                     byte fractionalBitCount = (byte)BMD.ReadByte();
                     StorageFormats.Add(attrib, new Tuple<GXDataType, byte>(componentType, fractionalBitCount));
 
@@ -59,7 +59,7 @@ namespace Hack.io.BMD
                     Attributes.SetAttributeData(attrib, LoadAttributeData(BMD, (int)(ChunkStart + attribOffset), attribCount, fractionalBitCount, attrib, componentType, componentCount));
 
                     BMD.Position = curPos;
-                    attrib = (GXVertexAttribute)BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                    attrib = (GXVertexAttribute)BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
                 }
                 BMD.Position = ChunkStart + ChunkSize;
             }
@@ -140,17 +140,17 @@ namespace Hack.io.BMD
                             floatList.Add(comps81Float);
                             break;
                         case GXDataType.Unsigned16:
-                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
+                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
                             float compu161Float = (float)compu161 / (float)(1 << frac);
                             floatList.Add(compu161Float);
                             break;
                         case GXDataType.Signed16:
-                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                             float comps161Float = (float)comps161 / (float)(1 << frac);
                             floatList.Add(comps161Float);
                             break;
                         case GXDataType.Float32:
-                            floatList.Add(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0));
+                            floatList.Add(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
                             break;
                     }
                 }
@@ -181,21 +181,21 @@ namespace Hack.io.BMD
                             vec2List.Add(new Vector2(comps81Float, comps82Float));
                             break;
                         case GXDataType.Unsigned16:
-                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                            ushort compu162 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
+                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                            ushort compu162 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
                             float compu161Float = (float)compu161 / (float)(1 << frac);
                             float compu162Float = (float)compu162 / (float)(1 << frac);
                             vec2List.Add(new Vector2(compu161Float, compu162Float));
                             break;
                         case GXDataType.Signed16:
-                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                            short comps162 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                            short comps162 = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                             float comps161Float = (float)comps161 / (float)(1 << frac);
                             float comps162Float = (float)comps162 / (float)(1 << frac);
                             vec2List.Add(new Vector2(comps161Float, comps162Float));
                             break;
                         case GXDataType.Float32:
-                            vec2List.Add(new Vector2(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0)));
+                            vec2List.Add(new Vector2(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0)));
                             break;
                     }
                 }
@@ -230,25 +230,25 @@ namespace Hack.io.BMD
                             vec3List.Add(new Vector3(comps81Float, comps82Float, comps83Float));
                             break;
                         case GXDataType.Unsigned16:
-                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                            ushort compu162 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
-                            ushort compu163 = BitConverter.ToUInt16(BMD.ReadBigEndian(0, 2), 0);
+                            ushort compu161 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                            ushort compu162 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
+                            ushort compu163 = BitConverter.ToUInt16(BMD.ReadBigEndian( 2), 0);
                             float compu161Float = (float)compu161 / (float)(1 << frac);
                             float compu162Float = (float)compu162 / (float)(1 << frac);
                             float compu163Float = (float)compu163 / (float)(1 << frac);
                             vec3List.Add(new Vector3(compu161Float, compu162Float, compu163Float));
                             break;
                         case GXDataType.Signed16:
-                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                            short comps162 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
-                            short comps163 = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                            short comps161 = BitConverter.ToInt16(BMD.ReadBigEndian(2), 0);
+                            short comps162 = BitConverter.ToInt16(BMD.ReadBigEndian(2), 0);
+                            short comps163 = BitConverter.ToInt16(BMD.ReadBigEndian(2), 0);
                             float comps161Float = (float)comps161 / (float)(1 << frac);
                             float comps162Float = (float)comps162 / (float)(1 << frac);
                             float comps163Float = (float)comps163 / (float)(1 << frac);
                             vec3List.Add(new Vector3(comps161Float, comps162Float, comps163Float));
                             break;
                         case GXDataType.Float32:
-                            vec3List.Add(new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(0, 4), 0)));
+                            vec3List.Add(new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian(4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(4), 0), BitConverter.ToSingle(BMD.ReadBigEndian(4), 0)));
                             break;
                     }
                 }
@@ -265,7 +265,7 @@ namespace Hack.io.BMD
                     switch (dataType)
                     {
                         case GXDataType.RGB565:
-                            short colorShort = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                            short colorShort = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                             int r5 = (colorShort & 0xF800) >> 11;
                             int g6 = (colorShort & 0x07E0) >> 5;
                             int b5 = (colorShort & 0x001F);
@@ -286,7 +286,7 @@ namespace Hack.io.BMD
                             colorList.Add(new Color4((float)rx8 / 255.0f, (float)gx8 / 255.0f, (float)bx8 / 255.0f, 1.0f));
                             break;
                         case GXDataType.RGBA4:
-                            short colorShortA = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                            short colorShortA = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
                             int r4 = (colorShortA & 0xF000) >> 12;
                             int g4 = (colorShortA & 0x0F00) >> 8;
                             int b4 = (colorShortA & 0x00F0) >> 4;
@@ -294,7 +294,7 @@ namespace Hack.io.BMD
                             colorList.Add(new Color4((float)r4 / 255.0f, (float)g4 / 255.0f, (float)b4 / 255.0f, (float)a4 / 255.0f));
                             break;
                         case GXDataType.RGBA6:
-                            int colorInt = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                            int colorInt = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
                             int r6 = (colorInt & 0xFC0000) >> 18;
                             int ga6 = (colorInt & 0x03F000) >> 12;
                             int b6 = (colorInt & 0x000FC0) >> 6;

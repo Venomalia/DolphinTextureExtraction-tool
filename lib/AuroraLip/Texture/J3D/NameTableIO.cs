@@ -20,13 +20,13 @@ namespace AuroraLip.Texture.J3D
 
             reader.Position = offset;
 
-            short stringCount = BitConverter.ToInt16(reader.ReadBigEndian(0, 2), 0);
+            short stringCount = BitConverter.ToInt16(reader.ReadBigEndian(2), 0);
             reader.Position += 0x02;
 
             for (int i = 0; i < stringCount; i++)
             {
                 reader.Position += 0x02;
-                short nameOffset = BitConverter.ToInt16(reader.ReadBigEndian(0, 2), 0);
+                short nameOffset = BitConverter.ToInt16(reader.ReadBigEndian(2), 0);
                 long saveReaderPos = reader.Position;
                 reader.Position = offset + nameOffset;
 
@@ -42,12 +42,12 @@ namespace AuroraLip.Texture.J3D
         {
             long start = writer.Position;
 
-            writer.WriteBigEndian(BitConverter.GetBytes((short)names.Count), 0, 2);
+            writer.WriteBigEndian(BitConverter.GetBytes((short)names.Count), 2);
             writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
             foreach (string st in names)
             {
-                writer.WriteBigEndian(BitConverter.GetBytes(HashString(st)), 0, 2);
+                writer.WriteBigEndian(BitConverter.GetBytes(HashString(st)), 2);
                 writer.Write(new byte[2], 0, 2);
             }
 
@@ -55,7 +55,7 @@ namespace AuroraLip.Texture.J3D
             for (int i = 0; i < names.Count; i++)
             {
                 writer.Seek((int)(start + (6 + i * 4)), SeekOrigin.Begin);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)(curOffset - start)), 0, 2);
+                writer.WriteBigEndian(BitConverter.GetBytes((short)(curOffset - start)), 2);
                 writer.Seek((int)curOffset, SeekOrigin.Begin);
 
                 writer.WriteString(names[i], 0x00);

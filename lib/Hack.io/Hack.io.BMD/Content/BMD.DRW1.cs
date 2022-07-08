@@ -24,12 +24,12 @@ namespace Hack.io.BMD
                 if (!BMD.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int entryCount = BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0);
+                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
+                int entryCount = BitConverter.ToInt16(BMD.ReadBigEndian(2), 0);
                 BMD.Position += 0x2;
 
-                int boolDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
-                int indexDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(0, 4), 0);
+                int boolDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
+                int indexDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
 
                 IsPartialWeight = new List<bool>();
 
@@ -39,7 +39,7 @@ namespace Hack.io.BMD
 
                 BMD.Seek(ChunkStart + indexDataOffset, System.IO.SeekOrigin.Begin);
                 for (int i = 0; i < entryCount; i++)
-                    TransformIndexTable.Add(BitConverter.ToInt16(BMD.ReadBigEndian(0, 2), 0));
+                    TransformIndexTable.Add(BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0));
 
                 BMD.Position = ChunkStart + ChunkSize;
                 Matrices = new Matrix4[entryCount];

@@ -20,12 +20,12 @@ namespace Hack.io.BMD
                 if (!BDL.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int mdl3Size = BitConverter.ToInt32(BDL.ReadBigEndian(0, 4), 0);
-                short EntryCount = BitConverter.ToInt16(BDL.ReadBigEndian(0, 2), 0);
+                int mdl3Size = BitConverter.ToInt32(BDL.ReadBigEndian(4), 0);
+                short EntryCount = BitConverter.ToInt16(BDL.ReadBigEndian(2), 0);
                 BDL.Position += 0x02; //Skip the padding
-                uint PacketListingOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0), SubPacketOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0),
-                    MatrixIDOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0), UnknownOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0),
-                    IndiciesOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0), StringTableOFfset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0);
+                uint PacketListingOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), SubPacketOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0),
+                    MatrixIDOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), UnknownOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0),
+                    IndiciesOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), StringTableOFfset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0);
 
                 BDL.Position = ChunkStart + PacketListingOffset;
                 for (int i = 0; i < EntryCount; i++)
@@ -42,7 +42,7 @@ namespace Hack.io.BMD
                 public Packet(Stream BDL)
                 {
                     long PausePosition = BDL.Position;
-                    uint Offset = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0), Size = BitConverter.ToUInt32(BDL.ReadBigEndian(0, 4), 0);
+                    uint Offset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), Size = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0);
                     BDL.Position = PausePosition + Offset;
                     long PacketLimit = BDL.Position + Size;
                     while (BDL.Position < PacketLimit)
@@ -72,7 +72,7 @@ namespace Hack.io.BMD
                 public BPCommand(Stream BDL)
                 {
                     Register = (BPRegister)BDL.ReadByte();
-                    Value = BitConverterEx.ToUInt24(BDL.ReadBigEndian(0, 3), 0);
+                    Value = BitConverterEx.ToUInt24(BDL.ReadBigEndian(3), 0);
                 }
 
                 public override string ToString() => $"BP Command: {Register}, {Value.ToString()}";
@@ -89,8 +89,8 @@ namespace Hack.io.BMD
 
                 public XFCommand(Stream BDL)
                 {
-                    int DataLength = (BitConverter.ToInt16(BDL.ReadBigEndian(0, 2), 0) + 1) * 4;
-                    Register = (XFRegister)BitConverter.ToInt16(BDL.ReadBigEndian(0, 2), 0);
+                    int DataLength = (BitConverter.ToInt16(BDL.ReadBigEndian(2), 0) + 1) * 4;
+                    Register = (XFRegister)BitConverter.ToInt16(BDL.ReadBigEndian(2), 0);
                     switch (Register)
                     {
                         case XFRegister.SETTEXMTX0:
@@ -98,7 +98,7 @@ namespace Hack.io.BMD
                             Arguments.Add(new XFTexMatrix(BDL));
                             break;
                         default:
-                            BDL.Read(0, DataLength);
+                            BDL.Read(DataLength);
                             break;
                     }
                 }
@@ -119,8 +119,8 @@ namespace Hack.io.BMD
                     public XFTexMatrix(Stream BDL)
                     {
                         CompiledMatrix = new Matrix2x4(
-                            BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0),
-                            BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(0, 4), 0)
+                            BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0),
+                            BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0)
                             );
                     }
 

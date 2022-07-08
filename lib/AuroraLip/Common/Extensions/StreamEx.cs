@@ -13,7 +13,7 @@ namespace AuroraLip.Common
     public static class StreamEx
     {
         /// <summary>
-        /// Reads a block of bytes from the stream and writes the data in a given buffer (For Little Endian)
+        /// Reads a block of bytes from the stream(For Little Endian)
         /// </summary>
         /// <param name="FS">This</param>
         /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
@@ -25,38 +25,18 @@ namespace AuroraLip.Common
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         [DebuggerStepThrough]
-        public static byte[] Read(this Stream FS, int Offset, uint Count)
-        {
-            byte[] Final = new byte[Count];
-            for (uint i = 0; i < Count; i++)
-                Final[i] = (byte)FS.ReadByte();
-            return Final;
-        }
-        /// <summary>
-        /// Reads a block of bytes from the stream and writes the data in a given buffer (For Little Endian)
-        /// </summary>
-        /// <param name="FS">This</param>
-        /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
-        /// <param name="Count">The maximum number of bytes to read.</param>
-        /// <returns>The total number of bytes read into the buffer. This might be less than the number of bytes requested if that number of bytes are not currently available, or zero if the end of the stream is reached.</returns>
-        /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
-        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
-        /// <exception cref="IOException">An I/O error occurred.</exception>
-        /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
-        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        [DebuggerStepThrough]
-        public static byte[] Read(this Stream FS, int Offset, int Count)
+        public static byte[] Read(this Stream FS,int Count, int Offset = 0)
         {
             byte[] Final = new byte[Count];
             FS.Read(Final, Offset, Count);
             return Final;
         }
         /// <summary>
-        /// Reads a block of bytes from the stream and writes the data in a given buffer... but Backwards! (For Big Endian)
+        /// Reads a block of bytes from the stream... but Backwards! (For Big Endian)
         /// </summary>
         /// <param name="FS">This</param>
-        /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
         /// <param name="Count">The maximum number of bytes to read.</param>
+        /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
         /// <returns>The total number of bytes read into the buffer. This might be less than the number of bytes requested if that number of bytes are not currently available, or zero if the end of the stream is reached.</returns>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
@@ -64,7 +44,7 @@ namespace AuroraLip.Common
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         [DebuggerStepThrough]
-        public static byte[] ReadBigEndian(this Stream FS, int Offset, int Count)
+        public static byte[] ReadBigEndian(this Stream FS, int Count, int Offset = 0)
         {
             byte[] Final = new byte[Count];
             FS.Read(Final, Offset, Count);
@@ -85,7 +65,7 @@ namespace AuroraLip.Common
         /// <exception cref="ObjectDisposedException">The stream is closed</exception>
         /// <exception cref="NotSupportedException">The current stream instance does not support writing</exception>
         [DebuggerStepThrough]
-        public static void WriteBigEndian(this Stream FS, byte[] Array, int Offset, int Count)
+        public static void WriteBigEndian(this Stream FS, byte[] Array, int Count, int Offset = 0)
         {
             System.Array.Reverse(Array);
             FS.Write(Array, Offset, Count);

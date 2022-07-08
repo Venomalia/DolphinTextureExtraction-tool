@@ -49,7 +49,11 @@ namespace DolphinTextureExtraction_tool
             /// <summary>
             /// Tries to extract textures from unknown files, may cause errors.
             /// </summary>
+#if DEBUG
+            public ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
+#else
             public ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+#endif
 
         }
 
@@ -82,7 +86,7 @@ namespace DolphinTextureExtraction_tool
         }
 
 
-        #region Constructor StartScan
+#region Constructor StartScan
 
         private TextureExtractor(string meindirectory, string savedirectory, Options options = null)
         {
@@ -117,11 +121,11 @@ namespace DolphinTextureExtraction_tool
             return result;
         }
 
-        #endregion
+#endregion
 
-        #region Scan
+#region Scan
 
-        #region main
+#region main
 
         private void Scan(DirectoryInfo directory)
         {
@@ -260,6 +264,10 @@ namespace DolphinTextureExtraction_tool
                                 case "CLZ":
                                     Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
+                                case "NUTC":
+                                    using (JUTTexture Texture = new NUTC(stream)) Save(Texture, subdirectory);
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case "TEX1":
                                     foreach (var item in new BMD.TEX1(stream).Textures)
                                     {
@@ -314,9 +322,9 @@ namespace DolphinTextureExtraction_tool
             stream.Close();
         }
 
-        #endregion
+#endregion
 
-        #region Archive
+#region Archive
 
         private void Scan(Archive archiv, in string subdirectory)
         {
@@ -360,9 +368,9 @@ namespace DolphinTextureExtraction_tool
             Scan((MemoryStream)file, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
         }
 
-        #endregion
+#endregion
 
-        #region CPK
+#region CPK
 
         private void scanCPK(string file, string subdirectory)
         {
@@ -426,11 +434,11 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Extract
+#region Extract
 
         /// <summary>
         /// Extract the texture
@@ -506,9 +514,9 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Helper
+#region Helper
 
         private void AddResultUnknown(Stream stream, FileTypInfo filetype, in string file)
         {
@@ -560,7 +568,7 @@ namespace DolphinTextureExtraction_tool
 
             return new FileTypInfo(Extension, header, FileTyp.Unknown);
         }
-        #endregion
+#endregion
 
 
     }

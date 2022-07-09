@@ -264,6 +264,27 @@ namespace DolphinTextureExtraction_tool
                                 case "CLZ":
                                     Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
                                     break;
+                                case "ZLB":
+                                case "LzS":
+                                    byte[] bytes = stream.ToArray();
+                                    if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                                    {
+                                        Scan(new MemoryStream(test), subdirectory);
+                                        break;
+                                    }
+
+                                    if (Compression.TryToFindMatch(in bytes, out algorithm))
+                                    {
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
+                                        result.Unsupported++;
+                                        result.SkippedSize += stream.Length;
+                                    }
+                                    else
+                                    {
+                                        goto default;
+                                    }
+                                    break;
                                 case "NUTC":
                                     using (JUTTexture Texture = new NUTC(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;

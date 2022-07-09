@@ -36,6 +36,8 @@ output to the same place only with a "~" in front of the folder.
 - Doshin the Giant
 - DONKEY KONG JUNGLE BEAT
 - Pikmin 2
+- Star Fox Assault
+- Donkey Konga
 
 ### Games( 50-80% )
 - LUIGI'S MANSION
@@ -59,11 +61,12 @@ output to the same place only with a "~" in front of the folder.
 - Pandora s Tower
 - Punch Out
 - Xenoblade Chronicles
+- Donkey Konga
 
 ## Supported formats
 - RARC, U8, CPK Archives
 - YAZ, YAY, CLZ, LZ11 Compressing
-- BTI, TPL, TEX1 Textures
+- BTI, TPL, NUTC, TXE, TEX1 Textures
 - BMD, BDL J3D Models
 
 ## Credits

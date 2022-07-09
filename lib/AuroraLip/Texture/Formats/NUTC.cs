@@ -60,24 +60,28 @@ namespace AuroraLip.Texture.Formats
                 byte[] palettedata = stream.Read((int)paletteSize);
                 stream.Position = ImageDataAddress;
 
-                GXPaletteFormat GXPaletteFormat = GXPaletteFormat.IA8;
-                if (PaletteFormat != NUTCPaletteFormat.None)
+                //When the data size is zero these images hold additional data like Palettedata
+                if (imageSize != 0)
                 {
-                    if ((int)PaletteFormat > 3) PaletteFormat = NUTCPaletteFormat.IA8;
-                    GXPaletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), PaletteFormat.ToString());
+                    GXPaletteFormat GXPaletteFormat = GXPaletteFormat.IA8;
+                    if (PaletteFormat != NUTCPaletteFormat.None)
+                    {
+                        if ((int)PaletteFormat > 3) PaletteFormat = NUTCPaletteFormat.IA8;
+                        GXPaletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), PaletteFormat.ToString());
+                    }
+                    TexEntry current = new TexEntry(stream, palettedata, (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Format.ToString()), GXPaletteFormat, ColorsCount, ImageWidth, ImageHeight, TotalImageCount - 1)
+                    {
+                        LODBias = 0,
+                        MagnificationFilter = GXFilterMode.Nearest,
+                        MinificationFilter = GXFilterMode.Nearest,
+                        WrapS = GXWrapMode.CLAMP,
+                        WrapT = GXWrapMode.CLAMP,
+                        EnableEdgeLOD = false,
+                        MinLOD = 0,
+                        MaxLOD = 0
+                    };
+                    Add(current);
                 }
-                TexEntry current = new TexEntry(stream, palettedata, (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Format.ToString()), GXPaletteFormat, ColorsCount, ImageWidth, ImageHeight, TotalImageCount - 1)
-                {
-                    LODBias = 0,
-                    MagnificationFilter = GXFilterMode.Nearest,
-                    MinificationFilter = GXFilterMode.Nearest,
-                    WrapS = GXWrapMode.CLAMP,
-                    WrapT = GXWrapMode.CLAMP,
-                    EnableEdgeLOD = false,
-                    MinLOD = 0,
-                    MaxLOD = 0
-                };
-                Add(current);
                 stream.Position = ImageAddress + totalSize;
             }
         }

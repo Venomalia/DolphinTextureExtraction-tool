@@ -51,6 +51,8 @@ namespace DolphinTextureExtraction_tool
 
             //Not supported
             //Archives
+            new FileTypInfo(".LZ",new Header("LzS"), FileTyp.Archive, "compressed"),
+            new FileTypInfo("ZLB",new Header("ZLB"), FileTyp.Archive, "compressed"),
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
@@ -71,9 +73,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("RSC", FileTyp.Archive, "Wario World"),
             new FileTypInfo("",new Header("FCMP"), FileTyp.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
             new FileTypInfo("afs",new Header("AFS"), FileTyp.Archive, "Ganbarion"),
-            new FileTypInfo("",new Header(new byte[]{90,76,66}), FileTyp.Archive, "Starfox"),
             new FileTypInfo("dict",new Header(new byte[]{169,243,36,88,6,1}), FileTyp.Archive),
-            new FileTypInfo("",new Header(new byte[]{78,80,65,67}), FileTyp.Archive),
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
@@ -125,6 +125,9 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bct", FileTyp.Audio, "Wii Remote sound info"),
             new FileTypInfo("csw", FileTyp.Audio, "Wii Remote sound effect"),
             new FileTypInfo("cit", FileTyp.Else, "Chord information table"),
+            new FileTypInfo("cbd", FileTyp.Audio, "data"),
+            new FileTypInfo("chd",new Header("CHD"), FileTyp.Else),
+            new FileTypInfo("c3d", FileTyp.Else, "3D Audio Position"),
             //Video
             new FileTypInfo("thp", new Header("THP"), FileTyp.Video),
             new FileTypInfo("dat", new Header("MOC5"), FileTyp.Video),
@@ -161,6 +164,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("brlyt", new Header("RLYT"), FileTyp.Layout, "NW4R structure"),
             //Model
             new FileTypInfo("brmdl", FileTyp.Model),
+            new FileTypInfo("fpc", FileTyp.Model, "pac file container"),
             //Animation
             new FileTypInfo("bck",new Header("J3D1bck1"), FileTyp.Animation, "skeletal transformation"),
             new FileTypInfo("bck",new Header("J3D1bck3"), FileTyp.Animation, "skeletal transformation"),
@@ -199,6 +203,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("breft",new Header("REFT"), FileTyp.Else, "Effect"),
             new FileTypInfo("cmd",new Header("CAM "), FileTyp.Else, "Camera data"),
             new FileTypInfo("bin",new Header("BTGN"), FileTyp.Else, "Materials"),
+            new FileTypInfo(".pac",new Header("NPAC"), FileTyp.Else, "Star Fox Assault"),
             new FileTypInfo("tbl", FileTyp.Else, "JMap data"),
             new FileTypInfo("bcam", FileTyp.Else, "JMap camera data"),
             new FileTypInfo("brplt", FileTyp.Else, "Palette"),

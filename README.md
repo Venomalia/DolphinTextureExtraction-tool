@@ -37,7 +37,7 @@ output to the same place only with a "~" in front of the folder.
 - DONKEY KONG JUNGLE BEAT
 - Pikmin 2
 - Star Fox Assault
-- Donkey Konga
+- Donkey Konga 2
 
 ### Games( 50-80% )
 - LUIGI'S MANSION

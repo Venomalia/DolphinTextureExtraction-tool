@@ -208,7 +208,12 @@ namespace AuroraLip.Texture.J3D
                     break;
                 case GXImageFormat.C14X2:
                     for (int i = 0; i < BlockSizeHalfed; i++)
-                        Result.Add(Colours[BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0)]);
+                    { 
+                        int ColourIndex = BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0);
+                        if (ColourIndex > Colours.Length)
+                            ColourIndex = 0;
+                        Result.Add(Colours[ColourIndex]);
+                    }
                     break;
                 case GXImageFormat.CMPR:
                     Result.AddRange(new Color[64]);

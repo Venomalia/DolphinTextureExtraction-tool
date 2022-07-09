@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 namespace AuroraLip.Texture.J3D
 {
@@ -34,6 +35,7 @@ namespace AuroraLip.Texture.J3D
                 public float MaxLOD { get; set; }
                 public float LODBias { get; set; }
                 public bool EnableEdgeLOD { get; set; }
+                List<byte[]> Palettes { get; set; }
 
                 public int ImageWidth => this[0].Width;
                 public int ImageHeight => this[0].Height;
@@ -43,21 +45,32 @@ namespace AuroraLip.Texture.J3D
 
                 public TexEntry() { }
 
-                public TexEntry(Stream Stream, in byte[] PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int? PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
+                public TexEntry(Stream Stream, in byte[] PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
                 {
                     this.Format = Format;
                     this.PaletteFormat = PaletteFormat;
-                    this.WrapS = WrapS;
-                    this.WrapT = WrapT;
 
                     byte[] RowDate = Stream.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight));
                     Hash = HashDepot.XXHash.Hash64(RowDate);
-                    if (IsPaletteFormat(Format)) TlutHash = HashDepot.XXHash.Hash64(PaletteData);
+                    if (IsPaletteFormat(Format) && PaletteCount > 0)
+                    {
+                        int PalettesNumber = PaletteData.Length / (PaletteCount * 2);
+                        Palettes = new List<byte[]>(PalettesNumber);
+                        if (PalettesNumber <= 1) Palettes.Add(PaletteData);
+                        else
+                        {
+                            int PaletteSize = PaletteData.Length / PalettesNumber;
+
+                            for (int i = 0; i < PalettesNumber; i++)
+                                Palettes.Add(PaletteData.Skip(i * PaletteSize).Take(PaletteSize).ToArray());
+                        }
+                        TlutHash = HashDepot.XXHash.Hash64(Palettes[0]);
+                    }
                     this.Add(DecodeImage(RowDate, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight));
 
-                    for (int i = 1; i < Mipmap; i++)
+                    for (int i = 1; i <= Mipmap; i++)
                     {
-                        this.Add(DecodeImage(Stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth / 2, ImageHeight / 2, i - 1));
+                        this.Add(DecodeImage(Stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, i));
                     }
                 }
 
@@ -85,7 +98,7 @@ namespace AuroraLip.Texture.J3D
                         // Tlut Hash
                         + (JUtility.IsPaletteFormat(Format)
                             ? (!UseTlut || TlutHash == 0
-                                ? "$" : Hash.ToString("x").PadLeft(16, '0')) + '_' : string.Empty)
+                                ? "$" : TlutHash.ToString("x").PadLeft(16, '0')) + '_' : string.Empty)
                         // Format
                         + (int)Format
                         // mipmaps

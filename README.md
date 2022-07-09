@@ -38,6 +38,7 @@ output to the same place only with a "~" in front of the folder.
 - Pikmin 2
 - Star Fox Assault
 - Donkey Konga 2
+- WarioWare Smooth Moves
 
 ### Games( 50-80% )
 - LUIGI'S MANSION

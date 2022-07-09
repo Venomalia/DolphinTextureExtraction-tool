@@ -25,7 +25,7 @@ namespace AuroraLip.Texture.Formats
             int DataSize = BitConverter.ToInt32(stream.ReadBigEndian(4), 0);
 
             stream.Position = 32;
-            TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, null, ImageWidth, ImageHeight)
+            TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,

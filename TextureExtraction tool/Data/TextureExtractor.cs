@@ -86,7 +86,7 @@ namespace DolphinTextureExtraction_tool
         }
 
 
-#region Constructor StartScan
+        #region Constructor StartScan
 
         private TextureExtractor(string meindirectory, string savedirectory, Options options = null)
         {
@@ -121,11 +121,11 @@ namespace DolphinTextureExtraction_tool
             return result;
         }
 
-#endregion
+        #endregion
 
-#region Scan
+        #region Scan
 
-#region main
+        #region main
 
         private void Scan(DirectoryInfo directory)
         {
@@ -134,7 +134,7 @@ namespace DolphinTextureExtraction_tool
                 Scan(subdirectory);
             }
 
-            Parallel.ForEach(directory.GetFiles(),options.ParallelOptions, (FileInfo file) =>
+            Parallel.ForEach(directory.GetFiles(), options.ParallelOptions, (FileInfo file) =>
             {
                 Scan(file);
             });
@@ -147,8 +147,10 @@ namespace DolphinTextureExtraction_tool
 
             string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanDirectory + Path.DirectorySeparatorChar, ""));
 
+#if !DEBUG
             try
             {
+#endif
                 switch (filetype.Typ)
                 {
                     case FileTyp.Unknown:
@@ -177,6 +179,8 @@ namespace DolphinTextureExtraction_tool
                     default:
                         break;
                 }
+
+#if !DEBUG
             }
             catch (Exception t)
             {
@@ -184,16 +188,20 @@ namespace DolphinTextureExtraction_tool
                 result.Unsupported++;
                 result.SkippedSize += file.Length;
             }
+#endif
             stream.Close();
         }
 
-        private void Scan(Stream stream, in string subdirectory, in string Extension = "")
+        private void Scan(Stream stream, string subdirectory, in string Extension = "")
         {
             FileTypInfo filetype = GetFiletype(stream, Extension);
+            subdirectory = GetDirectoryWithoutExtension(subdirectory);
 
+#if !DEBUG
             try
             {
-                switch (filetype.Typ)
+#endif
+            switch (filetype.Typ)
                 {
                     case FileTyp.Unknown:
                         if (options.Force)
@@ -262,7 +270,7 @@ namespace DolphinTextureExtraction_tool
                                     Scan(Compression<YAY0>.Decompress(stream), subdirectory);
                                     break;
                                 case "CLZ":
-                                    Scan(Compression<CLZ>.Decompress(stream), GetDirectoryWithoutExtension(subdirectory));
+                                    Scan(Compression<CLZ>.Decompress(stream), subdirectory);
                                     break;
                                 case "ZLB":
                                 case "LzS":
@@ -294,6 +302,10 @@ namespace DolphinTextureExtraction_tool
                                     {
                                         Save(item, subdirectory);
                                     }
+                                    result.ExtractedSize += stream.Length;
+                                    break;
+                                case "TEX0":
+                                    using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
                                     break;
                                 case " 0": //TPL
@@ -333,6 +345,7 @@ namespace DolphinTextureExtraction_tool
                         break;
                 }
 
+#if !DEBUG
             }
             catch (Exception t)
             {
@@ -340,12 +353,14 @@ namespace DolphinTextureExtraction_tool
                 result.Unsupported++;
                 result.SkippedSize += stream.Length;
             }
+
+#endif
             stream.Close();
         }
 
-#endregion
+        #endregion
 
-#region Archive
+        #region Archive
 
         private void Scan(Archive archiv, in string subdirectory)
         {
@@ -376,6 +391,13 @@ namespace DolphinTextureExtraction_tool
                 }
                 if (item.Value is ArchiveDirectory directory)
                 {
+
+
+
+
+
+
+
                     if (directory.Name.Length > 4)
                         Scan(directory, Path.Combine(subdirectory, directory.Name));
                     else
@@ -389,9 +411,9 @@ namespace DolphinTextureExtraction_tool
             Scan((MemoryStream)file, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
         }
 
-#endregion
+        #endregion
 
-#region CPK
+        #region CPK
 
         private void scanCPK(string file, string subdirectory)
         {
@@ -455,11 +477,11 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Extract
+        #region Extract
 
         /// <summary>
         /// Extract the texture
@@ -535,9 +557,9 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Helper
+        #region Helper
 
         private void AddResultUnknown(Stream stream, FileTypInfo filetype, in string file)
         {
@@ -589,7 +611,7 @@ namespace DolphinTextureExtraction_tool
 
             return new FileTypInfo(Extension, header, FileTyp.Unknown);
         }
-#endregion
+        #endregion
 
 
     }

@@ -39,17 +39,21 @@ output to the same place only with a "~" in front of the folder.
 - Star Fox Assault
 - Donkey Konga 2
 - WarioWare Smooth Moves
+- Mario & Sonic at the London 2012 Olympic Games
+- Mario Party 9
+- The Legend of Zelda Skyward Sword
+- SONIC COLOURS
+- Metroid: Other M
 
 ### Games( 50-80% )
 - LUIGI'S MANSION
+- Boom Street
+- Super Smash Bros. Brawl
 
 ### Games( 20-50% )
-- Mario Party 9
 - Pikmin 1
 
 ### Not supported games ( 0-20% )
-- Smash Bros. Brawl
-- The Legend of Zelda Skyward Sword
 - Kirby Air Ride
 - MarioGolf Toadstool Tour
 - F-ZERO GX
@@ -65,9 +69,9 @@ output to the same place only with a "~" in front of the folder.
 - Donkey Konga
 
 ## Supported formats
-- RARC, U8, CPK Archives
+- RARC, U8, CPK, bres Archives
 - YAZ, YAY, CLZ, LZ11 Compressing
-- BTI, TPL, NUTC, TXE, TEX1 Textures
+- BTI, TPL, NUTC, TXE, TEX1, TEX0 Textures
 - BMD, BDL J3D Models
 
 ## Credits

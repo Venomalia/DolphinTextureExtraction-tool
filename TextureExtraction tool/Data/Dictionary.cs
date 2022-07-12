@@ -41,23 +41,25 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "model"),
             new FileTypInfo("LZ", FileTyp.Archive, "LZ compressed"),
+            new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             //Textures
             new FileTypInfo("bti", FileTyp.Texture, "Image"),
             new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
             new FileTypInfo("TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture, "Palette Library"),
-            new FileTypInfo("",new Header("TEX1"), FileTyp.Texture, "raw"),
+            new FileTypInfo("tex1",new Header("TEX1"), FileTyp.Texture, "raw"),
             new FileTypInfo("nut", new Header(new byte[]{78,85,84,67}), FileTyp.Texture, "Namco Universal Texture"),
             new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
+            new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R Texture"),
 
             //Not supported
             //Archives
             new FileTypInfo(".LZ",new Header("LzS"), FileTyp.Archive, "compressed"),
+            new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Archive"),
             new FileTypInfo("ZLB",new Header("ZLB"), FileTyp.Archive, "compressed"),
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
             new FileTypInfo("pk", FileTyp.Archive, "Archive"),
-            new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             new FileTypInfo("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
             new FileTypInfo("dat",new Header("FREB"), FileTyp.Archive, "Rune Factory"),
             new FileTypInfo("pos",new Header("POSD"), FileTyp.Else, "FREB Archive Info"),
@@ -77,7 +79,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
-            //new File("brtex","bres", FileTyp.Texture, "Wii"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
@@ -87,7 +88,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo(".bmp", new Header("BM8"), FileTyp.Texture),
             new FileTypInfo(".bmp", new Header("BMö"), FileTyp.Texture),
             new FileTypInfo("DDS", new Header("DDS |"), FileTyp.Texture, "Direct Draw Surface"),
-            new FileTypInfo("",new Header("TEX0"), FileTyp.Texture, "Wii raw"),
             //Roms
             new FileTypInfo("gba", new Header(new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}), FileTyp.Executable, "GBA Rom"),
             new FileTypInfo("nes", new Header(new byte[]{78,69,83,26,1,1}) , FileTyp.Executable, "Rom"),
@@ -165,6 +165,7 @@ namespace DolphinTextureExtraction_tool
             //Model
             new FileTypInfo("brmdl", FileTyp.Model),
             new FileTypInfo("fpc", FileTyp.Model, "pac file container"),
+            new FileTypInfo("mdl0",new Header("MDL0"), FileTyp.Model, "NW4R Model"),
             //Animation
             new FileTypInfo("bck",new Header("J3D1bck1"), FileTyp.Animation, "skeletal transformation"),
             new FileTypInfo("bck",new Header("J3D1bck3"), FileTyp.Animation, "skeletal transformation"),
@@ -180,6 +181,12 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("btk",new Header("J3D1btk1"), FileTyp.Animation, "texture"),
             new FileTypInfo("brk",new Header("J3D1brk1"), FileTyp.Animation, "TEV color"),
             new FileTypInfo("bmt",new Header("J3D2bmt3"), FileTyp.Else),
+            new FileTypInfo("chr0",new Header("CHR0"), FileTyp.Animation, "NW4R Bone Animation"),
+            new FileTypInfo("srt0",new Header("SRT0"), FileTyp.Animation, "NW4R Texture Animation"),
+            new FileTypInfo("shp0",new Header("SHP0"), FileTyp.Animation, "NW4R Vertex Transform"),
+            new FileTypInfo("vis0",new Header("VIS0"), FileTyp.Animation, "NW4R Visibility Animation"),
+            new FileTypInfo("pat0",new Header("PAT0"), FileTyp.Animation, "NW4R Texture Pattern"),
+            new FileTypInfo("clr0",new Header("CLR0"), FileTyp.Animation, "NW4R Color Pattern"),
             new FileTypInfo("bas", FileTyp.Animation, "Sound"),
             new FileTypInfo("brlan",new Header("RLAN"), FileTyp.Animation, "NW4R layout"),
             new FileTypInfo("branm", FileTyp.Animation),
@@ -204,6 +211,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("cmd",new Header("CAM "), FileTyp.Else, "Camera data"),
             new FileTypInfo("bin",new Header("BTGN"), FileTyp.Else, "Materials"),
             new FileTypInfo(".pac",new Header("NPAC"), FileTyp.Else, "Star Fox Assault"),
+            new FileTypInfo("plt0",new Header("PLT0"), FileTyp.Else, "NW4R Palette"),
+            new FileTypInfo("scn0",new Header("SCN0"), FileTyp.Else, "NW4R Scene"),
             new FileTypInfo("tbl", FileTyp.Else, "JMap data"),
             new FileTypInfo("bcam", FileTyp.Else, "JMap camera data"),
             new FileTypInfo("brplt", FileTyp.Else, "Palette"),

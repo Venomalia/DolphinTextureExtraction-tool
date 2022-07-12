@@ -75,7 +75,6 @@ namespace DolphinTextureExtraction_tool
             LogFile.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine("".PadLeft(64, '-'));
             Console.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
-            Console.WriteLine($"{ex?.Source}:{ex?.StackTrace}");
             Console.WriteLine("".PadLeft(64, '-'));
         }
 

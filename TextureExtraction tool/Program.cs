@@ -227,7 +227,7 @@ namespace DolphinTextureExtraction_tool
 #else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
 #endif
-            Console.WriteLine($"Supported formats: RARC, U8, CPK, BDL4, BMD3, TPL, BTI, NUTC, TXE, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
+            Console.WriteLine($"Supported formats: RARC, U8, CPK, BDL4, BMD3, TPL, BTI, NUTC, TXE, bres, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
             ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");

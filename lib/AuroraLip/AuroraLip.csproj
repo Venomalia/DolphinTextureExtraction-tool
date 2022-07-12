@@ -68,6 +68,7 @@
     <Compile Include="Archives\ArchiveBase.cs" />
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
+    <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Common\Extensions\BitConverterEx.cs" />

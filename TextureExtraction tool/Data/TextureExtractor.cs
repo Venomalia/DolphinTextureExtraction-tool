@@ -201,7 +201,7 @@ namespace DolphinTextureExtraction_tool
             try
             {
 #endif
-            switch (filetype.Typ)
+                switch (filetype.Typ)
                 {
                     case FileTyp.Unknown:
                         if (options.Force)
@@ -327,6 +327,9 @@ namespace DolphinTextureExtraction_tool
                                         Save(item, subdirectory);
                                     }
                                     result.ExtractedSize += stream.Length;
+                                    break;
+                                case "bres":
+                                    Scan(new bres(stream), subdirectory);
                                     break;
                                 case "U8-":
                                     Scan(new U8(stream), subdirectory);

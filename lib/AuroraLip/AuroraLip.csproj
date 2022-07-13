@@ -101,6 +101,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
     <Compile Include="Texture\Formats\NUTC.cs" />
+    <Compile Include="Texture\Formats\REFT.cs" />
     <Compile Include="Texture\Formats\TEX0.cs" />
     <Compile Include="Texture\Formats\TPL.cs" />
     <Compile Include="Texture\Formats\TXE.cs" />

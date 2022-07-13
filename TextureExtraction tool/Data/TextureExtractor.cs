@@ -304,6 +304,10 @@ namespace DolphinTextureExtraction_tool
                                     }
                                     result.ExtractedSize += stream.Length;
                                     break;
+                                case "REFT":
+                                    using (JUTTexture Texture = new REFT(stream)) Save(Texture, subdirectory);
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case "TEX0":
                                     using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;

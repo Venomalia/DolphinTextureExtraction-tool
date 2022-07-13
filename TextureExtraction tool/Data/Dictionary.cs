@@ -50,12 +50,16 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("nut", new Header(new byte[]{78,85,84,67}), FileTyp.Texture, "Namco Universal Texture"),
             new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
             new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R Texture"),
+            new FileTypInfo("breft",new Header("REFT"), FileTyp.Texture, "Effect"),
 
             //Not supported
             //Archives
             new FileTypInfo(".LZ",new Header("LzS"), FileTyp.Archive, "compressed"),
-            new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Archive"),
+            new FileTypInfo("zlib", FileTyp.Archive, "compressed"),
+            new FileTypInfo("lz77", FileTyp.Archive, "compressed"),
+            new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Brawl Archive"),
             new FileTypInfo("ZLB",new Header("ZLB"), FileTyp.Archive, "compressed"),
+            new FileTypInfo("",new Header("RTDP"), FileTyp.Archive, "Arc Rise"),
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
@@ -79,6 +83,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
+            new FileTypInfo("",new Header("WTMD"), FileTyp.Texture, "Arc Rise"),
+            new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution Texture"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
@@ -126,6 +132,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("csw", FileTyp.Audio, "Wii Remote sound effect"),
             new FileTypInfo("cit", FileTyp.Else, "Chord information table"),
             new FileTypInfo("cbd", FileTyp.Audio, "data"),
+            new FileTypInfo("nlxwb", FileTyp.Audio, "Next Level Games"),
+            new FileTypInfo("rsd", FileTyp.Audio, "MADWORLD"),
             new FileTypInfo("chd",new Header("CHD"), FileTyp.Else),
             new FileTypInfo("c3d", FileTyp.Else, "3D Audio Position"),
             //Video
@@ -151,6 +159,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("msbp",new Header("MsgPrjBn"), FileTyp.Text, "LMS Prj data"),
             new FileTypInfo("bmg",new Header("MESGbmg1"), FileTyp.Text, "Binary message container"),
             new FileTypInfo("asrBE",new Header("Asura   TXTH"), FileTyp.Text, "Rebellion"),
+            new FileTypInfo("msbin", FileTyp.Text),
             //Font
             new FileTypInfo("aft",new Header("ALFT"), FileTyp.Font),
             new FileTypInfo("aig", new Header("ALIG"), FileTyp.Font),
@@ -207,12 +216,12 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("blight",new Header("LGHT"), FileTyp.Else, "Light"),
             new FileTypInfo("bfog",new Header("FOGM"), FileTyp.Else, "Fog"),
             new FileTypInfo("breff",new Header("REFF"), FileTyp.Else, "Effect"),
-            new FileTypInfo("breft",new Header("REFT"), FileTyp.Else, "Effect"),
             new FileTypInfo("cmd",new Header("CAM "), FileTyp.Else, "Camera data"),
             new FileTypInfo("bin",new Header("BTGN"), FileTyp.Else, "Materials"),
             new FileTypInfo(".pac",new Header("NPAC"), FileTyp.Else, "Star Fox Assault"),
             new FileTypInfo("plt0",new Header("PLT0"), FileTyp.Else, "NW4R Palette"),
             new FileTypInfo("scn0",new Header("SCN0"), FileTyp.Else, "NW4R Scene"),
+            new FileTypInfo("blmap",new Header("LMAP"), FileTyp.Else, "Light Map"),
             new FileTypInfo("tbl", FileTyp.Else, "JMap data"),
             new FileTypInfo("bcam", FileTyp.Else, "JMap camera data"),
             new FileTypInfo("brplt", FileTyp.Else, "Palette"),

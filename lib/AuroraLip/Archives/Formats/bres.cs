@@ -45,13 +45,13 @@ namespace AuroraLip.Archives.Formats
             uint TotalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
             ushort Offset = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
             ushort sections = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            stream.Position = 0x10;
+            stream.Position = Offset;
             //root sections
             if (!stream.MatchString("root"))
                 throw new Exception($"Invalid Identifier. Expected \"root\"");
             uint RootSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this};
-            ReadIndex(stream, (int)(stream.Position + RootSize-8), Root);
+            ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
 
         }

@@ -11,6 +11,7 @@ namespace DolphinTextureExtraction_tool
 
     internal class ScanLogger : IDisposable
     {
+        private static readonly object LockFile = new object();
 
         public string FullPath { get; private set; }
 
@@ -40,7 +41,10 @@ namespace DolphinTextureExtraction_tool
 
         public void WriteLine(string value)
         {
-            LogFile.WriteLine(value);
+            lock (LockFile)
+            {
+                LogFile.WriteLine(value);
+            }
         }
 
         private void WriteHeader()
@@ -69,32 +73,37 @@ namespace DolphinTextureExtraction_tool
 
         public void WriteEX(Exception ex,in string strMessage = "")
         {
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
-            LogFile.WriteLine($"{ex?.Source}:{ex?.StackTrace}");
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            Console.WriteLine("".PadLeft(64, '-'));
-            Console.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
-            Console.WriteLine("".PadLeft(64, '-'));
+            lock (LockFile)
+            {
+                LogFile.WriteLine("".PadLeft(64, '-'));
+                LogFile.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
+                LogFile.WriteLine($"{ex?.Source}:{ex?.StackTrace}");
+                LogFile.WriteLine("".PadLeft(64, '-'));
+                Console.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
+                LogFile.Flush();
+            }
         }
 
         public void Write(FileAction action,in string file,in string value)
         {
-            switch (action)
+            lock (LockFile)
             {
-                case FileAction.Unknown:
-                    LogFile.WriteLine("Unknown:");
-                    break;
-                case FileAction.Unsupported:
-                    LogFile.WriteLine("Unsupported:");
-                    break;
-                case FileAction.Extract:
-                    LogFile.WriteLine("Extract:");
-                    break;
+                switch (action)
+                {
+                    case FileAction.Unknown:
+                        LogFile.WriteLine("Unknown:");
+                        break;
+                    case FileAction.Unsupported:
+                        LogFile.WriteLine("Unsupported:");
+                        break;
+                    case FileAction.Extract:
+                        LogFile.WriteLine("Extract:");
+                        break;
+                }
+                LogFile.Write($"\"~{file}\"\n");
+                LogFile.WriteLine($" {value}");
+                LogFile.Flush();
             }
-            LogFile.Write($"\"~{file}\"\n");
-            LogFile.WriteLine($" {value}");
-            LogFile.Flush();
         }
 
         #region Dispose

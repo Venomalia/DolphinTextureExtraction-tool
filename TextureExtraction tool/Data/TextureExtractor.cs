@@ -1,4 +1,5 @@
-﻿using AuroraLip.Archives;
+﻿using AFSLib;
+using AuroraLip.Archives;
 using AuroraLip.Archives.Formats;
 using AuroraLip.Common;
 using AuroraLip.Compression;
@@ -332,6 +333,13 @@ namespace DolphinTextureExtraction_tool
                                     }
                                     result.ExtractedSize += stream.Length;
                                     break;
+                                case "AFS":
+                                    using (AFS afs = new AFS(stream))
+                                    {
+                                        foreach (StreamEntry item in afs.Entries)
+                                        Scan(item.GetSubStream(), Path.Combine(subdirectory, item.SanitizedName), Path.GetExtension(item.SanitizedName));
+                                    }
+                                    break;
                                 case "bres":
                                     Scan(new bres(stream), subdirectory);
                                     break;
@@ -398,13 +406,6 @@ namespace DolphinTextureExtraction_tool
                 }
                 if (item.Value is ArchiveDirectory directory)
                 {
-
-
-
-
-
-
-
                     if (directory.Name.Length > 4)
                         Scan(directory, Path.Combine(subdirectory, directory.Name));
                     else
@@ -462,7 +463,7 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        private bool CpkDecompressEntrie(CPK CpkContent, BinaryReader CPKReader, FileEntry entrie, out byte[] chunk)
+        private bool CpkDecompressEntrie(CPK CpkContent, BinaryReader CPKReader, LibCPK.FileEntry entrie, out byte[] chunk)
         {
             CPKReader.BaseStream.Seek((long)entrie.FileOffset, SeekOrigin.Begin);
 

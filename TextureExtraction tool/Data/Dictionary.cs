@@ -78,12 +78,12 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("one", FileTyp.Archive, "SEGA"),
             new FileTypInfo("RSC", FileTyp.Archive, "Wario World"),
             new FileTypInfo("",new Header("FCMP"), FileTyp.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
-            new FileTypInfo("afs",new Header("AFS"), FileTyp.Archive, "Ganbarion"),
+            new FileTypInfo("afs",new Header("AFS"), FileTyp.Archive, "AFS File Archive"),
             new FileTypInfo("dict",new Header(new byte[]{169,243,36,88,6,1}), FileTyp.Archive),
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
-            new FileTypInfo("",new Header("WTMD"), FileTyp.Texture, "Arc Rise"),
+            new FileTypInfo("",new Header("WTMD"), FileTyp.Texture, "Arc Rise"), //https://forum.xentax.com/viewtopic.php?t=9256
             new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution Texture"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
@@ -229,6 +229,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("brsca", FileTyp.Else, "Scene Settings"),
             new FileTypInfo("brtpa", FileTyp.Else, "Texture Pattern"),
             new FileTypInfo("lua", FileTyp.Else, "Script"),
+            new FileTypInfo("zzz", FileTyp.Else, "place holder"),
             new FileTypInfo("pkb",new Header("SB  "), FileTyp.Else, "Skript"),
             new FileTypInfo("efc",new Header(new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}), FileTyp.Unknown),
         };

@@ -231,6 +231,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib\AFSLib\AFSLib.csproj">
+      <Project>{09c23352-8261-447b-9bb5-4c82daf3cffd}</Project>
+      <Name>AFSLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib\AuroraLip\AuroraLip.csproj">
       <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
       <Name>AuroraLip</Name>

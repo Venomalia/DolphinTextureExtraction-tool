@@ -1,15 +1,16 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die einer Assembly zugeordnet sind.
-[assembly: AssemblyTitle("DolphinTextureExtraction tool")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("AFSLib")]
+[assembly: AssemblyDescription("AFSLib is a library that can extract, create and manipulate AFS files. The AFS format is used in many games from companies like Sega.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DolphinTextureExtraction tool")]
-[assembly: AssemblyCopyright("Venomalia ©  2022")]
+[assembly: AssemblyCompany("MaikelChan")]
+[assembly: AssemblyProduct("AFSLib")]
+[assembly: AssemblyCopyright("Copyright © MaikelChan  2022")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -19,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-[assembly: Guid("89776db8-07a1-4b36-be77-7ab5e4237e3a")]
+[assembly: Guid("09c23352-8261-447b-9bb5-4c82daf3cffd")]
 
 // Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
 //
@@ -31,5 +32,5 @@ using System.Runtime.InteropServices;
 // Sie können alle Werte angeben oder Standardwerte für die Build- und Revisionsnummern verwenden,
 // indem Sie "*" wie unten gezeigt eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.6.4.0")]
-[assembly: AssemblyFileVersion("0.6.4.0")]
+[assembly: AssemblyVersion("2.0.2.0")]
+[assembly: AssemblyFileVersion("2.0.2.0")]

@@ -586,7 +586,7 @@ namespace DolphinTextureExtraction_tool
 
         private static string GetDirectoryWithoutExtension(string directory)
         {
-            return Path.Combine(Path.GetDirectoryName(directory), Path.GetFileNameWithoutExtension(directory));
+            return Path.Combine(Path.GetDirectoryName(directory), Path.GetFileNameWithoutExtension(directory)).Trim();
         }
 
         private static FileTypInfo GetFiletype(Stream stream, string Extension = "")

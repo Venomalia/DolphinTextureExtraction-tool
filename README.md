@@ -44,10 +44,14 @@ output to the same place only with a "~" in front of the folder.
 - The Legend of Zelda Skyward Sword
 - SONIC COLOURS
 - Metroid: Other M
+- Wii Sports
+- Wii Sports Resort
+- Spectrobes: Origins
 
 ### Games( 50-80% )
 - LUIGI'S MANSION
-- Boom Street
+- Boom Street?
+- Castlevania Judgment?
 - Super Smash Bros. Brawl
 
 ### Games( 20-50% )
@@ -55,6 +59,7 @@ output to the same place only with a "~" in front of the folder.
 
 ### Not supported games ( 0-20% )
 - Kirby Air Ride
+- Mario Strikers Charged Football
 - MarioGolf Toadstool Tour
 - F-ZERO GX
 - SOULCALIBUR2
@@ -67,12 +72,13 @@ output to the same place only with a "~" in front of the folder.
 - Punch Out
 - Xenoblade Chronicles
 - Donkey Konga
+- Sonic Adventuere
 
 ## Supported formats
 - RARC, U8, CPK, bres Archives
 - YAZ, YAY, CLZ, LZ11 Compressing
-- BTI, TPL, NUTC, TXE, TEX1, TEX0 Textures
-- BMD, BDL J3D Models
+- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0 Textures
+- BMD3, BDL4 J3D Models
 
 ## Credits
  

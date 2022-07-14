@@ -48,6 +48,11 @@ namespace DolphinTextureExtraction_tool
             public bool Force = false;
 
             /// <summary>
+            /// Sorts the textures and removes unnecessary folders.
+            /// </summary>
+            public bool Cleanup = true;
+
+            /// <summary>
             /// Tries to extract textures from unknown files, may cause errors.
             /// </summary>
 #if DEBUG
@@ -108,7 +113,7 @@ namespace DolphinTextureExtraction_tool
         public static async Task<Result> StartScan_Async(string meindirectory, string savedirectory, Options options = null)
         {
             TextureExtractor Extractor = new TextureExtractor(meindirectory, savedirectory, options);
-            return await Task.Run(() => Extractor.StartScan()); ;
+            return await Task.Run(() => Extractor.StartScan());
         }
 
         public Result StartScan()
@@ -120,6 +125,19 @@ namespace DolphinTextureExtraction_tool
             result.TotalTime = DateTime.Now.Subtract(starttime);
             Log.WriteFoot(result);
             Log.Dispose();
+
+            if (options.Cleanup)
+            {
+                try
+                {
+                    Console.WriteLine("Start Cleanup...");
+                    Cleanup.Default(new DirectoryInfo(SaveDirectory));
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Error! Cleanup failed");
+                }
+            }
 
             return result;
         }

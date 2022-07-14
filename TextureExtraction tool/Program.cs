@@ -76,6 +76,8 @@ namespace DolphinTextureExtraction_tool
                         options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"Tries to extract textures from unknown files, may cause errors. \tTrue or (False)");
                         options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        Console.Write($"Sorts textures and removes unnecessary folders. \t(True) or False");
+                        options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
                         if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
                         {
@@ -231,7 +233,7 @@ namespace DolphinTextureExtraction_tool
 #else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
 #endif
-            Console.WriteLine($"Supported formats: RARC, U8, CPK, BDL4, BMD3, TPL, BTI, NUTC, TXE, bres, REFT,{string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
+            Console.WriteLine($"Supported formats: RARC, U8, CPK, BDL4, BMD3, TPL, BTI, NUTC, TXE, bres, REFT, AFS, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
@@ -248,6 +250,8 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Extract textures from unknown files: ");
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Sorts textures and removes unnecessary folders: ");
+            ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");
             ConsoleEx.WriteBoolPrint(options.ParallelOptions.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
         }

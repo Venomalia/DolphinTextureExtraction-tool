@@ -39,6 +39,10 @@ namespace DolphinTextureExtraction_tool
             {
                 FullDescription += Header.MagicASKI + " ";
             }
+            else
+            {
+                FullDescription += Extension + " ";
+            }
 
             if (Description != "")
             {

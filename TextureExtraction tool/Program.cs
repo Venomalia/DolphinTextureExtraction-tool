@@ -56,7 +56,6 @@ namespace DolphinTextureExtraction_tool
                             ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
                         }
 
-                    } while (!PathIsValid(OutputDirectory));
 
                     //Options
                     Console.WriteLine();
@@ -220,7 +219,7 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintHeader()
         {
-            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             Console.ForegroundColor = ConsoleColor.Cyan;
 #if DEBUG
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}\t\t*DEBUG");
@@ -228,7 +227,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
 #endif
             Console.WriteLine($"Supported formats: RARC, U8, CPK, BDL4, BMD3, TPL, BTI, NUTC, TXE, bres, REFT,{string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
-            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
@@ -250,16 +249,16 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintResult(TextureExtractor.Result result)
         {
-            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             Console.WriteLine($"Extracted textures: {result.Extracted}");
             Console.WriteLine($"Unsupported files: {result.Unsupported}");
-            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.Magic))}");
+            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFileTyp.Select(x => (x.GetFullDescription())))}");
             Console.WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFileTyp.Count != 0) Console.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : x.Header.MagicASKI))}");
+            if (result.UnknownFileTyp.Count != 0) Console.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
             Console.WriteLine($"Extraction rate: ~{result.ExtractionRate}%");
             Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
-            ConsoleEx.WriteLineColoured("".PadLeft(96, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
         }
     }
 }

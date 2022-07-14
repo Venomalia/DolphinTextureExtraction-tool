@@ -70,6 +70,8 @@ namespace DolphinTextureExtraction_tool
 
             public int Unsupported { get; internal set; } = 0;
 
+            public int Skipped { get; internal set; } = 0;
+
             public string LogFullPath { get; internal set; }
 
             internal long ExtractedSize = 0;
@@ -143,6 +145,7 @@ namespace DolphinTextureExtraction_tool
 
         private void Scan(FileInfo file)
         {
+            
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FileTypInfo filetype = GetFiletype(stream, file.Extension);
 
@@ -231,6 +234,10 @@ namespace DolphinTextureExtraction_tool
                                     result.ExtractedSize += stream.Length;
                                     break;
                                 case "lz":
+                                case "zlib":
+                                case "lz77":
+                                case "cmparc":
+                                case "cmpres":
 
                                     byte[] bytes = stream.ToArray();
                                     if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
@@ -538,7 +545,7 @@ namespace DolphinTextureExtraction_tool
         }
 
         /// <summary>
-        /// Try to read a file as bit
+        /// Try to read a file as bti
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="subdirectory"></param>

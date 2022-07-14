@@ -47,14 +47,17 @@ output to the same place only with a "~" in front of the folder.
 - Wii Sports
 - Wii Sports Resort
 - Spectrobes: Origins
+- Boom Street
+- Zack & Wiki: Quest for Barbaros' Treasure
+- LUIGI'S MANSION
 
 ### Games( 50-80% )
-- LUIGI'S MANSION
-- Boom Street?
-- Castlevania Judgment?
+- Castlevania Judgment
 - Super Smash Bros. Brawl
+- Odama
 
 ### Games( 20-50% )
+- Go Vacation
 - Pikmin 1
 
 ### Not supported games ( 0-20% )
@@ -73,9 +76,15 @@ output to the same place only with a "~" in front of the folder.
 - Xenoblade Chronicles
 - Donkey Konga
 - Sonic Adventuere
+- Tales of Symphonia
+- Rune Factory Frontier
+- Rune Factory Tides of Destiny
+- Beyond Good and Evil
+- Prince of Persia: Warrior Within
+- One Piece: Grand Adventure
 
 ## Supported formats
-- RARC, U8, CPK, bres Archives
+- RARC, U8, CPK, bres, AFS Archives
 - YAZ, YAY, CLZ, LZ11 Compressing
 - BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0 Textures
 - BMD3, BDL4 J3D Models
@@ -90,6 +99,9 @@ output to the same place only with a "~" in front of the folder.
 
 - [HashDepot](https://github.com/ssg/HashDepot)
     - used for xxHash generation
+
+- [AFSLib](https://github.com/MaikelChan/AFSLib)
+    - to read AFS archive format
 
 - [cpk-tools](https://github.com/ConnorKrammer/cpk-tools)
     - to read CRIWARE's CPK archive format

@@ -40,7 +40,7 @@ namespace DolphinTextureExtraction_tool
 
             new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "model"),
-            new FileTypInfo("LZ", FileTyp.Archive, "LZ compressed"),
+            new FileTypInfo("LZ", FileTyp.Archive, "compressed"),
             new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             //Textures
             new FileTypInfo("bti", FileTyp.Texture, "Image"),
@@ -49,7 +49,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("tex1",new Header("TEX1"), FileTyp.Texture, "raw"),
             new FileTypInfo("nut", new Header(new byte[]{78,85,84,67}), FileTyp.Texture, "Namco Universal Texture"),
             new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
-            new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R Texture"),
+            new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R"),
             new FileTypInfo("breft",new Header("REFT"), FileTyp.Texture, "Effect"),
 
             //Not supported
@@ -57,13 +57,18 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo(".LZ",new Header("LzS"), FileTyp.Archive, "compressed"),
             new FileTypInfo("zlib", FileTyp.Archive, "compressed"),
             new FileTypInfo("lz77", FileTyp.Archive, "compressed"),
-            new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Brawl Archive"),
+            new FileTypInfo("fpk", FileTyp.Archive, "compressed"),
+            new FileTypInfo("cmparc", FileTyp.Archive, "compressed"),
+            new FileTypInfo("cmpres", FileTyp.Archive, "compressed"),
+            new FileTypInfo("cab",new Header("MSCF"), FileTyp.Archive, "Million standard cubic foot compressed"),
+            new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Brawl"),
             new FileTypInfo("ZLB",new Header("ZLB"), FileTyp.Archive, "compressed"),
             new FileTypInfo("",new Header("RTDP"), FileTyp.Archive, "Arc Rise"),
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
-            new FileTypInfo("pk", FileTyp.Archive, "Archive"),
+            new FileTypInfo("pk", FileTyp.Archive),
+            new FileTypInfo("apf", FileTyp.Archive, "Ganbarion"),
             new FileTypInfo("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
             new FileTypInfo("dat",new Header("FREB"), FileTyp.Archive, "Rune Factory"),
             new FileTypInfo("pos",new Header("POSD"), FileTyp.Else, "FREB Archive Info"),
@@ -75,18 +80,20 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bf",new Header("BIG"), FileTyp.Archive, "UbiSoft"),
             new FileTypInfo("asr",new Header("AsuraZlb"), FileTyp.Archive, "Rebellion"),
             new FileTypInfo("dkz",new Header("DKZF"), FileTyp.Archive, "Donkey Konga"),
+            new FileTypInfo("dat",new Header("FBTI0001"), FileTyp.Archive, "Rune Factory"),
+            new FileTypInfo("bin",new Header("NLCM"), FileTyp.Else, "Rune Factory Archive Info"),
             new FileTypInfo("one", FileTyp.Archive, "SEGA"),
             new FileTypInfo("RSC", FileTyp.Archive, "Wario World"),
-            new FileTypInfo("",new Header("FCMP"), FileTyp.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
+            new FileTypInfo("ftx",new Header("FCMP"), FileTyp.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
             new FileTypInfo("afs",new Header("AFS"), FileTyp.Archive, "AFS File Archive"),
             new FileTypInfo("dict",new Header(new byte[]{169,243,36,88,6,1}), FileTyp.Archive),
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
             new FileTypInfo("",new Header("WTMD"), FileTyp.Texture, "Arc Rise"), //https://forum.xentax.com/viewtopic.php?t=9256
-            new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution Texture"),
+            new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
-            new FileTypInfo("rtex", FileTyp.Texture, "Wii XML"),
+            new FileTypInfo("rtex", FileTyp.Texture, "NW4R XML"),
             new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
             new FileTypInfo("PNG", new Header(new byte[]{137,80,78,71,13}), FileTyp.Texture, "Portable Network Graphics"),
             new FileTypInfo("Jpg", new Header(new byte[]{255,216,255,224}), FileTyp.Texture, "JPEG"),
@@ -115,6 +122,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("ast",new Header("STRM"), FileTyp.Audio, "Stream"),
             new FileTypInfo("mid",new Header("MThd"), FileTyp.Audio),
             new FileTypInfo("aix",new Header("AIXF"), FileTyp.Audio),
+            new FileTypInfo("waa",new Header("RIFF"), FileTyp.Audio, "UbiSoft"),
             new FileTypInfo("",new Header(new byte[]{70,74,70}), FileTyp.Audio),
             new FileTypInfo("wt", FileTyp.Audio, "Wave"),
             new FileTypInfo("bwav", FileTyp.Audio, "Wave"),
@@ -195,7 +203,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("shp0",new Header("SHP0"), FileTyp.Animation, "NW4R Vertex Transform"),
             new FileTypInfo("vis0",new Header("VIS0"), FileTyp.Animation, "NW4R Visibility Animation"),
             new FileTypInfo("pat0",new Header("PAT0"), FileTyp.Animation, "NW4R Texture Pattern"),
-            new FileTypInfo("clr0",new Header("CLR0"), FileTyp.Animation, "NW4R Color Pattern"),
+            new FileTypInfo("clr0",new Header("CLR0"), FileTyp.Else, "NW4R Color Pattern"),
             new FileTypInfo("bas", FileTyp.Animation, "Sound"),
             new FileTypInfo("brlan",new Header("RLAN"), FileTyp.Animation, "NW4R layout"),
             new FileTypInfo("branm", FileTyp.Animation),

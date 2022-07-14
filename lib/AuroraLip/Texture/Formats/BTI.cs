@@ -7,11 +7,11 @@ using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {
-   /*
-   * Super Hackio Incorporated
-   * "Copyright © Super Hackio Incorporated 2020-2021"
-   * https://github.com/SuperHackio/Hack.io
-   */
+    /*
+    * Super Hackio Incorporated
+    * "Copyright © Super Hackio Incorporated 2020-2021"
+    * https://github.com/SuperHackio/Hack.io
+    */
 
     public class BTI : JUTTexture, IFileFormat
     {
@@ -132,7 +132,7 @@ namespace AuroraLip.Texture.Formats
             BTIFile.Position = HeaderStart + ImageDataAddress;
             ushort ogwidth = ImageWidth, ogheight = ImageHeight;
 
-            TexEntry current = new TexEntry(BTIFile, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, TotalImageCount)
+            TexEntry current = new TexEntry(BTIFile, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, TotalImageCount - 1)
             {
                 LODBias = LODBias,
                 MagnificationFilter = (GXFilterMode)MagnificationFilter,
@@ -163,7 +163,7 @@ namespace AuroraLip.Texture.Formats
             {
                 BTIFile.WriteByte(0x01);
                 BTIFile.WriteByte((byte)PaletteFormat);
-                BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count/2)), 2);
+                BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
                 BTIFile.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
             }
             else
@@ -206,7 +206,7 @@ namespace AuroraLip.Texture.Formats
         /// <param name="Source"></param>
         public static explicit operator BTI(Bitmap[] Source)
         {
-            TexEntry entry = new TexEntry() { MaxLOD = Source.Length-1 };
+            TexEntry entry = new TexEntry() { MaxLOD = Source.Length - 1 };
             entry.AddRange(Source);
             BTI NewImage = new BTI { entry };
             return NewImage;

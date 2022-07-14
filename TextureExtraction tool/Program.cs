@@ -55,7 +55,12 @@ namespace DolphinTextureExtraction_tool
                         {
                             ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
                         }
+                        if (OutputDirectory == InputDirectory)
+                        {
+                            ConsoleEx.WriteLineColoured("Output Directory and Input Directory cannot be the same!", ConsoleColor.Red);
+                        }
 
+                    } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputDirectory);
 
                     //Options
                     Console.WriteLine();

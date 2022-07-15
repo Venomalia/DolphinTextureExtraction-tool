@@ -43,8 +43,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("LZ", FileTyp.Archive, "compressed"),
             new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             //Textures
-            new FileTypInfo("bti", FileTyp.Texture, "Image"),
-            new FileTypInfo("TPL", FileTyp.Texture, "Palette Library"),
+            new FileTypInfo("bti", FileTyp.Texture, "Binary Texture Image"),
             new FileTypInfo("TPL",new Header(new byte[]{32,175,48},1), FileTyp.Texture, "Palette Library"),
             new FileTypInfo("tex1",new Header("TEX1"), FileTyp.Texture, "raw"),
             new FileTypInfo("nut", new Header(new byte[]{78,85,84,67}), FileTyp.Texture, "Namco Universal Texture"),
@@ -114,6 +113,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("REL", FileTyp.Executable, "Wii Executable LIB"),
             new FileTypInfo("elf", new Header(new byte[]{127,69,76,70,1,2,1 }) , FileTyp.Executable),
             //Audio
+            new FileTypInfo("mul", FileTyp.Audio),
             new FileTypInfo("pkb", new Header("mca"), FileTyp.Audio, "Archive?"),
             new FileTypInfo("brsar",new Header("RSAR"), FileTyp.Audio, "Wii Archive"),
             new FileTypInfo("brstm", new Header("RSTM"), FileTyp.Audio, "Wii Stream"),

@@ -176,8 +176,16 @@ namespace DolphinTextureExtraction_tool
                 switch (filetype.Typ)
                 {
                     case FileTyp.Unknown:
+
                         if (options.Force)
                         {
+                            byte[] bytes = stream.ToArray();
+                            if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                            {
+                                Scan(new MemoryStream(test), subdirectory);
+                                break;
+                            }
+
                             if (TryBTI(stream, subdirectory)) break;
                         }
 
@@ -228,6 +236,13 @@ namespace DolphinTextureExtraction_tool
                     case FileTyp.Unknown:
                         if (options.Force)
                         {
+                            byte[] bytes = stream.ToArray();
+                            if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                            {
+                                Scan(new MemoryStream(test), subdirectory);
+                                break;
+                            }
+
                             if (TryBTI(stream, subdirectory)) break;
                         }
                         AddResultUnknown(stream, filetype, subdirectory + Extension);
@@ -235,7 +250,7 @@ namespace DolphinTextureExtraction_tool
                     case FileTyp.Texture:
                         if (options.Raw)
                         {
-                            Save(stream, Path.ChangeExtension(GetFullSaveDirectory(Path.Combine("Raw", subdirectory)), filetype.Extension));
+                            Save(stream, Path.ChangeExtension(GetFullSaveDirectory(Path.Combine("~Raw", subdirectory)), filetype.Extension));
                         }
                         goto case FileTyp.Archive;
                     case FileTyp.Archive:
@@ -580,7 +595,7 @@ namespace DolphinTextureExtraction_tool
                     stream.Position -= 6;
                     try
                     {
-                        Save(new BTI(stream), subdirectory);
+                        Save(new BTI(stream), Path.Combine("~Force", subdirectory));
                         return true;
                     }
                     catch (Exception)
@@ -631,7 +646,12 @@ namespace DolphinTextureExtraction_tool
 
             if (Dictionary.Header.TryGetValue(header.Magic, out filetype) || Dictionary.Header.TryGetValue(header.MagicASKI, out filetype) || header.MagicASKI.Length > 4 && Dictionary.Header.TryGetValue(header.MagicASKI.Substring(0, 4), out filetype))
             {
-                return filetype;
+                bool Match = stream.MatchString(filetype.Header.Magic);
+                stream.Position -= filetype.Header.Magic.Length;
+                if (Match)
+                {
+                    return filetype;
+                }
             }
 
             if (Dictionary.Extension.TryGetValue(Extension.ToLower(), out filetype))

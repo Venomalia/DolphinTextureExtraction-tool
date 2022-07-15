@@ -32,6 +32,7 @@ namespace DolphinTextureExtraction_tool
         {
             //new FileTypInfo("arc", FileTyp.Archive, "+ dir Bundle"),// https://pikmintkb.com/wiki/Paired_ARC%2BDIR_file
             new FileTypInfo("arc",new Header("RARC"), FileTyp.Archive),
+            new FileTypInfo("arc",new Header("NARC"), FileTyp.Archive, "Sin and Punishment"),
             new FileTypInfo("arc",new Header(new byte[]{85,170,56,45}), FileTyp.Archive),
             new FileTypInfo("szs",new Header("Yaz0"), FileTyp.Archive, "compressed"),
             new FileTypInfo("szp",new Header("Yay0"), FileTyp.Archive, "compressed"),
@@ -72,7 +73,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("aar",new Header("ALAR"), FileTyp.Archive, "Pandoras Tower"),
             new FileTypInfo("dat",new Header("FREB"), FileTyp.Archive, "Rune Factory"),
             new FileTypInfo("pos",new Header("POSD"), FileTyp.Else, "FREB Archive Info"),
-            new FileTypInfo("arc",new Header("NARC"), FileTyp.Archive, "Sin and Punishment"),
             new FileTypInfo("PAK", FileTyp.Archive, "Retro Studios"), //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)
             new FileTypInfo("dat", FileTyp.Archive, "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
             new FileTypInfo("fsys",new Header("FSYS"), FileTyp.Archive, "Pokemon"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/

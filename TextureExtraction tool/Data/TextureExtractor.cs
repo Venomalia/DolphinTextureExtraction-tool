@@ -393,6 +393,9 @@ namespace DolphinTextureExtraction_tool
                                 case "RARC":
                                     Scan(new RARC(stream), subdirectory);
                                     break;
+                                case "NARC":
+                                    Scan(new NARC(stream), subdirectory);
+                                    break;
                                 default:
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
                                     if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);

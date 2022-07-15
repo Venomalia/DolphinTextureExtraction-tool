@@ -51,6 +51,7 @@ output to the same place only with a "~" in front of the folder.
 - Zack & Wiki: Quest for Barbaros' Treasure
 - LUIGI'S MANSION
 - Wii Party
+- Sin & Punishment: Star Successor
 
 ### Games( 50-80% )
 - Castlevania Judgment
@@ -90,9 +91,9 @@ output to the same place only with a "~" in front of the folder.
 1. set Extract textures from unknown files to true
 
 ## Supported formats
-- RARC, U8, CPK, bres, AFS Archives
-- YAZ, YAY, CLZ, LZ11 Compressing
-- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0 Textures
+- RARC, NARC, U8, CPK, bres, AFS Archives
+- YAZ, YAY, CLZ, LZ11, LZSS Compressing
+- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0, TXTR Textures
 - BMD3, BDL4 J3D Models
 
 ## Credits

@@ -34,6 +34,34 @@ namespace AuroraLip.Archives
         /// </summary>
         public int TotalFileCount => Root?.GetCountAndChildren() ?? 0;
 
+        #region Constructors
+        /// <summary>
+        /// Create an empty archive
+        /// </summary>
+        public Archive() { }
+        /// <summary>
+        /// Open an archive
+        /// </summary>
+        /// <param name="filename">Archive full filepath</param>
+        public Archive(string filename)
+        {
+            FileStream RARCFile = new FileStream(filename, FileMode.Open);
+            Read(RARCFile);
+            RARCFile.Close();
+            FileName = filename;
+        }
+        /// <summary>
+        /// Open an archive that's stored inside a stream.
+        /// <para/> Stream will be a <see cref="MemoryStream"/> if the Hack.io.YAZ0 library was used.
+        /// </summary>
+        /// <param name="RARCFile">Memorystream containing the archiev</param>
+        /// <param name="filename">Filename to give</param>
+        public Archive(Stream RARCFile, string filename = null)
+        {
+            Read(RARCFile);
+            FileName = filename;
+        }
+        #endregion
         /// <summary>
         /// The Binary I/O function for reading the file
         /// </summary>

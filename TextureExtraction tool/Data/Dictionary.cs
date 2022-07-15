@@ -50,6 +50,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
             new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R"),
             new FileTypInfo("breft",new Header("REFT"), FileTyp.Texture, "Effect"),
+            new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
 
             //Not supported
             //Archives
@@ -93,7 +94,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "NW4R XML"),
-            new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
             new FileTypInfo("PNG", new Header(new byte[]{137,80,78,71,13}), FileTyp.Texture, "Portable Network Graphics"),
             new FileTypInfo("Jpg", new Header(new byte[]{255,216,255,224}), FileTyp.Texture, "JPEG"),
             new FileTypInfo("bmp", FileTyp.Texture, "bitmap"),
@@ -129,8 +129,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("wav",new Header("RIFX"), FileTyp.Audio, "Wave"),
             new FileTypInfo("dsp", FileTyp.Audio, "Nintendo ADPCM codec"),
             new FileTypInfo(".dsp",new Header(new byte[]{67,115,116,114}), FileTyp.Audio),
-            new FileTypInfo("AGSC", FileTyp.Audio, "Retro Studios GC"), // https://www.metroid2002.com/retromodding/wiki/AGSC_(File_Format)
-            new FileTypInfo("CSMP", FileTyp.Audio, "Retro Studios WII"), // https://www.metroid2002.com/retromodding/wiki/CSMP_(File_Format)
+            new FileTypInfo("AGSC", FileTyp.Audio, "Retro Studios"), // https://www.metroid2002.com/retromodding/wiki/AGSC_(File_Format)
+            new FileTypInfo("CSMP", FileTyp.Audio, "Retro Studios"), // https://www.metroid2002.com/retromodding/wiki/CSMP_(File_Format)
             new FileTypInfo("adx", FileTyp.Audio, "CRI"),
             new FileTypInfo("afc", FileTyp.Audio, "Stream"),
             new FileTypInfo("baa", FileTyp.Audio, "JAudio audio archive "),
@@ -161,6 +161,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("csv", FileTyp.Text),
             new FileTypInfo("inf", FileTyp.Text, "info"),
             new FileTypInfo("ini", FileTyp.Text, "Configuration"),
+            new FileTypInfo("STRG", FileTyp.Text, "Retro Studios String Table"),
             new FileTypInfo("bmc",new Header("MGCLbmc1"), FileTyp.Text, "message data"),
             new FileTypInfo("msbt",new Header("MsgStdBn"), FileTyp.Text, "LMS data"),
             new FileTypInfo("msbf",new Header("MsgFlwBn"), FileTyp.Text, "LMS flow data"),
@@ -174,6 +175,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bfn",new Header("FONTbfn1"), FileTyp.Font),
             new FileTypInfo("brfnt",new Header("RFNT"), FileTyp.Font, "NW4R"),
             new FileTypInfo("pkb", new Header("RFNA"), FileTyp.Font),
+            new FileTypInfo("FONT", new Header("FONT"), FileTyp.Font, "Retro Studios"),
             //2D Layout
             new FileTypInfo("blo", FileTyp.Layout, "UI"),
             new FileTypInfo(".blo", new Header("SCRNblo1"), FileTyp.Layout, "UI"),
@@ -181,6 +183,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("brlyt", new Header("RLYT"), FileTyp.Layout, "NW4R structure"),
             //Model
             new FileTypInfo("brmdl", FileTyp.Model),
+            new FileTypInfo("CMDL", FileTyp.Model),
+            new FileTypInfo("MREA", FileTyp.Model, "Area"),
             new FileTypInfo("fpc", FileTyp.Model, "pac file container"),
             new FileTypInfo("mdl0",new Header("MDL0"), FileTyp.Model, "NW4R Model"),
             //Animation
@@ -207,6 +211,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("bas", FileTyp.Animation, "Sound"),
             new FileTypInfo("brlan",new Header("RLAN"), FileTyp.Animation, "NW4R layout"),
             new FileTypInfo("branm", FileTyp.Animation),
+            new FileTypInfo("ANIM", FileTyp.Animation, "Retro Studios"),
             new FileTypInfo("brtsa", FileTyp.Animation, "Texture"),
             new FileTypInfo("brsha", FileTyp.Animation, "Vertex"),
             new FileTypInfo("brvia", FileTyp.Animation, "Visibility"),
@@ -221,6 +226,11 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("jpc",new Header("JPAC2-10"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpc",new Header("JPAC2-11"), FileTyp.Else , "JParticle container"),
             new FileTypInfo("jpa",new Header("JEFFjpa1"), FileTyp.Else , "JParticle"),
+            new FileTypInfo("PART", FileTyp.Else, "Retro Studios Particle System"),
+            new FileTypInfo("WPSC", FileTyp.Else, "Retro Studios Swoosh Particle System"),
+            new FileTypInfo("DCLN", FileTyp.Else, "Retro Studios Dynamic Collision"),
+            new FileTypInfo("SCAN",new Header("SCAN"), FileTyp.Else, "Metroid Scan"),
+            new FileTypInfo("RULE",new Header("RULE"), FileTyp.Else, "Retro Studios Rule Set"),
             new FileTypInfo("blight",new Header("LGHT"), FileTyp.Else, "Light"),
             new FileTypInfo("bfog",new Header("FOGM"), FileTyp.Else, "Fog"),
             new FileTypInfo("breff",new Header("REFF"), FileTyp.Else, "Effect"),
@@ -238,6 +248,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("brtpa", FileTyp.Else, "Texture Pattern"),
             new FileTypInfo("lua", FileTyp.Else, "Script"),
             new FileTypInfo("zzz", FileTyp.Else, "place holder"),
+            new FileTypInfo("CSKR", FileTyp.Else, "Retro Studios Skin Rules"),
             new FileTypInfo("pkb",new Header("SB  "), FileTyp.Else, "Skript"),
             new FileTypInfo("efc",new Header(new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}), FileTyp.Unknown),
         };

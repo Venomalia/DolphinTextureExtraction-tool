@@ -262,6 +262,10 @@ namespace DolphinTextureExtraction_tool
                                     using (JUTTexture Texture = new TXE(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
                                     break;
+                                case "txtr":
+                                    using (JUTTexture Texture = new TXTR(stream)) Save(Texture, subdirectory);
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case "bti":
                                     using (JUTTexture Texture = new BTI(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
@@ -377,7 +381,7 @@ namespace DolphinTextureExtraction_tool
                                     using (AFS afs = new AFS(stream))
                                     {
                                         foreach (StreamEntry item in afs.Entries)
-                                        Scan(item.GetSubStream(), Path.Combine(subdirectory, item.SanitizedName), Path.GetExtension(item.SanitizedName));
+                                            Scan(item.GetSubStream(), Path.Combine(subdirectory, item.SanitizedName), Path.GetExtension(item.SanitizedName));
                                     }
                                     break;
                                 case "bres":

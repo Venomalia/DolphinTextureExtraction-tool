@@ -50,14 +50,17 @@ output to the same place only with a "~" in front of the folder.
 - Boom Street
 - Zack & Wiki: Quest for Barbaros' Treasure
 - LUIGI'S MANSION
+- Wii Party
 
 ### Games( 50-80% )
 - Castlevania Judgment
 - Super Smash Bros. Brawl
+- Takt of Magic[¹](#notes)
 - Odama
 
 ### Games( 20-50% )
 - Go Vacation
+- Night's Journey of Dreams
 - Pikmin 1
 
 ### Not supported games ( 0-20% )
@@ -82,6 +85,9 @@ output to the same place only with a "~" in front of the folder.
 - Beyond Good and Evil
 - Prince of Persia: Warrior Within
 - One Piece: Grand Adventure
+
+#### Notes
+1. set Extract textures from unknown files to true
 
 ## Supported formats
 - RARC, U8, CPK, bres, AFS Archives

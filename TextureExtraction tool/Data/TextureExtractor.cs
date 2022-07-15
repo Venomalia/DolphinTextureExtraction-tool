@@ -342,6 +342,10 @@ namespace DolphinTextureExtraction_tool
                                     using (JUTTexture Texture = new NUTC(stream)) Save(Texture, subdirectory);
                                     result.ExtractedSize += stream.Length;
                                     break;
+                                case "PTLG":
+                                    using (JUTTexture Texture = new PTLG(stream)) Save(Texture, subdirectory);
+                                    result.ExtractedSize += stream.Length;
+                                    break;
                                 case "TEX1":
                                     foreach (var item in new BMD.TEX1(stream).Textures)
                                     {

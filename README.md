@@ -58,15 +58,16 @@ output to the same place only with a "~" in front of the folder.
 - Super Smash Bros. Brawl
 - Takt of Magic[¹](#notes)
 - Odama
+- Mario Soccer
 
 ### Games( 20-50% )
 - Go Vacation
 - Night's Journey of Dreams
+- Mario Strikers Charged Football
 - Pikmin 1
 
 ### Not supported games ( 0-20% )
 - Kirby Air Ride
-- Mario Strikers Charged Football
 - MarioGolf Toadstool Tour
 - F-ZERO GX
 - SOULCALIBUR2
@@ -93,7 +94,7 @@ output to the same place only with a "~" in front of the folder.
 ## Supported formats
 - RARC, NARC, U8, CPK, bres, AFS Archives
 - YAZ, YAY, CLZ, LZ11, LZSS Compressing
-- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0, TXTR Textures
+- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0, TXTR, PTLG Textures
 - BMD3, BDL4 J3D Models
 
 ## Credits
@@ -118,3 +119,6 @@ output to the same place only with a "~" in front of the folder.
 
 - [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
     - to read CLZ Compressing
+
+- [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs)
+    - PTLG format base on

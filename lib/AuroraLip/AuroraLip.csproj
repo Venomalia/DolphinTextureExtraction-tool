@@ -71,6 +71,7 @@
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
+    <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Common\Extensions\BitConverterEx.cs" />
     <Compile Include="Common\Extensions\BitmapEx.cs" />

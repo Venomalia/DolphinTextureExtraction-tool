@@ -38,6 +38,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("szp",new Header("Yay0"), FileTyp.Archive, "compressed"),
             new FileTypInfo("cpk",new Header("CPK "), FileTyp.Archive, "Middleware"),
             new FileTypInfo("clz",new Header("CLZ"), FileTyp.Archive, "Harvest Moon compressed"),
+            new FileTypInfo("vol",new Header("RTDP"), FileTyp.Archive, "Arc Rise"),
 
             new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "model"),
@@ -51,7 +52,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("txe", FileTyp.Texture, "Dolphin Texture"),
             new FileTypInfo("tex0",new Header("TEX0"), FileTyp.Texture, "NW4R"),
             new FileTypInfo("breft",new Header("REFT"), FileTyp.Texture, "Effect"),
-            new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"), //http://www.metroid2002.com/retromodding/wiki/TXTR_(Metroid_Prime)
+            new FileTypInfo("TXTR", FileTyp.Texture, "Retro Studios"),
+            new FileTypInfo("wtm",new Header("WTMD"), FileTyp.Texture, "Arc Rise"),
 
             //Not supported
             //Archives
@@ -64,7 +66,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("cab",new Header("MSCF"), FileTyp.Archive, "Million standard cubic foot compressed"),
             new FileTypInfo("pac",new Header("ARC"), FileTyp.Archive, "pac Brawl"),
             new FileTypInfo("ZLB",new Header("ZLB"), FileTyp.Archive, "compressed"),
-            new FileTypInfo("",new Header("RTDP"), FileTyp.Archive, "Arc Rise"),
             new FileTypInfo("bdl",new Header("J3D2bdl3"), FileTyp.Archive, "display lists"),
             new FileTypInfo("bdl",new Header("J3D2bmd2"), FileTyp.Archive, "model"),
             new FileTypInfo("dir", FileTyp.Else, "Archive Info"),
@@ -90,7 +91,6 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
-            new FileTypInfo("wtm",new Header("WTMD"), FileTyp.Texture, "Arc Rise"), //https://forum.xentax.com/viewtopic.php?t=9256
             new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "NW4R XML"),

@@ -416,7 +416,10 @@ namespace DolphinTextureExtraction_tool
                                             Scan(item.GetSubStream(), Path.Combine(subdirectory, item.SanitizedName), Path.GetExtension(item.SanitizedName));
                                     }
                                     break;
-                                case "bres":
+                            case "RTDP":
+                                Scan(new RTDP(stream), subdirectory);
+                                break;
+                            case "bres":
                                     Scan(new bres(stream), subdirectory);
                                     break;
                                 case "U8-":

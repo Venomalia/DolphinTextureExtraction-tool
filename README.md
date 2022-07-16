@@ -52,6 +52,7 @@ output to the same place only with a "~" in front of the folder.
 - LUIGI'S MANSION
 - Wii Party
 - Sin & Punishment: Star Successor
+- Animal Crossing Wii
 
 ### Games( 50-80% )
 - Castlevania Judgment

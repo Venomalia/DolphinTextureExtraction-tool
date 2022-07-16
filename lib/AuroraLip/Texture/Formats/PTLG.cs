@@ -30,9 +30,9 @@ namespace AuroraLip.Texture.Formats
 
             uint Off = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
             if (Off == 0)
-                stream.Seek(12, SeekOrigin.Current);
+                stream.Seek(12, SeekOrigin.Current); //GC
             else
-                stream.Seek(-4, SeekOrigin.Current);
+                stream.Seek(-4, SeekOrigin.Current); //wii
 
             List<PTLGEntry> Entries = new List<PTLGEntry>();
             for (int i = 0; i < numTextures; i++)
@@ -55,10 +55,10 @@ namespace AuroraLip.Texture.Formats
                 GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), PTLGFormat.ToString());
                 byte unknown5 = (byte)stream.ReadByte(); //5 0 8
                 byte unknown6 = (byte)stream.ReadByte(); //3 4 0 2 6 8
-                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);//GC
 
                 if (ImageWidth == 0)
-                    ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                    ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0); //wii
                 ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
 
                 ushort unknown7 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);//0
@@ -66,6 +66,7 @@ namespace AuroraLip.Texture.Formats
                 uint unknown9 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);//is 65535 Unknown ==12
                 uint unknown10 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);//0
 
+                //No a texture?
                 if (Entries[i].Unknown != 0) continue;
 
                 TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, (int)Images - 1)

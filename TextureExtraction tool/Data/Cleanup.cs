@@ -5,7 +5,7 @@ namespace DolphinTextureExtraction_tool
 {
     static class Cleanup
     {
-        public static ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+        public static ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 
         public static void Default(DirectoryInfo directory)
         {
@@ -25,7 +25,7 @@ namespace DolphinTextureExtraction_tool
                 }
             });
 
-            if (directory.GetFilesCount() <= Directories * 1.5)
+            if (directory.GetFilesCount() <= Directories * 2.2)
             {
                 foreach (DirectoryInfo subdirectory in directory.GetDirectories())
                 {
@@ -52,7 +52,7 @@ namespace DolphinTextureExtraction_tool
             {
                 string subpath = Path.Combine(destDirName, subdirectory.Name);
                 if (Directory.Exists(subpath))
-                    subdirectory.Merge(subpath);
+                    subdirectory.Merge(destDirName);
                 else
                     subdirectory.MoveTo(subpath);
             }

@@ -67,7 +67,16 @@ namespace DolphinTextureExtraction_tool
         {
             public TimeSpan TotalTime { get; internal set; }
 
-            public double ExtractionRate => Math.Round((double)100 / (ExtractedSize + SkippedSize) * ExtractedSize);
+            public int MinExtractionRate => (int)Math.Round((double)100 / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
+
+            public int MaxExtractionRate
+            {
+                get
+                {
+                    if (Extracted > 150) return (int)Math.Round((double)100 / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize);
+                    return MinExtractionRate;
+                }
+            }
 
             public int Extracted => Hash.Count();
 
@@ -81,6 +90,8 @@ namespace DolphinTextureExtraction_tool
 
             internal long ExtractedSize = 0;
 
+            internal long UnsupportedSize = 0;
+
             internal long SkippedSize = 0;
 
             /// <summary>
@@ -91,6 +102,15 @@ namespace DolphinTextureExtraction_tool
             public List<FileTypInfo> UnsupportedFileTyp = new List<FileTypInfo>();
 
             public List<FileTypInfo> UnknownFileTyp = new List<FileTypInfo>();
+
+            public string GetExtractionSize()
+            {
+                if (MinExtractionRate + MinExtractionRate/10 >= MaxExtractionRate)
+                {
+                    return $"{(int)(MinExtractionRate + MaxExtractionRate) / 2}%";
+                }
+                return $"{MinExtractionRate}% - {MaxExtractionRate}%";
+            }
         }
 
 
@@ -163,7 +183,7 @@ namespace DolphinTextureExtraction_tool
 
         private void Scan(FileInfo file)
         {
-            
+
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FileTypInfo filetype = GetFiletype(stream, file.Extension);
 
@@ -185,8 +205,9 @@ namespace DolphinTextureExtraction_tool
                                 Scan(new MemoryStream(test), subdirectory);
                                 break;
                             }
-
+                            stream.Position = 0;
                             if (TryBTI(stream, subdirectory)) break;
+                            stream.Position = 0;
                         }
 
                         AddResultUnknown(stream, filetype, subdirectory + file.Extension);
@@ -216,7 +237,7 @@ namespace DolphinTextureExtraction_tool
             {
                 Log.WriteEX(t, subdirectory + file.Extension);
                 result.Unsupported++;
-                result.SkippedSize += file.Length;
+                result.UnsupportedSize += file.Length;
             }
 #endif
             stream.Close();
@@ -243,10 +264,13 @@ namespace DolphinTextureExtraction_tool
                                 break;
                             }
 
+                            stream.Position = 0;
                             if (TryBTI(stream, subdirectory)) break;
+                            stream.Position = 0;
                         }
                         AddResultUnknown(stream, filetype, subdirectory + Extension);
-                        break;
+                        if (stream.Length > 300) result.SkippedSize += stream.Length / 50;
+                    break;
                     case FileTyp.Texture:
                         if (options.Raw)
                         {
@@ -288,7 +312,7 @@ namespace DolphinTextureExtraction_tool
                                         Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
-                                        result.SkippedSize += stream.Length;
+                                        result.UnsupportedSize += stream.Length;
                                     }
                                     else
                                     {
@@ -299,7 +323,7 @@ namespace DolphinTextureExtraction_tool
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
                                     if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
-                                    result.SkippedSize += stream.Length;
+                                    result.UnsupportedSize += stream.Length;
                                     break;
                             }
                         }
@@ -331,7 +355,7 @@ namespace DolphinTextureExtraction_tool
                                         Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
-                                        result.SkippedSize += stream.Length;
+                                        result.UnsupportedSize += stream.Length;
                                     }
                                     else
                                     {
@@ -404,7 +428,7 @@ namespace DolphinTextureExtraction_tool
                                     Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
                                     if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
-                                    result.SkippedSize += stream.Length;
+                                    result.UnsupportedSize += stream.Length;
                                     break;
                             }
                         }
@@ -417,7 +441,7 @@ namespace DolphinTextureExtraction_tool
             {
                 Log.WriteEX(t, subdirectory + Extension);
                 result.Unsupported++;
-                result.SkippedSize += stream.Length;
+                result.UnsupportedSize += stream.Length;
             }
 
 #endif

@@ -90,7 +90,7 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("",new Header(new byte[]{65,75,76,90,126,63,81,100,61,204,204,205}), FileTyp.Archive,"Skies of Arcadia Legends"),
             
             //Textures
-            new FileTypInfo("",new Header("WTMD"), FileTyp.Texture, "Arc Rise"), //https://forum.xentax.com/viewtopic.php?t=9256
+            new FileTypInfo("wtm",new Header("WTMD"), FileTyp.Texture, "Arc Rise"), //https://forum.xentax.com/viewtopic.php?t=9256
             new FileTypInfo("rlt",new Header("PTLG"), FileTyp.Texture, "Strikers Revolution"),
             new FileTypInfo("tga", FileTyp.Texture, "Truevision"),
             new FileTypInfo("rtex", FileTyp.Texture, "NW4R XML"),

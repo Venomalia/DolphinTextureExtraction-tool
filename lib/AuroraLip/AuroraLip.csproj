@@ -108,6 +108,7 @@
     <Compile Include="Texture\Formats\TEX0.cs" />
     <Compile Include="Texture\Formats\TPL.cs" />
     <Compile Include="Texture\Formats\TXE.cs" />
+    <Compile Include="Texture\Formats\WTMD.cs" />
     <Compile Include="Texture\J3D\Enums\GXFilterMode.cs" />
     <Compile Include="Texture\J3D\Enums\GXImageFormat.cs" />
     <Compile Include="Texture\J3D\Enums\GXPaletteFormat.cs" />

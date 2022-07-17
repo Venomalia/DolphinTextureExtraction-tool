@@ -31,11 +31,11 @@ namespace AuroraLip.Texture.Formats
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-            uint numTextures = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint unk = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint padding = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint numTextures = stream.ReadUInt32(Endian.Big);
+            uint unk = stream.ReadUInt32(Endian.Big);
+            uint padding = stream.ReadUInt32(Endian.Big);
 
-            uint Off = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint Off = stream.ReadUInt32(Endian.Big);
             if (Off == 0)
                 stream.Seek(12, SeekOrigin.Current); //GC
             else
@@ -55,23 +55,23 @@ namespace AuroraLip.Texture.Formats
 
                 long pos = stream.Position;
 
-                uint Images = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                uint unknown2 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0); //1 3 2 8 ||Unknown ==12  2439336753|1267784150|3988437873
+                uint Images = stream.ReadUInt32(Endian.Big);
+                uint unknown2 = stream.ReadUInt32(Endian.Big); //1 3 2 8 ||Unknown ==12  2439336753|1267784150|3988437873
                 byte unknown4 = (byte)stream.ReadByte(); //5 0 8
                 PTLGImageFormat PTLGFormat = (PTLGImageFormat)stream.ReadByte();
                 GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), PTLGFormat.ToString());
                 byte unknown5 = (byte)stream.ReadByte(); //5 0 8
                 byte unknown6 = (byte)stream.ReadByte(); //3 4 0 2 6 8
-                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);//GC
+                ushort ImageWidth = stream.ReadUInt16(Endian.Big);//GC
 
                 if (ImageWidth == 0)
-                    ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0); //wii
-                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                    ImageWidth = stream.ReadUInt16(Endian.Big); //wii
+                ushort ImageHeight = stream.ReadUInt16(Endian.Big);
 
-                ushort unknown7 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);//0
-                uint unknown8 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0); //256
-                uint unknown9 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);//is 65535 Unknown ==12
-                uint unknown10 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);//0
+                ushort unknown7 = stream.ReadUInt16(Endian.Big);//0
+                uint unknown8 = stream.ReadUInt32(Endian.Big); //256
+                uint unknown9 = stream.ReadUInt32(Endian.Big);//is 65535 Unknown ==12
+                uint unknown10 = stream.ReadUInt32(Endian.Big);//0
 
                 //No a texture?
                 if (Entries[i].Unknown != 0) continue;
@@ -120,10 +120,10 @@ namespace AuroraLip.Texture.Formats
 
             public PTLGEntry(Stream stream)
             {
-                Hash = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                ImageOffset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                SectionSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                Unknown = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                Hash = stream.ReadUInt32(Endian.Big);
+                ImageOffset = stream.ReadUInt32(Endian.Big);
+                SectionSize = stream.ReadUInt32(Endian.Big);
+                Unknown = stream.ReadUInt32(Endian.Big);
             }
         }
     }

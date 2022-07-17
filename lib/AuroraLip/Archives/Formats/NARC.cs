@@ -28,9 +28,9 @@ namespace AuroraLip.Archives.Formats
         {
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            uint NrEntries = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint StringTableSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint DataTablePosition = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint NrEntries = stream.ReadUInt32(Endian.Big);
+            uint StringTableSize = stream.ReadUInt32(Endian.Big);
+            uint DataTablePosition = stream.ReadUInt32(Endian.Big);
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
@@ -67,10 +67,10 @@ namespace AuroraLip.Archives.Formats
 
             public NARCEntry(Stream stream)
             {
-                Unknown = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                NameOffset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                DataOffset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                DataSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                Unknown = stream.ReadUInt32(Endian.Big);
+                NameOffset = stream.ReadUInt32(Endian.Big);
+                DataOffset = stream.ReadUInt32(Endian.Big);
+                DataSize = stream.ReadUInt32(Endian.Big);
             }
         }
     }

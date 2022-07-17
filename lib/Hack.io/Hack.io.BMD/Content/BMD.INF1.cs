@@ -18,31 +18,31 @@ namespace Hack.io.BMD
 
 
             public INF1() { }
-            public INF1(Stream BMD, out int VertexCount)
+            public INF1(Stream stream, out int VertexCount)
             {
-                long ChunkStart = BMD.Position;
-                if (!BMD.ReadString(4).Equals(Magic))
+                long ChunkStart = stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                ScalingRule = (J3DLoadFlags)BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                BMD.Position += 0x02;
-                BMD.Position += 0x04;
-                VertexCount = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                int HierarchyOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                BMD.Position = ChunkStart + HierarchyOffset;
+                int ChunkSize = stream.ReadInt32(Endian.Big);
+                ScalingRule = (J3DLoadFlags)stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02;
+                stream.Position += 0x04;
+                VertexCount = stream.ReadInt32(Endian.Big);
+                int HierarchyOffset = stream.ReadInt32(Endian.Big);
+                stream.Position = ChunkStart + HierarchyOffset;
 
-                Node parent = new Node(BMD, null);
+                Node parent = new Node(stream, null);
                 Node node = null;
 
                 Root = parent;
                 do
                 {
-                    node = new Node(BMD, parent);
+                    node = new Node(stream, parent);
 
                     if (node.Type == NodeType.OpenChild)
                     {
-                        Node newNode = new Node(BMD, parent);
+                        Node newNode = new Node(stream, parent);
                         parent.Children.Add(newNode);
                         parent = newNode;
                     }
@@ -57,33 +57,33 @@ namespace Hack.io.BMD
 
                 } while (node.Type != NodeType.End);
 
-                BMD.Position = ChunkStart + ChunkSize;
+                stream.Position = ChunkStart + ChunkSize;
             }
 
-            public void Write(Stream writer, SHP1 ShapesForMatrixGroupCount, VTX1 VerticiesForVertexCount)
+            public void Write(Stream stream, SHP1 ShapesForMatrixGroupCount, VTX1 VerticiesForVertexCount)
             {
-                long start = writer.Position;
+                long start = stream.Position;
 
-                writer.WriteString("INF1");
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                writer.WriteBigEndian(BitConverter.GetBytes((short)ScalingRule), 0, 2);
-                writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                stream.WriteString("INF1");
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
+                stream.WriteBigEndian(BitConverter.GetBytes((short)ScalingRule), 0, 2);
+                stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
-                writer.WriteBigEndian(BitConverter.GetBytes(SHP1.CountPackets(ShapesForMatrixGroupCount)), 0, 4); // Number of packets
-                writer.WriteBigEndian(BitConverter.GetBytes(VerticiesForVertexCount.Attributes.Positions.Count), 0, 4); // Number of vertex positions
-                writer.WriteBigEndian(BitConverter.GetBytes(24), 0, 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(SHP1.CountPackets(ShapesForMatrixGroupCount)), 0, 4); // Number of packets
+                stream.WriteBigEndian(BitConverter.GetBytes(VerticiesForVertexCount.Attributes.Positions.Count), 0, 4); // Number of vertex positions
+                stream.WriteBigEndian(BitConverter.GetBytes(24), 0, 4);
 
-                Root.Write(writer);
+                Root.Write(stream);
 
-                writer.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
 
-                writer.AddPadding(32, Padding);
+                stream.AddPadding(32, Padding);
 
-                long end = writer.Position;
-                writer.Position = start+4;
-                writer.WriteBigEndian(BitConverter.GetBytes((int)(end - start)), 0, 4);
-                writer.Position = end;
+                long end = stream.Position;
+                stream.Position = start + 4;
+                stream.WriteBigEndian(BitConverter.GetBytes((int)(end - start)), 0, 4);
+                stream.Position = end;
             }
 
             public class Node
@@ -101,11 +101,11 @@ namespace Hack.io.BMD
                     Index = 0;
                 }
 
-                public Node(Stream BMD, Node parent)
+                public Node(Stream stream, Node parent)
                 {
                     Parent = parent;
-                    Type = (NodeType)BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                    Index = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    Type = (NodeType)stream.ReadInt16(Endian.Big);
+                    Index = stream.ReadInt16(Endian.Big);
                 }
 
                 public Node(NodeType type, int index, Node parent)
@@ -120,23 +120,23 @@ namespace Hack.io.BMD
                     Children = new List<Node>();
                 }
 
-                public void Write(Stream BMD)
+                public void Write(Stream stream)
                 {
-                    BMD.WriteBigEndian(BitConverter.GetBytes((short)Type), 0, 2);
-                    BMD.WriteBigEndian(BitConverter.GetBytes((short)Index), 0, 2);
+                    stream.WriteBigEndian(BitConverter.GetBytes((short)Type), 0, 2);
+                    stream.WriteBigEndian(BitConverter.GetBytes((short)Index), 0, 2);
                     if (Children.Count > 0)
                     {
-                        BMD.WriteBigEndian(BitConverter.GetBytes((short)0x0001), 0, 2);
-                        BMD.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0001), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
                     }
                     for (int i = 0; i < Children.Count; i++)
                     {
-                        Children[i].Write(BMD);
+                        Children[i].Write(stream);
                     }
                     if (Children.Count > 0)
                     {
-                        BMD.WriteBigEndian(BitConverter.GetBytes((short)0x0002), 0, 2);
-                        BMD.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0002), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
                     }
                 }
 
@@ -147,7 +147,7 @@ namespace Hack.io.BMD
 
                 public override string ToString()
                 {
-                    return $"{ Type } : { Index }";
+                    return $"{Type} : {Index}";
                 }
             }
 

@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using AuroraLip.Common;
+﻿using AuroraLip.Common;
 using AuroraLip.Texture.Formats;
 using AuroraLip.Texture.J3D;
 using OpenTK;
 using OpenTK.Graphics;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
@@ -67,7 +67,7 @@ namespace Hack.io.BMD
 
             private static readonly string Magic = "MAT3";
 
-            public MAT3(Stream reader)
+            public MAT3(Stream stream)
             {
                 List<int> m_RemapIndices = new List<int>();
                 List<string> m_MaterialNames = new List<string>();
@@ -103,25 +103,25 @@ namespace Hack.io.BMD
                 List<byte> NumTevStagesBlock = new List<byte>();
 
 
-                int ChunkStart = (int)reader.Position;
-                if (!reader.ReadString(4).Equals(Magic))
+                int ChunkStart = (int)stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int mat3Size = BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
-                int matCount = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                int mat3Size = stream.ReadInt32(Endian.Big);
+                int matCount = stream.ReadInt16(Endian.Big);
                 long matInitOffset = 0;
-                reader.Position += 0x02;
+                stream.Position += 0x02;
 
                 for (Mat3OffsetIndex i = 0; i <= Mat3OffsetIndex.NBTScaleData; ++i)
                 {
-                    int sectionOffset = BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
+                    int sectionOffset = stream.ReadInt32(Endian.Big);
 
                     if (sectionOffset == 0)
                         continue;
 
-                    long curReaderPos = reader.Position;
-                    int nextOffset = BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
-                    reader.Position -= 0x04;
+                    long curReaderPos = stream.Position;
+                    int nextOffset = stream.ReadInt32(Endian.Big);
+                    stream.Position -= 0x04;
                     int sectionSize = 0;
 
                     if (i == Mat3OffsetIndex.NBTScaleData)
@@ -131,57 +131,57 @@ namespace Hack.io.BMD
 
                     if (nextOffset == 0 && i != Mat3OffsetIndex.NBTScaleData)
                     {
-                        long saveReaderPos = reader.Position;
+                        long saveReaderPos = stream.Position;
 
-                        reader.Position += 4;
+                        stream.Position += 4;
 
-                        while (BitConverter.ToInt32(reader.ReadBigEndian( 4), 0) == 0)
-                            reader.Position += 0;
+                        while (stream.ReadInt32(Endian.Big) == 0)
+                            stream.Position += 0;
 
-                        reader.Position -= 0x04;
-                        nextOffset = BitConverter.ToInt32(reader.ReadBigEndian( 4), 0);
-                        reader.Position -= 0x04;
+                        stream.Position -= 0x04;
+                        nextOffset = stream.ReadInt32(Endian.Big);
+                        stream.Position -= 0x04;
                         sectionSize = nextOffset - sectionOffset;
 
-                        reader.Position = saveReaderPos;
+                        stream.Position = saveReaderPos;
                     }
                     else if (i == Mat3OffsetIndex.NBTScaleData)
                         sectionSize = mat3Size - sectionOffset;
                     else
                         sectionSize = nextOffset - sectionOffset;
 
-                    reader.Position = ChunkStart + sectionOffset;
+                    stream.Position = ChunkStart + sectionOffset;
                     int count;
                     switch (i)
                     {
                         case Mat3OffsetIndex.MaterialData:
-                            matInitOffset = reader.Position;
+                            matInitOffset = stream.Position;
                             break;
                         case Mat3OffsetIndex.IndexData:
                             m_RemapIndices = new List<int>();
 
                             for (int index = 0; index < matCount; index++)
-                                m_RemapIndices.Add(BitConverter.ToInt16(reader.ReadBigEndian( 2), 0));
+                                m_RemapIndices.Add(stream.ReadInt16(Endian.Big));
 
                             break;
                         case Mat3OffsetIndex.NameTable:
                             m_MaterialNames = new List<string>();
 
-                            reader.Position = ChunkStart + sectionOffset;
+                            stream.Position = ChunkStart + sectionOffset;
 
-                            short stringCount = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
-                            reader.Position += 0x02;
+                            short stringCount = stream.ReadInt16(Endian.Big);
+                            stream.Position += 0x02;
 
                             for (int y = 0; y < stringCount; y++)
                             {
-                                reader.Position += 0x02;
-                                short nameOffset = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
-                                long saveReaderPos = reader.Position;
-                                reader.Position = ChunkStart + sectionOffset + nameOffset;
+                                stream.Position += 0x02;
+                                short nameOffset = stream.ReadInt16(Endian.Big);
+                                long saveReaderPos = stream.Position;
+                                stream.Position = ChunkStart + sectionOffset + nameOffset;
 
-                                m_MaterialNames.Add(reader.ReadString());
+                                m_MaterialNames.Add(stream.ReadString());
 
-                                reader.Position = saveReaderPos;
+                                stream.Position = saveReaderPos;
                             }
                             break;
                         case Mat3OffsetIndex.IndirectData:
@@ -189,24 +189,24 @@ namespace Hack.io.BMD
                             count = sectionSize / 312;
 
                             for (int y = 0; y < count; y++)
-                                m_IndirectTexBlock.Add(new Material.IndirectTexturing(reader));
+                                m_IndirectTexBlock.Add(new Material.IndirectTexturing(stream));
                             break;
                         case Mat3OffsetIndex.CullMode:
                             m_CullModeBlock = new List<CullMode>();
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_CullModeBlock.Add((CullMode)BitConverter.ToInt32(reader.ReadBigEndian( 4), 0));
+                                m_CullModeBlock.Add((CullMode)stream.ReadInt32(Endian.Big));
                             break;
                         case Mat3OffsetIndex.MaterialColor:
-                            m_MaterialColorBlock = ReadColours(reader, sectionOffset, sectionSize);
+                            m_MaterialColorBlock = ReadColours(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.ColorChannelCount:
                             NumColorChannelsBlock = new List<byte>();
 
                             for (int chanCnt = 0; chanCnt < sectionSize; chanCnt++)
                             {
-                                byte chanCntIn = (byte)reader.ReadByte();
+                                byte chanCntIn = (byte)stream.ReadByte();
 
                                 if (chanCntIn < 84)
                                     NumColorChannelsBlock.Add(chanCntIn);
@@ -218,20 +218,20 @@ namespace Hack.io.BMD
                             count = sectionSize / 8;
 
                             for (int y = 0; y < count; y++)
-                                m_ChannelControlBlock.Add(new Material.ChannelControl(reader));
+                                m_ChannelControlBlock.Add(new Material.ChannelControl(stream));
                             break;
                         case Mat3OffsetIndex.AmbientColorData:
-                            m_AmbientColorBlock = ReadColours(reader, sectionOffset, sectionSize);
+                            m_AmbientColorBlock = ReadColours(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.LightData:
-                            m_LightingColorBlock = ReadColours(reader, sectionOffset, sectionSize);
+                            m_LightingColorBlock = ReadColours(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TexGenCount:
                             NumTexGensBlock = new List<byte>();
 
                             for (int genCnt = 0; genCnt < sectionSize; genCnt++)
                             {
-                                byte genCntIn = (byte)reader.ReadByte();
+                                byte genCntIn = (byte)stream.ReadByte();
 
                                 if (genCntIn < 84)
                                     NumTexGensBlock.Add(genCntIn);
@@ -239,23 +239,23 @@ namespace Hack.io.BMD
 
                             break;
                         case Mat3OffsetIndex.TexCoordData:
-                            m_TexCoord1GenBlock = ReadTexCoordGens(reader, sectionOffset, sectionSize);
+                            m_TexCoord1GenBlock = ReadTexCoordGens(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TexCoord2Data:
-                            m_TexCoord2GenBlock = ReadTexCoordGens(reader, sectionOffset, sectionSize);
+                            m_TexCoord2GenBlock = ReadTexCoordGens(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TexMatrixData:
-                            m_TexMatrix1Block = ReadTexMatrices(reader, sectionOffset, sectionSize);
+                            m_TexMatrix1Block = ReadTexMatrices(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TexMatrix2Data:
-                            m_TexMatrix2Block = ReadTexMatrices(reader, sectionOffset, sectionSize);
+                            m_TexMatrix2Block = ReadTexMatrices(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TexNoData:
                             m_TexRemapBlock = new List<short>();
                             int texNoCnt = sectionSize / 2;
 
                             for (int texNo = 0; texNo < texNoCnt; texNo++)
-                                m_TexRemapBlock.Add(BitConverter.ToInt16(reader.ReadBigEndian( 2), 0));
+                                m_TexRemapBlock.Add(stream.ReadInt16(Endian.Big));
 
                             break;
                         case Mat3OffsetIndex.TevOrderData:
@@ -263,20 +263,20 @@ namespace Hack.io.BMD
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_TevOrderBlock.Add(new Material.TevOrder(reader));
+                                m_TevOrderBlock.Add(new Material.TevOrder(stream));
                             break;
                         case Mat3OffsetIndex.TevColorData:
-                            m_TevColorBlock = ReadColours(reader, sectionOffset, sectionSize, true);
+                            m_TevColorBlock = ReadColours(stream, sectionOffset, sectionSize, true);
                             break;
                         case Mat3OffsetIndex.TevKColorData:
-                            m_TevKonstColorBlock = ReadColours(reader, sectionOffset, sectionSize);
+                            m_TevKonstColorBlock = ReadColours(stream, sectionOffset, sectionSize);
                             break;
                         case Mat3OffsetIndex.TevStageCount:
                             NumTevStagesBlock = new List<byte>();
 
                             for (int stgCnt = 0; stgCnt < sectionSize; stgCnt++)
                             {
-                                byte stgCntIn = (byte)reader.ReadByte();
+                                byte stgCntIn = (byte)stream.ReadByte();
 
                                 if (stgCntIn < 84)
                                     NumTevStagesBlock.Add(stgCntIn);
@@ -288,56 +288,56 @@ namespace Hack.io.BMD
                             count = sectionSize / 20;
 
                             for (int y = 0; y < count; y++)
-                                m_TevStageBlock.Add(new Material.TevStage(reader));
+                                m_TevStageBlock.Add(new Material.TevStage(stream));
                             break;
                         case Mat3OffsetIndex.TevSwapModeData:
                             m_SwapModeBlock = new List<Material.TevSwapMode>();
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_SwapModeBlock.Add(new Material.TevSwapMode(reader));
+                                m_SwapModeBlock.Add(new Material.TevSwapMode(stream));
                             break;
                         case Mat3OffsetIndex.TevSwapModeTable:
                             m_SwapTableBlock = new List<Material.TevSwapModeTable>();
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_SwapTableBlock.Add(new Material.TevSwapModeTable(reader));
+                                m_SwapTableBlock.Add(new Material.TevSwapModeTable(stream));
                             break;
                         case Mat3OffsetIndex.FogData:
                             m_FogBlock = new List<Material.Fog>();
                             count = sectionSize / 44;
 
                             for (int y = 0; y < count; y++)
-                                m_FogBlock.Add(new Material.Fog(reader));
+                                m_FogBlock.Add(new Material.Fog(stream));
                             break;
                         case Mat3OffsetIndex.AlphaCompareData:
                             m_AlphaCompBlock = new List<Material.AlphaCompare>();
                             count = sectionSize / 8;
 
                             for (int y = 0; y < count; y++)
-                                m_AlphaCompBlock.Add(new Material.AlphaCompare(reader));
+                                m_AlphaCompBlock.Add(new Material.AlphaCompare(stream));
                             break;
                         case Mat3OffsetIndex.BlendData:
                             m_blendModeBlock = new List<Material.BlendMode>();
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_blendModeBlock.Add(new Material.BlendMode(reader));
+                                m_blendModeBlock.Add(new Material.BlendMode(stream));
                             break;
                         case Mat3OffsetIndex.ZModeData:
                             m_zModeBlock = new List<Material.ZModeHolder>();
                             count = sectionSize / 4;
 
                             for (int y = 0; y < count; y++)
-                                m_zModeBlock.Add(new Material.ZModeHolder(reader));
+                                m_zModeBlock.Add(new Material.ZModeHolder(stream));
                             break;
                         case Mat3OffsetIndex.ZCompLoc:
                             m_zCompLocBlock = new List<bool>();
 
                             for (int zcomp = 0; zcomp < sectionSize; zcomp++)
                             {
-                                byte boolIn = (byte)reader.ReadByte();
+                                byte boolIn = (byte)stream.ReadByte();
 
                                 if (boolIn > 1)
                                     break;
@@ -351,7 +351,7 @@ namespace Hack.io.BMD
 
                             for (int dith = 0; dith < sectionSize; dith++)
                             {
-                                byte boolIn = (byte)reader.ReadByte();
+                                byte boolIn = (byte)stream.ReadByte();
 
                                 if (boolIn > 1)
                                     break;
@@ -365,11 +365,11 @@ namespace Hack.io.BMD
                             count = sectionSize / 16;
 
                             for (int y = 0; y < count; y++)
-                                m_NBTScaleBlock.Add(new Material.NBTScaleHolder(reader));
+                                m_NBTScaleBlock.Add(new Material.NBTScaleHolder(stream));
                             break;
                     }
 
-                    reader.Position = curReaderPos;
+                    stream.Position = curReaderPos;
                 }
 
                 int highestMatIndex = 0;
@@ -380,17 +380,17 @@ namespace Hack.io.BMD
                         highestMatIndex = m_RemapIndices[i];
                 }
 
-                reader.Position = matInitOffset;
+                stream.Position = matInitOffset;
                 m_Materials = new List<Material>();
                 for (int i = 0; i <= highestMatIndex; i++)
                 {
-                    LoadInitData(reader, m_RemapIndices[i], m_MaterialNames, m_IndirectTexBlock, m_CullModeBlock, m_MaterialColorBlock,  m_ChannelControlBlock,  m_AmbientColorBlock,
+                    LoadInitData(stream, m_RemapIndices[i], m_MaterialNames, m_IndirectTexBlock, m_CullModeBlock, m_MaterialColorBlock, m_ChannelControlBlock, m_AmbientColorBlock,
                         m_LightingColorBlock, m_TexCoord1GenBlock, m_TexCoord2GenBlock, m_TexMatrix1Block, m_TexMatrix2Block, m_TexRemapBlock, m_TevOrderBlock, m_TevColorBlock,
-                        m_TevKonstColorBlock, m_TevStageBlock, m_SwapModeBlock, m_SwapTableBlock, m_FogBlock, m_AlphaCompBlock, m_blendModeBlock, m_NBTScaleBlock,  m_zModeBlock,
+                        m_TevKonstColorBlock, m_TevStageBlock, m_SwapModeBlock, m_SwapTableBlock, m_FogBlock, m_AlphaCompBlock, m_blendModeBlock, m_NBTScaleBlock, m_zModeBlock,
                         m_zCompLocBlock, m_ditherBlock, NumColorChannelsBlock, NumTexGensBlock, NumTevStagesBlock);
                 }
 
-                reader.Seek(ChunkStart + mat3Size, SeekOrigin.Begin);
+                stream.Seek(ChunkStart + mat3Size, SeekOrigin.Begin);
 
                 List<Material> matCopies = new List<Material>();
                 for (int i = 0; i < m_RemapIndices.Count; i++)
@@ -448,7 +448,7 @@ namespace Hack.io.BMD
             }
 
             #region I/O
-            private void LoadInitData(Stream reader, int matindex, List<string> m_MaterialNames, List<Material.IndirectTexturing> m_IndirectTexBlock, List<CullMode> m_CullModeBlock,
+            private void LoadInitData(Stream stream, int matindex, List<string> m_MaterialNames, List<Material.IndirectTexturing> m_IndirectTexBlock, List<CullMode> m_CullModeBlock,
             List<Color4> m_MaterialColorBlock, List<Material.ChannelControl> m_ChannelControlBlock, List<Color4> m_AmbientColorBlock, List<Color4> m_LightingColorBlock,
             List<Material.TexCoordGen> m_TexCoord1GenBlock, List<Material.TexCoordGen> m_TexCoord2GenBlock, List<Material.TexMatrix> m_TexMatrix1Block, List<Material.TexMatrix> m_TexMatrix2Block,
             List<short> m_TexRemapBlock, List<Material.TevOrder> m_TevOrderBlock, List<Color4> m_TevColorBlock, List<Color4> m_TevKonstColorBlock, List<Material.TevStage> m_TevStageBlock,
@@ -459,11 +459,11 @@ namespace Hack.io.BMD
                 Material mat = new Material
                 {
                     Name = m_MaterialNames[matindex],
-                    Flag = (byte)reader.ReadByte(),
-                    CullMode = m_CullModeBlock[reader.ReadByte()],
-                    LightChannelCount = NumColorChannelsBlock[reader.ReadByte()]
+                    Flag = (byte)stream.ReadByte(),
+                    CullMode = m_CullModeBlock[stream.ReadByte()],
+                    LightChannelCount = NumColorChannelsBlock[stream.ReadByte()]
                 };
-                reader.Position += 0x02;
+                stream.Position += 0x02;
 
                 if (matindex < m_IndirectTexBlock.Count)
                 {
@@ -473,24 +473,24 @@ namespace Hack.io.BMD
                 {
                     Console.WriteLine("Warning: Material {0} referenced an out of range IndirectTexBlock index", mat.Name);
                 }
-                mat.ZCompLoc = m_zCompLocBlock[reader.ReadByte()];
-                mat.ZMode = m_zModeBlock[reader.ReadByte()];
+                mat.ZCompLoc = m_zCompLocBlock[stream.ReadByte()];
+                mat.ZMode = m_zModeBlock[stream.ReadByte()];
 
                 if (m_ditherBlock == null || m_ditherBlock.Count == 0)
-                    reader.Position++;
+                    stream.Position++;
                 else
-                    mat.Dither = m_ditherBlock[reader.ReadByte()];
+                    mat.Dither = m_ditherBlock[stream.ReadByte()];
 
-                int matColorIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                int matColorIndex = stream.ReadInt16(Endian.Big);
                 if (matColorIndex != -1)
                     mat.MaterialColors[0] = m_MaterialColorBlock[matColorIndex];
-                matColorIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                matColorIndex = stream.ReadInt16(Endian.Big);
                 if (matColorIndex != -1)
                     mat.MaterialColors[1] = m_MaterialColorBlock[matColorIndex];
 
                 for (int i = 0; i < 4; i++)
                 {
-                    int chanIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int chanIndex = stream.ReadInt16(Endian.Big);
                     if (chanIndex == -1)
                         continue;
                     else if (chanIndex < m_ChannelControlBlock.Count)
@@ -504,7 +504,7 @@ namespace Hack.io.BMD
                 }
                 for (int i = 0; i < 2; i++)
                 {
-                    int ambColorIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int ambColorIndex = stream.ReadInt16(Endian.Big);
                     if (ambColorIndex == -1)
                         continue;
                     else if (ambColorIndex < m_AmbientColorBlock.Count)
@@ -519,7 +519,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 8; i++)
                 {
-                    int lightIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int lightIndex = stream.ReadInt16(Endian.Big);
                     if ((lightIndex == -1) || (lightIndex > m_LightingColorBlock.Count) || (m_LightingColorBlock.Count == 0))
                         continue;
                     else
@@ -528,7 +528,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 8; i++)
                 {
-                    int texGenIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int texGenIndex = stream.ReadInt16(Endian.Big);
                     if (texGenIndex == -1)
                         continue;
                     else if (texGenIndex < m_TexCoord1GenBlock.Count)
@@ -539,7 +539,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 8; i++)
                 {
-                    int texGenIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int texGenIndex = stream.ReadInt16(Endian.Big);
                     if (texGenIndex == -1)
                         continue;
                     else
@@ -548,7 +548,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 10; i++)
                 {
-                    int texMatIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int texMatIndex = stream.ReadInt16(Endian.Big);
                     if (texMatIndex == -1)
                         continue;
                     else
@@ -557,7 +557,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 20; i++)
                 {
-                    int texMatIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int texMatIndex = stream.ReadInt16(Endian.Big);
                     if (texMatIndex == -1)
                         continue;
                     else if (texMatIndex < (m_TexMatrix2Block?.Count ?? 0))
@@ -568,7 +568,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 8; i++)
                 {
-                    int texIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int texIndex = stream.ReadInt16(Endian.Big);
                     if (texIndex == -1)
                         continue;
                     else
@@ -577,7 +577,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 4; i++)
                 {
-                    int tevKColor = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevKColor = stream.ReadInt16(Endian.Big);
                     if (tevKColor == -1)
                         continue;
                     else
@@ -586,17 +586,17 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 16; i++)
                 {
-                    mat.ColorSels[i] = (KonstColorSel)reader.ReadByte();
+                    mat.ColorSels[i] = (KonstColorSel)stream.ReadByte();
                 }
 
                 for (int i = 0; i < 16; i++)
                 {
-                    mat.AlphaSels[i] = (KonstAlphaSel)reader.ReadByte();
+                    mat.AlphaSels[i] = (KonstAlphaSel)stream.ReadByte();
                 }
 
                 for (int i = 0; i < 16; i++)
                 {
-                    int tevOrderIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevOrderIndex = stream.ReadInt16(Endian.Big);
                     if (tevOrderIndex == -1)
                         continue;
                     else
@@ -605,7 +605,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 4; i++)
                 {
-                    int tevColor = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevColor = stream.ReadInt16(Endian.Big);
                     if (tevColor == -1)
                         continue;
                     else
@@ -614,7 +614,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 16; i++)
                 {
-                    int tevStageIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevStageIndex = stream.ReadInt16(Endian.Big);
                     if (tevStageIndex == -1)
                         continue;
                     else
@@ -623,7 +623,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 16; i++)
                 {
-                    int tevSwapModeIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevSwapModeIndex = stream.ReadInt16(Endian.Big);
                     if (tevSwapModeIndex == -1)
                         continue;
                     else
@@ -632,7 +632,7 @@ namespace Hack.io.BMD
 
                 for (int i = 0; i < 16; i++)
                 {
-                    int tevSwapModeTableIndex = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                    int tevSwapModeTableIndex = stream.ReadInt16(Endian.Big);
                     if ((tevSwapModeTableIndex < 0) || (tevSwapModeTableIndex >= m_SwapTableBlock.Count))
                         continue;
                     else
@@ -645,19 +645,19 @@ namespace Hack.io.BMD
                 }
 
                 if (m_FogBlock.Count == 0)
-                    reader.Position += 0x02;
+                    stream.Position += 0x02;
                 else
-                    mat.FogInfo = m_FogBlock[BitConverter.ToInt16(reader.ReadBigEndian( 2), 0)];
-                mat.AlphCompare = m_AlphaCompBlock[BitConverter.ToInt16(reader.ReadBigEndian( 2), 0)];
-                mat.BMode = m_blendModeBlock[BitConverter.ToInt16(reader.ReadBigEndian( 2), 0)];
+                    mat.FogInfo = m_FogBlock[stream.ReadInt16(Endian.Big)];
+                mat.AlphCompare = m_AlphaCompBlock[stream.ReadInt16(Endian.Big)];
+                mat.BMode = m_blendModeBlock[stream.ReadInt16(Endian.Big)];
 
                 if (m_NBTScaleBlock.Count == 0)
-                    reader.Position += 0x02;
+                    stream.Position += 0x02;
                 else
-                    mat.NBTScale = m_NBTScaleBlock[BitConverter.ToInt16(reader.ReadBigEndian( 2), 0)];
+                    mat.NBTScale = m_NBTScaleBlock[stream.ReadInt16(Endian.Big)];
                 m_Materials.Add(mat);
             }
-            private static List<Color4> ReadColours(Stream reader, int offset, int size, bool IsInt16 = false)
+            private static List<Color4> ReadColours(Stream stream, int offset, int size, bool IsInt16 = false)
             {
                 List<Color4> colors = new List<Color4>();
                 int count = size / (IsInt16 ? 8 : 4);
@@ -666,10 +666,10 @@ namespace Hack.io.BMD
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        short r = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
-                        short g = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
-                        short b = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
-                        short a = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0);
+                        short r = stream.ReadInt16(Endian.Big);
+                        short g = stream.ReadInt16(Endian.Big);
+                        short b = stream.ReadInt16(Endian.Big);
+                        short a = stream.ReadInt16(Endian.Big);
 
                         colors.Add(new Color4((float)r / 255, (float)g / 255, (float)b / 255, (float)a / 255));
                     }
@@ -678,10 +678,10 @@ namespace Hack.io.BMD
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        byte r = (byte)reader.ReadByte();
-                        byte g = (byte)reader.ReadByte();
-                        byte b = (byte)reader.ReadByte();
-                        byte a = (byte)reader.ReadByte();
+                        byte r = (byte)stream.ReadByte();
+                        byte g = (byte)stream.ReadByte();
+                        byte b = (byte)stream.ReadByte();
+                        byte a = (byte)stream.ReadByte();
 
                         colors.Add(new Color4((float)r / 255, (float)g / 255, (float)b / 255, (float)a / 255));
                     }
@@ -732,7 +732,7 @@ namespace Hack.io.BMD
                 List<Color4> m_TevColorBlock = new List<Color4>();
                 List<Color4> m_TevKonstColorBlock = new List<Color4>();
                 List<Material.TevStage> m_TevStageBlock = new List<Material.TevStage>();
-                List<Material.TevSwapMode> m_SwapModeBlock = new List<Material.TevSwapMode>() { new Material.TevSwapMode(0,0), new Material.TevSwapMode(0,0) };
+                List<Material.TevSwapMode> m_SwapModeBlock = new List<Material.TevSwapMode>() { new Material.TevSwapMode(0, 0), new Material.TevSwapMode(0, 0) };
                 List<Material.TevSwapModeTable> m_SwapTableBlock = new List<Material.TevSwapModeTable>();
                 List<Material.Fog> m_FogBlock = new List<Material.Fog>();
                 List<Material.AlphaCompare> m_AlphaCompBlock = new List<Material.AlphaCompare>();
@@ -1560,7 +1560,7 @@ namespace Hack.io.BMD
                         }
 
                         if (i == 9)
-                            throw new Exception($"TexMatrix1 array for material \"{ Name }\" is full!");
+                            throw new Exception($"TexMatrix1 array for material \"{Name}\" is full!");
                     }
                 }
 
@@ -1575,7 +1575,7 @@ namespace Hack.io.BMD
                         }
 
                         if (i == 7)
-                            throw new Exception($"TextureIndex array for material \"{ Name }\" is full!");
+                            throw new Exception($"TextureIndex array for material \"{Name}\" is full!");
                     }
                 }
 
@@ -1590,7 +1590,7 @@ namespace Hack.io.BMD
                         }
 
                         if (i == 7)
-                            throw new Exception($"TevOrder array for material \"{ Name }\" is full!");
+                            throw new Exception($"TevOrder array for material \"{Name}\" is full!");
                     }
                 }
 
@@ -2095,15 +2095,15 @@ namespace Hack.io.BMD
                             Exponent = exponent;
                         }
 
-                        public IndirectTexMatrix(Stream reader)
+                        public IndirectTexMatrix(Stream stream)
                         {
                             Matrix = new Matrix2x3(
-                                BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0),
-                                BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
+                                stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big),
+                                stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
 
-                            Exponent = (byte)reader.ReadByte();
+                            Exponent = (byte)stream.ReadByte();
 
-                            reader.Position += 0x03;
+                            stream.Position += 0x03;
                         }
 
                         public void Write(Stream writer)
@@ -2125,7 +2125,7 @@ namespace Hack.io.BMD
                         {
                             if (!(obj is IndirectTexMatrix matrix))
                                 return false;
-                            
+
                             return Matrix.Equals(matrix.Matrix) &&
                                    Exponent == matrix.Exponent;
                         }
@@ -2263,7 +2263,7 @@ namespace Hack.io.BMD
                         {
                             if (!(obj is IndirectTevStage stage))
                                 return false;
-                            
+
                             return TevStageID == stage.TevStageID &&
                                    IndTexFormat == stage.IndTexFormat &&
                                    IndTexBias == stage.IndTexBias &&
@@ -2543,24 +2543,24 @@ namespace Hack.io.BMD
                         ProjectionMatrix = matrix;
                     }
 
-                    public TexMatrix(Stream reader)
+                    public TexMatrix(Stream stream)
                     {
-                        Projection = (TexGenType)reader.ReadByte();
-                        byte info = (byte)reader.ReadByte();
+                        Projection = (TexGenType)stream.ReadByte();
+                        byte info = (byte)stream.ReadByte();
                         MappingMode = (TexMtxMapMode)(info & 0x3F);
                         IsMaya = (info & ~0x3F) != 0;
-                        reader.Position += 0x02;
-                        Center = new Vector3(BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
-                        Scale = new Vector2(BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
-                        Rotation = BitConverter.ToInt16(reader.ReadBigEndian( 2), 0) * (180 / 32768f);
-                        reader.Position += 0x02;
-                        Translation = new Vector2(BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
+                        stream.Position += 0x02;
+                        Center = new Vector3(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
+                        Scale = new Vector2(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
+                        Rotation = stream.ReadInt16(Endian.Big) * (180 / 32768f);
+                        stream.Position += 0x02;
+                        Translation = new Vector2(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
 
                         ProjectionMatrix = new Matrix4(
-                            BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0),
-                            BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0),
-                            BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0),
-                            BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big),
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big),
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big),
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
                     }
 
                     public void Write(Stream writer)
@@ -2618,7 +2618,7 @@ namespace Hack.io.BMD
                     {
                         if (!(obj is TexMatrix matrix))
                             return false;
-                        
+
                         return Projection == matrix.Projection &&
                                MappingMode == matrix.MappingMode &&
                                IsMaya == matrix.IsMaya &&
@@ -2821,33 +2821,33 @@ namespace Hack.io.BMD
                     {
                         string ret = "";
 
-                        ret += $"Color In A: { ColorInA }\n";
-                        ret += $"Color In B: { ColorInB }\n";
-                        ret += $"Color In C: { ColorInC }\n";
-                        ret += $"Color In D: { ColorInD }\n";
+                        ret += $"Color In A: {ColorInA}\n";
+                        ret += $"Color In B: {ColorInB}\n";
+                        ret += $"Color In C: {ColorInC}\n";
+                        ret += $"Color In D: {ColorInD}\n";
 
                         ret += '\n';
 
-                        ret += $"Color Op: { ColorOp }\n";
-                        ret += $"Color Bias: { ColorBias }\n";
-                        ret += $"Color Scale: { ColorScale }\n";
-                        ret += $"Color Clamp: { ColorClamp }\n";
-                        ret += $"Color Reg ID: { ColorRegId }\n";
+                        ret += $"Color Op: {ColorOp}\n";
+                        ret += $"Color Bias: {ColorBias}\n";
+                        ret += $"Color Scale: {ColorScale}\n";
+                        ret += $"Color Clamp: {ColorClamp}\n";
+                        ret += $"Color Reg ID: {ColorRegId}\n";
 
                         ret += '\n';
 
-                        ret += $"Alpha In A: { AlphaInA }\n";
-                        ret += $"Alpha In B: { AlphaInB }\n";
-                        ret += $"Alpha In C: { AlphaInC }\n";
-                        ret += $"Alpha In D: { AlphaInD }\n";
+                        ret += $"Alpha In A: {AlphaInA}\n";
+                        ret += $"Alpha In B: {AlphaInB}\n";
+                        ret += $"Alpha In C: {AlphaInC}\n";
+                        ret += $"Alpha In D: {AlphaInD}\n";
 
                         ret += '\n';
 
-                        ret += $"Alpha Op: { AlphaOp }\n";
-                        ret += $"Alpha Bias: { AlphaBias }\n";
-                        ret += $"Alpha Scale: { AlphaScale }\n";
-                        ret += $"Alpha Clamp: { AlphaClamp }\n";
-                        ret += $"Alpha Reg ID: { AlphaRegId }\n";
+                        ret += $"Alpha Op: {AlphaOp}\n";
+                        ret += $"Alpha Bias: {AlphaBias}\n";
+                        ret += $"Alpha Scale: {AlphaScale}\n";
+                        ret += $"Alpha Clamp: {AlphaClamp}\n";
+                        ret += $"Alpha Reg ID: {AlphaRegId}\n";
 
                         ret += '\n';
 
@@ -3113,22 +3113,22 @@ namespace Hack.io.BMD
                         RangeAdjustmentTable = rangeAdjust;
                     }
 
-                    public Fog(Stream reader)
+                    public Fog(Stream stream)
                     {
                         RangeAdjustmentTable = new float[10];
 
-                        Type = (byte)reader.ReadByte();
-                        Enable = reader.ReadByte() > 0;
-                        Center = BitConverter.ToUInt16(reader.ReadBigEndian( 2), 0);
-                        StartZ = BitConverter.ToSingle(reader.ReadBigEndian( 4), 0);
-                        EndZ = BitConverter.ToSingle(reader.ReadBigEndian( 4), 0);
-                        NearZ = BitConverter.ToSingle(reader.ReadBigEndian( 4), 0);
-                        FarZ = BitConverter.ToSingle(reader.ReadBigEndian( 4), 0);
-                        Color = new Color4((float)reader.ReadByte() / 255, (float)reader.ReadByte() / 255, (float)reader.ReadByte() / 255, (float)reader.ReadByte() / 255);
+                        Type = (byte)stream.ReadByte();
+                        Enable = stream.ReadByte() > 0;
+                        Center = stream.ReadUInt16(Endian.Big);
+                        StartZ = stream.ReadSingle(Endian.Big);
+                        EndZ = stream.ReadSingle(Endian.Big);
+                        NearZ = stream.ReadSingle(Endian.Big);
+                        FarZ = stream.ReadSingle(Endian.Big);
+                        Color = new Color4((float)stream.ReadByte() / 255, (float)stream.ReadByte() / 255, (float)stream.ReadByte() / 255, (float)stream.ReadByte() / 255);
 
                         for (int i = 0; i < 10; i++)
                         {
-                            ushort inVal = BitConverter.ToUInt16(reader.ReadBigEndian( 2), 0);
+                            ushort inVal = stream.ReadUInt16(Endian.Big);
                             RangeAdjustmentTable[i] = (float)inVal / 256;
                         }
                     }
@@ -3435,7 +3435,7 @@ namespace Hack.io.BMD
                     {
                         if (!(obj is ZModeHolder holder))
                             return false;
-                        
+
                         return Enable == holder.Enable &&
                                Function == holder.Function &&
                                UpdateEnable == holder.UpdateEnable;
@@ -3448,7 +3448,7 @@ namespace Hack.io.BMD
                 public struct NBTScaleHolder
                 {
                     public byte Unknown1;
-                    
+
                     public Vector3 Scale;
 
                     public NBTScaleHolder(byte unk1, Vector3 scale)
@@ -3457,11 +3457,11 @@ namespace Hack.io.BMD
                         Scale = scale;
                     }
 
-                    public NBTScaleHolder(Stream reader)
+                    public NBTScaleHolder(Stream stream)
                     {
-                        Unknown1 = (byte)reader.ReadByte();
-                        reader.Position += 0x03;
-                        Scale = new Vector3(BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0), BitConverter.ToSingle(reader.ReadBigEndian( 4), 0));
+                        Unknown1 = (byte)stream.ReadByte();
+                        stream.Position += 0x03;
+                        Scale = new Vector3(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
                     }
 
                     public void Write(Stream writer)

@@ -25,20 +25,20 @@ namespace AuroraLip.Texture.Formats
 
         protected override void Read(Stream stream)
         {
-            TXTRImageFormat TXTRFormat = (TXTRImageFormat)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            TXTRImageFormat TXTRFormat = (TXTRImageFormat)stream.ReadUInt32(Endian.Big);
             GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), TXTRFormat.ToString());
-            int ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            int ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint Images = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            int ImageWidth = stream.ReadUInt16(Endian.Big);
+            int ImageHeight = stream.ReadUInt16(Endian.Big);
+            uint Images = stream.ReadUInt32(Endian.Big);
 
             byte[] palettedata = null;
             int ColorsCount = 0;
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
             if (JUtility.IsPaletteFormat(Format))
             {
-                PaletteFormat = (GXPaletteFormat)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                int CWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                int CHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
+                int CWidth = stream.ReadUInt16(Endian.Big);
+                int CHeight = stream.ReadUInt16(Endian.Big);
                 ColorsCount = CHeight* CWidth;
                 palettedata = stream.Read(ColorsCount*2);
             }

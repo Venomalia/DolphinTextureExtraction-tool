@@ -217,18 +217,18 @@ namespace AuroraLip.Archives.Formats
             public uint FirstFileOffset { get; set; }
 
             public RARCDirEntry() { }
-            public RARCDirEntry(Stream RARCFile, uint StringTableOffset)
+            public RARCDirEntry(Stream stream, uint StringTableOffset)
             {
-                Type = RARCFile.ReadString(4);
-                NameOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0);
-                NameHash = BitConverter.ToUInt16(RARCFile.ReadBigEndian(2), 0);
-                FileCount = BitConverter.ToUInt16(RARCFile.ReadBigEndian(2), 0);
-                FirstFileOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0);
+                Type = stream.ReadString(4);
+                NameOffset = stream.ReadUInt32(Endian.Big);
+                NameHash = stream.ReadUInt16(Endian.Big);
+                FileCount = stream.ReadUInt16(Endian.Big);
+                FirstFileOffset = stream.ReadUInt32(Endian.Big);
 
-                long pauseposition = RARCFile.Position;
-                RARCFile.Position = StringTableOffset + NameOffset;
-                Name = RARCFile.ReadString();
-                RARCFile.Position = pauseposition;
+                long pauseposition = stream.Position;
+                stream.Position = StringTableOffset + NameOffset;
+                Name = stream.ReadString();
+                stream.Position = pauseposition;
             }
 
             internal void Write(Stream RARCFile, Dictionary<string, uint> StringLocations)
@@ -298,29 +298,29 @@ namespace AuroraLip.Archives.Formats
 
         protected override ArchiveDirectory NewDirectory(string filename, Archive Owner) => new Directory(filename, (RARC)Owner);
 
-        protected override void Read(Stream RARCFile)
+        protected override void Read(Stream stream)
         {
             #region Header
-            if (!IsMatch(RARCFile))
+            if (!IsMatch(stream))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            uint FileSize = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                DataHeaderOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                DataOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0) + 0x20,
-                DataLength = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                MRAMSize = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                ARAMSize = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0);
-            RARCFile.Position += 0x04; //Skip the supposed padding
+            uint FileSize = stream.ReadUInt32(Endian.Big),
+                DataHeaderOffset = stream.ReadUInt32(Endian.Big),
+                DataOffset = stream.ReadUInt32(Endian.Big) + 0x20,
+                DataLength = stream.ReadUInt32(Endian.Big),
+                MRAMSize = stream.ReadUInt32(Endian.Big),
+                ARAMSize = stream.ReadUInt32(Endian.Big);
+            stream.Position += 0x04; //Skip the supposed padding
             #endregion
 
             #region Data Header
-            uint DirectoryCount = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                    DirectoryTableOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0) + 0x20,
-                    FileEntryCount = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                    FileEntryTableOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0) + 0x20,
-                    StringTableSize = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0),
-                    StringTableOffset = BitConverter.ToUInt32(RARCFile.ReadBigEndian(4), 0) + 0x20;
-            ushort NextFreeFileID = BitConverter.ToUInt16(RARCFile.ReadBigEndian(2), 0);
-            KeepFileIDsSynced = RARCFile.ReadByte() != 0x00;
+            uint DirectoryCount = stream.ReadUInt32(Endian.Big),
+                    DirectoryTableOffset = stream.ReadUInt32(Endian.Big) + 0x20,
+                    FileEntryCount = stream.ReadUInt32(Endian.Big),
+                    FileEntryTableOffset = stream.ReadUInt32(Endian.Big) + 0x20,
+                    StringTableSize = stream.ReadUInt32(Endian.Big),
+                    StringTableOffset = stream.ReadUInt32(Endian.Big) + 0x20;
+            ushort NextFreeFileID = stream.ReadUInt16(Endian.Big);
+            KeepFileIDsSynced = stream.ReadByte() != 0x00;
             #endregion
 
 #if DEBUG
@@ -329,20 +329,20 @@ namespace AuroraLip.Archives.Formats
 #endif
 
             #region Directory Nodes
-            RARCFile.Position = DirectoryTableOffset;
+            stream.Position = DirectoryTableOffset;
 
             List<RARCDirEntry> FlatDirectoryList = new List<RARCDirEntry>();
 
             for (int i = 0; i < DirectoryCount; i++)
 #if DEBUG
             {
-                RARCDirEntry DEBUGTEMP = new RARCDirEntry(RARCFile, StringTableOffset);
+                RARCDirEntry DEBUGTEMP = new RARCDirEntry(stream, StringTableOffset);
                 FlatDirectoryList.Add(DEBUGTEMP);
-                long pauseposition = RARCFile.Position;
-                RARCFile.Position = StringTableOffset + DEBUGTEMP.NameOffset;
-                string DEBUGDIRNAME = RARCFile.ReadString();
+                long pauseposition = stream.Position;
+                stream.Position = StringTableOffset + DEBUGTEMP.NameOffset;
+                string DEBUGDIRNAME = stream.ReadString();
                 //XML += $"<RarcDirectoryEntry Name=" + ($"\"{DEBUGDIRNAME}\"").PadRight(20, ' ') + $" Type=\"{DEBUGTEMP.Type.PadLeft(4, ' ')}\" NameHash=\"0x{DEBUGTEMP.NameHash.ToString("X4")}\" FirstFileOffset=\"{DEBUGTEMP.FirstFileOffset}\" FileCount=\"{DEBUGTEMP.FileCount}\"/>\n";
-                RARCFile.Position = pauseposition;
+                stream.Position = pauseposition;
             }
 #else
                 FlatDirectoryList.Add(new RARCDirEntry(RARCFile, StringTableOffset));
@@ -351,23 +351,23 @@ namespace AuroraLip.Archives.Formats
 
             #region File Nodes
             List<RARCFileEntry> FlatFileList = new List<RARCFileEntry>();
-            RARCFile.Seek(FileEntryTableOffset, SeekOrigin.Begin);
+            stream.Seek(FileEntryTableOffset, SeekOrigin.Begin);
             for (int i = 0; i < FileEntryCount; i++)
             {
                 FlatFileList.Add(new RARCFileEntry()
                 {
-                    FileID = BitConverter.ToInt16(RARCFile.ReadBigEndian(2), 0),
-                    NameHash = BitConverter.ToInt16(RARCFile.ReadBigEndian(2), 0),
-                    Type = BitConverter.ToInt16(RARCFile.ReadBigEndian(2), 0)
+                    FileID = stream.ReadInt16(Endian.Big),
+                    NameHash = stream.ReadInt16(Endian.Big),
+                    Type = stream.ReadInt16(Endian.Big)
                 });
-                ushort CurrentNameOffset = BitConverter.ToUInt16(RARCFile.ReadBigEndian(2), 0);
-                FlatFileList[FlatFileList.Count - 1].ModularA = BitConverter.ToInt32(RARCFile.ReadBigEndian(4), 0);
-                FlatFileList[FlatFileList.Count - 1].ModularB = BitConverter.ToInt32(RARCFile.ReadBigEndian(4), 0);
-                RARCFile.Position += 0x04;
-                long Pauseposition = RARCFile.Position;
-                RARCFile.Seek(StringTableOffset + CurrentNameOffset, SeekOrigin.Begin);
-                FlatFileList[FlatFileList.Count - 1].Name = RARCFile.ReadString();
-                RARCFile.Position = Pauseposition;
+                ushort CurrentNameOffset = stream.ReadUInt16(Endian.Big);
+                FlatFileList[FlatFileList.Count - 1].ModularA = stream.ReadInt32(Endian.Big);
+                FlatFileList[FlatFileList.Count - 1].ModularB = stream.ReadInt32(Endian.Big);
+                stream.Position += 0x04;
+                long Pauseposition = stream.Position;
+                stream.Seek(StringTableOffset + CurrentNameOffset, SeekOrigin.Begin);
+                FlatFileList[FlatFileList.Count - 1].Name = stream.ReadString();
+                stream.Position = Pauseposition;
             }
 #if DEBUG
             //for (int i = 0; i < FlatFileList.Count; i++)
@@ -380,7 +380,7 @@ namespace AuroraLip.Archives.Formats
             List<Directory> Directories = new List<Directory>();
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
-                Directories.Add(new Directory(this, i, FlatDirectoryList, FlatFileList, DataOffset, RARCFile));
+                Directories.Add(new Directory(this, i, FlatDirectoryList, FlatFileList, DataOffset, stream));
             }
 
             for (int i = 0; i < Directories.Count; i++)
@@ -420,8 +420,8 @@ namespace AuroraLip.Archives.Formats
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="RARCFile"></param>
-        protected override void Write(Stream RARCFile)
+        /// <param name="stream"></param>
+        protected override void Write(Stream stream)
         {
             Dictionary<ArchiveFile, uint> FileOffsets = new Dictionary<ArchiveFile, uint>();
             uint dataoffset = 0;
@@ -437,87 +437,87 @@ namespace AuroraLip.Archives.Formats
             byte[] StringDataBuffer = GetStringTableBytes(FlatFileList, Root.Name, ref StringLocations).ToArray();
 
             #region File Writing
-            RARCFile.WriteString(Magic);
-            RARCFile.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes(ARAMSize), 4);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes(DVDSize), 4);
+            stream.WriteString(Magic);
+            stream.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
+            stream.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes(ARAMSize), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes(DVDSize), 4);
             //Data Header
-            RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList.Count), 4);
-            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //Directory Nodes Location (-0x20)
-            RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList.Count), 4);
-            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //File Entries Location (-0x20)
-            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //String Table Size
-            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //string Table Location (-0x20)
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((ushort)FlatFileList.Count), 2);
-            RARCFile.WriteByte((byte)(KeepFileIDsSynced ? 0x01 : 0x00));
-            RARCFile.Write(new byte[5], 0, 5);
-            long DirectoryEntryOffset = RARCFile.Position;
+            stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList.Count), 4);
+            stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //Directory Nodes Location (-0x20)
+            stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList.Count), 4);
+            stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //File Entries Location (-0x20)
+            stream.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //String Table Size
+            stream.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //string Table Location (-0x20)
+            stream.WriteBigEndian(BitConverter.GetBytes((ushort)FlatFileList.Count), 2);
+            stream.WriteByte((byte)(KeepFileIDsSynced ? 0x01 : 0x00));
+            stream.Write(new byte[5], 0, 5);
+            long DirectoryEntryOffset = stream.Position;
 
             #region Directory Nodes
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
-                RARCFile.WriteString(FlatDirectoryList[i].Type);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(StringLocations[FlatDirectoryList[i].Name]), 4);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].NameHash), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FileCount), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FirstFileOffset), 4);
+                stream.WriteString(FlatDirectoryList[i].Type);
+                stream.WriteBigEndian(BitConverter.GetBytes(StringLocations[FlatDirectoryList[i].Name]), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].NameHash), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FileCount), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FirstFileOffset), 4);
             }
 
             #region Padding
-            while (RARCFile.Position % 32 != 0)
-                RARCFile.WriteByte(0x00);
+            while (stream.Position % 32 != 0)
+                stream.WriteByte(0x00);
             #endregion
             #endregion
 
-            long FileEntryOffset = RARCFile.Position;
+            long FileEntryOffset = stream.Position;
 
             #region File Entries
             for (int i = 0; i < FlatFileList.Count; i++)
             {
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].FileID), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(StringToHash(FlatFileList[i].Name)), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].Type), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes((ushort)StringLocations[FlatFileList[i].Name]), 2);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularA), 4);
-                RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularB), 4);
-                RARCFile.Write(new byte[4], 0, 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].FileID), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(StringToHash(FlatFileList[i].Name)), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].Type), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)StringLocations[FlatFileList[i].Name]), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularA), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularB), 4);
+                stream.Write(new byte[4], 0, 4);
             }
             #region Padding
-            while (RARCFile.Position % 32 != 0)
-                RARCFile.WriteByte(0x00);
+            while (stream.Position % 32 != 0)
+                stream.WriteByte(0x00);
             #endregion
             #endregion
 
-            long StringTableOffset = RARCFile.Position;
+            long StringTableOffset = stream.Position;
 
             #region String Table
-            RARCFile.Write(StringDataBuffer, 0, StringDataBuffer.Length);
+            stream.Write(StringDataBuffer, 0, StringDataBuffer.Length);
 
             #region Padding
-            while (RARCFile.Position % 32 != 0)
-                RARCFile.WriteByte(0x00);
+            while (stream.Position % 32 != 0)
+                stream.WriteByte(0x00);
             #endregion
             #endregion
 
-            long FileTableOffset = RARCFile.Position;
+            long FileTableOffset = stream.Position;
 
             #region File Table
-            RARCFile.Write(DataByteBuffer, 0, DataByteBuffer.Length);
+            stream.Write(DataByteBuffer, 0, DataByteBuffer.Length);
             #endregion
 
             #region Header
-            RARCFile.Position = 0x04;
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)RARCFile.Length), 4);
-            RARCFile.Position += 0x04;
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - 0x20)), 4);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(RARCFile.Length - FileTableOffset)), 4);
-            RARCFile.Position += 0x10;
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(DirectoryEntryOffset - 0x20)), 4);
-            RARCFile.Position += 0x04;
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(FileEntryOffset - 0x20)), 4);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - StringTableOffset)), 4);
-            RARCFile.WriteBigEndian(BitConverter.GetBytes((int)(StringTableOffset - 0x20)), 4);
+            stream.Position = 0x04;
+            stream.WriteBigEndian(BitConverter.GetBytes((int)stream.Length), 4);
+            stream.Position += 0x04;
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - 0x20)), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - FileTableOffset)), 4);
+            stream.Position += 0x10;
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(DirectoryEntryOffset - 0x20)), 4);
+            stream.Position += 0x04;
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileEntryOffset - 0x20)), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - StringTableOffset)), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes((int)(StringTableOffset - 0x20)), 4);
             #endregion
 
             #endregion

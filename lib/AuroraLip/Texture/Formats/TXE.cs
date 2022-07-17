@@ -25,13 +25,13 @@ namespace AuroraLip.Texture.Formats
 
         protected override void Read(Stream stream)
         {
-            ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            short Unknown = BitConverter.ToInt16(stream.ReadBigEndian(2), 0);
-            ushort Tex_Format = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            ushort ImageWidth = stream.ReadUInt16(Endian.Big);
+            ushort ImageHeight = stream.ReadUInt16(Endian.Big);
+            short Unknown = stream.ReadInt16(Endian.Big);
+            ushort Tex_Format = stream.ReadUInt16(Endian.Big);
             GXImageFormat Format = TEX_ImageFormat[Tex_Format];
             //We use our own calculation
-            int DataSize = BitConverter.ToInt32(stream.ReadBigEndian(4), 0);
+            int DataSize = stream.ReadInt32(Endian.Big);
 
             stream.Position = 32;
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight)

@@ -32,19 +32,19 @@ namespace AuroraLip.Texture.Formats
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-            FormatVersion = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0); //is 32770
-            ushort texturesCount = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            FormatVersion = stream.ReadUInt16(Endian.Big); //is 32770
+            ushort texturesCount = stream.ReadUInt16(Endian.Big);
             stream.Position = 0x20;
 
             for (int i = 0; i < texturesCount; i++)
             {
 
                 long ImageAddress = stream.Position;
-                uint totalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                uint paletteSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                uint imageSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                ushort headerSize = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                ushort ColorsCount = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                uint totalSize = stream.ReadUInt32(Endian.Big);
+                uint paletteSize = stream.ReadUInt32(Endian.Big);
+                uint imageSize = stream.ReadUInt32(Endian.Big);
+                ushort headerSize = stream.ReadUInt16(Endian.Big);
+                ushort ColorsCount = stream.ReadUInt16(Endian.Big);
                 byte imageformat = (byte)stream.ReadByte();
 
                 if (imageformat != 0)
@@ -54,14 +54,13 @@ namespace AuroraLip.Texture.Formats
                 NUTCPaletteFormat PaletteFormat = (NUTCPaletteFormat)stream.ReadByte();
                 NUTCImageFormat Format = (NUTCImageFormat)stream.ReadByte();
 
-                int ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                int ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                byte[] hardwaredata = stream.ReadBigEndian(24);
-
+                int ImageWidth = stream.ReadUInt16(Endian.Big);
+                int ImageHeight = stream.ReadUInt16(Endian.Big);
+                byte[] hardwaredata = stream.Read(24, Endian.Big);
                 int userDataSize = headerSize - 0x30;
 
                 byte[] userdata = null;
-                if (userDataSize > 0) userdata = stream.ReadBigEndian(userDataSize);
+                if (userDataSize > 0) userdata = stream.Read(userDataSize, Endian.Big);
                 long ImageDataAddress = stream.Position;
                 stream.Position += imageSize;
                 byte[] palettedata = stream.Read((int)paletteSize);

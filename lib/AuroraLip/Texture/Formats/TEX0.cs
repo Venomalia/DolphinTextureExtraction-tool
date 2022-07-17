@@ -32,28 +32,28 @@ namespace AuroraLip.Texture.Formats
         {
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            uint TotalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint FormatVersion = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint Offset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint TotalSize = stream.ReadUInt32(Endian.Big);
+            uint FormatVersion = stream.ReadUInt32(Endian.Big);
+            uint Offset = stream.ReadUInt32(Endian.Big);
             long SectionOffsets;
             if (FormatVersion == 2)
             {
-                SectionOffsets = (long)BitConverter.ToUInt64(stream.ReadBigEndian(8), 0);
+                SectionOffsets = (long)stream.ReadUInt64(Endian.Big);
             }
             else
             {
-                SectionOffsets = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                SectionOffsets = stream.ReadUInt32(Endian.Big);
             }
-            uint StringOffset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint StringOffset = stream.ReadUInt32(Endian.Big);
             //TEX0 Header
-            uint Unknown = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            int ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            int ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            GXImageFormat Format = (GXImageFormat)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            int TotalImageCount = BitConverter.ToUInt16(stream.ReadBigEndian(4), 0);
-            uint Unknown2 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint Mipmaps = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint Unknown3 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint Unknown = stream.ReadUInt32(Endian.Big);
+            int ImageWidth = stream.ReadUInt16(Endian.Big);
+            int ImageHeight = stream.ReadUInt16(Endian.Big);
+            GXImageFormat Format = (GXImageFormat)stream.ReadUInt32(Endian.Big);
+            int TotalImageCount = stream.ReadUInt16(Endian.Big);
+            uint Unknown2 = stream.ReadUInt32(Endian.Big);
+            uint Mipmaps = stream.ReadUInt32(Endian.Big);
+            uint Unknown3 = stream.ReadUInt32(Endian.Big);
             stream.Position = SectionOffsets;
 
             if (PaletteData == null && JUtility.IsPaletteFormat(Format))

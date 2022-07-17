@@ -73,6 +73,9 @@
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
+    <Compile Include="Common\Enums\Endian.cs" />
+    <Compile Include="Common\Extensions\StreamExString.cs" />
+    <Compile Include="Common\Extensions\StreamExBitConverter.cs" />
     <Compile Include="Common\Interfaces\IFileAccess.cs" />
     <Compile Include="Common\Extensions\BitConverterEx.cs" />
     <Compile Include="Common\Extensions\BitmapEx.cs" />

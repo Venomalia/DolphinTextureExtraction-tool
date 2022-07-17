@@ -14,25 +14,25 @@ namespace AuroraLip.Texture.J3D
 
     public static class NameTableIO
     {
-        public static List<string> ReadStringTable(this Stream reader, int offset)
+        public static List<string> ReadStringTable(this Stream stream, int offset)
         {
             List<string> names = new List<string>();
 
-            reader.Position = offset;
+            stream.Position = offset;
 
-            short stringCount = BitConverter.ToInt16(reader.ReadBigEndian(2), 0);
-            reader.Position += 0x02;
+            short stringCount = stream.ReadInt16(Endian.Big);
+            stream.Position += 0x02;
 
             for (int i = 0; i < stringCount; i++)
             {
-                reader.Position += 0x02;
-                short nameOffset = BitConverter.ToInt16(reader.ReadBigEndian(2), 0);
-                long saveReaderPos = reader.Position;
-                reader.Position = offset + nameOffset;
+                stream.Position += 0x02;
+                short nameOffset =  stream.ReadInt16(Endian.Big);
+                long saveReaderPos = stream.Position;
+                stream.Position = offset + nameOffset;
 
-                names.Add(reader.ReadString());
+                names.Add(stream.ReadString());
 
-                reader.Position = saveReaderPos;
+                stream.Position = saveReaderPos;
             }
 
             return names;

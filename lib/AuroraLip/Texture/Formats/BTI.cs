@@ -80,53 +80,53 @@ namespace AuroraLip.Texture.Formats
         }
         public void Save(Stream BTIFile, ref long DataOffset) => Write(BTIFile, ref DataOffset);
 
-        protected override void Read(Stream BTIFile)
+        protected override void Read(Stream stream)
         {
-            long HeaderStart = BTIFile.Position;
-            GXImageFormat Format = (GXImageFormat)BTIFile.ReadByte();
-            AlphaSetting = (JUTTransparency)BTIFile.ReadByte();
-            ushort ImageWidth = BitConverter.ToUInt16(BTIFile.ReadBigEndian(2), 0);
-            ushort ImageHeight = BitConverter.ToUInt16(BTIFile.ReadBigEndian(2), 0);
-            GXWrapMode WrapS = (GXWrapMode)BTIFile.ReadByte();
-            GXWrapMode WrapT = (GXWrapMode)BTIFile.ReadByte();
-            bool UsePalettes = BTIFile.ReadByte() > 0;
+            long HeaderStart = stream.Position;
+            GXImageFormat Format = (GXImageFormat)stream.ReadByte();
+            AlphaSetting = (JUTTransparency)stream.ReadByte();
+            ushort ImageWidth = stream.ReadUInt16(Endian.Big);
+            ushort ImageHeight = stream.ReadUInt16(Endian.Big);
+            GXWrapMode WrapS = (GXWrapMode)stream.ReadByte();
+            GXWrapMode WrapT = (GXWrapMode)stream.ReadByte();
+            bool UsePalettes = stream.ReadByte() > 0;
             short PaletteCount = 0;
             uint PaletteDataAddress = 0;
             byte[] PaletteData = null;
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
             if (UsePalettes)
             {
-                PaletteFormat = (GXPaletteFormat)BTIFile.ReadByte();
-                PaletteCount = BitConverter.ToInt16(BTIFile.ReadBigEndian(2), 0);
-                PaletteDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(4), 0);
-                long PausePosition = BTIFile.Position;
-                BTIFile.Position = HeaderStart + PaletteDataAddress;
-                PaletteData = BTIFile.Read(PaletteCount * 2);
-                BTIFile.Position = PausePosition;
+                PaletteFormat = (GXPaletteFormat)stream.ReadByte();
+                PaletteCount = stream.ReadInt16(Endian.Big);
+                PaletteDataAddress = stream.ReadUInt32(Endian.Big);
+                long PausePosition = stream.Position;
+                stream.Position = HeaderStart + PaletteDataAddress;
+                PaletteData = stream.Read(PaletteCount * 2);
+                stream.Position = PausePosition;
             }
             else
-                BTIFile.Position += 7;
-            bool EnableMipmaps = BTIFile.ReadByte() > 0;
-            bool EnableEdgeLOD = BTIFile.ReadByte() > 0;
-            ClampLODBias = BTIFile.ReadByte() > 0;
-            MaxAnisotropy = (byte)BTIFile.ReadByte();
-            GXFilterMode MinificationFilter = (GXFilterMode)BTIFile.ReadByte();
-            GXFilterMode MagnificationFilter = (GXFilterMode)BTIFile.ReadByte();
-            float MinLOD = ((sbyte)BTIFile.ReadByte() / 8.0f);
-            float MaxLOD = ((sbyte)BTIFile.ReadByte() / 8.0f);
+                stream.Position += 7;
+            bool EnableMipmaps = stream.ReadByte() > 0;
+            bool EnableEdgeLOD = stream.ReadByte() > 0;
+            ClampLODBias = stream.ReadByte() > 0;
+            MaxAnisotropy = (byte)stream.ReadByte();
+            GXFilterMode MinificationFilter = (GXFilterMode)stream.ReadByte();
+            GXFilterMode MagnificationFilter = (GXFilterMode)stream.ReadByte();
+            float MinLOD = ((sbyte)stream.ReadByte() / 8.0f);
+            float MaxLOD = ((sbyte)stream.ReadByte() / 8.0f);
 
-            byte TotalImageCount = (byte)BTIFile.ReadByte();
+            byte TotalImageCount = (byte)stream.ReadByte();
             if (TotalImageCount == 0)
                 TotalImageCount = (byte)MaxLOD;
 
-            BTIFile.Position++;
-            float LODBias = BitConverter.ToInt16(BTIFile.ReadBigEndian(2), 0) / 100.0f;
-            uint ImageDataAddress = BitConverter.ToUInt32(BTIFile.ReadBigEndian(4), 0);
+            stream.Position++;
+            float LODBias = stream.ReadInt16(Endian.Big) / 100.0f;
+            uint ImageDataAddress = stream.ReadUInt32(Endian.Big);
 
-            BTIFile.Position = HeaderStart + ImageDataAddress;
+            stream.Position = HeaderStart + ImageDataAddress;
             ushort ogwidth = ImageWidth, ogheight = ImageHeight;
 
-            TexEntry current = new TexEntry(BTIFile, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, TotalImageCount - 1)
+            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, TotalImageCount - 1)
             {
                 LODBias = LODBias,
                 MagnificationFilter = (GXFilterMode)MagnificationFilter,
@@ -140,49 +140,49 @@ namespace AuroraLip.Texture.Formats
             Add(current);
         }
         protected override void Write(Stream stream) { throw new Exception("DO NOT CALL THIS"); }
-        protected void Write(Stream BTIFile, ref long DataOffset)
+        protected void Write(Stream stream, ref long DataOffset)
         {
             List<byte> ImageData = new List<byte>();
             List<byte> PaletteData = new List<byte>();
             GetImageAndPaletteData(ref ImageData, ref PaletteData, base[0], Format, PaletteFormat);
-            long HeaderStart = BTIFile.Position;
+            long HeaderStart = stream.Position;
             int ImageDataStart = (int)((DataOffset + PaletteData.Count) - HeaderStart), PaletteDataStart = (int)(DataOffset - HeaderStart);
-            BTIFile.WriteByte((byte)this.Format);
-            BTIFile.WriteByte((byte)AlphaSetting);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Width), 2);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Height), 2);
-            BTIFile.WriteByte((byte)WrapS);
-            BTIFile.WriteByte((byte)WrapT);
+            stream.WriteByte((byte)this.Format);
+            stream.WriteByte((byte)AlphaSetting);
+            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Width), 2);
+            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Height), 2);
+            stream.WriteByte((byte)WrapS);
+            stream.WriteByte((byte)WrapT);
             if (Format.IsPaletteFormat())
             {
-                BTIFile.WriteByte(0x01);
-                BTIFile.WriteByte((byte)PaletteFormat);
-                BTIFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
-                BTIFile.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
+                stream.WriteByte(0x01);
+                stream.WriteByte((byte)PaletteFormat);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
             }
             else
-                BTIFile.Write(new byte[8], 0, 8);
+                stream.Write(new byte[8], 0, 8);
 
-            BTIFile.WriteByte((byte)(Count > 1 ? 0x01 : 0x00));
-            BTIFile.WriteByte((byte)(this.EnableEdgeLoD ? 0x01 : 0x00));
-            BTIFile.WriteByte((byte)(ClampLODBias ? 0x01 : 0x00));
-            BTIFile.WriteByte(MaxAnisotropy);
-            BTIFile.WriteByte((byte)MinificationFilter);
-            BTIFile.WriteByte((byte)MagnificationFilter);
-            BTIFile.WriteByte((byte)(MinLOD * 8));
-            BTIFile.WriteByte((byte)(MaxLOD * 8));
-            BTIFile.WriteByte((byte)Count);
-            BTIFile.WriteByte(0x00);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes((short)(LODBias * 100)), 2);
-            BTIFile.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 4);
+            stream.WriteByte((byte)(Count > 1 ? 0x01 : 0x00));
+            stream.WriteByte((byte)(this.EnableEdgeLoD ? 0x01 : 0x00));
+            stream.WriteByte((byte)(ClampLODBias ? 0x01 : 0x00));
+            stream.WriteByte(MaxAnisotropy);
+            stream.WriteByte((byte)MinificationFilter);
+            stream.WriteByte((byte)MagnificationFilter);
+            stream.WriteByte((byte)(MinLOD * 8));
+            stream.WriteByte((byte)(MaxLOD * 8));
+            stream.WriteByte((byte)Count);
+            stream.WriteByte(0x00);
+            stream.WriteBigEndian(BitConverter.GetBytes((short)(LODBias * 100)), 2);
+            stream.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 4);
 
-            long Pauseposition = BTIFile.Position;
-            BTIFile.Position = DataOffset;
+            long Pauseposition = stream.Position;
+            stream.Position = DataOffset;
 
-            BTIFile.Write(PaletteData.ToArray(), 0, PaletteData.Count);
-            BTIFile.Write(ImageData.ToArray(), 0, ImageData.Count);
-            DataOffset = BTIFile.Position;
-            BTIFile.Position = Pauseposition;
+            stream.Write(PaletteData.ToArray(), 0, PaletteData.Count);
+            stream.Write(ImageData.ToArray(), 0, ImageData.Count);
+            DataOffset = stream.Position;
+            stream.Position = Pauseposition;
         }
 
         /// <summary>

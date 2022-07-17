@@ -31,22 +31,22 @@ namespace AuroraLip.Texture.Formats
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-            uint none = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint PalettePosition = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            int ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            int ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            uint none = stream.ReadUInt16(Endian.Big);
+            uint PalettePosition = stream.ReadUInt16(Endian.Big);
+            int ImageWidth = stream.ReadUInt16(Endian.Big);
+            int ImageHeight = stream.ReadUInt16(Endian.Big);
             GXImageFormat Format = (GXImageFormat)stream.ReadByte();
             byte unknown = (byte)stream.ReadByte(); //2 0 3
             byte unknown1 = (byte)stream.ReadByte(); //2 0 3
             byte unknown2 = (byte)stream.ReadByte(); //1 2
-            uint unknown3 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint ImagePosition = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint unknown4 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0); //2 1 0
-            uint unknown5 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint unknown6 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint unknown8 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint unknown9 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint unknown10 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            uint unknown3 = stream.ReadUInt16(Endian.Big);
+            uint ImagePosition = stream.ReadUInt16(Endian.Big);
+            uint unknown4 = stream.ReadUInt16(Endian.Big); //2 1 0
+            uint unknown5 = stream.ReadUInt16(Endian.Big);
+            uint unknown6 = stream.ReadUInt16(Endian.Big);
+            uint unknown8 = stream.ReadUInt16(Endian.Big);
+            uint unknown9 = stream.ReadUInt16(Endian.Big);
+            uint unknown10 = stream.ReadUInt16(Endian.Big);
 
             byte[] PaletteData = null;
             int PaletteCount = 0;

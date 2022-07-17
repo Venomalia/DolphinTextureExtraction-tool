@@ -128,27 +128,29 @@ namespace AuroraLip.Compression.Formats
 
         public byte[] Decompress(in byte[] Data)
         {
-            MemoryStream YAZ0 = new MemoryStream(Data);
-            if (YAZ0.ReadString(4) != Magic)
+            MemoryStream stream = new MemoryStream(Data);
+            if (stream.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAZ0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
-
-            uint DecompressedSize = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0), CompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0), UncompressedDataOffset = BitConverter.ToUInt32(YAZ0.ReadBigEndian(4), 0);
+            
+            uint DecompressedSize = stream.ReadUInt32(Endian.Big),
+                CompressedDataOffset = stream.ReadUInt32(Endian.Big),
+                UncompressedDataOffset = stream.ReadUInt32(Endian.Big);
 
             List<byte> Decoding = new List<byte>();
             while (Decoding.Count < DecompressedSize)
             {
-                byte FlagByte = (byte)YAZ0.ReadByte();
+                byte FlagByte = (byte)stream.ReadByte();
                 BitArray FlagSet = new BitArray(new byte[1] { FlagByte });
 
                 for (int i = 7; i > -1 && (Decoding.Count < DecompressedSize); i--)
                 {
                     if (FlagSet[i] == true)
-                        Decoding.Add((byte)YAZ0.ReadByte());
+                        Decoding.Add((byte)stream.ReadByte());
                     else
                     {
-                        byte Tmp = (byte)YAZ0.ReadByte();
-                        int Offset = (((byte)(Tmp & 0x0F) << 8) | (byte)YAZ0.ReadByte()) + 1,
-                            Length = (Tmp & 0xF0) == 0 ? YAZ0.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
+                        byte Tmp = (byte)stream.ReadByte();
+                        int Offset = (((byte)(Tmp & 0x0F) << 8) | (byte)stream.ReadByte()) + 1,
+                            Length = (Tmp & 0xF0) == 0 ? stream.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
 
                         for (int j = 0; j < Length; j++)
                             Decoding.Add(Decoding[Decoding.Count - Offset]);

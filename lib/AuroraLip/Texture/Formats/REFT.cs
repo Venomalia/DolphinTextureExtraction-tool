@@ -41,10 +41,10 @@ namespace AuroraLip.Texture.Formats
             {
                 throw new Exception($"ByteOrder: \"{ByteOrder}\" Not Implemented");
             }
-            ushort FormatVersion = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint TotalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            ushort Offset = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            ushort sections = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            ushort FormatVersion = stream.ReadUInt16(Endian.Big);
+            uint TotalSize = stream.ReadUInt32(Endian.Big);
+            ushort Offset = stream.ReadUInt16(Endian.Big);
+            ushort sections = stream.ReadUInt16(Endian.Big);
             if (sections > 1)
             {
                 Console.WriteLine("Warning, REFT with more than one sections are not fully supported.");
@@ -53,12 +53,12 @@ namespace AuroraLip.Texture.Formats
             //root sections
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            uint RootSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            long SubfilePosition = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0) + stream.Position-4;
-            uint Unknown = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint Unknown2 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            ushort NameLength = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            ushort Unknown3 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            uint RootSize = stream.ReadUInt32(Endian.Big);
+            long SubfilePosition = stream.ReadUInt32(Endian.Big) + stream.Position-4;
+            uint Unknown = stream.ReadUInt32(Endian.Big);
+            uint Unknown2 = stream.ReadUInt32(Endian.Big);
+            ushort NameLength = stream.ReadUInt16(Endian.Big);
+            ushort Unknown3 = stream.ReadUInt16(Endian.Big);
             string Name = stream.ReadString();
             stream.Position = SubfilePosition;
 #if DEBUG
@@ -74,17 +74,17 @@ namespace AuroraLip.Texture.Formats
         private void ReadSubfile(Stream stream)
         {
             long StartOfIndex = stream.Position;
-            uint SubfileSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            ushort subfiles = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            ushort Unknown = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            uint SubfileSize = stream.ReadUInt32(Endian.Big);
+            ushort subfiles = stream.ReadUInt16(Endian.Big);
+            ushort Unknown = stream.ReadUInt16(Endian.Big);
             for (int i = 0; i < subfiles; i++)
             {
-                ushort NameLength = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                ushort NameLength = stream.ReadUInt16(Endian.Big);
                 long EndNamePosition = stream.Position + NameLength;
                 string Name = stream.ReadString();
                 stream.Position = EndNamePosition;
-                uint DataOffset = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                uint DataSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                uint DataOffset = stream.ReadUInt32(Endian.Big);
+                uint DataSize = stream.ReadUInt32(Endian.Big);
                 long EndOfGroup = stream.Position;
                 stream.Position = StartOfIndex + DataOffset;
                 ReadREFTfile(stream);
@@ -94,21 +94,21 @@ namespace AuroraLip.Texture.Formats
 
         private void ReadREFTfile(Stream stream)
         {
-            uint Unknown = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            int ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            int ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint totalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint Unknown = stream.ReadUInt32(Endian.Big);
+            int ImageWidth = stream.ReadUInt16(Endian.Big);
+            int ImageHeight = stream.ReadUInt16(Endian.Big);
+            uint totalSize = stream.ReadUInt32(Endian.Big);
             GXImageFormat Format = (GXImageFormat)stream.ReadByte();
             GXPaletteFormat PaletteFormat = (GXPaletteFormat)stream.ReadByte();
-            int Palettes = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint PaletteSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            int Palettes = stream.ReadUInt16(Endian.Big);
+            uint PaletteSize = stream.ReadUInt32(Endian.Big);
             byte images = (byte)stream.ReadByte();
             if (images > 0) --images;
             byte MinFilter = (byte)stream.ReadByte();
             byte MaxFilter = (byte)stream.ReadByte();
             byte Unknown2 = (byte)stream.ReadByte();
-            float LODBias = BitConverter.ToSingle(stream.ReadBigEndian(4), 0);
-            uint Unknown3 = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            float LODBias = stream.ReadSingle(Endian.Big);
+            uint Unknown3 = stream.ReadUInt32(Endian.Big);
             long ImageAddress = stream.Position;
 
             byte[] PaletteData = null;

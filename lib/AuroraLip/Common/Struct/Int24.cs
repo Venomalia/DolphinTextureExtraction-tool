@@ -11,27 +11,6 @@ namespace AuroraLip.Common
     */
 
     /// <summary>
-    /// Extra BitArray functions
-    /// </summary>
-    public static class BitArrayEx
-    {
-        /// <summary>
-        /// Converts this BitArray to an Int32
-        /// </summary>
-        /// <param name="array"></param>
-        /// <returns></returns>
-        public static int ToInt32(this BitArray array)
-        {
-            if (array.Length > 32)
-                throw new ArgumentException("Argument length shall be at most 32 bits.");
-
-            int[] Finalarray = new int[1];
-            array.CopyTo(Finalarray, 0);
-            return Finalarray[0];
-        }
-    }
-
-    /// <summary>
     /// I need this because Nintendo had this strange idea that using Int24 is OK
     /// </summary>
     public struct Int24

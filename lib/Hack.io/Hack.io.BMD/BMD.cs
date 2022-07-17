@@ -69,31 +69,31 @@ namespace Hack.io.BMD
         }
         public virtual void Save(Stream BMD) => Write(BMD);
 
-        protected virtual void Read(Stream BMD)
+        protected virtual void Read(Stream stream)
         {
-            if (!BMD.ReadString(8).Equals(magic))
+            if (!stream.ReadString(8).Equals(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{magic}\"");
 
-            BMD.Position += 0x08 + 16;
-            Scenegraph = new INF1(BMD, out int VertexCount);
-            VertexData = new VTX1(BMD, VertexCount);
-            SkinningEnvelopes = new EVP1(BMD);
-            PartialWeightData = new DRW1(BMD);
-            Joints = new JNT1(BMD);
-            Shapes = new SHP1(BMD);
+            stream.Position += 0x08 + 16;
+            Scenegraph = new INF1(stream, out int VertexCount);
+            VertexData = new VTX1(stream, VertexCount);
+            SkinningEnvelopes = new EVP1(stream);
+            PartialWeightData = new DRW1(stream);
+            Joints = new JNT1(stream);
+            Shapes = new SHP1(stream);
             SkinningEnvelopes.SetInverseBindMatrices(Joints.FlatSkeleton);
             Shapes.SetVertexWeights(SkinningEnvelopes, PartialWeightData);
             Joints.InitBoneFamilies(Scenegraph);
             Joints.InitBoneMatricies(Scenegraph);
-            Materials = new MAT3(BMD);
-            if (BitConverter.ToInt32(BMD.ReadBigEndian(4), 0) == 0x4D444C33)
+            Materials = new MAT3(stream);
+            if (stream.ReadInt32(Endian.Big) == 0x4D444C33)
             {
-                int mdl3Size = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
-                BMD.Position += mdl3Size - 0x08;
+                int mdl3Size = stream.ReadInt32(Endian.Big);
+                stream.Position += mdl3Size - 0x08;
             }
             else
-                BMD.Position -= 0x04;
-            Textures = new TEX1(BMD);
+                stream.Position -= 0x04;
+            Textures = new TEX1(stream);
             Materials.SetTextureNames(Textures);
             //VertexData.StipUnused(Shapes);
         }

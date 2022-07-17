@@ -37,7 +37,7 @@ namespace Hack.io.BMD
 
                     if (!(value is BTI || value is null) || Index > Textures.Count || Index < 0 || (value is null && Index == Textures.Count))
                         throw new ArgumentException("TEX1[] (SET)", "Index");
-                    
+
                     if (value is null)
                         Textures.RemoveAt(Index);
                     else if (Index == Textures.Count)
@@ -73,7 +73,7 @@ namespace Hack.io.BMD
                             return tex;
                     }
 
-                    Console.Write($"No texture with the name { TextureName } was found.");
+                    Console.Write($"No texture with the name {TextureName} was found.");
                     return null;
                 }
 
@@ -105,67 +105,67 @@ namespace Hack.io.BMD
             /// </summary>
             public int Count => Textures.Count;
 
-            public TEX1(Stream BMDFile)
+            public TEX1(Stream stream)
             {
-                int ChunkStart = (int)BMDFile.Position;
-                if (!BMDFile.ReadString(4).Equals(Magic))
+                int ChunkStart = (int)stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int tex1Size = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
-                short texCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
-                BMDFile.Position += 0x02;
+                int tex1Size = stream.ReadInt32(Endian.Big);
+                short texCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02;
 
-                int textureHeaderOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
-                int textureNameTableOffset = BitConverter.ToInt32(BMDFile.ReadBigEndian(4), 0);
+                int textureHeaderOffset = stream.ReadInt32(Endian.Big);
+                int textureNameTableOffset = stream.ReadInt32(Endian.Big);
 
                 List<string> names = new List<string>();
 
-                BMDFile.Seek(ChunkStart + textureNameTableOffset, System.IO.SeekOrigin.Begin);
+                stream.Seek(ChunkStart + textureNameTableOffset, System.IO.SeekOrigin.Begin);
 
-                short stringCount = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
-                BMDFile.Position += 0x02;
+                short stringCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02;
 
                 for (int i = 0; i < stringCount; i++)
                 {
-                    BMDFile.Position += 0x02;
-                    short nameOffset = BitConverter.ToInt16(BMDFile.ReadBigEndian(2), 0);
-                    long saveReaderPos = BMDFile.Position;
-                    BMDFile.Position = ChunkStart + textureNameTableOffset + nameOffset;
+                    stream.Position += 0x02;
+                    short nameOffset = stream.ReadInt16(Endian.Big);
+                    long saveReaderPos = stream.Position;
+                    stream.Position = ChunkStart + textureNameTableOffset + nameOffset;
 
-                    names.Add(BMDFile.ReadString());
+                    names.Add(stream.ReadString());
 
-                    BMDFile.Position = saveReaderPos;
+                    stream.Position = saveReaderPos;
                 }
 
 
-                BMDFile.Seek(textureHeaderOffset + ChunkStart, SeekOrigin.Begin);
+                stream.Seek(textureHeaderOffset + ChunkStart, SeekOrigin.Begin);
 
                 for (int i = 0; i < texCount; i++)
                 {
-                    BMDFile.Seek((ChunkStart + 0x20 + (0x20 * i)), SeekOrigin.Begin);
+                    stream.Seek((ChunkStart + 0x20 + (0x20 * i)), SeekOrigin.Begin);
 
-                    BTI img = new BTI(BMDFile) { FileName = names[i] };
+                    BTI img = new BTI(stream) { FileName = names[i] };
                     Textures.Add(img);
                 }
             }
 
-            public void Write(Stream writer)
+            public void Write(Stream stream)
             {
-                long start = writer.Position;
+                long start = stream.Position;
 
-                writer.WriteString(Magic);
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                writer.WriteBigEndian(BitConverter.GetBytes((short)Textures.Count), 0, 2);
-                writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                writer.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4); // Offset to the start of the texture data. Always 32
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for string table offset
+                stream.WriteString(Magic);
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
+                stream.WriteBigEndian(BitConverter.GetBytes((short)Textures.Count), 0, 2);
+                stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4); // Offset to the start of the texture data. Always 32
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for string table offset
 
-                writer.AddPadding(32, Padding);
+                stream.AddPadding(32, Padding);
 
                 List<string> names = new List<string>();
                 Dictionary<BTI, long> WrittenImages = new Dictionary<BTI, long>();
 
-                long ImageDataOffset = start + (writer.Position - start) + (0x20 * Textures.Count);
+                long ImageDataOffset = start + (stream.Position - start) + (0x20 * Textures.Count);
                 for (int i = 0; i < Textures.Count; i++)
                 {
                     long x = -1;
@@ -180,24 +180,24 @@ namespace Hack.io.BMD
                     if (x == -1)
                     {
                         WrittenImages.Add(Textures[i], ImageDataOffset);
-                        Textures[i].Save(writer, ref ImageDataOffset);
+                        Textures[i].Save(stream, ref ImageDataOffset);
                     }
                     else
-                        Textures[i].Save(writer, ref x);
+                        Textures[i].Save(stream, ref x);
                     names.Add(Textures[i].FileName);
                 }
 
-                writer.Position = writer.Length;
+                stream.Position = stream.Length;
                 // Write texture name table offset
-                int NameTableOffset = (int)(writer.Position - start);
+                int NameTableOffset = (int)(stream.Position - start);
 
-                writer.WriteStringTable(names);
-                writer.AddPadding( 32, Padding);
+                stream.WriteStringTable(names);
+                stream.AddPadding(32, Padding);
                 // Write TEX1 size
-                writer.Position = start + 4;
-                writer.WriteBigEndian(BitConverter.GetBytes((int)(writer.Length - start)), 0, 4);
-                writer.Position = start + 0x10;
-                writer.WriteBigEndian(BitConverter.GetBytes(NameTableOffset), 0, 4);
+                stream.Position = start + 4;
+                stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - start)), 0, 4);
+                stream.Position = start + 0x10;
+                stream.WriteBigEndian(BitConverter.GetBytes(NameTableOffset), 0, 4);
             }
 
             public bool Contains(BTI Image) => Textures.Any(I => I.Equals(Image));

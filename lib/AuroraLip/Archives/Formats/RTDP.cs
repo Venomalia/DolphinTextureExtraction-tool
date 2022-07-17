@@ -28,9 +28,9 @@ namespace AuroraLip.Archives.Formats
         {
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            int EOH = (int)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            int NrEntries = (int)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            int Size = (int)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            int EOH = (int)stream.ReadUInt32(Endian.Big);
+            int NrEntries = (int)stream.ReadUInt32(Endian.Big);
+            int Size = (int)stream.ReadUInt32(Endian.Big);
             stream.Position = 0x20;
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
@@ -67,8 +67,8 @@ namespace AuroraLip.Archives.Formats
             public RTDPEntry(Stream stream)
             {
                 Name = stream.ReadString(32);
-                DataSize = (int)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                DataOffset = (int)BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                DataSize = (int)stream.ReadUInt32(Endian.Big);
+                DataOffset = (int)stream.ReadUInt32(Endian.Big);
             }
         }
     }

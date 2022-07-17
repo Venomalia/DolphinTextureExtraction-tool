@@ -18,65 +18,65 @@ namespace Hack.io.BMD
 
             private static readonly string Magic = "DRW1";
 
-            public DRW1(Stream BMD)
+            public DRW1(Stream stream)
             {
-                int ChunkStart = (int)BMD.Position;
-                if (!BMD.ReadString(4).Equals(Magic))
+                int ChunkStart = (int)stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int ChunkSize = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
-                int entryCount = BitConverter.ToInt16(BMD.ReadBigEndian(2), 0);
-                BMD.Position += 0x2;
+                int ChunkSize = stream.ReadInt32(Endian.Big);
+                int entryCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x2;
 
-                int boolDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
-                int indexDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian(4), 0);
+                int boolDataOffset = stream.ReadInt32(Endian.Big);
+                int indexDataOffset = stream.ReadInt32(Endian.Big);
 
                 IsPartialWeight = new List<bool>();
 
-                BMD.Seek(ChunkStart + boolDataOffset, System.IO.SeekOrigin.Begin);
+                stream.Seek(ChunkStart + boolDataOffset, System.IO.SeekOrigin.Begin);
                 for (int i = 0; i < entryCount; i++)
-                    IsPartialWeight.Add(BMD.ReadByte() > 0);
+                    IsPartialWeight.Add(stream.ReadByte() > 0);
 
-                BMD.Seek(ChunkStart + indexDataOffset, System.IO.SeekOrigin.Begin);
+                stream.Seek(ChunkStart + indexDataOffset, System.IO.SeekOrigin.Begin);
                 for (int i = 0; i < entryCount; i++)
-                    TransformIndexTable.Add(BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0));
+                    TransformIndexTable.Add(stream.ReadInt16(Endian.Big));
 
-                BMD.Position = ChunkStart + ChunkSize;
+                stream.Position = ChunkStart + ChunkSize;
                 Matrices = new Matrix4[entryCount];
             }
 
-            public void Write(Stream writer)
+            public void Write(Stream stream)
             {
-                long start = writer.Position;
+                long start = stream.Position;
 
-                writer.WriteString("DRW1");
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                writer.WriteBigEndian(BitConverter.GetBytes((short)IsPartialWeight.Count), 0, 2);
-                writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                stream.WriteString("DRW1");
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
+                stream.WriteBigEndian(BitConverter.GetBytes((short)IsPartialWeight.Count), 0, 2);
+                stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
-                writer.Write(new byte[4] { 0x00, 0x00, 0x00, 0x14 }, 0, 4); // Offset to weight type bools, always 20
-                long IndiciesOffset = writer.Position;
-                writer.WriteBigEndian(BitConverter.GetBytes(20 + IsPartialWeight.Count), 0, 4); // Offset to indices, always 20 + number of weight type bools
+                stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x14 }, 0, 4); // Offset to weight type bools, always 20
+                long IndiciesOffset = stream.Position;
+                stream.WriteBigEndian(BitConverter.GetBytes(20 + IsPartialWeight.Count), 0, 4); // Offset to indices, always 20 + number of weight type bools
 
                 foreach (bool bol in IsPartialWeight)
-                    writer.WriteByte((byte)(bol ? 0x01 : 0x00));
+                    stream.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                writer.AddPadding(2, Padding);
+                stream.AddPadding(2, Padding);
 
-                uint IndOffs = (uint)(writer.Position - start);
+                uint IndOffs = (uint)(stream.Position - start);
                 foreach (int inte in TransformIndexTable)
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
+                    stream.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
 
-                writer.AddPadding(32, Padding);
+                stream.AddPadding(32, Padding);
 
-                long end = writer.Position;
+                long end = stream.Position;
                 long length = end - start;
 
-                writer.Position = start + 4;
-                writer.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
-                writer.Position = start + 0x10;
-                writer.WriteBigEndian(BitConverter.GetBytes(IndOffs), 0, 4); // Offset to indices, always 20 + number of weight type bools
-                writer.Position = end;
+                stream.Position = start + 4;
+                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Position = start + 0x10;
+                stream.WriteBigEndian(BitConverter.GetBytes(IndOffs), 0, 4); // Offset to indices, always 20 + number of weight type bools
+                stream.Position = end;
             }
 
             public void UpdateMatrices(IList<BMD.JNT1.Bone> bones, EVP1 envelopes)

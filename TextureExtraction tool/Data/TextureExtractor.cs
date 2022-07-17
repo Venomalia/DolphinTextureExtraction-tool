@@ -629,8 +629,8 @@ namespace DolphinTextureExtraction_tool
         {
             if (Enum.IsDefined(typeof(GXImageFormat), (byte)stream.ReadByte()) && Enum.IsDefined(typeof(JUTTransparency), (byte)stream.ReadByte()))
             {
-                ushort ImageWidth = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                ushort ImageHeight = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+                ushort ImageWidth = stream.ReadUInt16(Endian.Big);
+                ushort ImageHeight = stream.ReadUInt16(Endian.Big);
 
                 if (ImageWidth > 4 && ImageHeight > 4 && ImageWidth < 1024 && ImageHeight < 1024)
                 {

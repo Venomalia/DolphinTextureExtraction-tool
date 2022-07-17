@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using AuroraLip.Common;
+﻿using AuroraLip.Common;
 using AuroraLip.Texture.J3D;
 using OpenTK;
+using System;
+using System.Collections.Generic;
+using System.IO;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
@@ -17,45 +17,45 @@ namespace Hack.io.BMD
 
             private static readonly string Magic = "JNT1";
 
-            public JNT1(Stream BMD)
+            public JNT1(Stream stream)
             {
-                int ChunkStart = (int)BMD.Position;
-                if (!BMD.ReadString(4).Equals(Magic))
+                int ChunkStart = (int)stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int jnt1Size = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                int jointCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                BMD.Position += 0x02;
-                
-                int jointDataOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                int internTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
-                int nameTableOffset = BitConverter.ToInt32(BMD.ReadBigEndian( 4), 0);
+                int jnt1Size = stream.ReadInt32(Endian.Big);
+                int jointCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02;
+
+                int jointDataOffset = stream.ReadInt32(Endian.Big);
+                int internTableOffset = stream.ReadInt32(Endian.Big);
+                int nameTableOffset = stream.ReadInt32(Endian.Big);
 
                 List<string> names = new List<string>();
 
-                BMD.Seek(ChunkStart + nameTableOffset, SeekOrigin.Begin);
+                stream.Seek(ChunkStart + nameTableOffset, SeekOrigin.Begin);
 
-                short stringCount = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                BMD.Position += 0x02;
+                short stringCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02;
 
                 for (int i = 0; i < stringCount; i++)
                 {
-                    BMD.Position += 0x02;
-                    short nameOffset = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                    long saveReaderPos = BMD.Position;
-                    BMD.Position = ChunkStart + nameTableOffset + nameOffset;
+                    stream.Position += 0x02;
+                    short nameOffset = stream.ReadInt16(Endian.Big);
+                    long saveReaderPos = stream.Position;
+                    stream.Position = ChunkStart + nameTableOffset + nameOffset;
 
-                    names.Add(BMD.ReadString());
+                    names.Add(stream.ReadString());
 
-                    BMD.Position = saveReaderPos;
+                    stream.Position = saveReaderPos;
                 }
 
                 int highestRemap = 0;
                 List<int> remapTable = new List<int>();
-                BMD.Seek(ChunkStart + internTableOffset, SeekOrigin.Begin);
+                stream.Seek(ChunkStart + internTableOffset, SeekOrigin.Begin);
                 for (int i = 0; i < jointCount; i++)
                 {
-                    int test = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    int test = stream.ReadInt16(Endian.Big);
                     remapTable.Add(test);
 
                     if (test > highestRemap)
@@ -63,10 +63,10 @@ namespace Hack.io.BMD
                 }
 
                 List<JNT1.Bone> tempList = new List<JNT1.Bone>();
-                BMD.Seek(ChunkStart + jointDataOffset, SeekOrigin.Begin);
+                stream.Seek(ChunkStart + jointDataOffset, SeekOrigin.Begin);
                 for (int i = 0; i <= highestRemap; i++)
                 {
-                    tempList.Add(new JNT1.Bone(BMD, names[i]));
+                    tempList.Add(new JNT1.Bone(stream, names[i]));
                 }
 
                 for (int i = 0; i < jointCount; i++)
@@ -77,57 +77,57 @@ namespace Hack.io.BMD
                 foreach (JNT1.Bone bone in FlatSkeleton)
                     BoneNameIndices.Add(bone.Name, FlatSkeleton.IndexOf(bone));
 
-                BMD.Position = ChunkStart + jnt1Size;
+                stream.Position = ChunkStart + jnt1Size;
             }
 
-            public void Write(Stream writer)
+            public void Write(Stream stream)
             {
-                long start = writer.Position;
+                long start = stream.Position;
 
-                writer.WriteString("JNT1");
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                writer.WriteBigEndian(BitConverter.GetBytes((short)FlatSkeleton.Count), 0, 2);
-                writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                stream.WriteString("JNT1");
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
+                stream.WriteBigEndian(BitConverter.GetBytes((short)FlatSkeleton.Count), 0, 2);
+                stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
-                writer.Write(new byte[4] { 0x00, 0x00, 0x00, 0x18 }, 0, 4); // Offset to joint data, always 24
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for remap data offset
-                writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for name table offset
+                stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x18 }, 0, 4); // Offset to joint data, always 24
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for remap data offset
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for name table offset
 
                 List<string> names = new List<string>();
                 foreach (JNT1.Bone bone in FlatSkeleton)
                 {
                     byte[] BoneData = bone.ToBytes();
-                    writer.Write(BoneData, 0, BoneData.Length);
+                    stream.Write(BoneData, 0, BoneData.Length);
                     names.Add(bone.Name);
                 }
 
-                long curOffset = writer.Position;
+                long curOffset = stream.Position;
 
-                writer.Seek((int)(start + 16), SeekOrigin.Begin);
-                writer.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
-                writer.Seek((int)curOffset, SeekOrigin.Begin);
+                stream.Seek((int)(start + 16), SeekOrigin.Begin);
+                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Seek((int)curOffset, SeekOrigin.Begin);
 
                 for (int i = 0; i < FlatSkeleton.Count; i++)
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)i), 0, 2);
+                    stream.WriteBigEndian(BitConverter.GetBytes((short)i), 0, 2);
 
-                writer.AddPadding(4, Padding);
+                stream.AddPadding(4, Padding);
 
-                curOffset = writer.Position;
+                curOffset = stream.Position;
 
-                writer.Seek((int)(start + 20), SeekOrigin.Begin);
-                writer.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
-                writer.Seek((int)curOffset, SeekOrigin.Begin);
+                stream.Seek((int)(start + 20), SeekOrigin.Begin);
+                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Seek((int)curOffset, SeekOrigin.Begin);
 
-                writer.WriteStringTable(names);
+                stream.WriteStringTable(names);
 
-                writer.AddPadding(32, Padding);
+                stream.AddPadding(32, Padding);
 
-                long end = writer.Position;
+                long end = stream.Position;
                 long length = end - start;
 
-                writer.Seek((int)start + 4, SeekOrigin.Begin);
-                writer.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
-                writer.Seek((int)end, SeekOrigin.Begin);
+                stream.Seek((int)start + 4, SeekOrigin.Begin);
+                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Seek((int)end, SeekOrigin.Begin);
             }
 
             public void InitBoneFamilies(INF1 Scenegraph)
@@ -215,21 +215,21 @@ namespace Hack.io.BMD
                     m_Scale = Vector3.One;
                 }
 
-                public Bone(Stream BMD, string name)
+                public Bone(Stream stream, string name)
                 {
                     Children = new List<Bone>();
 
                     Name = name;
-                    m_MatrixType = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                    InheritParentScale = BMD.ReadByte() == 0;
+                    m_MatrixType = stream.ReadInt16(Endian.Big);
+                    InheritParentScale = stream.ReadByte() == 0;
 
-                    BMD.Position++;
+                    stream.Position++;
 
-                    m_Scale = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
+                    m_Scale = new Vector3(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
 
-                    short xRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                    short yRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
-                    short zRot = BitConverter.ToInt16(BMD.ReadBigEndian( 2), 0);
+                    short xRot = stream.ReadInt16(Endian.Big);
+                    short yRot = stream.ReadInt16(Endian.Big);
+                    short zRot = stream.ReadInt16(Endian.Big);
 
                     float xConvRot = (float)(xRot * 180.0 / 32767.0);
                     float yConvRot = (float)(yRot * 180.0 / 32767.0);
@@ -241,11 +241,11 @@ namespace Hack.io.BMD
                     //             Quaternion.FromAxisAngle(new Vector3(0, 1, 0), rotFull.Y) *
                     //             Quaternion.FromAxisAngle(new Vector3(1, 0, 0), rotFull.X);
 
-                    BMD.Position += 0x02;
+                    stream.Position += 0x02;
 
-                    m_Translation = new Vector3(BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0), BitConverter.ToSingle(BMD.ReadBigEndian( 4), 0));
+                    m_Translation = new Vector3(stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big));
 
-                    Bounds = new SHP1.BoundingVolume(BMD);
+                    Bounds = new SHP1.BoundingVolume(stream);
                     CompiledMatrix = TransformationMatrix;
                     NormalMatrix = TransformationMatrix;
                 }
@@ -259,11 +259,11 @@ namespace Hack.io.BMD
                 {
                     List<byte> outList = new List<byte>();
 
-                    using (MemoryStream writer = new MemoryStream())
+                    using (MemoryStream stream = new MemoryStream())
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_MatrixType), 0, 2);
-                        writer.WriteByte((byte)(InheritParentScale ? 0x00 : 0x01));
-                        writer.WriteByte(0xFF);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_MatrixType), 0, 2);
+                        stream.WriteByte((byte)(InheritParentScale ? 0x00 : 0x01));
+                        stream.WriteByte(0xFF);
 
                         Vector3 Euler = new Vector3();
 
@@ -309,20 +309,20 @@ namespace Hack.io.BMD
                         //Console.WriteLine();
                         //=====
 
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Scale.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Scale.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Scale.Z), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(compressRot[0]), 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(compressRot[1]), 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(compressRot[2]), 0, 2);
-                        writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Translation.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Translation.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(m_Translation.Z), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.X), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.Y), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.Z), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[0]), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[1]), 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[2]), 0, 2);
+                        stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.X), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.Y), 0, 4);
+                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.Z), 0, 4);
 
-                        Bounds.Write(writer);
+                        Bounds.Write(stream);
 
-                        outList.AddRange(writer.ToArray());
+                        outList.AddRange(stream.ToArray());
                     }
 
                     return outList.ToArray();

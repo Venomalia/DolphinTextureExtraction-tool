@@ -14,46 +14,49 @@ namespace Hack.io.BMD
         {
             public List<Packet> Packets { get; set; } = new List<Packet>();
             private static readonly string Magic = "MDL3";
-            public MDL3(Stream BDL)
+            public MDL3(Stream stream)
             {
-                int ChunkStart = (int)BDL.Position;
-                if (!BDL.ReadString(4).Equals(Magic))
+                int ChunkStart = (int)stream.Position;
+                if (!stream.ReadString(4).Equals(Magic))
                     throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
 
-                int mdl3Size = BitConverter.ToInt32(BDL.ReadBigEndian(4), 0);
-                short EntryCount = BitConverter.ToInt16(BDL.ReadBigEndian(2), 0);
-                BDL.Position += 0x02; //Skip the padding
-                uint PacketListingOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), SubPacketOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0),
-                    MatrixIDOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), UnknownOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0),
-                    IndiciesOffset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), StringTableOFfset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0);
+                int mdl3Size = stream.ReadInt32(Endian.Big);
+                short EntryCount = stream.ReadInt16(Endian.Big);
+                stream.Position += 0x02; //Skip the padding
+                uint PacketListingOffset = stream.ReadUInt32(Endian.Big),
+                    SubPacketOffset = stream.ReadUInt32(Endian.Big),
+                    MatrixIDOffset = stream.ReadUInt32(Endian.Big),
+                    UnknownOffset = stream.ReadUInt32(Endian.Big),
+                    IndiciesOffset = stream.ReadUInt32(Endian.Big),
+                    StringTableOFfset = stream.ReadUInt32(Endian.Big);
 
-                BDL.Position = ChunkStart + PacketListingOffset;
+                stream.Position = ChunkStart + PacketListingOffset;
                 for (int i = 0; i < EntryCount; i++)
-                    Packets.Add(new Packet(BDL));
+                    Packets.Add(new Packet(stream));
 
 
-                BDL.Position = ChunkStart + mdl3Size;
+                stream.Position = ChunkStart + mdl3Size;
             }
 
             public class Packet
             {
                 public List<GXCommand> Commands { get; set; } = new List<GXCommand>();
 
-                public Packet(Stream BDL)
+                public Packet(Stream stream)
                 {
-                    long PausePosition = BDL.Position;
-                    uint Offset = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0), Size = BitConverter.ToUInt32(BDL.ReadBigEndian(4), 0);
-                    BDL.Position = PausePosition + Offset;
-                    long PacketLimit = BDL.Position + Size;
-                    while (BDL.Position < PacketLimit)
+                    long PausePosition = stream.Position;
+                    uint Offset = stream.ReadUInt32(Endian.Big), Size = stream.ReadUInt32(Endian.Big);
+                    stream.Position = PausePosition + Offset;
+                    long PacketLimit = stream.Position + Size;
+                    while (stream.Position < PacketLimit)
                     {
-                        byte id = (byte)BDL.ReadByte();
-                        GXCommand CurrentCommand = id == 0x61 ? new BPCommand(BDL) as GXCommand : (id == 0x10 ? new XFCommand(BDL) as GXCommand : null);
+                        byte id = (byte)stream.ReadByte();
+                        GXCommand CurrentCommand = id == 0x61 ? new BPCommand(stream) as GXCommand : (id == 0x10 ? new XFCommand(stream) as GXCommand : null);
                         if (CurrentCommand == null)
                             break;
                         Commands.Add(CurrentCommand);
                     }
-                    BDL.Position = PausePosition + 8;
+                    stream.Position = PausePosition + 8;
                 }
             }
 
@@ -69,10 +72,10 @@ namespace Hack.io.BMD
                 public BPRegister Register { get; set; }
                 public UInt24 Value { get; set; }
 
-                public BPCommand(Stream BDL)
+                public BPCommand(Stream stream)
                 {
-                    Register = (BPRegister)BDL.ReadByte();
-                    Value = BitConverterEx.ToUInt24(BDL.ReadBigEndian(3), 0);
+                    Register = (BPRegister)stream.ReadByte();
+                    Value = stream.ReadUInt24(Endian.Big);
                 }
 
                 public override string ToString() => $"BP Command: {Register}, {Value.ToString()}";
@@ -87,18 +90,18 @@ namespace Hack.io.BMD
                 public XFRegister Register { get; set; }
                 public List<IXFArgument> Arguments { get; set; } = new List<IXFArgument>();
 
-                public XFCommand(Stream BDL)
+                public XFCommand(Stream stream)
                 {
-                    int DataLength = (BitConverter.ToInt16(BDL.ReadBigEndian(2), 0) + 1) * 4;
-                    Register = (XFRegister)BitConverter.ToInt16(BDL.ReadBigEndian(2), 0);
+                    int DataLength = (stream.ReadInt16(Endian.Big) + 1) * 4;
+                    Register = (XFRegister)stream.ReadInt16(Endian.Big);
                     switch (Register)
                     {
                         case XFRegister.SETTEXMTX0:
                         case XFRegister.SETTEXMTX1:
-                            Arguments.Add(new XFTexMatrix(BDL));
+                            Arguments.Add(new XFTexMatrix(stream));
                             break;
                         default:
-                            BDL.Read(DataLength);
+                            stream.Read(DataLength);
                             break;
                     }
                 }
@@ -116,11 +119,11 @@ namespace Hack.io.BMD
                 {
                     public Matrix2x4 CompiledMatrix { get; set; }
 
-                    public XFTexMatrix(Stream BDL)
+                    public XFTexMatrix(Stream stream)
                     {
                         CompiledMatrix = new Matrix2x4(
-                            BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0),
-                            BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0), BitConverter.ToSingle(BDL.ReadBigEndian(4), 0)
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big),
+                            stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big), stream.ReadSingle(Endian.Big)
                             );
                     }
 

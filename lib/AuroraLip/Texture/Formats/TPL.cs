@@ -29,20 +29,20 @@ namespace AuroraLip.Texture.Formats
         public TPL(string filepath) : base(filepath) { }
         public TPL(Stream stream) => Read(stream);
 
-        protected override void Read(Stream TPLFile)
+        protected override void Read(Stream stream)
         {
-            long HeaderStart = TPLFile.Position;
+            long HeaderStart = stream.Position;
 
-            if (!IsMatch(TPLFile)) throw new Exception("Invalid Identifier. Expected \"0x0020AF30\"");
+            if (!IsMatch(stream)) throw new Exception("Invalid Identifier. Expected \"0x0020AF30\"");
 
-            int TotalImageCount = BitConverter.ToInt32(TPLFile.ReadBigEndian(4), 0);
-            int ImageTableOffset = BitConverter.ToInt32(TPLFile.ReadBigEndian(4), 0);
+            int TotalImageCount = stream.ReadInt32(Endian.Big);
+            int ImageTableOffset = stream.ReadInt32(Endian.Big);
 
-            TPLFile.Position = ImageTableOffset;
+            stream.Position = ImageTableOffset;
 
             List<KeyValuePair<int, int>> ImageHeaderOffset = new List<KeyValuePair<int, int>>();
             for (int i = 0; i < TotalImageCount; i++)
-                ImageHeaderOffset.Add(new KeyValuePair<int, int>(BitConverter.ToInt32(TPLFile.ReadBigEndian(4), 0), BitConverter.ToInt32(TPLFile.ReadBigEndian(4), 0)));
+                ImageHeaderOffset.Add(new KeyValuePair<int, int>(stream.ReadInt32(Endian.Big), stream.ReadInt32(Endian.Big)));
 
             for (int i = 0; i < ImageHeaderOffset.Count; i++)
             {
@@ -52,33 +52,33 @@ namespace AuroraLip.Texture.Formats
                 GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
                 if (ImageHeaderOffset[i].Value != 0)
                 {
-                    TPLFile.Position = ImageHeaderOffset[i].Value;
-                    PaletteCount = BitConverter.ToInt16(TPLFile.ReadBigEndian(2), 0);
-                    TPLFile.Position += 0x02;
-                    PaletteFormat = (GXPaletteFormat)BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                    PaletteDataAddress = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                    TPLFile.Position = HeaderStart + PaletteDataAddress;
-                    PaletteData = TPLFile.Read(PaletteCount * 2);
+                    stream.Position = ImageHeaderOffset[i].Value;
+                    PaletteCount = stream.ReadInt16(Endian.Big);
+                    stream.Position += 0x02;
+                    PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
+                    PaletteDataAddress = stream.ReadUInt32(Endian.Big);
+                    stream.Position = HeaderStart + PaletteDataAddress;
+                    PaletteData = stream.Read(PaletteCount * 2);
                 }
 
-                TPLFile.Position = ImageHeaderOffset[i].Key;
+                stream.Position = ImageHeaderOffset[i].Key;
 
-                ushort ImageHeight = BitConverter.ToUInt16(TPLFile.ReadBigEndian(2), 0);
-                ushort ImageWidth = BitConverter.ToUInt16(TPLFile.ReadBigEndian(2), 0);
-                GXImageFormat Format = (GXImageFormat)BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                uint ImageDataAddress = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                uint WrapS = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                uint WrapT = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                uint MinFilter = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                uint MaxFilter = BitConverter.ToUInt32(TPLFile.ReadBigEndian(4), 0);
-                float LODBias = BitConverter.ToSingle(TPLFile.ReadBigEndian(4), 0);
-                bool EnableEdgeLOD = TPLFile.ReadByte() > 0;
-                byte MinLOD = (byte)TPLFile.ReadByte();
-                byte MaxLOD = (byte)TPLFile.ReadByte();
-                byte Unpacked = (byte)TPLFile.ReadByte();
+                ushort ImageHeight = stream.ReadUInt16(Endian.Big);
+                ushort ImageWidth = stream.ReadUInt16(Endian.Big);
+                GXImageFormat Format = (GXImageFormat)stream.ReadUInt32(Endian.Big);
+                uint ImageDataAddress = stream.ReadUInt32(Endian.Big);
+                uint WrapS = stream.ReadUInt32(Endian.Big);
+                uint WrapT = stream.ReadUInt32(Endian.Big);
+                uint MinFilter = stream.ReadUInt32(Endian.Big);
+                uint MaxFilter = stream.ReadUInt32(Endian.Big);
+                float LODBias = stream.ReadSingle(Endian.Big);
+                bool EnableEdgeLOD = stream.ReadByte() > 0;
+                byte MinLOD = (byte)stream.ReadByte();
+                byte MaxLOD = (byte)stream.ReadByte();
+                byte Unpacked = (byte)stream.ReadByte();
 
-                TPLFile.Position = ImageDataAddress;
-                TexEntry current = new TexEntry(TPLFile, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, MaxLOD)
+                stream.Position = ImageDataAddress;
+                TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, MaxLOD)
                 {
                     LODBias = LODBias,
                     MagnificationFilter = (GXFilterMode)MaxFilter,
@@ -93,17 +93,17 @@ namespace AuroraLip.Texture.Formats
             }
         }
 
-        protected override void Write(Stream TPLFile)
+        protected override void Write(Stream stream)
         {
-            long HeaderStart = TPLFile.Position;
-            TPLFile.Write(Magic, 0, Magic.Length);
+            long HeaderStart = stream.Position;
+            stream.Write(Magic, 0, Magic.Length);
 
-            TPLFile.WriteBigEndian(BitConverter.GetBytes(Count), 4);
-            TPLFile.WriteBigEndian(BitConverter.GetBytes(0x0C), 4);
-            long OffsetLocation = TPLFile.Position;
+            stream.WriteBigEndian(BitConverter.GetBytes(Count), 4);
+            stream.WriteBigEndian(BitConverter.GetBytes(0x0C), 4);
+            long OffsetLocation = stream.Position;
             //Placeholders...Not my usual 0xDD placeholder because there's no way I'm able to calculate the byte to use
             //Well, there is but eeehhhh it's slow(?)
-            TPLFile.Write(new byte[Count * 8], 0, Count * 8);
+            stream.Write(new byte[Count * 8], 0, Count * 8);
             //This will hold the information that we're gonna write back here
             //Key = ImageDataOffset
             //Value = PalleteDataOffset
@@ -113,60 +113,60 @@ namespace AuroraLip.Texture.Formats
             for (int i = 0; i < Count; i++)
             {
                 bool IsPalette = this[i].Format.IsPaletteFormat();
-                int PaletteHeader = !IsPalette ? 0 : (int)(TPLFile.Position - HeaderStart);
+                int PaletteHeader = !IsPalette ? 0 : (int)(stream.Position - HeaderStart);
                 List<byte> ImageData = new List<byte>();
                 List<byte> PaletteData = new List<byte>();
                 List<Bitmap> mips = this[i];
                 GetImageAndPaletteData(ref ImageData, ref PaletteData, mips, this[i].Format, this[i].PaletteFormat);
                 if (IsPalette)
                 {
-                    TPLFile.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
-                    TPLFile.WriteByte(0x00);
-                    TPLFile.WriteByte(0x00);
-                    TPLFile.WriteBigEndian(BitConverter.GetBytes((int)this[i].PaletteFormat), 4);
-                    long temp = TPLFile.Position;
-                    TPLFile.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
-                    TPLFile.PadTo(32);
-                    long temp2 = TPLFile.Position;
-                    TPLFile.Position = temp;
-                    TPLFile.WriteBigEndian(BitConverter.GetBytes((int)(temp2 - HeaderStart) + 0), 4);
-                    TPLFile.Position = temp2;
-                    TPLFile.Write(PaletteData.ToArray(), 0, PaletteData.Count);
-                    TPLFile.PadTo(32);
+                    stream.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
+                    stream.WriteByte(0x00);
+                    stream.WriteByte(0x00);
+                    stream.WriteBigEndian(BitConverter.GetBytes((int)this[i].PaletteFormat), 4);
+                    long temp = stream.Position;
+                    stream.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
+                    stream.PadTo(32);
+                    long temp2 = stream.Position;
+                    stream.Position = temp;
+                    stream.WriteBigEndian(BitConverter.GetBytes((int)(temp2 - HeaderStart) + 0), 4);
+                    stream.Position = temp2;
+                    stream.Write(PaletteData.ToArray(), 0, PaletteData.Count);
+                    stream.PadTo(32);
                 }
 
-                int ImageHeader = ImageHeader = (int)(TPLFile.Position - HeaderStart);
+                int ImageHeader = ImageHeader = (int)(stream.Position - HeaderStart);
 
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Height), 2);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Width), 2);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((uint)this[i].Format), 4);
-                long comebackhere = TPLFile.Position;
-                TPLFile.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((uint)this[i].WrapS), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((uint)this[i].WrapT), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((uint)this[i].MinificationFilter), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((uint)this[i].MagnificationFilter), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes(this[i].LODBias), 4);
-                TPLFile.WriteByte((byte)(this[i].EnableEdgeLOD ? 0x01 : 0x00));
-                TPLFile.WriteByte(0x00);
-                TPLFile.WriteByte((byte)(mips.Count - 1));
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Height), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Width), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].Format), 4);
+                long comebackhere = stream.Position;
+                stream.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].WrapS), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].WrapT), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].MinificationFilter), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].MagnificationFilter), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(this[i].LODBias), 4);
+                stream.WriteByte((byte)(this[i].EnableEdgeLOD ? 0x01 : 0x00));
+                stream.WriteByte(0x00);
+                stream.WriteByte((byte)(mips.Count - 1));
                 //Unpacked - Rii told me to leave this one as 0 :)
-                TPLFile.WriteByte(0x00);
-                TPLFile.PadTo(32);
-                long PausePosition = TPLFile.Position;
-                TPLFile.Position = comebackhere;
-                TPLFile.WriteBigEndian(BitConverter.GetBytes((int)(PausePosition - HeaderStart)), 4);
-                TPLFile.Position = PausePosition;
-                TPLFile.Write(ImageData.ToArray(), 0, ImageData.Count);
-                TPLFile.PadTo(32);
+                stream.WriteByte(0x00);
+                stream.PadTo(32);
+                long PausePosition = stream.Position;
+                stream.Position = comebackhere;
+                stream.WriteBigEndian(BitConverter.GetBytes((int)(PausePosition - HeaderStart)), 4);
+                stream.Position = PausePosition;
+                stream.Write(ImageData.ToArray(), 0, ImageData.Count);
+                stream.PadTo(32);
 
                 ImageHeaderOffset.Add(new KeyValuePair<int, int>(ImageHeader, PaletteHeader));
             }
-            TPLFile.Position = OffsetLocation;
+            stream.Position = OffsetLocation;
             for (int i = 0; i < Count; i++)
             {
-                TPLFile.WriteBigEndian(BitConverter.GetBytes(ImageHeaderOffset[i].Key), 4);
-                TPLFile.WriteBigEndian(BitConverter.GetBytes(ImageHeaderOffset[i].Value), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(ImageHeaderOffset[i].Key), 4);
+                stream.WriteBigEndian(BitConverter.GetBytes(ImageHeaderOffset[i].Value), 4);
             }
         }
 

@@ -39,15 +39,15 @@ namespace AuroraLip.Archives.Formats
             {
                 throw new Exception($"ByteOrder: \"{ByteOrder}\" Not Implemented");
             }
-            ushort Padding = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            uint TotalSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            ushort Offset = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-            ushort sections = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
+            ushort Padding = stream.ReadUInt16(Endian.Big);
+            uint TotalSize = stream.ReadUInt32(Endian.Big);
+            ushort Offset = stream.ReadUInt16(Endian.Big);
+            ushort sections = stream.ReadUInt16(Endian.Big);
             stream.Position = Offset;
             //root sections
             if (!stream.MatchString("root"))
                 throw new Exception($"Invalid Identifier. Expected \"root\"");
-            uint RootSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint RootSize = stream.ReadUInt32(Endian.Big);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
             ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
@@ -58,17 +58,18 @@ namespace AuroraLip.Archives.Formats
         {
             //Index Group
             long StartOfGroup = stream.Position;
-            uint GroupSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            uint Groups = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+            uint GroupSize = stream.ReadUInt32(Endian.Big);
+            uint Groups = stream.ReadUInt32(Endian.Big);
 
             for (int i = 0; i < Groups + 1; i++)
             {
-                ushort GroupID = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                ushort Unknown = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                ushort LeftIndex = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                ushort RightIndex = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
-                uint NamePointer = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-                uint DataPointer = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                //stream.ReadUInt16(Endian.Big)
+                ushort GroupID = stream.ReadUInt16(Endian.Big);
+                ushort Unknown = stream.ReadUInt16(Endian.Big);
+                ushort LeftIndex = stream.ReadUInt16(Endian.Big);
+                ushort RightIndex = stream.ReadUInt16(Endian.Big);
+                uint NamePointer = stream.ReadUInt32(Endian.Big);
+                uint DataPointer = stream.ReadUInt32(Endian.Big);
                 long EndOfGroup = stream.Position;
                 string Name = String.Empty;
                 if (NamePointer != 0)
@@ -83,7 +84,7 @@ namespace AuroraLip.Archives.Formats
                             ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory };
                             stream.Position = StartOfGroup + DataPointer;
                             string Magic = stream.ReadString(4);
-                            uint FileSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
+                            uint FileSize = stream.ReadUInt32(Endian.Big);
                             stream.Position -= 8;
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {

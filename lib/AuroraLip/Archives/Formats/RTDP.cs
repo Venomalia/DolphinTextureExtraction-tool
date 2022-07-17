@@ -29,7 +29,7 @@ namespace AuroraLip.Archives.Formats
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
             List<RTDPEntry> Entries = new List<RTDPEntry>();
-            for (int i = 1; i < NrEntries; i++)
+            for (int i = 0; i < NrEntries; i++)
             {
                 Entries.Add(new RTDPEntry(stream));
             }

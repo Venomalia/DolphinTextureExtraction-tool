@@ -42,7 +42,7 @@ namespace AuroraLip.Texture.Formats
         public bool ClampLODBias { get; set; } = true;
         public byte MaxAnisotropy { get; set; } = 0;
 
-        internal BTI() { }
+        public BTI() { }
 
         public BTI(Stream stream) => Read(stream);
 

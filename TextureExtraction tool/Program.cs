@@ -1,7 +1,9 @@
 ﻿using AuroraLip.Compression;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -68,7 +70,7 @@ namespace DolphinTextureExtraction_tool
 
                     Console.WriteLine();
                     Console.WriteLine("Adjust settings? Yes or (No)");
-                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo",ConsoleColor.Green, ConsoleColor.Red))
+                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
                     {
                         Console.WriteLine($"Extract mipmaps. \t(True) or False");
                         options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
@@ -233,13 +235,36 @@ namespace DolphinTextureExtraction_tool
 #else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
 #endif
-            Console.WriteLine($"Supported formats: RARC, NARC, U8, CPK, RTDP, BDL4, BMD3, TPL, BTI, NUTC, TXE, bres, REFT, AFS, TXTR, PTLG, \n\t\t   WTMD, {string.Join(", ", Compression.GetAvailablDecompress().Select(x => x.Name))}.");
+            PrintFormats();
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
             Console.ResetColor();
             Console.WriteLine();
+        }
+
+        static void PrintFormats()
+        {
+            List<string> formats = new List<string>(AuroraLip.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name));
+            formats.Add("CPK");
+            formats.Add("AFS");
+            formats.Add("BDL4");
+            formats.Add("BMD3");
+            formats.Sort();
+            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n\t\t  "));
+        }
+
+        static string LineBreak(string str, int max,in string insert)
+        {
+            int Index = 0;
+            while (Index+ max < str.Length)
+            {
+                ReadOnlySpan<char> line = str.AsSpan(Index, max);
+                Index += line.LastIndexOf(' ');
+                str = str.Insert(Index, insert);
+            }
+            return str;
         }
 
         static void PrintOptions(TextureExtractor.Options options)

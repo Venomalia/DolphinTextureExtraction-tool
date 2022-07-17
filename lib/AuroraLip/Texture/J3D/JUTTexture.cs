@@ -76,9 +76,6 @@ namespace AuroraLip.Texture.J3D
             }
             ~JUTTexture()
             {
-#if DEBUG // Modification
-                Console.WriteLine($"JUTTexture \"{FileName ?? "Unnamed"}\" Disposed");
-#endif
                 Dispose(disposing: true);
             }
             public void Dispose()

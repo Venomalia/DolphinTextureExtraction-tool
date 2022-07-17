@@ -199,10 +199,9 @@ namespace DolphinTextureExtraction_tool
 
                         if (options.Force)
                         {
-                            byte[] bytes = stream.ToArray();
-                            if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                            if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
                             {
-                                Scan(new MemoryStream(test), subdirectory);
+                                Scan(test, subdirectory);
                                 break;
                             }
                             stream.Position = 0;
@@ -257,10 +256,9 @@ namespace DolphinTextureExtraction_tool
                     case FileTyp.Unknown:
                         if (options.Force)
                         {
-                            byte[] bytes = stream.ToArray();
-                            if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                            if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
                             {
-                                Scan(new MemoryStream(test), subdirectory);
+                                Scan(test, subdirectory);
                                 break;
                             }
 
@@ -300,16 +298,15 @@ namespace DolphinTextureExtraction_tool
                                 case "cmparc":
                                 case "cmpres":
 
-                                    byte[] bytes = stream.ToArray();
-                                    if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                                    if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
                                     {
-                                        Scan(new MemoryStream(test), subdirectory);
+                                        Scan(test, subdirectory);
                                         break;
                                     }
 
-                                    if (Compression.TryToFindMatch(in bytes, out algorithm))
+                                    if (Reflection.Compression.TryToFindMatch(stream, out Type type))
                                     {
-                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
                                         result.UnsupportedSize += stream.Length;
@@ -343,16 +340,15 @@ namespace DolphinTextureExtraction_tool
                                     break;
                                 case "ZLB":
                                 case "LzS":
-                                    byte[] bytes = stream.ToArray();
-                                    if (Compression.TryToDecompress(bytes, out byte[] test, out ICompression algorithm))
+                                    if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
                                     {
-                                        Scan(new MemoryStream(test), subdirectory);
+                                        Scan(test, subdirectory);
                                         break;
                                     }
 
-                                    if (Compression.TryToFindMatch(in bytes, out algorithm))
+                                    if (Reflection.Compression.TryToFindMatch(stream, out Type type))
                                     {
-                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{algorithm.GetType().Name}?");
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
                                         result.UnsupportedSize += stream.Length;

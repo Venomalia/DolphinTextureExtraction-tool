@@ -76,6 +76,8 @@
     <Compile Include="Common\Enums\Endian.cs" />
     <Compile Include="Common\Extensions\StreamExString.cs" />
     <Compile Include="Common\Extensions\StreamExBitConverter.cs" />
+    <Compile Include="Common\FileAccessReflection%28T%29.cs" />
+    <Compile Include="Common\Reflection.cs" />
     <Compile Include="Common\Interfaces\IFileAccess.cs" />
     <Compile Include="Common\Extensions\BitConverterEx.cs" />
     <Compile Include="Common\Extensions\BitmapEx.cs" />
@@ -88,8 +90,9 @@
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Common\Struct\Int24.cs" />
     <Compile Include="Common\Struct\UInt24.cs" />
+    <Compile Include="Compression\CompressionEx.cs" />
     <Compile Include="Compression\Compression%28T%29.cs" />
-    <Compile Include="Compression\Compression.cs" />
+    <Compile Include="Compression\CompressionReflection.cs" />
     <Compile Include="Compression\Enums\CompressionLevel.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
     <Compile Include="Compression\Formats\LZSS.cs" />

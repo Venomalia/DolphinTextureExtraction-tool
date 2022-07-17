@@ -345,7 +345,7 @@ namespace AuroraLip.Archives.Formats
                 stream.Position = pauseposition;
             }
 #else
-                FlatDirectoryList.Add(new RARCDirEntry(RARCFile, StringTableOffset));
+                FlatDirectoryList.Add(new RARCDirEntry(stream, StringTableOffset));
 #endif
             #endregion
 

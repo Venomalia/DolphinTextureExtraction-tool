@@ -6,16 +6,8 @@ using static AuroraLip.Texture.J3D.JUtility;
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BMD : IMagicIdentify
+    public partial class BMD : IFileAccess, IMagicIdentify
     {
-
-        public FileType FileType => FileType.Model;
-
-        public virtual string Description => description;
-
-        private const string description = "Binary Display v3";
-
-        public virtual string Extension => ".bmd";
 
         public virtual string Magic => magic;
 

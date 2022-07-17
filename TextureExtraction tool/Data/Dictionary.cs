@@ -40,8 +40,8 @@ namespace DolphinTextureExtraction_tool
             new FileTypInfo("clz",new Header("CLZ"), FileTyp.Archive, "Harvest Moon compressed"),
             new FileTypInfo("vol",new Header("RTDP"), FileTyp.Archive, "Arc Rise"),
 
-            new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "display lists"),
-            new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "model"),
+            new FileTypInfo("bdl",new Header("J3D2bdl4"), FileTyp.Archive, "J3D Binary Display Lists v4"),
+            new FileTypInfo("bmd",new Header("J3D2bmd3"), FileTyp.Archive, "J3D Binary Model Display v3"),
             new FileTypInfo("LZ", FileTyp.Archive, "compressed"),
             new FileTypInfo("brres",new Header("bres"), FileTyp.Archive, "Wii Resource"),
             //Textures

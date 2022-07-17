@@ -5,14 +5,8 @@ using System.IO;
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BDL : BMD, IMagicIdentify
+    public partial class BDL : BMD, IFileAccess, IMagicIdentify
     {
-        public override string Description => description;
-
-        private const string description = "Binary Display Lists v4";
-
-        public override string Extension => ".bdl";
-
         public override string Magic => magic;
 
         private const string magic = "J3D2bdl4";

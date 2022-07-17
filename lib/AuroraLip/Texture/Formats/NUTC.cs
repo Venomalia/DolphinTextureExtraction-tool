@@ -6,9 +6,13 @@ using static AuroraLip.Texture.J3D.JUtility;
 namespace AuroraLip.Texture.Formats
 {
     //https://github.com/marco-calautti/Rainbow/wiki/NUT-File-Format
-    public class NUTC : JUTTexture, IMagicIdentify
+    public class NUTC : JUTTexture, IMagicIdentify, IFileAccess
     {
         public ushort FormatVersion { get; set; }
+
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
 
         public string Magic => magic;
 
@@ -19,6 +23,9 @@ namespace AuroraLip.Texture.Formats
         public NUTC(Stream stream) : base(stream) { }
 
         public NUTC(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {

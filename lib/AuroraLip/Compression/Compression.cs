@@ -31,12 +31,25 @@ namespace AuroraLip.Compression
         /// <param name="data">data to be decrypted</param>
         /// <param name="algorithm">Matching algorithm</param>
         /// <returns>found a match</returns>
-        public static bool TryToFindMatch(in byte[] data, out ICompression algorithm)
+        public static bool TryToFindMatch(in byte[] data, out ICompression algorithm) => TryToFindMatch(new MemoryStream(data), out algorithm);
+
+        /// <summary>
+        ///  Trying to find an algorithm that can decompress the data
+        /// </summary>
+        /// <param name="stream">stream to be decrypted</param>
+        /// <param name="algorithm">Matching algorithm</param>
+        /// <returns>found a match</returns>
+        public static bool TryToFindMatch(Stream stream, out ICompression algorithm)
         {
             foreach (Type item in AvailableTypes)
             {
+                stream.Position = 0;
                 algorithm = (ICompression)Activator.CreateInstance(item);
-                if (algorithm.IsMatch(in data)) return true;
+                if (algorithm.IsMatch(stream))
+                {
+                    stream.Position = 0;
+                    return true;
+                }
             }
             algorithm = null;
             return false;
@@ -68,6 +81,47 @@ namespace AuroraLip.Compression
             outdata = null;
             algorithm = null;
             return false;
+        }
+
+        /// <summary>
+        /// Trying to decompress the data
+        /// </summary>
+        /// <param name="stream">stream to be decrypted</param>
+        /// <param name="outstream">Decompressed stream</param>
+        /// <param name="algorithm">Matching algorithm</param>
+        /// <returns></returns>
+        public static bool TryToDecompress(Stream stream, out Stream outstream, out ICompression algorithm)
+        {
+            foreach (Type item in AvailableTypes)
+            {
+                algorithm = (ICompression)Activator.CreateInstance(item);
+
+                stream.Position = 0;
+                if (algorithm.CanRead && algorithm.IsMatch(stream))
+                {
+                    try
+                    {
+                        stream.Position = 0;
+                        outstream = algorithm.Decompress(stream);
+                        return true;
+                    }
+                    catch (Exception) { }
+                }
+            }
+
+            outstream = null;
+            algorithm = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if the data compressed with this compression method
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <returns>"True" if it corresponds to the compression method.</returns>
+        public static bool IsMatch(this ICompression algorithm, in byte[] Data)
+        {
+            return algorithm.IsMatch(new MemoryStream(Data));
         }
 
         #region Decompress
@@ -113,6 +167,7 @@ namespace AuroraLip.Compression
         #endregion
 
         #region Compress
+
         /// <summary>
         /// Compress a File
         /// </summary>

@@ -6,8 +6,13 @@ using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {
-    public class TEX0 : JUTTexture, IMagicIdentify
+    public class TEX0 : JUTTexture, IMagicIdentify, IFileAccess
     {
+
+        public bool CanRead => true;
+
+        public bool CanWrite => true;
+
         public string Magic => magic;
 
         private const string magic = "TEX0";
@@ -17,6 +22,9 @@ namespace AuroraLip.Texture.Formats
         public TEX0(Stream stream) : base(stream) { }
 
         public TEX0(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream) => Read(stream, null, GXPaletteFormat.IA8, 0);
 

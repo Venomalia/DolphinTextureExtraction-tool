@@ -17,24 +17,21 @@ namespace AuroraLip.Archives.Formats
     /// Nintendo File Archive used in WII/GC Games.
     /// <para/> NOTE: THIS IS NOT A U8 ARCHIVE!
     /// </summary>
-    public class RARC : Archive, IFileFormat, IMagicIdentify
+    public class RARC : Archive, IMagicIdentify, IFileAccess
     {
+        public bool CanRead => true;
 
-        public FileType FileType => FileType.Archive;
-
-        public string Description => description;
-
-        private const string description = "RARC Resources Archive";
-
-        public string Extension => ".arc";
+        public bool CanWrite => true;
 
         public string Magic => magic;
 
         private const string magic = "RARC";
 
-        public bool CanRead => true;
+        public RARC() { }
 
-        public bool CanWrite => true;
+        public RARC(string filename) : base(filename) { }
+
+        public RARC(Stream stream, string filename = null) : base(stream, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -48,35 +45,6 @@ namespace AuroraLip.Archives.Formats
         /// Gets the next free File ID
         /// </summary>
         public short NextFreeFileID => GetNextFreeID();
-        #endregion
-
-        #region Constructors
-        /// <summary>
-        /// Create an empty archive
-        /// </summary>
-        public RARC() { }
-        /// <summary>
-        /// Open an archive
-        /// </summary>
-        /// <param name="filename">Archive full filepath</param>
-        public RARC(string filename)
-        {
-            FileStream RARCFile = new FileStream(filename, FileMode.Open);
-            Read(RARCFile);
-            RARCFile.Close();
-            FileName = filename;
-        }
-        /// <summary>
-        /// Open an archive that's stored inside a stream.
-        /// <para/> Stream will be a <see cref="MemoryStream"/> if the Hack.io.YAZ0 library was used.
-        /// </summary>
-        /// <param name="RARCFile">Memorystream containing the archiev</param>
-        /// <param name="filename">Filename to give</param>
-        public RARC(Stream RARCFile, string filename = null)
-        {
-            Read(RARCFile);
-            FileName = filename;
-        }
         #endregion
 
         /// <summary>
@@ -476,11 +444,11 @@ namespace AuroraLip.Archives.Formats
             RARCFile.WriteBigEndian(BitConverter.GetBytes(DVDSize), 4);
             //Data Header
             RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList.Count), 4);
-            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD },0, 4); //Directory Nodes Location (-0x20)
+            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //Directory Nodes Location (-0x20)
             RARCFile.WriteBigEndian(BitConverter.GetBytes(FlatFileList.Count), 4);
-            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD },0, 4); //File Entries Location (-0x20)
-            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE },0, 4); //String Table Size
-            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE },0, 4); //string Table Location (-0x20)
+            RARCFile.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //File Entries Location (-0x20)
+            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //String Table Size
+            RARCFile.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //string Table Location (-0x20)
             RARCFile.WriteBigEndian(BitConverter.GetBytes((ushort)FlatFileList.Count), 2);
             RARCFile.WriteByte((byte)(KeepFileIDsSynced ? 0x01 : 0x00));
             RARCFile.Write(new byte[5], 0, 5);

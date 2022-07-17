@@ -6,7 +6,7 @@ using static AuroraLip.Texture.J3D.JUtility;
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BMD : IFileFormat, IMagicIdentify
+    public partial class BMD : IMagicIdentify
     {
 
         public FileType FileType => FileType.Model;

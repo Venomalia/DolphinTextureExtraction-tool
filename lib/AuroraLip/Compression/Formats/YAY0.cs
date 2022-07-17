@@ -17,16 +17,8 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo YAY0 compression algorithm
     /// </summary>
-    public class YAY0 : ICompression, IFileFormat, IMagicIdentify
+    public class YAY0 : ICompression, IMagicIdentify
     {
-
-        public FileType FileType => FileType.Archive;
-
-        public string Description => description;
-
-        private const string description = "Nintendo YAY0 compression";
-
-        public string Extension { get; } = "";
 
         public string Magic { get; } = "Yay0";
 
@@ -35,10 +27,7 @@ namespace AuroraLip.Compression.Formats
         public bool CanRead { get; } = true;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.ReadByte() == 89 && stream.ReadByte() == 97 && stream.ReadByte() == 121 && stream.ReadByte() == 48;
-
-        public bool IsMatch(in byte[] Data)
-            => Data.Length > 4 && Data[0] == 89 && Data[1] == 97 && Data[2] == 121 && Data[2] == 48;
+            => stream.Length > 4 && stream.MatchString(Magic);
 
         //Based on https://github.com/Daniel-McCarthy/Mr-Peeps-Compressor/blob/master/PeepsCompress/PeepsCompress/Algorithm%20Classes/YAY0.cs
         public byte[] Compress(in byte[] data)

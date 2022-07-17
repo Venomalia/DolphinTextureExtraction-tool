@@ -13,16 +13,10 @@ namespace AuroraLip.Texture.Formats
     * https://github.com/SuperHackio/Hack.io
     */
 
-    public class TPL : JUTTexture, IFileFormat
+    public class TPL : JUTTexture, IFileAccess
     {
 
-        public FileType FileType => FileType.Texture;
-
-        public string Description => description;
-
-        private const string description = "Texture Palette Library";
-
-        public string Extension => ".tpl";
+        protected readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
 
         public bool CanRead => true;
 
@@ -30,8 +24,6 @@ namespace AuroraLip.Texture.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
-
-        protected readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
 
         public TPL() : base() { }
         public TPL(string filepath) : base(filepath) { }

@@ -6,13 +6,22 @@ using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {
-    public class TXTR : JUTTexture
+    public class TXTR : JUTTexture, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
+        public string Extension => ".txtr";
+
         public TXTR() { }
 
         public TXTR(Stream stream) : base(stream) { }
 
         public TXTR(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => extension.ToLower() == Extension;
 
         protected override void Read(Stream stream)
         {

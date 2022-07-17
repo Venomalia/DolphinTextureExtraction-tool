@@ -1,16 +1,16 @@
 ﻿using AuroraLip.Common;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
 namespace AuroraLip.Archives.Formats
 {
-    public class bres : Archive, IMagicIdentify
+    public class bres : Archive, IMagicIdentify, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
         public string Magic => magic;
 
         private const string magic = "bres";
@@ -21,16 +21,14 @@ namespace AuroraLip.Archives.Formats
 
         #endregion
 
+        public bres() { }
 
-        public bres()
-        {
-        }
+        public bres(string filename) : base(filename) { }
 
-        public bres(Stream File, string filename = null)
-        {
-            Read(File);
-            FileName = filename;
-        }
+        public bres(Stream stream, string filename = null) : base(stream, filename) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {
@@ -50,20 +48,20 @@ namespace AuroraLip.Archives.Formats
             if (!stream.MatchString("root"))
                 throw new Exception($"Invalid Identifier. Expected \"root\"");
             uint RootSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
-            Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this};
+            Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
             ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
 
         }
 
-        private void ReadIndex(Stream stream,in int EndOfRoot, ArchiveDirectory ParentDirectory)
+        private void ReadIndex(Stream stream, in int EndOfRoot, ArchiveDirectory ParentDirectory)
         {
             //Index Group
             long StartOfGroup = stream.Position;
             uint GroupSize = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
             uint Groups = BitConverter.ToUInt32(stream.ReadBigEndian(4), 0);
 
-            for (int i = 0; i < Groups +1; i++)
+            for (int i = 0; i < Groups + 1; i++)
             {
                 ushort GroupID = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
                 ushort Unknown = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);

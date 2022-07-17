@@ -5,8 +5,12 @@ using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {
-    public class RTDP : Archive, IMagicIdentify
+    public class RTDP : Archive, IMagicIdentify, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
         public string Magic => magic;
 
         private const string magic = "RTDP";
@@ -16,6 +20,9 @@ namespace AuroraLip.Archives.Formats
         public RTDP(string filename) : base(filename) { }
 
         public RTDP(Stream RARCFile, string filename = null) : base(RARCFile, filename) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {

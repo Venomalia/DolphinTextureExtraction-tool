@@ -7,8 +7,12 @@ using static AuroraLip.Texture.J3D.JUtility;
 namespace AuroraLip.Texture.Formats
 {
     //bas on https://forum.xentax.com/viewtopic.php?t=9256
-    public class WTMD : JUTTexture, IMagicIdentify
+    public class WTMD : JUTTexture, IMagicIdentify, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
         public string Magic => magic;
 
         private const string magic = "WTMD";
@@ -18,6 +22,9 @@ namespace AuroraLip.Texture.Formats
         public WTMD(Stream stream) : base(stream) { }
 
         public WTMD(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {

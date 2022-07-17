@@ -10,8 +10,12 @@ using static AuroraLip.Texture.J3D.JUtility;
 namespace AuroraLip.Texture.Formats
 {
     // https://wiki.tockdom.com/wiki/BREFF_and_BREFT_(File_Format)
-    public class REFT : JUTTexture, IMagicIdentify
+    public class REFT : JUTTexture, IMagicIdentify, IFileAccess
     {
+
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
 
         public string Magic => magic;
 
@@ -24,6 +28,9 @@ namespace AuroraLip.Texture.Formats
         public REFT(Stream stream) : base(stream) {}
 
         public REFT(string filepath) : base(filepath) {}
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {
@@ -54,6 +61,12 @@ namespace AuroraLip.Texture.Formats
             ushort Unknown3 = BitConverter.ToUInt16(stream.ReadBigEndian(2), 0);
             string Name = stream.ReadString();
             stream.Position = SubfilePosition;
+#if DEBUG
+            if (Unknown != 0 || Unknown2 != 0 || Unknown3 != 0)
+            {
+                Console.WriteLine($"Warning, {Unknown}-{Unknown2}-{Unknown3}");
+            }
+#endif
             //Subfile List
             ReadSubfile(stream);
         }

@@ -19,6 +19,7 @@ namespace AuroraLip.Texture.J3D
         /// </summary>
         public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable
         {
+
             private bool disposedValue;
 
             /// <summary>
@@ -85,6 +86,7 @@ namespace AuroraLip.Texture.J3D
                 Dispose(disposing: true);
                 GC.SuppressFinalize(this);
             }
+
             #endregion
         }
     }

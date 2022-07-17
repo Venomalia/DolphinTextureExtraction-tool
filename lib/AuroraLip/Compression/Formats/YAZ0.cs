@@ -17,16 +17,8 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo YAZ0 compression algorithm
     /// </summary>
-    public class YAZ0 : ICompression, IFileFormat, IMagicIdentify
+    public class YAZ0 : ICompression, IMagicIdentify
     {
-
-        public FileType FileType => FileType.Archive;
-
-        public string Description => description;
-
-        private const string description = "Nintendo YAZ0 compression";
-
-        public string Extension => "";
 
         public string Magic { get; } = "Yaz0";
 
@@ -34,12 +26,8 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanRead { get; } = true;
 
-
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.ReadByte() == 89 && stream.ReadByte() == 97 && stream.ReadByte() == 122 && stream.ReadByte() == 48;
-
-        public bool IsMatch(in byte[] Data)
-            => Data.Length > 16 && Data[0] == 89 && Data[1] == 87 && Data[2] == 122 && Data[2] == 48;
+            => stream.Length > 4 && stream.MatchString(Magic);
 
         public byte[] Compress(in byte[] data)
         {

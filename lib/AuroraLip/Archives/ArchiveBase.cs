@@ -45,20 +45,20 @@ namespace AuroraLip.Archives
         /// <param name="filename">Archive full filepath</param>
         public Archive(string filename)
         {
-            FileStream RARCFile = new FileStream(filename, FileMode.Open);
-            Read(RARCFile);
-            RARCFile.Close();
+            FileStream stream = new FileStream(filename, FileMode.Open);
+            Read(stream);
+            stream.Close();
             FileName = filename;
         }
         /// <summary>
         /// Open an archive that's stored inside a stream.
         /// <para/> Stream will be a <see cref="MemoryStream"/> if the Hack.io.YAZ0 library was used.
         /// </summary>
-        /// <param name="RARCFile">Memorystream containing the archiev</param>
+        /// <param name="stream">Memorystream containing the archiev</param>
         /// <param name="filename">Filename to give</param>
-        public Archive(Stream RARCFile, string filename = null)
+        public Archive(Stream stream, string filename = null)
         {
-            Read(RARCFile);
+            Read(stream);
             FileName = filename;
         }
         #endregion

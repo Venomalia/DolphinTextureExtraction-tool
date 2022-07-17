@@ -13,14 +13,8 @@ namespace AuroraLip.Texture.Formats
     * https://github.com/SuperHackio/Hack.io
     */
 
-    public class BTI : JUTTexture, IFileFormat
+    public class BTI : JUTTexture, IFileAccess
     {
-
-        public FileType FileType => FileType.Texture;
-
-        public string Description => description;
-
-        private const string description = "Binary Texture Image";
 
         public string Extension => ".bti";
 

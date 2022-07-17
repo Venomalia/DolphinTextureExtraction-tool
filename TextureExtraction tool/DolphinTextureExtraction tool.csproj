@@ -222,7 +222,6 @@
     <Compile Include="Data\Header.cs" />
     <Compile Include="Data\Dictionary.cs" />
     <Compile Include="Data\Logger.cs" />
-    <Compile Include="Data\QuickBms.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\TextureExtractor.cs" />

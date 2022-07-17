@@ -1,5 +1,6 @@
 ﻿using AuroraLip.Common;
 using System;
+using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {
@@ -26,9 +27,10 @@ namespace AuroraLip.Compression.Formats
             throw new NotImplementedException();
         }
 
-        public bool IsMatch(in byte[] Data)
+        public bool IsMatch(Stream stream, in string extension = "")
         {
-            return Data.Length > 4 && Data[0] == 66 && Data[1] == 90 && Data[2] == 104 && Data[3] >= 49 && Data[3] <= 57;
+            byte[] Data = stream.Read(4);
+            return stream.Length > 4 && Data[0] == 66 && Data[1] == 90 && Data[2] == 104 && Data[3] >= 49 && Data[3] <= 57;
         }
     }
 }

@@ -7,8 +7,12 @@ using static AuroraLip.Texture.J3D.JUtility;
 namespace AuroraLip.Texture.Formats
 {
     // base on https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs
-    public class PTLG : JUTTexture, IMagicIdentify
+    public class PTLG : JUTTexture, IMagicIdentify, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
         public string Magic => magic;
 
         private const string magic = "PTLG";
@@ -18,6 +22,9 @@ namespace AuroraLip.Texture.Formats
         public PTLG(Stream stream) : base(stream) { }
 
         public PTLG(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {

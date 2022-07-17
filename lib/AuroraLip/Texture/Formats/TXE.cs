@@ -6,13 +6,22 @@ using static AuroraLip.Texture.J3D.JUtility;
 namespace AuroraLip.Texture.Formats
 {
     // https://pikmintkb.com/wiki/TXE_file
-    public class TXE : JUTTexture
+    public class TXE : JUTTexture, IFileAccess
     {
+        public bool CanRead => true;
+
+        public bool CanWrite => false;
+
+        public string Extension => ".txe";
+
         public TXE() { }
 
         public TXE(Stream stream) : base(stream) { }
 
         public TXE(string filepath) : base(filepath) { }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+            => extension.ToLower() == Extension;
 
         protected override void Read(Stream stream)
         {

@@ -17,53 +17,24 @@ namespace AuroraLip.Archives.Formats
     /// <summary>
     /// Based on https://wiki.tockdom.com/wiki/U8_(File_Format)
     /// </summary>
-    public class U8 : Archive, IFileFormat, IMagicIdentify
+    public class U8 : Archive, IMagicIdentify, IFileAccess
     {
-        public FileType FileType => FileType.Archive;
+        public bool CanRead => true;
 
-        public string Description => description;
-
-        private const string description = "U8 Archive";
-
-        public string Extension => ".arc";
+        public bool CanWrite => true;
 
         public string Magic => magic;
 
         private const string magic = "Uª8-";
 
-        public bool CanRead => true;
+        public U8() { }
 
-        public bool CanWrite => true;
+        public U8(string filename) : base(filename) { }
+
+        public U8(Stream stream, string filename = null) : base(stream, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
-
-        /// <summary>
-        /// Create an empty U8 archive
-        /// </summary>
-        public U8() { }
-
-        /// <summary>
-        /// Open a U8 from a file
-        /// </summary>
-        /// <param name="filename"></param>
-        public U8(string filename)
-        {
-            FileStream BTPFile = new FileStream(filename, FileMode.Open);
-            Read(BTPFile);
-            BTPFile.Close();
-            FileName = filename;
-        }
-        /// <summary>
-        /// Open a U8 from a stream
-        /// </summary>
-        /// <param name="BTPFile"></param>
-        ///<param name="filename"></param>
-        public U8(Stream BTPFile, string filename = null)
-        {
-            Read(BTPFile);
-            FileName = filename;
-        }
 
         protected override void Read(Stream U8File)
         {

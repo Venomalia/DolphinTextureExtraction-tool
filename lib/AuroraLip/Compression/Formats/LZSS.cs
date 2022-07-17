@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using AuroraLip.Common;
 
 namespace AuroraLip.Compression.Formats
@@ -40,8 +41,8 @@ namespace AuroraLip.Compression.Formats
                 //string tag = Encoding.ASCII.GetString(Data, 0, 4);
                 //uint unknown = BitConverter.ToUInt32(Data, 4);
                 decompressedSize = BitConverter.ToUInt32(Data, 8);
-                //uint compressedSize = BitConverter.ToUInt32(Data, 12);
-                //if (Data.Length != compressedSize + 0x10) throw new Exception("compressed size mismatch");
+                uint compressedSize = BitConverter.ToUInt32(Data, 12);
+                if (Data.Length != compressedSize + 0x10) throw new Exception("compressed size mismatch");
             }
             else
             {
@@ -97,16 +98,24 @@ namespace AuroraLip.Compression.Formats
             return outdata.ToArray();
         }
 
-        public bool IsMatch(in byte[] Data)
+        private bool IsMatch(in byte[] Data)
         {
             // is LzS
-            if (Data.Length > 16 && Data[0] == 76 && Data[0] == 122 && Data[0] == 83)
-            {
+            return Data.Length > 16 && Data[0] == 76 && Data[1] == 122 && Data[2] == 83;
+        }
+
+        public bool IsMatch(Stream stream, in string extension = "")
+        {
+            if (stream.Length < 16 && stream.MatchString(Magic))
+{
+                stream.Position = 12;
                 // compressed size match?
-                uint compressedSize = BitConverter.ToUInt32(Data, 12);
-                return Data.Length != compressedSize + 0x10;
+                uint compressedSize = BitConverter.ToUInt32(stream.Read(4), 0);
+                return stream.Length == compressedSize + 0x10;
+
             }
             return false;
+
         }
     }
 }

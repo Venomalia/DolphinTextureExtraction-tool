@@ -5,7 +5,7 @@ using System.IO;
 //Heavily based on the SuperBMD Library.
 namespace Hack.io.BMD
 {
-    public partial class BDL : BMD, IFileFormat, IMagicIdentify
+    public partial class BDL : BMD, IMagicIdentify
     {
         public override string Description => description;
 

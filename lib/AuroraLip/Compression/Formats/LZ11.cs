@@ -13,27 +13,15 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// Nintendo LZ11 compression algorithm
     /// </summary>
-    public class LZ11 : ICompression, IFileFormat
+    public class LZ11 : ICompression
     {
-
-        public FileType FileType => FileType.Archive;
-
-        public string Description => description;
-
-        private const string description = "LZ11 compression";
-
-        public string Extension { get; } = "LZ";
 
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
-
         public bool IsMatch(Stream stream, in string extension = "")
-            => extension == Extension && stream.Length > 4 && stream.ReadByte() == 17;
-
-        public bool IsMatch(in byte[] Data)
-            => Data.Length > 4 && Data[0] == 17;
+            => stream.Length > 4 && stream.ReadByte() == 17;
 
         public byte[] Compress(in byte[] Data)
         {

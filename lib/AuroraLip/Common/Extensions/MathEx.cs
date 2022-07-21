@@ -77,5 +77,18 @@ namespace AuroraLip.Common
         /// <param name="number"></param>
         /// <returns></returns>
         public static double GetDecimal(double number) => (int)((decimal)number % 1 * 100);
+        /// <summary>
+        /// converts the size in bits to the appropriate size adds the corresponding extension
+        /// </summary>
+        /// <param name="value">A long that indicates the size in bytes.</param>
+        /// <param name="decimalPlaces">The number of decimal places in the return value.</param>
+        /// <returns></returns>
+        public static string SizeSuffix(long value, int decimalPlaces = 0)
+        {
+            int ex = (int)Math.Max(0, Math.Log(value, 1024));
+            double adjustedSize = Math.Round(value / Math.Pow(1024, ex), decimalPlaces);
+            return adjustedSize + SizeSuffixes[ex];
+        }
+        private static readonly string[] SizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
     }
 }

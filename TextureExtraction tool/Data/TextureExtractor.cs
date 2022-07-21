@@ -306,7 +306,7 @@ namespace DolphinTextureExtraction_tool
 
                                     if (Reflection.Compression.TryToFindMatch(stream, out Type type))
                                     {
-                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
                                         result.UnsupportedSize += stream.Length;
@@ -317,7 +317,7 @@ namespace DolphinTextureExtraction_tool
                                     }
                                     break;
                                 default:
-                                    Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {filetype.GetFullDescription()}");
                                     if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.UnsupportedSize += stream.Length;
@@ -348,7 +348,7 @@ namespace DolphinTextureExtraction_tool
 
                                     if (Reflection.Compression.TryToFindMatch(stream, out Type type))
                                     {
-                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
+                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {filetype.GetFullDescription()} Algorithm:{type.Name}?");
                                         if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                         result.Unsupported++;
                                         result.UnsupportedSize += stream.Length;
@@ -428,7 +428,7 @@ namespace DolphinTextureExtraction_tool
                                     Scan(new NARC(stream), subdirectory);
                                     break;
                                 default:
-                                    Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb", $"Description: {filetype.GetFullDescription()}");
+                                    Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length,2)}", $"Description: {filetype.GetFullDescription()}");
                                     if (!result.UnsupportedFileTyp.Contains(filetype)) result.UnsupportedFileTyp.Add(filetype);
                                     result.Unsupported++;
                                     result.UnsupportedSize += stream.Length;
@@ -649,7 +649,7 @@ namespace DolphinTextureExtraction_tool
 
         private void AddResultUnknown(Stream stream, FileTypInfo filetype, in string file)
         {
-            Log.Write(FileAction.Unknown, file + $" ~{Math.Round((double)stream.Length / 1048576, 2)}mb",
+            Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
                 filetype.Header.Magic.Length > 3 ?
                 $"Magic:[{filetype.Header.Magic}] Bytes:[{string.Join(",", filetype.Header.Bytes)}] Offset:{filetype.Header.Offset}" :
                 $"Bytes32:[{string.Join(",", new Header(stream, 32).Bytes)}]");

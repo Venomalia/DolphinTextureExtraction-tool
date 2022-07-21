@@ -1,6 +1,6 @@
 ﻿namespace AuroraLip.Common
 {
-    public enum FileType
+    public enum FormatType
     {
         Unknown = -1,
         Archive,

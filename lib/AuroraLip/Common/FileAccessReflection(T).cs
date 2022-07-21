@@ -50,6 +50,12 @@ namespace AuroraLip.Common
         public IEnumerable<Type> GetWritable() => Instances.Where(x => x.CanWrite).Select(x => x.GetType());
 
         /// <summary>
+        /// Get the type that matches with the Identify.
+        /// </summary>
+        /// <returns>List of readable types of T</returns>
+        public Type GetMagic(string magic) => Instances.Where(x => x is IMagicIdentify).First(x => ((IMagicIdentify)x).Magic == magic).GetType();
+
+        /// <summary>
         /// Trying to find an T that Match to the data
         /// </summary>
         /// <param name="stream"></param>

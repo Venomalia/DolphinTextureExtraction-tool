@@ -24,48 +24,50 @@ output to the same place only with a "~" in front of the folder.
 
 ## Known results 
 ### Games ( 80-100% )
-- The Legend of Zelda Twilight
-- The Legend of Zelda Four Swords
-- THE LEGEND OF ZELDA The Wind Waker
-- SUPER MARIO GALAXY 1+2
-- SUPER PAPER MARIO
-- Mario Kart Double Dash!
-- Paper Mario: The Thousand-Year Door
-- Super Mario Sunshine
-- Harvest Moon A Wonderful Life
-- Doshin the Giant
+- Animal Crossing Wii
+- Boom Street
 - DONKEY KONG JUNGLE BEAT
-- Pikmin 2
-- Star Fox Assault
 - Donkey Konga 2
-- WarioWare Smooth Moves
+- Doshin the Giant
+- Harvest Moon A Wonderful Life
+- LUIGI'S MANSION
 - Mario & Sonic at the London 2012 Olympic Games
+- Mario Kart Double Dash!
+- Mario Kart Wii
 - Mario Party 9
-- The Legend of Zelda Skyward Sword
-- SONIC COLOURS
 - Metroid: Other M
+- Paper Mario: The Thousand-Year Door
+- Pikmin 2
+- SONIC COLOURS
+- SUPER MARIO GALAXY 1
+- SUPER MARIO GALAXY 2
+- SUPER PAPER MARIO
+- Sin & Punishment: Star Successor
+- Spectrobes: Origins
+- Star Fox Assault
+- Super Mario Sunshine
+- THE LEGEND OF ZELDA The Wind Waker[¹](#notes)
+- The Legend of Zelda Four Swords
+- The Legend of Zelda Skyward Sword
+- The Legend of Zelda Twilight
+- WarioWare Smooth Moves
+- Wii Party
 - Wii Sports
 - Wii Sports Resort
-- Spectrobes: Origins
-- Boom Street
-- Zack & Wiki: Quest for Barbaros' Treasure
-- LUIGI'S MANSION
-- Wii Party
-- Sin & Punishment: Star Successor
-- Animal Crossing Wii
+- Zack & Wiki: Quest for Barbaros' Treasure 
 
 ### Games( 50-80% )
 - Castlevania Judgment
-- Super Smash Bros. Brawl
-- Takt of Magic[¹](#notes)
-- Odama
 - Mario Soccer
+- Odama
+- Super Smash Bros. Brawl
+- Takt of Magic[¹](#notes) 
 
 ### Games( 20-50% )
 - Go Vacation
-- Night's Journey of Dreams
 - Mario Strikers Charged Football
-- Pikmin 1
+- Night's Journey of Dreams
+- Pikmin 1 
 
 ### Not supported games ( 0-20% )
 - Kirby Air Ride
@@ -88,6 +90,20 @@ output to the same place only with a "~" in front of the folder.
 - Beyond Good and Evil
 - Prince of Persia: Warrior Within
 - One Piece: Grand Adventure
+- Tony Hawk's Underground
+- Tony Hawk's Proving Ground
+- Tony Hawk's Pro Skater 4
+- Tom Clancy's Splinter Cell
+- Need for Speed - Undercover
+- Need for Speed - Carbon
+- Need for Speed - Underground
+- Tomb Raider - Legend
+- FIFA 15 - Legacy Edition
+- Driver - San Francisco
+- Dragon Ball - Revenge of King Piccolo
+- Dragon Ball Z - Sagas
+- Dragon Ball Z - Budokai Tenkaichi 3
+
 
 #### Notes
 1. set Extract textures from unknown files to true

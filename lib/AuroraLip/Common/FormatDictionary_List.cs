@@ -146,8 +146,6 @@ namespace AuroraLip.Common
             new FormatInfo(".zlib", FormatType.Archive, "compressed"),
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
-            new FormatInfo(".cmparc", FormatType.Archive, "compressed"),
-            new FormatInfo(".cmpres", FormatType.Archive, "compressed"),
 
             //Common Textures
             new FormatInfo(".PNG", new byte[]{137,80,78,71,13},0, FormatType.Texture, "Portable Network Graphics"),

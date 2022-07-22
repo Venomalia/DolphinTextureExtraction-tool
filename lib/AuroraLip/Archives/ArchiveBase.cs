@@ -92,6 +92,12 @@ namespace AuroraLip.Archives
         public void Save(Stream RARCFile) => Write(RARCFile);
 
         /// <summary>
+        /// Read a Archive from Stream.
+        /// </summary>
+        /// <param name="stream"></param>
+        public void Open(Stream stream) => Read(stream);
+
+        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>

@@ -47,6 +47,7 @@ namespace AuroraLip.Texture.J3D
                 FileName = filepath;
             }
             public virtual void Save(Stream stream) => Write(stream);
+            public virtual void Open(Stream stream) => Read(stream);
 
             protected abstract void Read(Stream stream);
             protected abstract void Write(Stream stream);

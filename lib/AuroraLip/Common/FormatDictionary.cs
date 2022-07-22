@@ -49,7 +49,7 @@ namespace AuroraLip.Common
                         file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
                     }
                     catch (System.Exception) { }
-                    Header.Add(file.Header.Bytes.ToValidString(), file);
+                    Header.Add(file.Header.Magic, file);
                 }
                 else
                 {

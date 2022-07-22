@@ -259,7 +259,7 @@ namespace DolphinTextureExtraction_tool
             formats.Add("TEX1");
             FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
             formats.Sort();
-            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n\t\t"));
+            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n                  "));
         }
 
         static string LineBreak(string str, int max,in string insert)

@@ -218,9 +218,6 @@
   <ItemGroup>
     <Compile Include="Data\Cleanup.cs" />
     <Compile Include="Data\ConsoleEx.cs" />
-    <Compile Include="Data\File.cs" />
-    <Compile Include="Data\Header.cs" />
-    <Compile Include="Data\Dictionary.cs" />
     <Compile Include="Data\Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

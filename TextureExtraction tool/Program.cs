@@ -1,4 +1,5 @@
-﻿using AuroraLip.Compression;
+﻿using AuroraLip.Common;
+using AuroraLip.Compression;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -248,11 +249,17 @@ namespace DolphinTextureExtraction_tool
         {
             List<string> formats = new List<string>(AuroraLip.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name));
             formats.Add("CPK");
+            FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
             formats.Add("AFS");
+            FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
             formats.Add("BDL4");
+            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
             formats.Add("BMD3");
+            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
+            formats.Add("TEX1");
+            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
             formats.Sort();
-            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n\t\t  "));
+            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n\t\t"));
         }
 
         static string LineBreak(string str, int max,in string insert)
@@ -286,9 +293,9 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             Console.WriteLine($"Extracted textures: {result.Extracted}");
             Console.WriteLine($"Unsupported files: {result.Unsupported}");
-            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFileTyp.Select(x => (x.GetFullDescription())))}");
+            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
             Console.WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFileTyp.Count != 0) Console.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFileTyp.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
+            if (result.UnknownFormatType.Count != 0) Console.WriteLine(LineBreak($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}",108, "\n                   "));
             Console.WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
             Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");

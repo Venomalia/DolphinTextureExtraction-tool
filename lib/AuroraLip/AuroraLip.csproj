@@ -77,6 +77,10 @@
     <Compile Include="Common\Extensions\StreamExString.cs" />
     <Compile Include="Common\Extensions\StreamExBitConverter.cs" />
     <Compile Include="Common\FileAccessReflection%28T%29.cs" />
+    <Compile Include="Common\FormatDictionary_List.cs" />
+    <Compile Include="Common\FormatDictionary.cs" />
+    <Compile Include="Common\FormatInfo.cs" />
+    <Compile Include="Common\HeaderInfo.cs" />
     <Compile Include="Common\Reflection.cs" />
     <Compile Include="Common\Interfaces\IFileAccess.cs" />
     <Compile Include="Common\Extensions\BitConverterEx.cs" />
@@ -86,7 +90,7 @@
     <Compile Include="Common\Extensions\ListEx.cs" />
     <Compile Include="Common\Extensions\MathEx.cs" />
     <Compile Include="Common\Extensions\StreamEx.cs" />
-    <Compile Include="Common\Enums\FileType.cs" />
+    <Compile Include="Common\Enums\FormatType.cs" />
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Common\Struct\Int24.cs" />
     <Compile Include="Common\Struct\UInt24.cs" />

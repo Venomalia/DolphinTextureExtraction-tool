@@ -56,6 +56,12 @@ namespace AuroraLip.Common
         public Type GetMagic(string magic) => Instances.Where(x => x is IMagicIdentify).First(x => ((IMagicIdentify)x).Magic == magic).GetType();
 
         /// <summary>
+        /// Get the Instance of the type.
+        /// </summary>
+        /// <returns>Instance of T</returns>
+        internal T GetInstance(Type type) => Instances.First(x => x.GetType() == type);
+
+        /// <summary>
         /// Trying to find an T that Match to the data
         /// </summary>
         /// <param name="stream"></param>

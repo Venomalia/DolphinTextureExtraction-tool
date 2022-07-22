@@ -10,9 +10,9 @@ namespace AuroraLip.Common
     {
         public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(1252);
 
-        internal static readonly Predicate<byte> AllValidBytes_ASKI = b => b >= 31 && b < 127;
+        internal static readonly Predicate<byte> AllValidBytes_ASKI = b => b >= 32 && b < 127;
 
-        internal static readonly Predicate<byte> AllValidBytes = b => b >= 31 && b != 127;
+        internal static readonly Predicate<byte> AllValidBytes = b => b >= 32 && b != 127;
         /// <summary>
         /// 
         /// </summary>

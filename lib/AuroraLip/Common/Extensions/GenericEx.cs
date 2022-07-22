@@ -32,6 +32,22 @@ namespace AuroraLip.Common
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="Values">The tuple to swap values of</param>
-        public static void SwapValues<T>(ref Tuple<T, T> Values) => Values = new Tuple<T, T>(Values.Item2, Values.Item1);
+        public static void SwapValues<T>(ref Tuple<T, T> Values)
+            => Values = new Tuple<T, T>(Values.Item2, Values.Item1);
+
+        //public static bool ArrayEqual<T>(this T[] values, T[] other) => values.SequenceEqual(other);
+
+        public static bool ArrayEqual<T>(this T[] values, T[] other)
+        {
+            if (values.Length != other.Length)
+                return false;
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                if (!values[i].Equals(other[i]))
+                    return false;
+            }
+            return true;
+        }
     }
 }

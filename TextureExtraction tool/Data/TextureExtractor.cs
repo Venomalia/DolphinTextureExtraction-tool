@@ -194,18 +194,8 @@ namespace DolphinTextureExtraction_tool
                 switch (FFormat.Typ)
                 {
                     case FormatType.Unknown:
-
-                        if (options.Force)
-                        {
-                            if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                            {
-                                Scan(test, subdirectory);
-                                break;
-                            }
-                            stream.Position = 0;
-                            if (TryBTI(stream, subdirectory)) break;
-                            stream.Position = 0;
-                        }
+                        if (TryForce(stream, subdirectory, FFormat))
+                            break;
 
                         AddResultUnknown(stream, FFormat, subdirectory + file.Extension);
                         //Exclude files that are too small, for calculation purposes only half the size.
@@ -252,47 +242,8 @@ namespace DolphinTextureExtraction_tool
                 switch (FFormat.Typ)
                 {
                     case FormatType.Unknown:
-                        if (options.Force)
-                        {
-                            if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                            {
-                                Scan(test, subdirectory);
-                                break;
-                            }
-
-                            stream.Position = 0;
-                            if (TryBTI(stream, subdirectory)) break;
-                            stream.Position = 0;
-                        }
-                        else
-                        {
-                            switch (FFormat.Extension.ToLower())
-                            {
-                                case "":
-                                    if (TryBTI(stream, subdirectory)) break;
-                                    stream.Position = 0;
-                                    break;
-                                case ".arc":
-                                case ".tpl":
-                                case ".bti":
-                                case ".lz":
-                                case ".brres":
-                                case ".breff":
-                                case ".zlib":
-                                case ".lz77":
-                                case ".wtm":
-                                case ".vld":
-                                case ".cmparc":
-                                case ".cmpres":
-                                    if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                                    {
-                                        Scan(test, subdirectory);
-                                        stream.Close();
-                                        return;
-                                    }
-                                    break;
-                            }
-                        }
+                        if (TryForce(stream,subdirectory,FFormat))
+                            break;
                         AddResultUnknown(stream, FFormat, subdirectory + Extension);
                         if (stream.Length > 300) result.SkippedSize += stream.Length / 50;
                         break;
@@ -598,6 +549,54 @@ namespace DolphinTextureExtraction_tool
         #endregion
 
         #region Helper
+
+        private bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
+        {
+            if (options.Force)
+            {
+                if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
+                {
+                    Scan(test, subdirectory);
+                    return true;
+                }
+
+                stream.Position = 0;
+                if (TryBTI(stream, subdirectory))
+                    return true;
+                stream.Position = 0;
+            }
+            else
+            {
+                switch (FFormat.Extension.ToLower())
+                {
+                    case "":
+                        if (TryBTI(stream, subdirectory))
+                            return true;
+                        stream.Position = 0;
+                        break;
+                    case ".arc":
+                    case ".tpl":
+                    case ".bti":
+                    case ".lz":
+                    case ".brres":
+                    case ".breff":
+                    case ".zlib":
+                    case ".lz77":
+                    case ".wtm":
+                    case ".vld":
+                    case ".cxd":
+                    case ".cmparc":
+                    case ".cmpres":
+                        if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
+                        {
+                            Scan(test, subdirectory);
+                            return true;
+                        }
+                        break;
+                }
+            }
+            return false;
+        }
 
         private void AddResultUnsupported(Stream stream, string subdirectory, string Extension, FormatInfo FFormat)
         {

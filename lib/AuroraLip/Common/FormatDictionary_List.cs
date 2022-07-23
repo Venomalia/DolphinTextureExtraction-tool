@@ -145,7 +145,7 @@ namespace AuroraLip.Common
             new FormatInfo(".lz77", FormatType.Archive, "Lempel-Ziv 77"),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
             new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
-            new FormatInfo(".LZ", FormatType.Archive, "compressed"),
+            new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed"),
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),

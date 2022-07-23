@@ -1,4 +1,5 @@
-﻿using AuroraLip.Texture.Formats;
+﻿using AuroraLip.Compression.Formats;
+using AuroraLip.Texture.Formats;
 
 namespace AuroraLip.Common
 {
@@ -61,7 +62,7 @@ namespace AuroraLip.Common
             new FormatInfo(".brstm", "RSTM", FormatType.Audio, "Wii Stream", Nin_),
             new FormatInfo(".ast","STRM", FormatType.Audio, "Stream", Nin_),
             new FormatInfo(".dsp", FormatType.Audio, "Nintendo ADPCM codec", Nin_),
-            new FormatInfo(".idsp","IDSP", FormatType.Audio, Nin_),
+            new FormatInfo(".idsp","IDSP", FormatType.Audio,"Nintendo ADPCM codec", Nin_),
             new FormatInfo(".baa", FormatType.Audio, "JAudio archive", Nin_),
             new FormatInfo(".aw", FormatType.Audio, "JAudio wave archive", Nin_),
             new FormatInfo(".bms", FormatType.Audio, "JAudio music sequence", Nin_),
@@ -142,6 +143,8 @@ namespace AuroraLip.Common
             //Common Archives
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
             new FormatInfo(".lz77", FormatType.Archive, "Lempel-Ziv 77"),
+            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
+            new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             new FormatInfo(".LZ", FormatType.Archive, "compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed"),
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),

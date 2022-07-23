@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 
 namespace AuroraLip.Compression.Formats
 {
@@ -7,22 +8,49 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// gzip open-source compression algorithm.
     /// </summary>
-    public class GZip : ICompression
+    public class GZip : ICompression, ICompressionLevel
     {
-        public bool CanWrite { get; } = false;
+        public bool CanWrite { get; } = true;
 
-        public bool CanRead { get; } = false;
+        public bool CanRead { get; } = true;
 
-        public byte[] Compress(in byte[] Data)
-        {
-            throw new NotImplementedException();
-        }
+        public byte[] Compress(in byte[] Data) => Compress(Data,CompressionLevel.Optimal);
 
         public byte[] Decompress(in byte[] Data)
         {
-            throw new NotImplementedException();
+            MemoryStream memoryStream = new MemoryStream();
+            using (GZipStream gZipStream = new GZipStream(new MemoryStream(Data), CompressionMode.Decompress))
+            {
+                gZipStream.CopyTo(memoryStream);
+            }
+            return memoryStream.ToArray();
         }
+
+        public byte[] Compress(byte[] Data, CompressionLevel level)
+        {
+            System.IO.Compression.CompressionLevel gzlvel = default;
+            switch (level)
+            {
+                case CompressionLevel.NoCompression:
+                    gzlvel = System.IO.Compression.CompressionLevel.NoCompression;
+                    break;
+                case CompressionLevel.SmallestSize:
+                case CompressionLevel.Optimal:
+                    gzlvel = System.IO.Compression.CompressionLevel.Optimal;
+                    break;
+                case CompressionLevel.Fastest:
+                    gzlvel = System.IO.Compression.CompressionLevel.Fastest;
+                    break;
+            }
+            MemoryStream memoryStream = new MemoryStream();
+            using (GZipStream gZipStream = new GZipStream(memoryStream, gzlvel))
+            {
+                (new MemoryStream(Data)).CopyTo(gZipStream);
+            }
+            return memoryStream.ToArray();
+        }
+
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 9 && stream.ReadByte() == 31 && stream.ReadByte() == 139 && stream.ReadByte() <= 8;
+            => stream.Length > 9 && stream.ReadByte() == 31 && stream.ReadByte() == 139;
     }
 }

@@ -29,7 +29,7 @@ output to the same place only with a "~" in front of the folder.
 
 ## Supported formats
 - RARC, NARC, U8, CPK, bres, AFS Archives
-- YAZ, YAY, CLZ, LZ11, LZSS Compressing
+- YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS Compressing
 - BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0, TXTR, PTLG Textures
 - BMD3, BDL4 J3D Models
 
@@ -51,7 +51,7 @@ output to the same place only with a "~" in front of the folder.
     - to read CRIWARE's CPK archive format
 	
 - [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox)
-    - to read LZ11 Compressing
+    - to read LZ11, LZ77 Compressing
 
 - [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
     - to read CLZ Compressing

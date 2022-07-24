@@ -56,5 +56,14 @@ namespace AuroraLip.Common
             array.CopyTo(Finalarray, 0);
             return Finalarray[0];
         }
+
+        public static byte[] DataXor(this byte[] data, byte key)
+        {
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = (byte)(data[i] ^ key);
+            }
+            return data;
+        }
     }
 }

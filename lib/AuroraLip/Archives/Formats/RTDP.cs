@@ -48,7 +48,7 @@ namespace AuroraLip.Archives.Formats
 
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Entry.Name };
                 stream.Position = Entry.DataOffset + EOH;
-                Sub.FileData = stream.Read((int)Entry.DataSize);
+                Sub.FileData = stream.Read((int)Entry.DataSize).DataXor(0x55);
                 Root.Items.Add(Sub.Name, Sub);
             }
         }

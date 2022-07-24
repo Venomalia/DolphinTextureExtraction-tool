@@ -20,8 +20,17 @@ namespace AuroraLip.Texture.Formats
 
         public TXE(string filepath) : base(filepath) { }
 
+        public static bool Matcher(Stream stream, in string extension = "")
+        {
+            ushort ImageWidth = stream.ReadUInt16(Endian.Big);
+            ushort ImageHeight = stream.ReadUInt16(Endian.Big);
+            short Unknown = stream.ReadInt16(Endian.Big);
+            ushort Tex_Format = stream.ReadUInt16(Endian.Big);
+            return extension.ToLower().StartsWith(".txe") && ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && Tex_Format <= 7 && GetCalculatedDataSize(TEX_ImageFormat[Tex_Format], ImageWidth, ImageHeight) < stream.Length;
+        }
+
         public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+            => Matcher(stream, in extension);
 
         protected override void Read(Stream stream)
         {

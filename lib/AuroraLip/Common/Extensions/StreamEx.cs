@@ -8,7 +8,7 @@ namespace AuroraLip.Common
 {
 
     /// <summary>
-    /// Extension of the <see cref="Stream"/> designed for Big Endian
+    /// Extension of the <see cref="Stream"/>.
     /// </summary>
     public static partial class StreamEx
     {
@@ -44,11 +44,11 @@ namespace AuroraLip.Common
         /// <summary>
         /// Writes a block of bytes to the file stream.
         /// </summary>
-        /// <param name="FS"></param>
+        /// <param name="stream"></param>
         /// <param name="Array">The buffer containing data to write to the stream</param>
         /// <param name="Count">The maximum number of bytes to write</param>
-        /// <param name="order">Byte order, in which bytes are read.</param>
-        /// <param name="Offset">The maximum number of bytes to write</param>
+        /// <param name="order">Byte order, in which bytes are write.</param>
+        /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         /// <exception cref="ArgumentNullException">array is null.</exception>
         /// <exception cref="ArgumentException">offset and count describe an invalid range in array.</exception>
         /// <exception cref="ArgumentOutOfRangeException">offset or count is negative</exception>
@@ -56,7 +56,7 @@ namespace AuroraLip.Common
         /// <exception cref="ObjectDisposedException">The stream is closed</exception>
         /// <exception cref="NotSupportedException">The current stream instance does not support writing</exception>
         [DebuggerStepThrough]
-        public static void Write(this Stream FS, byte[] Array, int Count, Endian order = Endian.Little, int Offset = 0)
+        public static void Write(this Stream stream, byte[] Array, int Count, Endian order = Endian.Little, int Offset = 0)
         {
             switch (order)
             {
@@ -66,8 +66,12 @@ namespace AuroraLip.Common
                 case Endian.Middle:
                     throw new NotImplementedException();
             }
-            FS.Write(Array, Offset, Count);
+            stream.Write(Array, Offset, Count);
         }
+
+        [DebuggerStepThrough]
+        public static void Write(this Stream stream, byte[] Array, Endian order = Endian.Little, int Offset = 0)
+            => stream.Write(Array, Array.Length,order,Offset);
 
         [DebuggerStepThrough]
         public static void WriteBigEndian(this Stream FS, byte[] Array, int Count, int Offset = 0)

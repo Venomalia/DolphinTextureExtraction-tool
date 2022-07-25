@@ -225,6 +225,10 @@ namespace AuroraLip.Common
             new FormatInfo(".gvrt", "GVRT", FormatType.Texture, "IKARUGA texture", "Treasure"),
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
 
+            //Krome Studios
+            new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),
+            new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX), IsMatch = TEX.Matcher },
+
             #region Mixed
             //mix Archives
             new FormatInfo(".clz", "CLZ", FormatType.Archive, "Harvest Moon compressed", "Victor Interactive"),

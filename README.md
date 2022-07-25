@@ -28,9 +28,9 @@ output to the same place only with a "~" in front of the folder.
 1. set Extract textures from unknown files to true
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, AFS Archives
+- RARC, NARC, U8, CPK, bres, AFS, RKV2 Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS Compressing
-- BTI, TPL, NUTC, REFT, TXE, TEX1, TEX0, TXTR, PTLG Textures
+- BTI, TPL, NUTC, REFT, TXE, TEX, TEX1, TEX0, TXTR, PTLG Textures
 - BMD3, BDL4 J3D Models
 
 ## Credits

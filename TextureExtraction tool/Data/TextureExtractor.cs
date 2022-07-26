@@ -242,7 +242,7 @@ namespace DolphinTextureExtraction_tool
                 switch (FFormat.Typ)
                 {
                     case FormatType.Unknown:
-                        if (TryForce(stream,subdirectory,FFormat))
+                        if (TryForce(stream, subdirectory, FFormat))
                             break;
                         AddResultUnknown(stream, FFormat, subdirectory + Extension);
                         if (stream.Length > 300) result.SkippedSize += stream.Length / 50;
@@ -327,8 +327,9 @@ namespace DolphinTextureExtraction_tool
                                 case "AFS":
                                     using (AFS afs = new AFS(stream))
                                     {
-                                        foreach (StreamEntry item in afs.Entries)
-                                            Scan(item.GetSubStream(), Path.Combine(subdirectory, item.SanitizedName), Path.GetExtension(item.SanitizedName));
+                                        foreach (Entry item in afs.Entries)
+                                            if (item is StreamEntry Streamitem)
+                                                Scan(Streamitem.GetSubStream(), Path.Combine(subdirectory, Streamitem.SanitizedName), Path.GetExtension(Streamitem.SanitizedName));
                                     }
                                     break;
                                 case "TEX0":
@@ -345,6 +346,7 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, subdirectory + Extension);
+                if (!result.UnsupportedFormatType.Contains(FFormat)) result.UnsupportedFormatType.Add(FFormat);
                 result.Unsupported++;
                 result.UnsupportedSize += stream.Length;
             }

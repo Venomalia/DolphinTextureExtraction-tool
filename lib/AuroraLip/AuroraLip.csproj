@@ -95,6 +95,7 @@
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Common\Struct\Int24.cs" />
     <Compile Include="Common\Struct\UInt24.cs" />
+    <Compile Include="Common\SubStream.cs" />
     <Compile Include="Compression\CompressionEx.cs" />
     <Compile Include="Compression\Compression%28T%29.cs" />
     <Compile Include="Compression\CompressionReflection.cs" />

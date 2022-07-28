@@ -112,6 +112,7 @@
     <Compile Include="Compression\Formats\YAZ0.cs" />
     <Compile Include="Compression\Interfaces\ICompressionLevel.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
+    <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />

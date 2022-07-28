@@ -28,10 +28,10 @@ namespace AuroraLip.Common
             {
                 if (item.IsMatch.Invoke(stream, extension))
                 {
-                    stream.Position = 0;
+                    stream.Seek(0, SeekOrigin.Begin);
                     return item;
                 }
-                stream.Position = 0;
+                stream.Seek(0, SeekOrigin.Begin);
             }
 
             return new FormatInfo(stream, extension);

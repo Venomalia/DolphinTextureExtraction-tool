@@ -74,7 +74,7 @@ namespace AuroraLip.Archives.Formats
                 string Name = String.Empty;
                 if (NamePointer != 0)
                 {
-                    stream.Position = StartOfGroup + NamePointer;
+                    stream.Seek(StartOfGroup + NamePointer, SeekOrigin.Begin);
                     Name = stream.ReadString(x => x != 0);
 
                     if (DataPointer != 0)
@@ -82,7 +82,7 @@ namespace AuroraLip.Archives.Formats
                         if (StartOfGroup + DataPointer >= EndOfRoot)
                         {
                             ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory };
-                            stream.Position = StartOfGroup + DataPointer;
+                            stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             string Magic = stream.ReadString(4);
                             uint FileSize = stream.ReadUInt32(Endian.Big);
                             stream.Position -= 8;
@@ -94,7 +94,7 @@ namespace AuroraLip.Archives.Formats
                         }
                         else
                         {
-                            stream.Position = StartOfGroup + DataPointer;
+                            stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             ArchiveDirectory Sub = new ArchiveDirectory(this, ParentDirectory) { Name = Name };
                             ReadIndex(stream, EndOfRoot, Sub);
                             ParentDirectory.Items.Add(Sub.Name, Sub);

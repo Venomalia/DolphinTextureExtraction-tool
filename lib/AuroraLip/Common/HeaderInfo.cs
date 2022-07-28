@@ -30,7 +30,7 @@ namespace AuroraLip.Common
         public HeaderInfo(Stream stream)
         {
             List<byte> bytes = new List<byte>();
-            stream.Position = 0;
+            stream.Seek(0, SeekOrigin.Begin);
 
             int readbyte;
             while ((readbyte = stream.ReadByte()) > -1)
@@ -76,7 +76,7 @@ namespace AuroraLip.Common
                 bytes.Clear();
 
             Bytes = bytes.ToArray();
-            stream.Position = 0;
+            stream.Seek(0, SeekOrigin.Begin);
         }
 
         public bool Equals(HeaderInfo other)

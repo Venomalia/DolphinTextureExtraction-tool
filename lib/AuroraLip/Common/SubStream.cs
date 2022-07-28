@@ -83,10 +83,13 @@ namespace AuroraLip.Common
             if (remaining <= 0) return 0;
             if (remaining < count) count = (int)remaining;
 
-            BaseStream.Seek(Position + Offset, SeekOrigin.Begin);
-            int r = BaseStream.Read(buffer, offset, count);
-            Position += r;
-            return r;
+            lock (basestream)
+            {
+                BaseStream.Seek(Position + Offset, SeekOrigin.Begin);
+                int r = BaseStream.Read(buffer, offset, count);
+                Position += r;
+                return r;
+            }
         }
 
         public override long Seek(long offset, SeekOrigin seekOrigin)

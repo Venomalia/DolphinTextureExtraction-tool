@@ -360,9 +360,13 @@ namespace DolphinTextureExtraction_tool
 
         #region Archive
 
-        private void Scan(Archive archiv, in string subdirectory)
+        private void Scan(Archive archiv, string subdirectory)
         {
-            foreach (var item in archiv.Root.Items)
+            ParallelOptions parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
+            if (archiv.TotalFileCount > 30)
+                parallelOptions = options.ParallelOptions;
+
+            Parallel.ForEach(archiv.Root.Items, parallelOptions, (KeyValuePair<string,object> item) =>
             {
                 if (item.Value is ArchiveFile file)
                 {
@@ -375,7 +379,7 @@ namespace DolphinTextureExtraction_tool
                     else
                         Scan(directory, subdirectory);
                 }
-            }
+            });
         }
 
         private void Scan(ArchiveDirectory archivdirectory, in string subdirectory)
@@ -640,17 +644,17 @@ namespace DolphinTextureExtraction_tool
         }
 
         private List<FormatInfo> usedformats = new List<FormatInfo>();
-        private object Lock = new object();
+        private readonly object Lock = new object();
         private FormatInfo GetFormatTypee(Stream stream, string extension = "")
         {
             if (FormatDictionary.TryGetValue(new HeaderInfo(stream).Magic, out FormatInfo Info))
             {
                 if (Info.IsMatch.Invoke(stream, extension))
                 {
-                    stream.Position = 0;
+                    stream.Seek(0, SeekOrigin.Begin);
                     return Info;
                 }
-                stream.Position = 0;
+                stream.Seek(0, SeekOrigin.Begin);
             }
 
             lock (Lock)
@@ -659,10 +663,10 @@ namespace DolphinTextureExtraction_tool
                 {
                     if (item.IsMatch.Invoke(stream, extension))
                     {
-                        stream.Position = 0;
+                        stream.Seek(0, SeekOrigin.Begin);
                         return item;
                     }
-                    stream.Position = 0;
+                    stream.Seek(0, SeekOrigin.Begin);
                 }
                 FormatInfo info = FormatDictionary.Identify(stream, extension);
                 usedformats.Add(info);

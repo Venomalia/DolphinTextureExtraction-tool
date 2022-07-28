@@ -1,6 +1,5 @@
 ﻿using AuroraLip.Common;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace AuroraLip.Archives.Formats
@@ -28,12 +27,12 @@ namespace AuroraLip.Archives.Formats
         {
             if (!stream.MatchString(magic))
                 throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
-            uint FileCount = (uint)stream.ReadUInt32(Endian.Little);
-            uint NameSize = (uint)stream.ReadUInt32(Endian.Little);
-            uint FullName_Files = (uint)stream.ReadUInt32(Endian.Little);
-            uint Dummy = (uint)stream.ReadUInt32(Endian.Little);
-            uint Info_Offset = (uint)stream.ReadUInt32(Endian.Little);
-            uint Dummy2 = (uint)stream.ReadUInt32(Endian.Little);
+            uint FileCount = stream.ReadUInt32(Endian.Little);
+            uint NameSize = stream.ReadUInt32(Endian.Little);
+            uint FullName_Files = stream.ReadUInt32(Endian.Little);
+            uint Dummy = stream.ReadUInt32(Endian.Little);
+            uint Info_Offset = stream.ReadUInt32(Endian.Little);
+            uint Dummy2 = stream.ReadUInt32(Endian.Little);
 
             uint NameOffset = FileCount * 20 + Info_Offset;
 
@@ -41,7 +40,7 @@ namespace AuroraLip.Archives.Formats
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
-            stream.Position = Info_Offset;
+            stream.Seek(Info_Offset, SeekOrigin.Begin);
             for (int i = 0; i < FileCount; i++)
             {
                 uint NameOffsetForFile = (uint)stream.ReadUInt32(Endian.Little);
@@ -51,19 +50,19 @@ namespace AuroraLip.Archives.Formats
                 uint CRCForFile = (uint)stream.ReadUInt32(Endian.Little);
                 long FilePosition = stream.Position;
 
-                stream.Position = NameOffsetForFile + NameOffset;
+                stream.Seek(NameOffsetForFile + NameOffset, SeekOrigin.Begin);
                 string Name = stream.ReadString();
 
                 //If Duplicate...
                 if (Root.Items.ContainsKey(Name)) Name = Name + i.ToString();
 
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Name };
-                stream.Position = OffsetForFile;
+                stream.Seek(OffsetForFile, SeekOrigin.Begin);
                 Sub.FileData = new SubStream(stream, SizeForFile);
                 Root.Items.Add(Sub.Name, Sub);
 
                 // Read the file, move on to the next one
-                stream.Position = FilePosition;
+                stream.Seek(FilePosition, SeekOrigin.Begin);
             }
         }
 

@@ -72,10 +72,10 @@ namespace AuroraLip.Common
         {
             foreach (var instance in Instances)
             {
-                stream.Position = 0;
+                stream.Seek(0, SeekOrigin.Begin);
                 if (instance.IsMatch(stream, extension))
                 {
-                    stream.Position = 0;
+                    stream.Seek(0, SeekOrigin.Begin);
                     type = instance.GetType();
                     return true;
                 }

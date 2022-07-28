@@ -25,14 +25,14 @@ namespace AuroraLip.Compression
                 {
                     try
                     {
-                        stream.Position = 0;
+                        stream.Seek(0, SeekOrigin.Begin);
                         outstream = Instance.Decompress(stream);
                         type = Instance.GetType();
                         return true;
                     }
                     catch (Exception) { }
                 }
-                stream.Position = 0;
+                stream.Seek(0, SeekOrigin.Begin);
             }
 
             outstream = null;

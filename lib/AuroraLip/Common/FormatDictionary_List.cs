@@ -229,6 +229,10 @@ namespace AuroraLip.Common
             new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),
             new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX), IsMatch = TEX.Matcher },
 
+            //H.a.n.d.
+            new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo " +
+                "archive", "H.a.n.d."),
+
             #region Mixed
             //mix Archives
             new FormatInfo(".clz", "CLZ", FormatType.Archive, "Harvest Moon compressed", "Victor Interactive"),

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -14,80 +15,57 @@ namespace AuroraLip.Archives
     /// <summary>
     /// File contained inside the Archive
     /// </summary>
-    public class ArchiveFile
+    public class ArchiveFile : ArchiveObject
     {
-        /// <summary>
-        /// Name of the File
-        /// </summary>
-        public string Name { get; set; }
+
         /// <summary>
         /// The extension of this file
         /// </summary>
-        public string Extension
-        {
-            get
-            {
-                if (Name == null)
-                    return null;
-                string[] parts = Name.Split('.');
-                if (parts.Length == 1)
-                    return "";
-                return "." + parts[parts.Length - 1].ToLower();
-            }
-        }
+        public string Extension => Path.GetExtension(Name);
+
         /// <summary>
         /// The Actual Data for the file
         /// </summary>
-        public byte[] FileData { get; set; }
-        /// <summary>
-        /// The parent directory (Null if non-existant)
-        /// </summary>
-        public ArchiveDirectory Parent { get; set; }
+        public Stream FileData { get; set; }
+
         /// <summary>
         /// Empty file
         /// </summary>
         public ArchiveFile() { }
+
         /// <summary>
         /// Load a File's Data based on a path
         /// </summary>
         /// <param name="Filepath"></param>
-        public ArchiveFile(string Filepath)
+        public ArchiveFile(string Filepath, FileMode fileMode = FileMode.Open, FileAccess fileAccess = FileAccess.Write)
         {
             Name = new FileInfo(Filepath).Name;
-            FileData = File.ReadAllBytes(Filepath);
+            FileData = new FileStream(Filepath, fileMode, fileAccess);
         }
         /// <summary>
         /// Create a File from a MemoryStream
         /// </summary>
         /// <param name="name">The name of the file</param>
-        /// <param name="ms">The Memory Stream to use</param>
-        public ArchiveFile(string name, MemoryStream ms)
+        /// <param name="stream">The Memory Stream to use</param>
+        public ArchiveFile(string name, Stream stream)
         {
             Name = name;
-            FileData = ms.ToArray();
+            FileData = stream;
         }
+
         /// <summary>
         /// Saves this file to the Computer's Disk
         /// </summary>
         /// <param name="Filepath">The full path to save to</param>
         public void Save(string Filepath)
-        {
-            File.WriteAllBytes(Filepath, FileData);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public static bool operator ==(ArchiveFile left, ArchiveFile right) => left.Equals(right);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public static bool operator !=(ArchiveFile left, ArchiveFile right) => !left.Equals(right);
+            => File.WriteAllBytes(Filepath, FileData.ToArray());
+
+        public static bool operator ==(ArchiveFile left, ArchiveFile right)
+            => left.Equals(right);
+
+        public static bool operator !=(ArchiveFile left, ArchiveFile right)
+            => !left.Equals(right);
+        
         /// <summary>
         /// Compare this file to another
         /// </summary>
@@ -98,67 +76,42 @@ namespace AuroraLip.Archives
             return obj is ArchiveFile file &&
                    Name == file.Name &&
                    Extension == file.Extension &&
-                   EqualityComparer<byte[]>.Default.Equals(FileData, file.FileData);
+                   EqualityComparer<Stream>.Default.Equals(FileData, file.FileData);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             var hashCode = -138733157;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Extension);
-            hashCode = hashCode * -1521134295 + EqualityComparer<byte[]>.Default.GetHashCode(FileData);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Stream>.Default.GetHashCode(FileData);
             return hashCode;
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString() => $"{Name} [0x{FileData.Length.ToString("X8")}]";
 
-        /// <summary>
-        /// The full path of this file. Cannot be used if this file doesn't belong to a RARC object somehow
-        /// </summary>
-        public string FullPath
-        {
-            get
-            {
-                if (Parent?.HasOwnerArchive ?? false)
-                {
-                    StringBuilder path = new StringBuilder();
-                    GetFullPath(path);
-                    return path.ToString();
-                }
-                else
-                    throw new InvalidOperationException("In order to use this, this file must be part of a directory with a parent that is connected to a RARC object");
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Path"></param>
-        protected void GetFullPath(StringBuilder Path)
-        {
-            if (Parent != null)
-            {
-                Parent.GetFullPath(Path);
-                Path.Append("/");
-                Path.Append(Name);
-            }
-            else
-            {
-                Path.Append(Name);
-            }
-        }
+        /// <inheritdoc />
+        public override string ToString() => $"{Name} [0x{FileData.Length:X8}]";
 
         //=====================================================================
 
         /// <summary>
-        /// Cast a File to a MemoryStream
+        /// Cast a File to a Stream
         /// </summary>
         /// <param name="x"></param>
-        public static explicit operator MemoryStream(ArchiveFile x) => new MemoryStream(x.FileData);
+        public static explicit operator Stream(ArchiveFile x) => x.FileData;
+
+        private bool disposedValue;
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposedValue)
+            {
+                if (disposing)
+                    FileData.Dispose();
+
+                disposedValue = true;
+            }
+        }
     }
 }

@@ -181,7 +181,6 @@ namespace DolphinTextureExtraction_tool
 
         private void Scan(FileInfo file)
         {
-
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
 
@@ -294,9 +293,11 @@ namespace DolphinTextureExtraction_tool
                         {
                             if (FFormat.Class.IsSubclassOf(typeof(Archive)))
                             {
-                                Archive archive = (Archive)Activator.CreateInstance(FFormat.Class);
-                                archive.Open(stream);
-                                Scan(archive, subdirectory);
+                                using (Archive archive = (Archive)Activator.CreateInstance(FFormat.Class))
+                                {
+                                    archive.Open(stream);
+                                    Scan(archive, subdirectory);
+                                }
                                 break;
                             }
                             if (FFormat.Class.GetInterface(nameof(ICompression)) != null)
@@ -398,7 +399,7 @@ namespace DolphinTextureExtraction_tool
 
         private void Scan(ArchiveFile file, in string subdirectory)
         {
-            Scan((MemoryStream)file, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
+            Scan(file.FileData, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
         }
 
         #endregion

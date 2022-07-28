@@ -110,6 +110,9 @@ namespace AuroraLip.Common
         [DebuggerStepThrough]
         public static byte[] ToArray(this Stream stream, int bufferSize = 81920)
         {
+            if (stream is MemoryStream ms)
+                return ms.ToArray();
+
             using (MemoryStream memoryStream = new MemoryStream())
             {
                 stream.CopyTo(memoryStream, bufferSize);

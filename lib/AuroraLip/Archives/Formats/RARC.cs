@@ -177,13 +177,13 @@ namespace AuroraLip.Archives.Formats
             public File(string name, MemoryStream ms) : base(name, ms)
             {
             }
-            internal File(RARCFileEntry entry, uint DataBlockStart, Stream RARCFile)
+            internal File(RARCFileEntry entry, uint DataBlockStart, Stream stream)
             {
                 Name = entry.Name;
                 FileSettings = entry.RARCFileType;
                 ID = entry.FileID;
-                RARCFile.Position = DataBlockStart + entry.ModularA;
-                FileData = RARCFile.Read(entry.ModularB);
+                stream.Position = DataBlockStart + entry.ModularA;
+                FileData = new MemoryStream(stream.Read(entry.ModularB));
             }
             /// <summary>
             /// 
@@ -197,7 +197,7 @@ namespace AuroraLip.Archives.Formats
             /// Cast a File to a MemoryStream
             /// </summary>
             /// <param name="x"></param>
-            public static explicit operator MemoryStream(File x) => new MemoryStream(x.FileData);
+            public static explicit operator Stream(File x) => x.FileData;
         }
 
         #region Internals
@@ -535,13 +535,13 @@ namespace AuroraLip.Archives.Formats
             for (int i = 0; i < MRAM.Count; i++)
             {
 
-                if (Offsets.Any(OFF => OFF.Key.FileData.SequenceEqual(MRAM[i].FileData)))
+                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray())))
                 {
-                    Offsets.Add(MRAM[i], Offsets[Offsets.Keys.First(FILE => FILE.FileData.SequenceEqual(MRAM[i].FileData))]);
+                    Offsets.Add(MRAM[i], Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray()))]);
                 }
                 else
                 {
-                    List<byte> CurrentMRAMFile = MRAM[i].FileData.ToList();
+                    List<byte> CurrentMRAMFile = MRAM[i].FileData.ToArray().ToList();
                     while (CurrentMRAMFile.Count % 32 != 0)
                         CurrentMRAMFile.Add(0x00);
                     Offsets.Add(MRAM[i], LocalOffset);
@@ -554,7 +554,7 @@ namespace AuroraLip.Archives.Formats
             {
                 Offsets.Add(ARAM[i], LocalOffset);
                 List<byte> temp = new List<byte>();
-                temp.AddRange(ARAM[i].FileData);
+                temp.AddRange(ARAM[i].FileData.ToArray());
 
                 while (temp.Count % 32 != 0)
                     temp.Add(0x00);
@@ -566,7 +566,7 @@ namespace AuroraLip.Archives.Formats
             {
                 Offsets.Add(DVD[i], LocalOffset);
                 List<byte> temp = new List<byte>();
-                temp.AddRange(DVD[i].FileData);
+                temp.AddRange(DVD[i].FileData.ToArray());
 
                 while (temp.Count % 32 != 0)
                     temp.Add(0x00);
@@ -616,7 +616,7 @@ namespace AuroraLip.Archives.Formats
             {
                 if (item.Value is File file)
                 {
-                    FileList.Add(new RARCFileEntry() { FileID = KeepFileIDsSynced ? GlobalFileID++ : file.ID, Name = file.Name, ModularA = (int)FileOffsets[file], ModularB = file.FileData.Length, Type = (short)((ushort)file.FileSettings << 8) });
+                    FileList.Add(new RARCFileEntry() { FileID = KeepFileIDsSynced ? GlobalFileID++ : file.ID, Name = file.Name, ModularA = (int)FileOffsets[file], ModularB = (int)file.FileData.Length, Type = (short)((ushort)file.FileSettings << 8) });
                 }
                 else if (item.Value is Directory Currentdir)
                 {

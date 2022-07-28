@@ -19,7 +19,7 @@ namespace AuroraLip.Archives.Formats
 
         public RKV2(string filename) : base(filename) { }
 
-        public RKV2(Stream RARCFile, string filename = null) : base(RARCFile, filename) { }
+        public RKV2(Stream stream, string filename = null) : base(stream, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -59,7 +59,7 @@ namespace AuroraLip.Archives.Formats
 
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Name };
                 stream.Position = OffsetForFile;
-                Sub.FileData = stream.Read((int)SizeForFile);
+                Sub.FileData = new SubStream(stream, SizeForFile);
                 Root.Items.Add(Sub.Name, Sub);
 
                 // Read the file, move on to the next one

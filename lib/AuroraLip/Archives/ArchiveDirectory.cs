@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AuroraLip.Archives
@@ -16,37 +15,28 @@ namespace AuroraLip.Archives
     /// <summary>
     /// Folder contained inside the Archive. Can contain more <see cref="ArchiveDirectory"/>s if desired, as well as <see cref="ArchiveFile"/>s
     /// </summary>
-    public class ArchiveDirectory
+    public class ArchiveDirectory : ArchiveObject
     {
-        /// <summary>
-        /// The name of the Directory
-        /// </summary>
-        public string Name { get; set; }
+
         /// <summary>
         /// The contents of this directory.
         /// </summary>
         public Dictionary<string, object> Items { get; set; } = new Dictionary<string, object>();
-        /// <summary>
-        /// The parent directory (Null if non-existant)
-        /// </summary>
-        public ArchiveDirectory Parent { get; set; }
-        /// <summary>
-        /// The Archive that owns this directory
-        /// </summary>
-        public Archive OwnerArchive;
 
         /// <summary>
         /// Create a new Archive Directory
         /// </summary>
         public ArchiveDirectory() { }
+
         /// <summary>
         /// Create a new, child directory
         /// </summary>
         /// <param name="Owner">The Owner Archive</param>
         /// <param name="parentdir">The Parent Directory. NULL if this is the Root Directory</param>
         public ArchiveDirectory(Archive Owner, ArchiveDirectory parentdir) { OwnerArchive = Owner; Parent = parentdir; }
+
         /// <summary>
-        /// Import a Folder into a RARCDirectory
+        /// Import a Folder into a Archive
         /// </summary>
         /// <param name="FolderPath"></param>
         /// <param name="Owner"></param>
@@ -220,40 +210,7 @@ namespace AuroraLip.Archives
         /// Returns the amount of Items in this directory (Items in subdirectories not included)
         /// </summary>
         public int Count => Items.Count;
-        /// <summary>
-        /// The full path of this directory. Cannot be used if this .arc doesn't belong to a RARC object
-        /// </summary>
-        public string FullPath
-        {
-            get
-            {
-                if (OwnerArchive != null)
-                {
-                    StringBuilder path = new StringBuilder();
-                    GetFullPath(path);
-                    return path.ToString();
-                }
-                else
-                    throw new InvalidOperationException("In order to use this, this directory must be part of a directory with a parent that is connected to a RARC object");
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Path"></param>
-        internal void GetFullPath(StringBuilder Path)
-        {
-            if (Parent != null)
-            {
-                Parent.GetFullPath(Path);
-                Path.Append("/");
-                Path.Append(Name);
-            }
-            else
-            {
-                Path.Append(Name);
-            }
-        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -270,10 +227,7 @@ namespace AuroraLip.Archives
             }
             return count;
         }
-        /// <summary>
-        /// Checks to see if this directory has an owner archive
-        /// </summary>
-        public bool HasOwnerArchive => OwnerArchive != null;
+
         /// <summary>
         /// Sorts the Items inside this directory using the provided string[]. This string[] MUST contain all entries inside this directory
         /// </summary>
@@ -345,8 +299,8 @@ namespace AuroraLip.Archives
                         goto Success;
                     }
                     continue;
-                    Success:
-                        results.Add(File.FullPath);
+                Success:
+                    results.Add(File.FullPath);
                 }
                 else if (item.Value is ArchiveDirectory Directory && !TopLevelOnly)
                     results.AddRange(Directory.FindItems(Pattern, IgnoreCase: IgnoreCase));
@@ -382,24 +336,27 @@ namespace AuroraLip.Archives
                 Items[temp.Name] = temp;
             }
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory() => new ArchiveDirectory();
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Owner"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory(Archive Owner, ArchiveDirectory parent) => new ArchiveDirectory(Owner, parent);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="Owner"></param>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory(string filename, Archive Owner) => new ArchiveDirectory(filename, Owner);
+
+        private bool disposedValue;
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (!disposedValue)
+            {
+                if (disposing)
+                    foreach (var item in Items)
+                        if (item.Value is IDisposable d)
+                            d.Dispose();
+
+                disposedValue = true;
+            }
+        }
     }
 }

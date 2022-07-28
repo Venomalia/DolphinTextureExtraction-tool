@@ -88,7 +88,7 @@ namespace AuroraLip.Archives.Formats
                             stream.Position -= 8;
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
-                                Sub.FileData = stream.Read((int)FileSize);
+                                Sub.FileData = new SubStream(stream, FileSize);
                                 ParentDirectory.Items.Add(Sub.Name, Sub);
                             }
                         }

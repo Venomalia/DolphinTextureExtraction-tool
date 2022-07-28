@@ -14,7 +14,7 @@ namespace AuroraLip.Archives
     /// <summary>
     /// The base class for Archive like systems
     /// </summary>
-    public abstract class Archive
+    public abstract class Archive: IDisposable
     {
         /// <summary>
         /// Filename of this Archive.
@@ -88,8 +88,8 @@ namespace AuroraLip.Archives
         /// <summary>
         /// Write the Archive to a Stream
         /// </summary>
-        /// <param name="RARCFile"></param>
-        public void Save(Stream RARCFile) => Write(RARCFile);
+        /// <param name="stream"></param>
+        public void Save(Stream stream) => Write(stream);
 
         /// <summary>
         /// Read a Archive from Stream.
@@ -214,6 +214,7 @@ namespace AuroraLip.Archives
         /// </summary>
         /// <param name="Folderpath">Folder to make an archive from</param>
         public void Import(string Folderpath) => Root = NewDirectory(Folderpath, this);
+
         /// <summary>
         /// Dump the contents of this archive to a folder
         /// </summary>
@@ -237,25 +238,30 @@ namespace AuroraLip.Archives
 
             Root.Export(FolderPath);
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory() => new ArchiveDirectory();
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="Owner"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory(Archive Owner, ArchiveDirectory parent) => new ArchiveDirectory(Owner, parent);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="filename"></param>
-        /// <param name="Owner"></param>
-        /// <returns></returns>
+
         protected virtual ArchiveDirectory NewDirectory(string filename, Archive Owner) => new ArchiveDirectory(filename, Owner);
 
+        private bool disposedValue;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                    Root.Dispose();
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

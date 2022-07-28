@@ -90,7 +90,7 @@ namespace AuroraLip.Archives.Formats
                     stream.Position = StringTableLocation + entries[i].NameOffset;
                     file.Name = stream.ReadString();
                     stream.Position = entries[i].DataOffset;
-                    file.FileData = stream.Read(entries[i].Size);
+                    file.FileData = new MemoryStream(stream.Read(entries[i].Size));
                     FlatItems.Add(file);
                 }
                 stream.Position = PausePosition;
@@ -175,7 +175,7 @@ namespace AuroraLip.Archives.Formats
                 else
                 {
                     newnode.DataOffset = (int)DataOffsets[(ArchiveFile)FlatItems[i]];
-                    newnode.Size = ((ArchiveFile)FlatItems[i]).FileData.Length;
+                    newnode.Size = (int)((ArchiveFile)FlatItems[i]).FileData.Length;
                 }
                 Nodes.Add(newnode);
                 if (DirectoryStack.Peek().Items.Count == 0 || object.ReferenceEquals(FlatItems[i], DirectoryStack.Peek().Items.Last().Value))
@@ -266,13 +266,13 @@ namespace AuroraLip.Archives.Formats
                 if (!(FlatFileList[i] is ArchiveFile file))
                     continue;
 
-                if (Offsets.Any(OFF => OFF.Key.FileData.SequenceEqual(file.FileData)))
+                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().ArrayEqual(file.FileData.ToArray())))
                 {
-                    Offsets.Add(file, Offsets[Offsets.Keys.First(FILE => FILE.FileData.SequenceEqual(file.FileData))]);
+                    Offsets.Add(file, Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().ArrayEqual(file.FileData.ToArray()))]);
                 }
                 else
                 {
-                    List<byte> CurrentMRAMFile = file.FileData.ToList();
+                    List<byte> CurrentMRAMFile = file.FileData.ToArray().ToList();
                     while (CurrentMRAMFile.Count % 32 != 0)
                         CurrentMRAMFile.Add(0x00);
                     Offsets.Add(file, (uint)FileBytes.Count + DataStart);

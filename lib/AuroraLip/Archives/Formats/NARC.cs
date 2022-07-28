@@ -47,7 +47,7 @@ namespace AuroraLip.Archives.Formats
                 stream.Position = position + entry.NameOffset;
                 Sub.Name = stream.ReadString();
                 stream.Position = DataTablePosition + entry.DataOffset;
-                Sub.FileData = stream.Read((int)entry.DataSize);
+                Sub.FileData = new SubStream(stream, entry.DataSize);
                 Root.Items.Add(Sub.Name, Sub);
             }
 

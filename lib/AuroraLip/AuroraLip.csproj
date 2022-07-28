@@ -74,6 +74,7 @@
     <Compile Include="Archives\Formats\RKV2.cs" />
     <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
+    <Compile Include="Archives\ArchiveObject.cs" />
     <Compile Include="Common\Enums\Endian.cs" />
     <Compile Include="Common\Extensions\StreamExString.cs" />
     <Compile Include="Common\Extensions\StreamExBitConverter.cs" />

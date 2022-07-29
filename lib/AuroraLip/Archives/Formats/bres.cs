@@ -88,7 +88,7 @@ namespace AuroraLip.Archives.Formats
                             stream.Position -= 8;
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
-                                Sub.FileData = new SubStream(stream, FileSize);
+                                Sub.FileData = new DataStream(stream, FileSize) { Parent = this };
                                 ParentDirectory.Items.Add(Sub.Name, Sub);
                             }
                         }
@@ -108,6 +108,15 @@ namespace AuroraLip.Archives.Formats
         protected override void Write(Stream ArchiveFile)
         {
             throw new NotImplementedException();
+        }
+
+        public class DataStream : SubStream
+        {
+            public bres Parent { get; set; }
+
+            public DataStream(Stream stream, long length, bool protectBaseStream = true) : base(stream, length, protectBaseStream) { }
+
+            public DataStream(Stream stream, long length, long offset, bool protectBaseStream = true) : base(stream, length, offset, protectBaseStream) { }
         }
     }
 }

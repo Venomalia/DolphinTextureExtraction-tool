@@ -61,35 +61,32 @@ namespace AuroraLip.Texture.Formats
 
             if (PaletteData == null && JUtility.IsPaletteFormat(Format))
             {
-                if (stream is SubStream substream)
+                if (stream is bres.DataStream substream)
                 {
+                    string name;
                     lock (substream.BaseStream)
                     {
-
                         substream.BaseStream.Seek(substream.Offset + StringOffset, SeekOrigin.Begin);
-                        string name = substream.BaseStream.ReadString();
-                        substream.BaseStream.Seek(0, SeekOrigin.Begin);
-                        using (bres parent = new bres(substream.BaseStream))
+                        name = substream.BaseStream.ReadString();
+                    }
+                    if (substream.Parent.ItemExists("root/Palettes(NW4R)"))
+                    {
+                        var Pallets = ((ArchiveDirectory)substream.Parent["root/Palettes(NW4R)"]).FindItems(name + "*");
+                        if (Pallets.Count == 1)
                         {
-                            if (parent.ItemExists("root/Palettes(NW4R)"))
-                            {
-                                var Pallets = ((ArchiveDirectory)parent["root/Palettes(NW4R)"]).FindItems(name + "*");
-                                if (Pallets.Count == 1)
-                                {
-                                    var Pallet = new PLT0(((ArchiveFile)parent[Pallets[0]]).FileData);
-                                    PaletteFormat = Pallet.PaletteFormat;
-                                    PaletteData = Pallet.PaletteData;
-                                    PaletteCount = Pallet.PaletteData.Length / 2;
-                                }
-                                else if (Pallets.Count > 1)
-                                {
+                            ArchiveFile PFile = (ArchiveFile)substream.Parent[Pallets[0]];
+                            var Pallet = new PLT0(PFile.FileData);
+                            PaletteFormat = Pallet.PaletteFormat;
+                            PaletteData = Pallet.PaletteData;
+                            PaletteCount = Pallet.PaletteData.Length / 2;
+                        }
+                        else if (Pallets.Count > 1)
+                        {
 #if DEBUG
-                                    return;
+                            return;
 #else
-                                    throw new Exception($"multiple palettes ({Pallets.Count}) are not supported");
+                            throw new Exception($"multiple palettes ({Pallets.Count}) are not supported");
 #endif
-                                }
-                            }
                         }
                     }
                 }

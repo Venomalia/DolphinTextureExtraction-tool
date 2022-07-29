@@ -136,7 +136,6 @@ namespace AuroraLip.Common
                     catch { }
                 }
             }
-            basestream = null;
         }
         #endregion
     }

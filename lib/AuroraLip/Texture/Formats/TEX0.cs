@@ -49,14 +49,15 @@ namespace AuroraLip.Texture.Formats
             }
             uint StringOffset = stream.ReadUInt32(Endian.Big);
             //TEX0 Header
-            uint Unknown = stream.ReadUInt32(Endian.Big); //1
+            uint HasPalette = stream.ReadUInt32(Endian.Big);
             int ImageWidth = stream.ReadUInt16(Endian.Big);
             int ImageHeight = stream.ReadUInt16(Endian.Big);
             GXImageFormat Format = (GXImageFormat)stream.ReadUInt32(Endian.Big);
-            int TotalImageCount = stream.ReadUInt16(Endian.Big);
-            uint Unknown2 = stream.ReadUInt32(Endian.Big); // 65536
-            uint Mipmaps = stream.ReadUInt32(Endian.Big);
-            uint Unknown3 = stream.ReadUInt32(Endian.Big);
+            int TotalImageCount = stream.ReadInt32(Endian.Big);
+            float MinLOD = stream.ReadSingle(Endian.Big);
+            float MaxLOD = stream.ReadSingle(Endian.Big);
+            uint Unknown1 = stream.ReadUInt32(Endian.Big);
+            uint Unknown2 = stream.ReadUInt32(Endian.Big);
 
 
             if (PaletteData == null && JUtility.IsPaletteFormat(Format))
@@ -108,8 +109,8 @@ namespace AuroraLip.Texture.Formats
                 WrapS = GXWrapMode.CLAMP,
                 WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
-                MinLOD = 0,
-                MaxLOD = 0
+                MinLOD = MinLOD,
+                MaxLOD = MaxLOD
             });
         }
 

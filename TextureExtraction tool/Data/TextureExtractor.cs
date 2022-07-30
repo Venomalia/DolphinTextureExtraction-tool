@@ -647,7 +647,7 @@ namespace DolphinTextureExtraction_tool
         private readonly object Lock = new object();
         private FormatInfo GetFormatTypee(Stream stream, string extension = "")
         {
-            if (FormatDictionary.TryGetValue(new HeaderInfo(stream).Magic, out FormatInfo Info))
+            if (FormatDictionary.Header.TryGetValue(new HeaderInfo(stream).Magic, out FormatInfo Info))
             {
                 if (Info.IsMatch.Invoke(stream, extension))
                 {

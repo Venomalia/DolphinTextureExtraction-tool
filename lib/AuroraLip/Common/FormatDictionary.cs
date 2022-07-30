@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace AuroraLip.Common
 {
@@ -10,8 +11,12 @@ namespace AuroraLip.Common
             if (Header.TryGetValue(key, out info))
                 return true;
 
-            if (Extensions.TryGetValue(key.ToLower(), out info))
+            try
+            {
+                info = Master.First(x => x.Extension == key);
                 return true;
+            }
+            catch (System.Exception) {}
 
             return false;
         }
@@ -51,16 +56,10 @@ namespace AuroraLip.Common
                     catch (System.Exception) { }
                     Header.Add(file.Header.Magic, file);
                 }
-                else
-                {
-                    Extensions.Add(file.Extension.ToLower(), file);
-                }
             }
         }
 
-        private static readonly Dictionary<string, FormatInfo> Extensions = new Dictionary<string, FormatInfo>();
-
-        private static readonly Dictionary<string, FormatInfo> Header = new Dictionary<string, FormatInfo>();
+        public static readonly Dictionary<string, FormatInfo> Header = new Dictionary<string, FormatInfo>();
 
     }
 }

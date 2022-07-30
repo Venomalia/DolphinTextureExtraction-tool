@@ -245,7 +245,7 @@ namespace AuroraLip.Common
 
             //Krome Studios
             new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),
-            new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX), IsMatch = TEX.Matcher },
+            new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX_KS), IsMatch = TEX_KS.Matcher },
 
             //H.a.n.d.
             new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.") { Class= typeof(FBC)},

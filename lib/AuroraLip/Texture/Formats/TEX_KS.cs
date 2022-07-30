@@ -6,7 +6,7 @@ using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {
-    public class TEX : JUTTexture, IFileAccess
+    public class TEX_KS : JUTTexture, IFileAccess
     {
         public bool CanRead => true;
 
@@ -14,11 +14,11 @@ namespace AuroraLip.Texture.Formats
 
         public string Extension => ".tex";
 
-        public TEX() { }
+        public TEX_KS() { }
 
-        public TEX(Stream stream) : base(stream) { }
+        public TEX_KS(Stream stream) : base(stream) { }
 
-        public TEX(string filepath) : base(filepath) { }
+        public TEX_KS(string filepath) : base(filepath) { }
 
         public static bool Matcher(Stream stream, in string extension = "")
         {

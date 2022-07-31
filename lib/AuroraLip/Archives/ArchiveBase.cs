@@ -252,7 +252,7 @@ namespace AuroraLip.Archives
             if (!disposedValue)
             {
                 if (disposing)
-                    Root.Dispose();
+                    Root?.Dispose();
 
                 disposedValue = true;
             }

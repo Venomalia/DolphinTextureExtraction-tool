@@ -69,6 +69,7 @@
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
+    <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RKV2.cs" />

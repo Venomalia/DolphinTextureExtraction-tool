@@ -1,4 +1,5 @@
-﻿using AuroraLip.Compression.Formats;
+﻿using AuroraLip.Archives.Formats;
+using AuroraLip.Compression.Formats;
 using AuroraLip.Texture.Formats;
 
 namespace AuroraLip.Common
@@ -230,8 +231,7 @@ namespace AuroraLip.Common
             new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX), IsMatch = TEX.Matcher },
 
             //H.a.n.d.
-            new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo " +
-                "archive", "H.a.n.d."),
+            new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.") { Class= typeof(FBC)},
 
             #region Mixed
             //mix Archives

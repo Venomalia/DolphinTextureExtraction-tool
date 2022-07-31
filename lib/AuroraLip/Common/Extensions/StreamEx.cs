@@ -131,6 +131,44 @@ namespace AuroraLip.Common
             if (magic.Length > stream.Length - stream.Position) return false;
             return stream.ReadString(magic.Length) == magic;
         }
+
+        /// <summary>
+        /// searches for a specific pattern in a stream and moves its position until the pattern is found.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="pattern">the string to search for</param>
+        /// <returns>"true" when the pattern is found</returns>
+        [DebuggerStepThrough]
+        public static bool Search(this Stream stream, string pattern) => stream.Search(pattern.ToByte());
+
+        /// <summary>
+        /// searches for a specific pattern in a stream and moves its position until the pattern is found.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="pattern">the byte[] to search for</param>
+        /// <returns>"true" when the pattern is found</returns>
+        [DebuggerStepThrough]
+        public static bool Search(this Stream stream, byte[] pattern)
+        {
+            int i = 0;
+            int readbyte;
+            while ((readbyte = stream.ReadByte()) > -1)
+            {
+                if (readbyte == pattern[i])
+                {
+                    i++;
+                    if (i != pattern.Length)
+                        continue;
+
+                    stream.Seek(-pattern.Length, SeekOrigin.Current);
+                    return true;
+                }
+                else
+                    i = 0;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Adds Padding to the Current Position in the provided Stream
         /// </summary>

@@ -16,15 +16,18 @@ namespace AuroraLip.Texture.Formats
     public class TPL : JUTTexture, IFileAccess
     {
 
-        protected readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
+        protected static readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
 
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
+            => Matcher(stream, extension);
 
+        public static bool Matcher(Stream stream, in string extension = "")
+            => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
+        
         public TPL() : base() { }
         public TPL(string filepath) : base(filepath) { }
         public TPL(Stream stream) => Read(stream);

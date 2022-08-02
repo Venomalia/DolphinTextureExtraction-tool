@@ -81,19 +81,5 @@ namespace AuroraLip.Common
             FS.WriteByte(Terminator);
         }
 
-        /// <summary>
-        /// Writes a string. String will be NULL terminated
-        /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="Encoding"></param>
-        [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, Encoding Encoding)
-        {
-            byte[] Write = Encoding.GetBytes(String);
-            FS.Write(Write, 0, Write.Length);
-            int stride = Encoding.GetMaxByteCount(0);
-            FS.Write(new byte[stride], 0, stride);
-        }
     }
 }

@@ -72,7 +72,7 @@ namespace AuroraLip.Common
         {
             if (Header != null)
             {
-                stream.Position = Header.Offset;
+                stream.Position += Header.Offset;
                 return stream.Length >= Header.Bytes.Length && stream.Read(Header.Bytes.Length).ArrayEqual(Header.Bytes);
             }
             return !(extension == "" && new HeaderInfo(stream).Bytes.Length != 0) && Extension.ToLower() == extension.ToLower();

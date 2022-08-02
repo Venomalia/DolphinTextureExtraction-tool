@@ -216,6 +216,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\DataCutter.cs" />
     <Compile Include="Data\Cleanup.cs" />
     <Compile Include="Data\ConsoleEx.cs" />
     <Compile Include="Data\Logger.cs" />

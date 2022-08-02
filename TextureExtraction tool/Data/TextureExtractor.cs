@@ -567,6 +567,9 @@ namespace DolphinTextureExtraction_tool
                     return true;
                 }
 
+                if (TryCut(stream,subdirectory, FFormat))
+                    return true;
+
                 stream.Position = 0;
                 if (TryBTI(stream, subdirectory))
                     return true;
@@ -602,6 +605,39 @@ namespace DolphinTextureExtraction_tool
                         break;
                 }
             }
+            return false;
+        }
+
+
+        private Dictionary<FormatInfo, int> badformats = new Dictionary<FormatInfo, int> ();
+        private bool TryCut(Stream stream, string subdirectory, FormatInfo FFormat)
+        {
+            try
+            {
+                foreach (var item in badformats)
+                {
+                    if (item.Key == FFormat)
+                        if (item.Value > 5)
+                            return false;
+                        else
+                            break;
+                }
+                Archive archive = new DataCutter(stream);
+                if (archive.Root.Count > 0)
+                {
+                    badformats.Remove(FFormat);
+                    Scan(archive, subdirectory);
+                    return true;
+                }
+
+                if (badformats.ContainsKey(FFormat))
+                    badformats[FFormat]++;
+                else
+                    badformats.Add(FFormat, 0);
+
+                
+            }
+            catch (Exception) {}
             return false;
         }
 

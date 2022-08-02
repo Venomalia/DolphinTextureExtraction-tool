@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace AuroraLip.Common
 {
@@ -166,6 +167,42 @@ namespace AuroraLip.Common
                 else
                     i = 0;
             }
+            return false;
+        }
+
+        /// <summary>
+        /// searches for a specific pattern in a stream and moves its position until a pattern is found.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="pattern">a Enumerable of byte[] to search for</param>
+        /// <param name="match">the found byte[] that was found in the stream</param>
+        /// <returns>"true" when the pattern is found</returns>
+        public static bool Search(this Stream stream, IEnumerable<byte[]> pattern, out byte[] match)
+        {
+            int[] i = new int[pattern.Count()];
+            for (int p = 0; p < pattern.Count(); p++)
+                i[p] = 0;
+
+            int readbyte;
+            while ((readbyte = stream.ReadByte()) > -1)
+            {
+                for (int p = 0; p < pattern.Count(); p++)
+                {
+                    if (readbyte == pattern.ElementAt(p)[i[p]])
+                    {
+                        i[p]++;
+                        if (i[p] != pattern.ElementAt(p).Length)
+                            continue;
+
+                        stream.Seek(-pattern.ElementAt(p).Length, SeekOrigin.Current);
+                        match = pattern.ElementAt(p);
+                        return true;
+                    }
+                    else
+                        i[p] = 0;
+                }
+            }
+            match = null;
             return false;
         }
 

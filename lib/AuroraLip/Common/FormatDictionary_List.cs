@@ -233,6 +233,9 @@ namespace AuroraLip.Common
             //H.a.n.d.
             new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.") { Class= typeof(FBC)},
 
+            //Cing
+            new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing"),  // also pcha
+
             #region Mixed
             //mix Archives
             new FormatInfo(".clz", "CLZ", FormatType.Archive, "Harvest Moon compressed", "Victor Interactive"),

@@ -130,6 +130,7 @@
     <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />
     <Compile Include="Texture\Formats\TEX_KS.cs" />
+    <Compile Include="Texture\Formats\TEX_RFS.cs" />
     <Compile Include="Texture\Formats\TXTR.cs" />
     <Compile Include="Texture\Formats\NUTC.cs" />
     <Compile Include="Texture\Formats\REFT.cs" />

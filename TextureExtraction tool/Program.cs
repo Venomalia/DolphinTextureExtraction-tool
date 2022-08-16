@@ -278,6 +278,16 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("\tOption:\t -m -mip\tExtract mipmaps.");
             Console.WriteLine("\tOption:\t -r -raw\tExtracts raw images.");
             Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
+            Console.WriteLine();
+            Console.WriteLine("unpack\t| u\t: Extracts all files.");
+            Console.WriteLine("\tSyntax:\tunpack \"Input\" \"Output\"");
+            Console.WriteLine();
+            Console.WriteLine("formats\t| f\t: Displays all known formats.");
+            Console.WriteLine("\tSyntax:\tformats");
+            Console.WriteLine();
+            Console.WriteLine("cut\t| c\t: Splits all files into individual parts.");
+            Console.WriteLine("\tSyntax:\tcut \"Input\" \"Output\" \"Pattern\"");
+            Console.WriteLine("\tPattern:\t a list of patterns divided with \" \"");
         }
 
         static void PrintHeader()

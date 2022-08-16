@@ -126,6 +126,28 @@ namespace DolphinTextureExtraction_tool
                         ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
                         #endregion
                         break;
+                    case "cut":
+                    case "c":
+                        #region cut
+                        p = GetPahts(args);
+                        if (p <= 0)
+                            goto default;
+
+                        List<byte[]> pattern = null;
+                        if (args.Length > p)
+                        {
+                            pattern = new List<byte[]>();
+                            while (args.Length > p)
+                            {
+                                pattern.Add(args[p++].ToByte());
+                            }
+                        }
+
+                        Cutter.StartScan(InputDirectory, OutputDirectory, pattern, options);
+                        Console.WriteLine();
+                        Console.WriteLine("completed.");
+                        #endregion
+                        break;
                     case "unpack":
                     case "u":
                         #region unpack

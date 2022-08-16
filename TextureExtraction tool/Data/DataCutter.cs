@@ -29,6 +29,12 @@ namespace DolphinTextureExtraction_tool
 
         public DataCutter(Stream stream, string filename = null) : base(stream, filename) { }
 
+        public DataCutter(Stream stream, IEnumerable<byte[]> pattern, string filename = null) : base()
+        {
+            FileName = filename;
+            Read(stream, pattern);
+        }
+
         protected override void Read(Stream stream)
             => Read(stream, Pattern);
 

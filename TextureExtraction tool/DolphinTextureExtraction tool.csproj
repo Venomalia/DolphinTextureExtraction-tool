@@ -220,6 +220,8 @@
     <Compile Include="Data\Cleanup.cs" />
     <Compile Include="Data\ConsoleEx.cs" />
     <Compile Include="Data\Logger.cs" />
+    <Compile Include="Data\ScanBase.cs" />
+    <Compile Include="Data\Unpack.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Data\TextureExtractor.cs" />

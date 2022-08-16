@@ -1,7 +1,4 @@
-﻿using AFSLib;
-using AuroraLip.Archives;
-using AuroraLip.Common;
-using AuroraLip.Compression;
+﻿using AuroraLip.Common;
 using AuroraLip.Texture.Formats;
 using Hack.io.BMD;
 using LibCPK;
@@ -15,20 +12,13 @@ using static AuroraLip.Texture.J3D.JUtility;
 
 namespace DolphinTextureExtraction_tool
 {
-    public class TextureExtractor
+    public class TextureExtractor : ScanBase
     {
-
-        private readonly string ScanDirectory;
-
-        private readonly string SaveDirectory;
-
         private readonly ScanLogger Log;
-
-        private readonly Options options = new Options();
 
         private readonly Result result = new Result();
 
-        public class Options
+        public class ExtractorOptions : Options
         {
             /// <summary>
             /// Should Mipmaps files be extracted?
@@ -49,15 +39,6 @@ namespace DolphinTextureExtraction_tool
             /// Sorts the textures and removes unnecessary folders.
             /// </summary>
             public bool Cleanup = true;
-
-            /// <summary>
-            /// Tries to extract textures from unknown files, may cause errors.
-            /// </summary>
-#if DEBUG
-            public ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
-#else
-            public ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
-#endif
 
         }
 
@@ -111,24 +92,26 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-
         #region Constructor StartScan
 
-        private TextureExtractor(string meindirectory, string savedirectory, Options options = null)
+        private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new ExtractorOptions()) { }
+
+        private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
-            ScanDirectory = meindirectory;
-            SaveDirectory = savedirectory;
             Log = new ScanLogger(SaveDirectory);
             result.LogFullPath = Log.FullPath;
-            if (options != null)
-            {
-                this.options = options;
-            }
         }
 
-        public static Result StartScan(string meindirectory, string savedirectory, Options options = null) => StartScan_Async(meindirectory, savedirectory, options).Result;
+        public static Result StartScan(string meindirectory, string savedirectory)
+            => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions()).Result;
 
-        public static async Task<Result> StartScan_Async(string meindirectory, string savedirectory, Options options = null)
+        public static Result StartScan(string meindirectory, string savedirectory, ExtractorOptions options)
+            => StartScan_Async(meindirectory, savedirectory, options).Result;
+
+        public static Task<Result> StartScan_Async(string meindirectory, string savedirectory)
+            => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions());
+
+        public static async Task<Result> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
         {
             TextureExtractor Extractor = new TextureExtractor(meindirectory, savedirectory, options);
             return await Task.Run(() => Extractor.StartScan());
@@ -144,7 +127,7 @@ namespace DolphinTextureExtraction_tool
             Log.WriteFoot(result);
             Log.Dispose();
 
-            if (options.Cleanup)
+            if (((ExtractorOptions)Option).Cleanup)
             {
                 try
                 {
@@ -165,21 +148,7 @@ namespace DolphinTextureExtraction_tool
         #region Scan
 
         #region main
-
-        private void Scan(DirectoryInfo directory)
-        {
-            foreach (DirectoryInfo subdirectory in directory.GetDirectories())
-            {
-                Scan(subdirectory);
-            }
-
-            Parallel.ForEach(directory.GetFiles(), options.ParallelOptions, (FileInfo file) =>
-            {
-                Scan(file);
-            });
-        }
-
-        private void Scan(FileInfo file)
+        protected override void Scan(FileInfo file)
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
@@ -216,7 +185,6 @@ namespace DolphinTextureExtraction_tool
                     default:
                         break;
                 }
-
 #if !DEBUG
             }
             catch (Exception t)
@@ -229,7 +197,7 @@ namespace DolphinTextureExtraction_tool
             stream.Close();
         }
 
-        private void Scan(Stream stream, string subdirectory, in string Extension = "")
+        protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
         {
             FormatInfo FFormat = GetFormatTypee(stream, Extension);
             subdirectory = GetDirectoryWithoutExtension(subdirectory);
@@ -247,9 +215,9 @@ namespace DolphinTextureExtraction_tool
                         if (stream.Length > 300) result.SkippedSize += stream.Length / 50;
                         break;
                     case FormatType.Texture:
-                        if (options.Raw)
+                        if (((ExtractorOptions)Option).Raw)
                         {
-                            Save(stream, Path.ChangeExtension(GetFullSaveDirectory(Path.Combine("~Raw", subdirectory)), FFormat.Extension));
+                            Save(stream, Path.Combine("~Raw", subdirectory), FFormat);
                         }
                         if (FFormat.Class != null && FFormat.Class.GetMember(nameof(JUTTexture)) != null)
                         {
@@ -264,84 +232,40 @@ namespace DolphinTextureExtraction_tool
                         goto case FormatType.Archive;
                     case FormatType.Archive:
 
-                        if (FFormat.Class == null)
+                        if (!TryExtract(stream, subdirectory, FFormat))
                         {
-                            switch (FFormat.Extension.ToLower())
-                            {
-                                case ".lz":
-                                    if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                                    {
-                                        Scan(test, subdirectory);
-                                        break;
-                                    }
-                                    if (Reflection.Compression.TryToFindMatch(stream, out Type type))
-                                    {
-                                        Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()} Algorithm:{type.Name}?");
-                                        if (!result.UnsupportedFormatType.Contains(FFormat)) result.UnsupportedFormatType.Add(FFormat);
-                                        result.Unsupported++;
-                                        result.UnsupportedSize += stream.Length;
-                                    }
-                                    else AddResultUnsupported(stream, subdirectory, Extension, FFormat);
 
-                                    break;
-                                default:
-                                    AddResultUnsupported(stream, subdirectory, Extension, FFormat);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            if (FFormat.Class.IsSubclassOf(typeof(Archive)))
+                            if (FFormat.Class == null)
+                                AddResultUnsupported(stream, subdirectory, Extension, FFormat);
+                            else
                             {
-                                using (Archive archive = (Archive)Activator.CreateInstance(FFormat.Class))
+                                switch (FFormat.Class.Name)
                                 {
-                                    archive.Open(stream);
-                                    Scan(archive, subdirectory);
+                                    case "BDL":
+                                        BDL bdlmodel = new BDL(stream);
+                                        foreach (var item in bdlmodel.Textures.Textures)
+                                        {
+                                            Save(item, subdirectory);
+                                        }
+                                        result.ExtractedSize += stream.Length;
+                                        break;
+                                    case "BMD":
+                                        BMD bmdmodel = new BMD(stream);
+                                        foreach (var item in bmdmodel.Textures.Textures)
+                                        {
+                                            Save(item, subdirectory);
+                                        }
+                                        result.ExtractedSize += stream.Length;
+                                        break;
+                                    case "TEX0":
+                                        using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
+                                        result.ExtractedSize += stream.Length;
+                                        break;
                                 }
-                                break;
-                            }
-                            if (FFormat.Class.GetInterface(nameof(ICompression)) != null)
-                            {
-                                Scan(((ICompression)Activator.CreateInstance(FFormat.Class)).Decompress(stream), subdirectory);
-                                break;
-                            }
-
-                            //External classes
-                            switch (FFormat.Class.Name)
-                            {
-                                case "BDL":
-                                    BDL bdlmodel = new BDL(stream);
-                                    foreach (var item in bdlmodel.Textures.Textures)
-                                    {
-                                        Save(item, subdirectory);
-                                    }
-                                    result.ExtractedSize += stream.Length;
-                                    break;
-                                case "BMD":
-                                    BMD bmdmodel = new BMD(stream);
-                                    foreach (var item in bmdmodel.Textures.Textures)
-                                    {
-                                        Save(item, subdirectory);
-                                    }
-                                    result.ExtractedSize += stream.Length;
-                                    break;
-                                case "AFS":
-                                    using (AFS afs = new AFS(stream))
-                                    {
-                                        foreach (Entry item in afs.Entries)
-                                            if (item is StreamEntry Streamitem)
-                                                Scan(Streamitem.GetSubStream(), Path.Combine(subdirectory, Streamitem.SanitizedName), Path.GetExtension(Streamitem.SanitizedName));
-                                    }
-                                    break;
-                                case "TEX0":
-                                    using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
-                                    result.ExtractedSize += stream.Length;
-                                    break;
                             }
                         }
                         break;
                 }
-
 #if !DEBUG
             }
             catch (Exception t)
@@ -358,58 +282,7 @@ namespace DolphinTextureExtraction_tool
 
         #endregion
 
-        #region Archive
-
-        private void Scan(Archive archiv, string subdirectory)
-        {
-            ParallelOptions parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
-            if (archiv.TotalFileCount > 30)
-                parallelOptions = options.ParallelOptions;
-
-            Parallel.ForEach(archiv.Root.Items, parallelOptions, (KeyValuePair<string,object> item) =>
-            {
-                if (item.Value is ArchiveFile file)
-                {
-                    Scan(file, subdirectory);
-                }
-                if (item.Value is ArchiveDirectory directory)
-                {
-                    if (directory.Name.Length > 4)
-                        Scan(directory, Path.Combine(subdirectory, directory.Name));
-                    else
-                        Scan(directory, subdirectory);
-                }
-            });
-        }
-
-        private void Scan(ArchiveDirectory archivdirectory, in string subdirectory)
-        {
-
-            foreach (var item in archivdirectory.Items)
-            {
-                if (item.Value is ArchiveFile file)
-                {
-                    Scan(file, subdirectory);
-                }
-                if (item.Value is ArchiveDirectory directory)
-                {
-                    if (directory.Name.Length > 4)
-                        Scan(directory, Path.Combine(subdirectory, directory.Name));
-                    else
-                        Scan(directory, subdirectory);
-                }
-            }
-        }
-
-        private void Scan(ArchiveFile file, in string subdirectory)
-        {
-            Scan(file.FileData, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
-        }
-
-        #endregion
-
         #region CPK
-
         private void scanCPK(string file, string subdirectory)
         {
             CPK CpkContent = new CPK();
@@ -420,29 +293,28 @@ namespace DolphinTextureExtraction_tool
             {
                 foreach (var entries in CpkContent.fileTable)
                 {
+                    try
                     {
-                        try
+                        FormatInfo format = FormatDictionary.Master.First(x => x.Extension == Path.GetExtension(entries.FileName.ToString()).ToLower());
+
+                        switch (format.Typ)
                         {
-                            FormatInfo format = FormatDictionary.Master.First(x => x.Extension == Path.GetExtension(entries.FileName.ToString()).ToLower());
-                            switch (format.Typ)
-                            {
-                                case FormatType.Unknown:
-                                    break;
-                                case FormatType.Archive:
-                                case FormatType.Texture:
-                                    if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
-                                    {
-                                        MemoryStream CpkContentStream = new MemoryStream(chunk);
-                                        Scan(CpkContentStream, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(entries.FileName.ToString())));
-                                        CpkContentStream.Dispose();
-                                    }
-                                    break;
-                                default:
-                                    break;
-                            }
+                            case FormatType.Unknown:
+                                break;
+                            case FormatType.Archive:
+                            case FormatType.Texture:
+                                if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
+                                {
+                                    MemoryStream CpkContentStream = new MemoryStream(chunk);
+                                    Scan(CpkContentStream, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(entries.FileName.ToString())));
+                                    CpkContentStream.Dispose();
+                                }
+                                break;
+                            default:
+                                break;
                         }
-                        catch (Exception) { }
                     }
+                    catch (Exception) { }
                 }
             }
             finally
@@ -450,35 +322,11 @@ namespace DolphinTextureExtraction_tool
                 CPKReader.Close();
             }
         }
-
-        private bool CpkDecompressEntrie(CPK CpkContent, BinaryReader CPKReader, LibCPK.FileEntry entrie, out byte[] chunk)
-        {
-            CPKReader.BaseStream.Seek((long)entrie.FileOffset, SeekOrigin.Begin);
-
-            string isComp = Encoding.ASCII.GetString(CPKReader.ReadBytes(8));
-            CPKReader.BaseStream.Seek((long)entrie.FileOffset, SeekOrigin.Begin);
-
-            chunk = CPKReader.ReadBytes(Int32.Parse(entrie.FileSize.ToString()));
-
-            if (isComp == "CRILAYLA")
-            {
-                int size = Int32.Parse(entrie.ExtractSize.ToString()) == 0 ? Int32.Parse(entrie.FileSize.ToString()) : Int32.Parse(entrie.ExtractSize.ToString());
-
-                if (size != 0)
-                {
-                    chunk = CpkContent.DecompressLegacyCRI(chunk, size);
-                    return true;
-                }
-            }
-            return false;
-        }
-
         #endregion
 
         #endregion
 
         #region Extract
-
         /// <summary>
         /// Extract the texture
         /// </summary>
@@ -505,24 +353,9 @@ namespace DolphinTextureExtraction_tool
                     tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
                     //skip mips?
-                    if (!options.Mips) break;
+                    if (!((ExtractorOptions)Option).Mips) break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Writes a Steam to a new file.
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="destFileName"></param>
-        private void Save(Stream stream, string destFileName)
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
-            using (FileStream file = new FileStream(destFileName, FileMode.Create, FileAccess.Write))
-            {
-                stream.CopyTo(file);
-            }
-            stream.Position = 0;
         }
 
         /// <summary>
@@ -556,18 +389,11 @@ namespace DolphinTextureExtraction_tool
         #endregion
 
         #region Helper
-
-        private bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected override bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
         {
-            if (options.Force)
+            if (((ExtractorOptions)Option).Force)
             {
-                if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                {
-                    Scan(test, subdirectory);
-                    return true;
-                }
-
-                if (TryCut(stream,subdirectory, FFormat))
+                if (base.TryForce(stream, subdirectory, FFormat))
                     return true;
 
                 stream.Position = 0;
@@ -577,67 +403,15 @@ namespace DolphinTextureExtraction_tool
             }
             else
             {
-                switch (FFormat.Extension.ToLower())
+                if (FFormat.Extension.ToLower() == "")
                 {
-                    case "":
-                        if (TryBTI(stream, subdirectory))
-                            return true;
-                        stream.Position = 0;
-                        break;
-                    case ".arc":
-                    case ".tpl":
-                    case ".bti":
-                    case ".lz":
-                    case ".brres":
-                    case ".breff":
-                    case ".zlib":
-                    case ".lz77":
-                    case ".wtm":
-                    case ".vld":
-                    case ".cxd":
-                    case ".cmparc":
-                    case ".cmpres":
-                        if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-                        {
-                            Scan(test, subdirectory);
-                            return true;
-                        }
-                        break;
+                    if (TryBTI(stream, subdirectory))
+                        return true;
+                    stream.Position = 0;
                 }
-            }
-            return false;
-        }
-
-
-        private Dictionary<FormatInfo, int> badformats = new Dictionary<FormatInfo, int> ();
-        private bool TryCut(Stream stream, string subdirectory, FormatInfo FFormat)
-        {
-            try
-            {
-                foreach (var item in badformats)
-                {
-                    if (item.Key == FFormat)
-                        if (item.Value > 5)
-                            return false;
-                        else
-                            break;
-                }
-                Archive archive = new DataCutter(stream);
-                if (archive.Root.Count > 0)
-                {
-                    badformats.Remove(FFormat);
-                    Scan(archive, subdirectory);
+                else if (TryExtract(stream, subdirectory, FFormat))
                     return true;
-                }
-
-                if (badformats.ContainsKey(FFormat))
-                    badformats[FFormat]++;
-                else
-                    badformats.Add(FFormat, 0);
-
-                
             }
-            catch (Exception) {}
             return false;
         }
 
@@ -667,48 +441,6 @@ namespace DolphinTextureExtraction_tool
                 if (!result.UnknownFormatType.Contains(FormatTypee)) result.UnknownFormatType.Add(FormatTypee);
             }
             result.Unknown++;
-        }
-
-        private string GetFullSaveDirectory(string directory)
-        {
-            return Path.Combine(SaveDirectory, directory);
-        }
-
-        private static string GetDirectoryWithoutExtension(string directory)
-        {
-            return Path.Combine(Path.GetDirectoryName(directory), Path.GetFileNameWithoutExtension(directory)).Trim();
-        }
-
-        private List<FormatInfo> usedformats = new List<FormatInfo>();
-        private readonly object Lock = new object();
-        private FormatInfo GetFormatTypee(Stream stream, string extension = "")
-        {
-            if (FormatDictionary.Header.TryGetValue(new HeaderInfo(stream).Magic, out FormatInfo Info))
-            {
-                if (Info.IsMatch.Invoke(stream, extension))
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return Info;
-                }
-                stream.Seek(0, SeekOrigin.Begin);
-            }
-
-            lock (Lock)
-            {
-                foreach (var item in usedformats)
-                {
-                    if (item.IsMatch.Invoke(stream, extension))
-                    {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        return item;
-                    }
-                    stream.Seek(0, SeekOrigin.Begin);
-                }
-                FormatInfo info = FormatDictionary.Identify(stream, extension);
-                usedformats.Add(info);
-
-                return info;
-            }
         }
         #endregion
 

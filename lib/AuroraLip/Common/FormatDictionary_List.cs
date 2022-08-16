@@ -44,7 +44,7 @@ namespace AuroraLip.Common
             new FormatInfo(".bxa", "J3D1bxa1", FormatType.Animation, "J3D vertex color animation", Nin_),
             new FormatInfo(".btk", "J3D1btk1", FormatType.Animation, "J3D texture animation", Nin_),
             new FormatInfo(".brk", "J3D1brk1", FormatType.Animation, "J3D TEV color animation", Nin_),
-            new FormatInfo(".bmt", "J3D2bmt3", FormatType.Else),
+            new FormatInfo(".bmt", "J3D2bmt3", FormatType.Else, "", Nin_),
             //NW4R
             new FormatInfo(".tex0","TEX0", FormatType.Texture, "NW4R Texture", Nin_),
             new FormatInfo(".rtex", FormatType.Texture, "NW4R XML Texture", Nin_),
@@ -88,7 +88,7 @@ namespace AuroraLip.Common
             //Nintendo Else
             new FormatInfo(".blo", "SCRNblo1", FormatType.Layout, "UI Layout", Nin_),
             new FormatInfo(".blo", "SCRNblo2", FormatType.Layout, "UI V2 Layout", Nin_),
-            new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation"),
+            new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation", Nin_),
             new FormatInfo(".brlyt", "RLYT", FormatType.Layout, "Wii structure Layout", Nin_),
             new FormatInfo(".brfnt", "RFNT", FormatType.Font, "Wii Font", Nin_),
             new FormatInfo(".brplt", FormatType.Else, "Wii Palette", Nin_),
@@ -137,7 +137,7 @@ namespace AuroraLip.Common
             //HAL Laboratory & Sora Ltd.
             new FormatInfo(".pac","ARC", FormatType.Archive, "Brawl Archive"),
             //new FormatInfo(".dat", FormatType.Archive, "HAL Archive", "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
-            new FormatInfo(".msbin", FormatType.Text),
+            new FormatInfo(".msbin", FormatType.Text,"Brawl Text"),
             #endregion
 
             #region Common
@@ -154,7 +154,6 @@ namespace AuroraLip.Common
             //Common Textures
             new FormatInfo(".PNG", new byte[]{137,80,78,71,13},0, FormatType.Texture, "Portable Network Graphics"),
             new FormatInfo(".Jpg", new byte[]{255,216,255,224},0, FormatType.Texture, "Joint Photographic Group"),
-            new FormatInfo(".rtf", @"{\rtf1", FormatType.Texture, "Joint Photographic Group"),
             new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"),
 
             //Microsoft
@@ -176,7 +175,7 @@ namespace AuroraLip.Common
 
             //Roms & Iso
             new FormatInfo(".gba", new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130},0, FormatType.Rom, "GBA Rom", Nin_),
-            new FormatInfo(".nes", new byte[]{78,69,83,26,1,1},0 , FormatType.Rom, "NES Rom", Nin_),
+            new FormatInfo(".nes", new byte[]{78,69,83,26,1,1},0 , FormatType.Rom, "Rom", Nin_),
             new FormatInfo(".rvz", new byte[]{82,86,90,1,1},0 , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
             new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
             new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii"),
@@ -202,9 +201,9 @@ namespace AuroraLip.Common
             new FormatInfo(".sfd", new byte[]{1,186,33},2 , FormatType.Video, "SofDec Video", "CRIWARE"),
 
             //UbiSoft
-            new FormatInfo(".bf","BUG", FormatType.Archive, "UbiSoft"),
-            new FormatInfo(".bf","BIG", FormatType.Archive, "UbiSoft"),
-            new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft"),
+            new FormatInfo(".bf","BUG", FormatType.Archive, "UbiSoft Archive"),
+            new FormatInfo(".bf","BIG", FormatType.Archive, "UbiSoft Archive"),
+            new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft Audio"),
 
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
@@ -302,7 +301,7 @@ namespace AuroraLip.Common
             new FormatInfo(".blmap", "LMAP", FormatType.Else, "Light Map"),
             new FormatInfo(".idb", "looc", FormatType.Else, "Debugger infos"),
             new FormatInfo(".zzz", FormatType.Else, "place holder"),
-            new FormatInfo(".pkb", "SB  ", FormatType.Else, "Skript"),
+            new FormatInfo(".pkb", "SB  ", FormatType.Skript, "Skript"),
             new FormatInfo(".efc", new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}, 0, FormatType.Unknown),
             #endregion
         };

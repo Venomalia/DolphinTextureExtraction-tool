@@ -1,10 +1,8 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Compression;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -14,7 +12,7 @@ namespace DolphinTextureExtraction_tool
 
         static string OutputDirectory;
 
-        static TextureExtractor.Options options = new TextureExtractor.Options();
+        static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions();
 
         static void Main(string[] args)
         {
@@ -84,11 +82,11 @@ namespace DolphinTextureExtraction_tool
                         Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
                         if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
                         {
-                            options.ParallelOptions.MaxDegreeOfParallelism = 4;
+                            options.Parallel.MaxDegreeOfParallelism = 4;
                         }
                         else
                         {
-                            options.ParallelOptions.MaxDegreeOfParallelism = 1;
+                            options.Parallel.MaxDegreeOfParallelism = 1;
                         }
                     }
 
@@ -113,38 +111,46 @@ namespace DolphinTextureExtraction_tool
             }
             else
             {
-
+                int p;
                 switch (args[0].ToLower())
                 {
+                    case "formats":
+                    case "format":
+                    case "f":
+                        #region formats
+                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        Console.WriteLine($"Known formats: {FormatDictionary.Master.Length}.");
+                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        foreach (var item in FormatDictionary.Master)
+                            Console.WriteLine($"{item.GetFullDescription()} Typ:{item.Typ}");
+                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        #endregion
+                        break;
+                    case "unpack":
+                    case "u":
+                        #region unpack
+                        p = GetPahts(args);
+                        if (p <= 0)
+                            goto default;
+
+                        Unpack.StartScan(InputDirectory, OutputDirectory, options);
+                        Console.WriteLine();
+                        Console.WriteLine("completed.");
+                        //PrintResult(result);
+                        #endregion
+                        break;
                     case "extract":
                     case "e":
                         #region extract
-                        if (args.Length < 3)
-                        {
-                            // Wrong syntax
+                        p = GetPahts(args);
+                        if (p <= 0)
                             goto default;
-                        }
 
-                        InputDirectory = args[1];
-                        OutputDirectory = args[2];
-                        if (!Directory.Exists(InputDirectory))
-                        {
-                            Console.WriteLine("The directory could not be found!");
-                            Console.WriteLine(InputDirectory);
-                            return;
-                        }
-                        if (!PathIsValid(OutputDirectory))
-                        {
-                            Console.WriteLine("Path is invalid!");
-                            Console.WriteLine(OutputDirectory);
-                            return;
-                        }
+                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false };
 
-                        options = new TextureExtractor.Options() { Mips = false, Raw = false, Force = false };
-
-                        if (args.Length > 3)
+                        if (args.Length > p)
                         {
-                            for (int i = 3; i < args.Length; i++)
+                            for (int i = p; i < args.Length; i++)
                             {
                                 switch (args[i].ToLower())
                                 {
@@ -187,6 +193,31 @@ namespace DolphinTextureExtraction_tool
                         break;
                 }
             }
+        }
+
+        private static int GetPahts(string[] args)
+        {
+            if (args.Length < 2)
+                return -1;
+
+            InputDirectory = args[1];
+            if (args.Length >= 3)
+                OutputDirectory = args[2];
+            else
+                OutputDirectory = GetGenOutputPath(InputDirectory);
+
+            if (!Directory.Exists(InputDirectory))
+            {
+                Console.WriteLine("The directory could not be found!");
+                Console.WriteLine(InputDirectory);
+                return -1;
+            }
+            if (!PathIsValid(OutputDirectory))
+            {
+                OutputDirectory = GetGenOutputPath(InputDirectory);
+                return 2;
+            }
+            return 3;
         }
 
         private static string GetGenOutputPath(string Input)
@@ -259,13 +290,13 @@ namespace DolphinTextureExtraction_tool
             formats.Add("TEX1");
             FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
             formats.Sort();
-            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.",108, "\n                  "));
+            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.", 108, "\n                  "));
         }
 
-        static string LineBreak(string str, int max,in string insert)
+        static string LineBreak(string str, int max, in string insert)
         {
             int Index = 0;
-            while (Index+ max < str.Length)
+            while (Index + max < str.Length)
             {
                 ReadOnlySpan<char> line = str.AsSpan(Index, max);
                 Index += line.LastIndexOf(' ');
@@ -274,7 +305,7 @@ namespace DolphinTextureExtraction_tool
             return str;
         }
 
-        static void PrintOptions(TextureExtractor.Options options)
+        static void PrintOptions(TextureExtractor.ExtractorOptions options)
         {
             Console.Write($"Extracts Mipmaps: ");
             ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
@@ -285,7 +316,7 @@ namespace DolphinTextureExtraction_tool
             Console.Write($"Sorts textures and removes unnecessary folders: ");
             ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");
-            ConsoleEx.WriteBoolPrint(options.ParallelOptions.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
+            ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
         }
 
         static void PrintResult(TextureExtractor.Result result)
@@ -295,7 +326,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine($"Unsupported files: {result.Unsupported}");
             if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
             Console.WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFormatType.Count != 0) Console.WriteLine(LineBreak($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}",108, "\n                   "));
+            if (result.UnknownFormatType.Count != 0) Console.WriteLine(LineBreak($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}", 108, "\n                   "));
             Console.WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
             Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");

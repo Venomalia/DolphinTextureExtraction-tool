@@ -45,15 +45,22 @@ namespace DolphinTextureExtraction_tool
 
         protected void Scan(DirectoryInfo directory)
         {
-            foreach (DirectoryInfo subdirectory in directory.GetDirectories())
-            {
-                Scan(subdirectory);
-            }
+            List<FileInfo> fileInfos = new List<FileInfo>();
+            ScanInitialize(directory, fileInfos);
 
-            Parallel.ForEach(directory.GetFiles(), Option.Parallel, (FileInfo file) =>
+            Parallel.ForEach(fileInfos, Option.Parallel, (FileInfo file) =>
             {
                 Scan(file);
             });
+        }
+
+        private void ScanInitialize(DirectoryInfo directory, List<FileInfo> fileInfos)
+        {
+            foreach (DirectoryInfo subdirectory in directory.GetDirectories())
+                ScanInitialize(subdirectory, fileInfos);
+
+            foreach (FileInfo file in directory.GetFiles())
+                fileInfos.Add(file);
         }
 
         #region Scan

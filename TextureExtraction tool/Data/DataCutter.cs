@@ -99,7 +99,7 @@ namespace DolphinTextureExtraction_tool
                         int EOH = stream.ReadInt32(Endian.Big);
                         int NrEntries = (int)stream.ReadUInt32(Endian.Big);
                         TotalSize = stream.ReadUInt32(Endian.Big);
-                        if (NrEntries < 1 || NrEntries > 256 || TotalSize < stream.Length)
+                        if (NrEntries < 1 || NrEntries > 256 || TotalSize > stream.Length - stream.Position)
                         {
                             err++;
                             continue;

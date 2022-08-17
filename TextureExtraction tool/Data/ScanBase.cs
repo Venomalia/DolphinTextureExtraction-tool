@@ -162,6 +162,22 @@ namespace DolphinTextureExtraction_tool
                     {
                         archive.Open(stream);
                         Scan(archive, subdirectory);
+
+                        if (archive is IMagicIdentify identify)
+                        {
+                            if (stream.Search(identify.Magic))
+                            {
+                                List<byte[]> ident = new List<byte[]>();
+                                ident.Add(identify.Magic.ToByte());
+                                using (Archive Cut = new DataCutter(stream, ident))
+                                {
+                                    foreach (var item in Cut.Root.Items)
+                                        ((ArchiveFile)item.Value).Name = "";
+
+                                    Scan(Cut, subdirectory);
+                                }
+                            }
+                        }
                     }
                     return true;
                 }

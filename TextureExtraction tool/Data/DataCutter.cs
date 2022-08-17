@@ -63,7 +63,12 @@ namespace DolphinTextureExtraction_tool
                 switch (match.ToValidString())
                 {
                     case "CLZ":
+                        continue;
                     case "AFS":
+                        uint magic = stream.ReadUInt32();
+                        if (magic == 0x00534641|| magic == 0x20534641)
+                            goto default;
+
                         continue;
                     case "RSTM":
                     case "REFT":
@@ -110,6 +115,7 @@ namespace DolphinTextureExtraction_tool
                         TotalSize = (uint)(stream.Position - entrystart);
                         break;
                 }
+                err--;
 
                 ArchiveFile Sub = new ArchiveFile
                 {

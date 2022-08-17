@@ -216,33 +216,31 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-        private Dictionary<FormatInfo, int> badformats = new Dictionary<FormatInfo, int>();
+        private (FormatInfo, int) badformats;
         protected bool TryCut(Stream stream, string subdirectory, FormatInfo FFormat)
         {
             try
             {
-                foreach (var item in badformats)
-                {
-                    if (item.Key == FFormat)
-                        if (item.Value > 5)
+                if (badformats.Item1 == FFormat)
+                        if (badformats.Item2 > 4)
                             return false;
-                        else
-                            break;
-                }
+
                 Archive archive = new DataCutter(stream);
                 if (archive.Root.Count > 0)
                 {
-                    badformats.Remove(FFormat);
+
+                    badformats = (FFormat, -1);
                     Scan(archive, subdirectory);
                     return true;
                 }
 
-                if (badformats.ContainsKey(FFormat))
-                    badformats[FFormat]++;
+                if (badformats.Item1 == FFormat)
+                {
+                    if (badformats.Item2 != -1)
+                        badformats.Item2++;
+                }
                 else
-                    badformats.Add(FFormat, 0);
-
-
+                    badformats = (FFormat, 0);
             }
             catch (Exception) { }
             return false;

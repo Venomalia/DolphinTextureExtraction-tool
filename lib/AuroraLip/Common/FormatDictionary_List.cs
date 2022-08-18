@@ -1,5 +1,6 @@
 ﻿using AuroraLip.Archives.Formats;
 using AuroraLip.Compression.Formats;
+using AuroraLip.Archives.Formats;
 using AuroraLip.Texture.Formats;
 using System.IO;
 
@@ -249,6 +250,7 @@ namespace AuroraLip.Common
 
             //Red Fly Studios
             new FormatInfo("", FormatType.Texture, "Star Wars Force Unleashed 2", "Red Fly Studios"){ Class = typeof(TEX_RFS), IsMatch = TEX_RFS.Matcher },
+            new FormatInfo(".POD", "POD5", FormatType.Archive, "Star Wars Force Unleashed 2", "Red Fly Studios"),
 
             //H.a.n.d.
             new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.") { Class= typeof(FBC)},

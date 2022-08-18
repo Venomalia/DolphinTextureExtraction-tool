@@ -78,6 +78,7 @@
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />
+    <Compile Include="Archives\Formats\POD5.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RKV2.cs" />
     <Compile Include="Archives\Formats\RTDP.cs" />

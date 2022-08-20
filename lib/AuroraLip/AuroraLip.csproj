@@ -70,7 +70,9 @@
     <Compile Include="Archives\ArchiveFile.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
+    <Compile Include="Archives\Formats\FBTI.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
+    <Compile Include="Archives\Formats\NLCM.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RKV2.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
+    <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />
     <Compile Include="Texture\Formats\TEX.cs" />
     <Compile Include="Texture\Formats\TXTR.cs" />

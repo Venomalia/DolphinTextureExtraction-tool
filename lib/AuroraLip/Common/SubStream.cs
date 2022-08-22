@@ -123,6 +123,8 @@ namespace AuroraLip.Common
             Position += count;
         }
 
+        public override string ToString() => $"[0x{Offset:X8}] [0x{Length:X8}]";
+
         #region Dispose
         protected override void Dispose(bool disposing)
         {

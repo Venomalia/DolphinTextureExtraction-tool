@@ -90,7 +90,7 @@ namespace AuroraLip.Archives
         }
 
         /// <inheritdoc />
-        public override string ToString() => $"{Name} [0x{FileData.Length:X8}]";
+        public override string ToString() => $"{Name} {FileData.ToString()}";
 
         //=====================================================================
 

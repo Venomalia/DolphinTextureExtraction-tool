@@ -217,6 +217,11 @@ namespace AuroraLip.Common
             new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),
             new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch"),
 
+            // Neverland
+            new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland"),
+            new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive", "Neverland"),
+            new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland"),
+
             //Treasure
             new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure"),
             new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure"),
@@ -247,8 +252,6 @@ namespace AuroraLip.Common
             new FormatInfo(".pos","POSD", FormatType.Else, "Rune Factory FREB Archive Info"),
             new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
-            new FormatInfo(".dat","FBTI0001", FormatType.Archive, "Rune Factory"),
-            new FormatInfo(".bin","NLCM", FormatType.Else, "Rune Factory Archive Info"),
             new FormatInfo(".ftx", "FCMP", FormatType.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),

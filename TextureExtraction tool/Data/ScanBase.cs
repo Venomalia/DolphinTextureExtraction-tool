@@ -170,6 +170,9 @@ namespace DolphinTextureExtraction_tool
                         archive.Open(stream);
                         Scan(archive, subdirectory);
 
+                        if (stream.Length > 104857600) //100MB
+                            return true;
+
                         if (archive is IMagicIdentify identify)
                         {
                             if (stream.Search(identify.Magic))

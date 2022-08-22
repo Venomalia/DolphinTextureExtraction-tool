@@ -49,6 +49,19 @@ namespace AuroraLip.Texture.J3D
             return Width * Height * GetBpp(Format) / 8;
         }
 
+        public static int GetMipmapsFromSize(GXImageFormat Format, int Size, int Width, int Height)
+        {
+            int mips = 0;
+            while (Size > 0 && Width != 0 && Height != 0)
+            {
+                Size -= GetCalculatedDataSize(Format, Width, Height);
+                Width /= 2;
+                Height /= 2;
+                mips++;
+            }
+            return mips-1;
+        }
+
         public static int GetMaxColours(this GXImageFormat Format)
         {
             switch (Format)

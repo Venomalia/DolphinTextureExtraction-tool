@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
 using System;
 using System.IO;
 using static AuroraLip.Texture.J3D.JUtility;
@@ -45,11 +44,17 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(header_offset, SeekOrigin.Begin);
                 uint data_offset = stream.ReadUInt32(Endian.Big);
                 GXImageFormat format = (GXImageFormat)stream.ReadByte();
-                byte mipmaps = (byte)stream.ReadByte();
+                byte image_count = (byte)stream.ReadByte();
                 ushort unknown3 = stream.ReadUInt16(Endian.Big);
                 ushort width = stream.ReadUInt16(Endian.Big);
                 ushort height = stream.ReadUInt16(Endian.Big);
                 uint size = stream.ReadUInt32(Endian.Big);
+
+                //int mipmaps = image_count - 1;
+
+                //some images have a too large or too small image_count!
+                //We keep calculating the mipmaps until we know why this is so.
+                int mipmaps = GetMipmapsFromSize(format, (int)size, width, height);
 
                 byte[] palette_data = null;
                 GXPaletteFormat palette_format = GXPaletteFormat.IA8;

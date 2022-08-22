@@ -24,13 +24,10 @@ output to the same place only with a "~" in front of the folder.
 
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
-#### Notes
-1. set Extract textures from unknown files to true
-
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, AFS, RKV2 Archives
+- RARC, NARC, U8, CPK, bres, AFS, RKV2, FBC, FBTI, NLCM, PCKG,RTDP Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS Compressing
-- BTI, TPL, NUTC, REFT, TXE, TEX, TEX1, TEX0, TXTR, PTLG Textures
+- BTI, TPL, NUTC, REFT, TXE, TEX, TEX1, TEX0, TXTR, PTLG, HXTB, WTMD Textures
 - BMD3, BDL4 J3D Models
 
 ## Credits
@@ -50,11 +47,17 @@ output to the same place only with a "~" in front of the folder.
 - [cpk-tools](https://github.com/ConnorKrammer/cpk-tools)
     - to read CRIWARE's CPK archive format
 	
-- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox)
-    - to read LZ11, LZ77 Compressing
-
 - [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
-    - to read CLZ Compressing
+    - Code reference for CLZ Compressing
 
+- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox)
+    - Code reference for LZ11, LZ77 Compressing
+	
 - [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs)
-    - PTLG format base on
+    - Code reference for PTLG Format
+	
+- [Rune Factory Frontier Tools](https://github.com/master801/Rune-Factory-Frontier-Tools)
+    - Code reference for NLCM Archives
+	
+- [Custom Mario Kart Wiiki](https://wiki.tockdom.com/wiki/BRRES_(File_Format))
+    - reference for bres, REFT, TEX0.

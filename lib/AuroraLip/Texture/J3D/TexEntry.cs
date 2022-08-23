@@ -23,21 +23,84 @@ namespace AuroraLip.Texture.J3D
             /// </summary>
             public class TexEntry : List<Bitmap>, IDisposable
             {
+                /// <summary>
+                /// specifies how the data within the image is encoded.
+                /// </summary>
                 public GXImageFormat Format { get; set; } = GXImageFormat.CMPR;
+
+                /// <summary>
+                /// specifies how the data within the palette is stored.
+                /// Only C4, C8, and C14X2 use palettes. For all other formats the type is zero.
+                /// </summary>
                 public GXPaletteFormat PaletteFormat { get; set; }
+
+                /// <summary>
+                /// Specifies how textures outside the vertical range [0..1] are treated for text coordinates.
+                /// </summary>
                 public GXWrapMode WrapS { get; set; }
+
+                /// <summary>
+                /// Specifies how textures outside the horizontal range [0..1] are treated for text coordinates.
+                /// </summary>
                 public GXWrapMode WrapT { get; set; }
+
+                /// <summary>
+                /// specifies what type of filtering the file should use as magnification filter.
+                /// </summary>
                 public GXFilterMode MagnificationFilter { get; set; }
+
+                /// <summary>
+                /// specifies what type of filtering the file should use as minification filter.
+                /// </summary>
                 public GXFilterMode MinificationFilter { get; set; }
+
+                /// <summary>
+                /// the calculated 64-bit xxHash of the base texture.
+                /// </summary>
                 public ulong Hash { get; internal set; } = 0;
+
+                /// <summary>
+                /// the calculated 64-bit xxHash of the Tlut
+                /// </summary>
                 public ulong TlutHash { get; internal set; } = 0; //not match with dolphin!
+
+                /// <summary>
+                /// "Min Level of Detail" 
+                /// Exclude textures below a certain LOD level from being used.
+                /// </summary>
                 public float MinLOD { get; set; }
+
+                /// <summary>
+                /// "Max Level of Detail" 
+                /// Exclude textures above a certain LOD level from being used.
+                /// A value larger than the actual textures should lead to culling.
+                /// </summary>
                 public float MaxLOD { get; set; }
+
+                /// <summary>
+                /// "Level of Detail Bias" 
+                /// A larger value leads to a larger camera distance before a lower LOD resolution is selected.
+                /// </summary>
                 public float LODBias { get; set; }
+
+                /// <summary>
+                /// ?
+                /// </summary>
                 public bool EnableEdgeLOD { get; set; }
+
+                /// <summary>
+                /// Pallets raw data
+                /// </summary>
                 List<byte[]> Palettes { get; set; }
 
+                /// <summary>
+                /// Gets the image width, in pixels.
+                /// </summary>
                 public int ImageWidth => this[0].Width;
+
+                /// <summary>
+                /// Gets the image height, in pixels.
+                /// </summary>
                 public int ImageHeight => this[0].Height;
 
                 public Size LargestImageSize => new Size(this[0].Width, this[0].Height);

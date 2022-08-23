@@ -1,7 +1,6 @@
 # DolphinTextureExtraction-tool
-
-Is a GC and Wii texture dump tool, it dumps all textures at once and compatible with dolphins textures hash.
-it is still in an early stage, Currently, mainly typical gamecube formats are supported.
+Is a GC and Wii texture dump tool, it dumps all textures at once and compatible with Dolphins texture hash.
+The most common GameCube and Wii formats are already supported, new features and formats will be added over time.
 
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  

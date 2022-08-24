@@ -16,6 +16,7 @@ namespace DolphinTextureExtraction_tool
 
         static Program()
         {
+            //link external classes
             FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
             FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
             FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
@@ -197,6 +198,19 @@ namespace DolphinTextureExtraction_tool
                                     case "-f":
                                         options.Force = true;
                                         break;
+                                    case "-cleanup":
+                                    case "-c":
+                                        options.Cleanup = true;
+                                        break;
+                                    case "-cleanup:none":
+                                    case "-c:n":
+                                        options.Cleanup = false;
+                                        break;
+                                    case "-tasks":
+                                    case "-t":
+                                        i++;
+                                        options.Parallel.MaxDegreeOfParallelism = Int32.Parse(args[i]);
+                                        break;
                                 }
                             }
                         }
@@ -282,20 +296,24 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine();
             Console.WriteLine("help\t| h\t: Print this list.");
             Console.WriteLine();
-            Console.WriteLine("extract\t| e\t: Extracts all textures.");
-            Console.WriteLine("\tSyntax:\textract \"Input\" \"Output\" options");
-            Console.WriteLine("\tOption:\t -m -mip\tExtract mipmaps.");
-            Console.WriteLine("\tOption:\t -r -raw\tExtracts raw images.");
-            Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
-            Console.WriteLine();
-            Console.WriteLine("unpack\t| u\t: Extracts all files.");
-            Console.WriteLine("\tSyntax:\tunpack \"Input\" \"Output\"");
-            Console.WriteLine();
             Console.WriteLine("formats\t| f\t: Displays all known formats.");
             Console.WriteLine("\tSyntax:\tformats");
             Console.WriteLine();
+            Console.WriteLine("extract\t| e\t: Extracts all textures.");
+            Console.WriteLine("\tSyntax:\textract \"Input*\" \"Output*\" options");
+            Console.WriteLine("\tOption:\t -m -mip\tExtract mipmaps.");
+            Console.WriteLine("\tOption:\t -r -raw\tExtracts raw images.");
+            Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
+            Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
+            Console.WriteLine("\tOption:\t -c:n -cleanup:none\tretains the original folder structure.");
+            Console.WriteLine("\tOption:\t -t -tasks \"i\"\tsets the maximum number of concurrent tasks.");
+            Console.WriteLine($"\t\ti:\t integer that represents the maximum degree of parallelism. default:{options.Parallel.MaxDegreeOfParallelism}");
+            Console.WriteLine();
+            Console.WriteLine("unpack\t| u\t: Extracts all files.");
+            Console.WriteLine("\tSyntax:\tunpack \"Input\" \"Output*\"");
+            Console.WriteLine();
             Console.WriteLine("cut\t| c\t: Splits all files into individual parts.");
-            Console.WriteLine("\tSyntax:\tcut \"Input\" \"Output\" \"Pattern\"");
+            Console.WriteLine("\tSyntax:\tcut \"Input\" \"Output*\" \"Pattern*\"");
             Console.WriteLine("\tPattern:\t a list of patterns divided with \" \"");
         }
 

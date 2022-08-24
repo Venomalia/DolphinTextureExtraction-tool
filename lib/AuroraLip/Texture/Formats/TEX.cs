@@ -60,7 +60,7 @@ namespace AuroraLip.Texture.Formats
                 WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
                 MinLOD = 0,
-                MaxLOD = 0
+                MaxLOD = MipMaps
             };
             Add(current);
         }

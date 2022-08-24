@@ -87,6 +87,8 @@ namespace DolphinTextureExtraction_tool
                         options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
                         options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        Console.Write($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
+                        options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.Write($"Clean up folder structure. \t(True) or False");
                         options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
@@ -203,7 +205,12 @@ namespace DolphinTextureExtraction_tool
                                         options.Cleanup = true;
                                         break;
                                     case "-cleanup:none":
+                                    case "-c:none":
                                     case "-c:n":
+                                        options.Cleanup = false;
+                                        break;
+                                    case "-dolphinmipdetection":
+                                    case "-dm":
                                         options.Cleanup = false;
                                         break;
                                     case "-tasks":
@@ -306,6 +313,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
             Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
             Console.WriteLine("\tOption:\t -c:n -cleanup:none\tretains the original folder structure.");
+            Console.WriteLine("\tOption:\t -dmd -dolphinmipdetection\tTries to imitate dolphin mipmap detection.");
             Console.WriteLine("\tOption:\t -t -tasks \"i\"\tsets the maximum number of concurrent tasks.");
             Console.WriteLine($"\t\ti:\t integer that represents the maximum degree of parallelism. default:{options.Parallel.MaxDegreeOfParallelism}");
             Console.WriteLine();
@@ -367,6 +375,8 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Force extract textures from unknown formats: ");
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Imitate dolphin mipmap detection: ");
+            ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Clean up folder structure: ");
             ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");

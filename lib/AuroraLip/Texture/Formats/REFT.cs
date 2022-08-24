@@ -103,7 +103,6 @@ namespace AuroraLip.Texture.Formats
             int Palettes = stream.ReadUInt16(Endian.Big);
             uint PaletteSize = stream.ReadUInt32(Endian.Big);
             byte images = (byte)stream.ReadByte();
-            if (images > 0) --images;
             byte MinFilter = (byte)stream.ReadByte();
             byte MaxFilter = (byte)stream.ReadByte();
             byte Unknown2 = (byte)stream.ReadByte();
@@ -118,7 +117,7 @@ namespace AuroraLip.Texture.Formats
                 PaletteData = stream.Read((int)PaletteSize);
             }
             stream.Position = ImageAddress;
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, images)
+            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, images -1)
             {
                 LODBias = LODBias,
                 MagnificationFilter = (GXFilterMode)MaxFilter,

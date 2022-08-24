@@ -39,11 +39,11 @@ namespace AuroraLip.Texture.Formats
                 PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
                 int CWidth = stream.ReadUInt16(Endian.Big);
                 int CHeight = stream.ReadUInt16(Endian.Big);
-                ColorsCount = CHeight* CWidth;
-                palettedata = stream.Read(ColorsCount*2);
+                ColorsCount = CHeight * CWidth;
+                palettedata = stream.Read(ColorsCount * 2);
             }
 
-            TexEntry current = new TexEntry(stream, palettedata, Format, PaletteFormat, ColorsCount, ImageWidth, ImageHeight, (int)Images-1)
+            TexEntry current = new TexEntry(stream, palettedata, Format, PaletteFormat, ColorsCount, ImageWidth, ImageHeight, (int)Images - 1)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,
@@ -52,7 +52,7 @@ namespace AuroraLip.Texture.Formats
                 WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
                 MinLOD = 0,
-                MaxLOD = 0
+                MaxLOD = Images - 1
             };
             Add(current);
         }

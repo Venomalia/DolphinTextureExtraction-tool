@@ -150,11 +150,17 @@ namespace AuroraLip.Texture.J3D
                     EnableEdgeLOD = EdgeLoD;
                 }
 
-                public string GetDolphinTextureHash(int mipmap = 0, bool UseTlut = false)
+                public string GetDolphinTextureHash(int mipmap = 0, bool UseTlut = false, bool DolphinMipDetection = true)
                 {
+                    bool HasMips = this.Count != 1;
+                    //dolphin seems to use the MaxLOD value to decide if it is a mipmap Texture.
+                    //https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/VideoCommon/TextureInfo.cpp#L80
+                    if (!HasMips && DolphinMipDetection)
+                        HasMips = MaxLOD != 0;
+
                     return "tex1_" + this[0].Width + 'x' + this[0].Height + '_'
                         //Has mipmaps
-                        + (this.Count != 1
+                        + (HasMips
                             ? "m_" : string.Empty)
                         // Hash
                         + Hash.ToString("x").PadLeft(16, '0') + '_'

@@ -36,6 +36,11 @@ namespace DolphinTextureExtraction_tool
             public bool Force = false;
 
             /// <summary>
+            /// Tries to Imitate dolphin mipmap detection.
+            /// </summary>
+            public bool DolphinMipDetection = true;
+
+            /// <summary>
             /// Sorts the textures and removes unnecessary folders.
             /// </summary>
             public bool Cleanup = true;
@@ -350,7 +355,7 @@ namespace DolphinTextureExtraction_tool
                 {
                     string path = GetFullSaveDirectory(subdirectory);
                     Directory.CreateDirectory(path);
-                    tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                    tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i, false, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
                     //skip mips?
                     if (!((ExtractorOptions)Option).Mips) break;

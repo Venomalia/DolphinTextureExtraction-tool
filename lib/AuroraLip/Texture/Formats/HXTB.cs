@@ -44,7 +44,7 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(header_offset, SeekOrigin.Begin);
                 uint data_offset = stream.ReadUInt32(Endian.Big);
                 GXImageFormat format = (GXImageFormat)stream.ReadByte();
-                byte image_count = (byte)stream.ReadByte();
+                byte image_count = (byte)stream.ReadByte(); // max_LOD?
                 ushort unknown3 = stream.ReadUInt16(Endian.Big);
                 ushort width = stream.ReadUInt16(Endian.Big);
                 ushort height = stream.ReadUInt16(Endian.Big);
@@ -83,7 +83,7 @@ namespace AuroraLip.Texture.Formats
                     WrapT = GXWrapMode.CLAMP,
                     EnableEdgeLOD = false,
                     MinLOD = 0,
-                    MaxLOD = 0
+                    MaxLOD = image_count
                 };
                 Add(current);
             }

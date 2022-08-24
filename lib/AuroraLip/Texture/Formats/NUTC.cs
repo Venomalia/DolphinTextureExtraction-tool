@@ -36,6 +36,9 @@ namespace AuroraLip.Texture.Formats
             ushort texturesCount = stream.ReadUInt16(Endian.Big);
             stream.Position = 0x20;
 
+            if (FormatVersion != 32770)
+                Console.WriteLine("NUTC Version: " + FormatVersion);
+
             for (int i = 0; i < texturesCount; i++)
             {
 
@@ -84,7 +87,7 @@ namespace AuroraLip.Texture.Formats
                         WrapT = GXWrapMode.CLAMP,
                         EnableEdgeLOD = false,
                         MinLOD = 0,
-                        MaxLOD = 0
+                        MaxLOD = TotalImageCount-1
                     };
                     Add(current);
                 }

@@ -36,7 +36,7 @@ namespace AuroraLip.Texture.Formats
             int ImageWidth = stream.ReadUInt16(Endian.Big);
             int ImageHeight = stream.ReadUInt16(Endian.Big);
             GXImageFormat Format = (GXImageFormat)stream.ReadByte();
-            byte unknown = (byte)stream.ReadByte(); //2 0 3
+            WTMDPaletteFormat Palette = (WTMDPaletteFormat)stream.ReadByte();
             byte unknown1 = (byte)stream.ReadByte(); //2 0 3
             byte unknown2 = (byte)stream.ReadByte(); //1 2
             uint unknown3 = stream.ReadUInt16(Endian.Big);
@@ -55,6 +55,7 @@ namespace AuroraLip.Texture.Formats
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
             if (JUtility.IsPaletteFormat(Format))
             {
+                PaletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), Palette.ToString());
                 stream.Position = PalettePosition;
                 int PaletteSize = (int)ImagePosition - (int)PalettePosition;
                 PaletteCount = PaletteSize / 2;
@@ -86,6 +87,14 @@ namespace AuroraLip.Texture.Formats
         protected override void Write(Stream stream)
         {
             throw new NotImplementedException();
+        }
+
+        public enum WTMDPaletteFormat : byte
+        {
+            none = 0,
+            RGB565 = 1,
+            RGB5A3 = 2,
+            IA8 = 3
         }
     }
 }

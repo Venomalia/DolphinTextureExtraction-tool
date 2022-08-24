@@ -83,11 +83,11 @@ namespace DolphinTextureExtraction_tool
                     {
                         Console.WriteLine($"Extract mipmaps. \t(True) or False");
                         options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"Extracts all raw images that are found. \tTrue or (False)");
+                        Console.WriteLine($"Extracts raw image files. \tTrue or (False)");
                         options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"Tries to extract textures from unknown files, may cause errors. \tTrue or (False)");
+                        Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
                         options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.Write($"Sorts textures and removes unnecessary folders. \t(True) or False");
+                        Console.Write($"Clean up folder structure. \t(True) or False");
                         options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
                         if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
@@ -363,11 +363,11 @@ namespace DolphinTextureExtraction_tool
         {
             Console.Write($"Extracts Mipmaps: ");
             ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Extracts Raw Image fiels: ");
+            Console.Write($"Extracts raw image files: ");
             ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Extract textures from unknown files: ");
+            Console.Write($"Force extract textures from unknown formats: ");
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Sorts textures and removes unnecessary folders: ");
+            Console.Write($"Clean up folder structure: ");
             ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");
             ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);

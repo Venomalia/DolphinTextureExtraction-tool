@@ -42,11 +42,13 @@ namespace AuroraLip.Texture.Formats
             uint unknown3 = stream.ReadUInt16(Endian.Big);
             uint ImagePosition = stream.ReadUInt16(Endian.Big);
             uint unknown4 = stream.ReadUInt16(Endian.Big); //2 1 0
-            uint unknown5 = stream.ReadUInt16(Endian.Big);
-            uint unknown6 = stream.ReadUInt16(Endian.Big);
-            uint unknown8 = stream.ReadUInt16(Endian.Big);
-            uint unknown9 = stream.ReadUInt16(Endian.Big);
-            uint unknown10 = stream.ReadUInt16(Endian.Big);
+            uint padding1 = stream.ReadUInt32(Endian.Big);
+            uint padding2 = stream.ReadUInt32(Endian.Big);
+            uint padding3 = stream.ReadUInt16(Endian.Big);
+
+            //the number of mips are not specified, we calculate them from the rest size.
+            int size = (int)(stream.Length - ImagePosition);
+            int mipmaps = GetMipmapsFromSize(Format, size, ImageWidth, ImageHeight);
 
             byte[] PaletteData = null;
             int PaletteCount = 0;
@@ -60,7 +62,7 @@ namespace AuroraLip.Texture.Formats
 
             }
             stream.Position = ImagePosition;
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, 0)
+            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, mipmaps)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,
@@ -69,7 +71,7 @@ namespace AuroraLip.Texture.Formats
                 WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
                 MinLOD = 0,
-                MaxLOD = 0
+                MaxLOD = mipmaps
             };
             while (stream.Position != stream.Length)
             {

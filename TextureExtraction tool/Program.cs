@@ -14,6 +14,15 @@ namespace DolphinTextureExtraction_tool
 
         static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions();
 
+        static Program()
+        {
+            FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
+            FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
+            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
+            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
+            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
+        }
+
         static void Main(string[] args)
         {
 #if DEBUG
@@ -312,15 +321,10 @@ namespace DolphinTextureExtraction_tool
         {
             List<string> formats = new List<string>(AuroraLip.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name));
             formats.Add("CPK");
-            FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
             formats.Add("AFS");
-            FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
             formats.Add("BDL4");
-            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
             formats.Add("BMD3");
-            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
             formats.Add("TEX1");
-            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
             formats.Sort();
             Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.", 108, "\n                  "));
         }

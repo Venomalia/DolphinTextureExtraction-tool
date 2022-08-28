@@ -27,7 +27,7 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             int EOH = (int)stream.ReadUInt32(Endian.Big);
             int NrEntries = (int)stream.ReadUInt32(Endian.Big);
             int Size = (int)stream.ReadUInt32(Endian.Big);

@@ -42,7 +42,7 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             uint table_offset = stream.ReadUInt32(Endian.Big);
             uint unknown2 = stream.ReadUInt32(Endian.Big);
             uint file_count = stream.ReadUInt32(Endian.Big);

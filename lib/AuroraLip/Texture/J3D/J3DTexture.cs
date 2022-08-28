@@ -73,7 +73,7 @@ namespace AuroraLip.Texture.J3D
                 case GXImageFormat.C14X2:
                     return 1 << 14; //16384
                 default:
-                    throw new Exception("Not a Palette format!");
+                    throw new FormatException($"{Format} Is not a Palette format!");
             }
         }
         #endregion
@@ -156,7 +156,7 @@ namespace AuroraLip.Texture.J3D
                         Colours.Add(RGB5A3ToColor(Raw));
                         break;
                     default:
-                        throw new Exception("Bad Palette format");
+                        throw new FormatException($"Invalid {nameof(GXPaletteFormat)}:{PaletteFormat}");
                 }
             }
 
@@ -244,7 +244,7 @@ namespace AuroraLip.Texture.J3D
 
                     break;
                 default:
-                    throw new Exception("Invalid Image Format");
+                    throw new FormatException($"Invalid {nameof(GXImageFormat)}:{Format}");
             }
             return Result.ToArray();
         }
@@ -765,7 +765,7 @@ namespace AuroraLip.Texture.J3D
                     #endregion
                     break;
                 default:
-                    throw new Exception("Invalid Image Format");
+                    throw new FormatException($"Invalid {nameof(GXImageFormat)}:{Format}");
             }
 
             return EncodedBlock;
@@ -796,7 +796,7 @@ namespace AuroraLip.Texture.J3D
             else if (PaletteFormats == GXPaletteFormat.RGB5A3)
                 return Col.ToRGB5A3();
             else
-                throw new Exception("Invalid Palette Format");
+                throw new FormatException($"Invalid {nameof(GXPaletteFormat)}:{PaletteFormats}");
         }
 
         public static Color[] CreateLimitedPalette(List<Bitmap> Images, int MaxColours, bool Alpha = true)
@@ -813,7 +813,7 @@ namespace AuroraLip.Texture.J3D
             else if (MaxColours == 16384)
                 depth = 14;
             else
-                throw new Exception($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
+                throw new PaletteException($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
 
             List<Color> all_pixel_colors = new List<Color>();
             bool already_have_zero_alpha_color = false;
@@ -851,7 +851,7 @@ namespace AuroraLip.Texture.J3D
             else if (MaxColours == 16384)
                 depth = 14;
             else
-                throw new Exception($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
+                throw new PaletteException($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
 
             List<Color> all_pixel_colors = new List<Color>();
             bool already_have_zero_alpha_color = false;

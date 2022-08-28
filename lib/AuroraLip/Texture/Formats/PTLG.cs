@@ -29,7 +29,7 @@ namespace AuroraLip.Texture.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             uint numTextures = stream.ReadUInt32(Endian.Big);
             uint unk = stream.ReadUInt32(Endian.Big);

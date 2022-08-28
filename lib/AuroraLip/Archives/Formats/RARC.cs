@@ -302,7 +302,7 @@ namespace AuroraLip.Archives.Formats
         {
             #region Header
             if (!IsMatch(stream))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                    throw new InvalidIdentifierException(Magic);
             uint FileSize = stream.ReadUInt32(Endian.Big),
                 DataHeaderOffset = stream.ReadUInt32(Endian.Big),
                 DataOffset = stream.ReadUInt32(Endian.Big) + 0x20,

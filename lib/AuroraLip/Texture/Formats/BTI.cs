@@ -139,7 +139,7 @@ namespace AuroraLip.Texture.Formats
             };
             Add(current);
         }
-        protected override void Write(Stream stream) { throw new Exception("DO NOT CALL THIS"); }
+        protected override void Write(Stream stream) { throw new NotSupportedException("DO NOT CALL THIS"); }
         protected void Write(Stream stream, ref long DataOffset)
         {
             List<byte> ImageData = new List<byte>();

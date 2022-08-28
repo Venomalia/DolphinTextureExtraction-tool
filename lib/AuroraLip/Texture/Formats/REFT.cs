@@ -35,11 +35,11 @@ namespace AuroraLip.Texture.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
             if (ByteOrder != 65534)
             {
-                throw new Exception($"ByteOrder: \"{ByteOrder}\" Not Implemented");
+                throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
             }
             ushort FormatVersion = stream.ReadUInt16(Endian.Big);
             uint TotalSize = stream.ReadUInt32(Endian.Big);
@@ -52,7 +52,7 @@ namespace AuroraLip.Texture.Formats
             stream.Position = 0x10;
             //root sections
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             uint RootSize = stream.ReadUInt32(Endian.Big);
             long SubfilePosition = stream.ReadUInt32(Endian.Big) + stream.Position-4;
             uint Unknown = stream.ReadUInt32(Endian.Big);

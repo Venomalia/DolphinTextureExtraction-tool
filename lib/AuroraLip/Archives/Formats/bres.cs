@@ -33,11 +33,11 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
             if (ByteOrder != 65534)
             {
-                throw new Exception($"ByteOrder: \"{ByteOrder}\" Not Implemented");
+                throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
             }
             ushort Padding = stream.ReadUInt16(Endian.Big);
             uint TotalSize = stream.ReadUInt32(Endian.Big);
@@ -46,7 +46,7 @@ namespace AuroraLip.Archives.Formats
             stream.Position = Offset;
             //root sections
             if (!stream.MatchString("root"))
-                throw new Exception($"Invalid Identifier. Expected \"root\"");
+                throw new InvalidIdentifierException("root");
             uint RootSize = stream.ReadUInt32(Endian.Big);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
             ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);

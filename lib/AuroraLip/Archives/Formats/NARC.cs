@@ -27,7 +27,7 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             uint NrEntries = stream.ReadUInt32(Endian.Big);
             uint StringTableSize = stream.ReadUInt32(Endian.Big);
             uint DataTablePosition = stream.ReadUInt32(Endian.Big);

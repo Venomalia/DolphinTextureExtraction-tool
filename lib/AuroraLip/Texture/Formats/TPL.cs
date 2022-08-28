@@ -36,7 +36,8 @@ namespace AuroraLip.Texture.Formats
         {
             long HeaderStart = stream.Position;
 
-            if (!IsMatch(stream)) throw new Exception("Invalid Identifier. Expected \"0x0020AF30\"");
+            if (!IsMatch(stream))
+                throw new InvalidIdentifierException("0x0020AF30");
 
             int TotalImageCount = stream.ReadInt32(Endian.Big);
             int ImageTableOffset = stream.ReadInt32(Endian.Big);

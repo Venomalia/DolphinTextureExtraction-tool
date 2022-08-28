@@ -28,7 +28,7 @@ namespace AuroraLip.Texture.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             string version = stream.ReadString(4);
             uint name_table_offset = stream.ReadUInt32(Endian.Big);

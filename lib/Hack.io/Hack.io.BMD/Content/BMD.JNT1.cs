@@ -21,7 +21,7 @@ namespace Hack.io.BMD
             {
                 int ChunkStart = (int)stream.Position;
                 if (!stream.ReadString(4).Equals(Magic))
-                    throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                    throw new InvalidIdentifierException(Magic);
 
                 int jnt1Size = stream.ReadInt32(Endian.Big);
                 int jointCount = stream.ReadInt16(Endian.Big);

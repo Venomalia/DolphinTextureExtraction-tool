@@ -64,7 +64,7 @@ namespace Hack.io.BMD
         protected virtual void Read(Stream stream)
         {
             if (!stream.ReadString(8).Equals(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             stream.Position += 0x08 + 16;
             Scenegraph = new INF1(stream, out int VertexCount);

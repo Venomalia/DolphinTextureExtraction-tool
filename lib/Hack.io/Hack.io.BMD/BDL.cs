@@ -31,7 +31,7 @@ namespace Hack.io.BMD
         protected override void Read(Stream BDLFile)
         {
             if (!BDLFile.ReadString(8).Equals(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             BDLFile.Position += 0x08 + 16;
             Scenegraph = new INF1(BDLFile, out int VertexCount);

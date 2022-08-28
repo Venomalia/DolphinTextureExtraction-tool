@@ -26,7 +26,7 @@ namespace AuroraLip.Palette.Formats
         protected void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             uint TotalSize = stream.ReadUInt32(Endian.Big);
             uint FormatVersion = stream.ReadUInt32(Endian.Big);
             uint Offset = stream.ReadUInt32(Endian.Big);

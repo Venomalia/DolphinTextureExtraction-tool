@@ -106,6 +106,7 @@
     <Compile Include="Compression\Compression%28T%29.cs" />
     <Compile Include="Compression\CompressionReflection.cs" />
     <Compile Include="Compression\Enums\CompressionLevel.cs" />
+    <Compile Include="Common\Exceptions.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
     <Compile Include="Compression\Formats\LZSS.cs" />

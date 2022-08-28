@@ -22,7 +22,7 @@ namespace Hack.io.BMD
             {
                 long ChunkStart = stream.Position;
                 if (!stream.ReadString(4).Equals(Magic))
-                    throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                    throw new InvalidIdentifierException(Magic);
 
                 int ChunkSize = stream.ReadInt32(Endian.Big);
                 ScalingRule = (J3DLoadFlags)stream.ReadInt16(Endian.Big);

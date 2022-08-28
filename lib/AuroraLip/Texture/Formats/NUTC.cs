@@ -30,7 +30,7 @@ namespace AuroraLip.Texture.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             FormatVersion = stream.ReadUInt16(Endian.Big); //is 32770
             ushort texturesCount = stream.ReadUInt16(Endian.Big);
@@ -51,7 +51,7 @@ namespace AuroraLip.Texture.Formats
                 byte imageformat = (byte)stream.ReadByte();
 
                 if (imageformat != 0)
-                    throw new Exception("Unsupported image format");
+                    throw new FormatException($"Unsupported {nameof(NUTC)} Image format:{imageformat}");
 
                 byte TotalImageCount = (byte)stream.ReadByte();
                 NUTCPaletteFormat PaletteFormat = (NUTCPaletteFormat)stream.ReadByte();

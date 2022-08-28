@@ -29,7 +29,7 @@ namespace AuroraLip.Texture.Formats
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
 
             uint none = stream.ReadUInt16(Endian.Big);
             uint PalettePosition = stream.ReadUInt16(Endian.Big);

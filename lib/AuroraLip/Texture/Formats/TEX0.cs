@@ -34,7 +34,7 @@ namespace AuroraLip.Texture.Formats
         protected void Read(Stream stream, byte[] PaletteData, GXPaletteFormat PaletteFormat, int PaletteCount)
         {
             if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+                throw new InvalidIdentifierException(Magic);
             uint TotalSize = stream.ReadUInt32(Endian.Big);
             uint FormatVersion = stream.ReadUInt32(Endian.Big);
             uint Offset = stream.ReadUInt32(Endian.Big);
@@ -86,7 +86,7 @@ namespace AuroraLip.Texture.Formats
 #if DEBUG
                             return;
 #else
-                            throw new Exception($"multiple palettes ({Pallets.Count}) are not supported");
+                            throw new PaletteException($"multiple palettes ({Pallets.Count}) are not supported");
 #endif
                         }
                     }
@@ -96,7 +96,7 @@ namespace AuroraLip.Texture.Formats
 #if DEBUG
                     return;
 #else
-                    throw new Exception("No palette data could be found");
+                    throw new PaletteException("No palette data could be found");
 #endif
                 }
             }

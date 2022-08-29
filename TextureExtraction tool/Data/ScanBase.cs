@@ -195,7 +195,7 @@ namespace DolphinTextureExtraction_tool
                                 using (Archive Cut = new DataCutter(stream, ident))
                                 {
                                     foreach (var item in Cut.Root.Items)
-                                        ((ArchiveFile)item.Value).Name = "";
+                                        ((ArchiveFile)item.Value).Name = ((ArchiveFile)item.Value).Extension;
 
                                     Scan(Cut, subdirectory);
                                 }

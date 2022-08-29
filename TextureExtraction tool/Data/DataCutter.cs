@@ -45,7 +45,31 @@ namespace DolphinTextureExtraction_tool
 
             while (stream.Search(pattern, out byte[] match))
             {
+                // if Compresst?
+                if (stream.Position > 10)
+                {
+                    stream.Seek(-5, SeekOrigin.Current);
+                    switch (stream.ReadByte())
+                    {
+                        case 16: //LZ77
+                        //case 17: //LZ11
+                            stream.Seek(-1, SeekOrigin.Current);
+                            ArchiveFile ComSub = new ArchiveFile
+                            {
+                                Parent = Root,
+                                Name = $"entry_{TotalFileCount + 1}.lz",
+                                FileData = new SubStream(stream,stream.Length - stream.Position, stream.Position)
+                            };
+                            Root.Items.Add(ComSub.Name, ComSub);
+                            return;
+                        default:
+                            stream.Seek(4, SeekOrigin.Current);
+                            break;
+                    }
+                }
+
                 FormatDictionary.Header.TryGetValue(match.ToValidString(), out FormatInfo format);
+                if (format == null) format = new FormatInfo(".bin", match, 0, FormatType.Unknown);
                 long entrystart = stream.Position - format.Header.Offset;
 
                 if (err > maxErr)
@@ -66,7 +90,7 @@ namespace DolphinTextureExtraction_tool
                         continue;
                     case "AFS":
                         uint magic = stream.ReadUInt32();
-                        if (magic == 0x00534641|| magic == 0x20534641)
+                        if (magic == 0x00534641 || magic == 0x20534641)
                             goto default;
 
                         continue;

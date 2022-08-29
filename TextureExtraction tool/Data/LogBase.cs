@@ -4,7 +4,7 @@ namespace DolphinTextureExtraction_tool
 {
     public class LogBase : StreamWriter
     {
-        private static readonly object Lock = new object();
+        protected static readonly object Lock = new object();
 
         public string FullPath { get; private set; }
 

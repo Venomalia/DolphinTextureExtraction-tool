@@ -63,12 +63,12 @@ namespace DolphinTextureExtraction_tool
             lock (LockFile)
             {
                 WriteLine("".PadLeft(64, '-'));
-                WriteLine($"Error!!!... {strMessage} {ex?.Message}");
+                WriteLine($"Exception: {strMessage} {ex?.Message}");
                 WriteLine($"{ex?.Source}:{ex?.StackTrace}");
                 WriteLine("".PadLeft(64, '-'));
-                Console.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
                 Flush();
             }
+            Console.Error.WriteLine($"Exception: {strMessage} {ex?.Message}");
         }
 
         public void Write(FileAction action,in string file,in string value)

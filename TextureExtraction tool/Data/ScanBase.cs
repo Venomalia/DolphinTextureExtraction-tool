@@ -82,50 +82,38 @@ namespace DolphinTextureExtraction_tool
 
         protected abstract void Scan(Stream stream, string subdirectory, in string Extension = "");
 
-        protected void Scan(Archive archiv, string subdirectory)
-        {
-            ParallelOptions parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
-            if (archiv.TotalFileCount > 30)
-                parallelOptions = Option.Parallel;
+        protected void Scan(Archive archiv, in string subdirectory)
+            => Scan(archiv.Root, subdirectory);
 
-            Parallel.ForEach(archiv.Root.Items, parallelOptions, (KeyValuePair<string, object> item) =>
+        protected void Scan(ArchiveDirectory archivdirectory, string subdirectory)
+        {
+            List<ArchiveFile> fileInfos = new List<ArchiveFile>();
+            ArchiveInitialize(archivdirectory, fileInfos);
+
+            Parallel.ForEach(fileInfos, Option.Parallel, (file) =>
             {
-                if (item.Value is ArchiveFile file)
-                {
-                    Scan(file, subdirectory);
-                }
-                if (item.Value is ArchiveDirectory directory)
-                {
-                    if (directory.Name.Length > 4)
-                        Scan(directory, Path.Combine(subdirectory, directory.Name));
-                    else
-                        Scan(directory, subdirectory);
-                }
+                Scan(file, subdirectory);
             });
         }
 
-        protected void Scan(ArchiveDirectory archivdirectory, in string subdirectory)
+        private void ArchiveInitialize(ArchiveDirectory archivdirectory, List<ArchiveFile> files)
         {
-
             foreach (var item in archivdirectory.Items)
             {
                 if (item.Value is ArchiveFile file)
                 {
-                    Scan(file, subdirectory);
+                    files.Add(file);
                 }
                 if (item.Value is ArchiveDirectory directory)
                 {
-                    if (directory.Name.Length > 4)
-                        Scan(directory, Path.Combine(subdirectory, directory.Name));
-                    else
-                        Scan(directory, subdirectory);
+                    ArchiveInitialize(directory, files);
                 }
             }
         }
 
         protected void Scan(ArchiveFile file, in string subdirectory)
         {
-            Scan(file.FileData, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(file.Name)), file.Extension.ToLower());
+            Scan(file.FileData, Path.Combine(subdirectory, file.FullPath), file.Extension.ToLower());
         }
         #endregion
 

@@ -59,7 +59,7 @@ namespace AuroraLip.Archives
             {
                 if (item.Value is ArchiveFile file)
                 {
-                    file.Save(FolderPath + "/" + file.Name);
+                    file.Save(Path.Combine(FolderPath,file.Name));
                 }
                 else if (item.Value is ArchiveDirectory directory)
                 {
@@ -72,20 +72,20 @@ namespace AuroraLip.Archives
         /// <summary>
         /// Get or Set a file based on a path. When setting, if the file doesn't exist, it will be added (Along with any missing subdirectories)
         /// </summary>
-        /// <param name="Path">The Path to take</param>
+        /// <param name="path">The Path to take</param>
         /// <returns></returns>
-        public object this[string Path]
+        public object this[string path]
         {
             get
             {
-                string[] PathSplit = Path.Split('/');
+                string[] PathSplit = path.Split(Path.DirectorySeparatorChar);
                 if (!ItemKeyExists(PathSplit[0]))
                     return null;
-                return (PathSplit.Length > 1 && Items[PathSplit[0]] is ArchiveDirectory dir) ? dir[Path.Substring(PathSplit[0].Length + 1)] : Items[PathSplit[0]];
+                return (PathSplit.Length > 1 && Items[PathSplit[0]] is ArchiveDirectory dir) ? dir[path.Substring(PathSplit[0].Length + 1)] : Items[PathSplit[0]];
             }
             set
             {
-                string[] PathSplit = Path.Split('/');
+                string[] PathSplit = path.Split(Path.DirectorySeparatorChar);
                 if (!ItemKeyExists(PathSplit[0]) && !(value is null))
                 {
                     ((dynamic)value).Parent = this;
@@ -106,7 +106,7 @@ namespace AuroraLip.Archives
                         ArchiveDirectory dir = NewDirectory(OwnerArchive, this);
                         dir.Name = PathSplit[0];
                         Items.Add(PathSplit[0], dir);
-                        ((ArchiveDirectory)Items[PathSplit[0]])[Path.Substring(PathSplit[0].Length + 1)] = value;
+                        ((ArchiveDirectory)Items[PathSplit[0]])[path.Substring(PathSplit[0].Length + 1)] = value;
                     }
                 }
                 else
@@ -132,21 +132,21 @@ namespace AuroraLip.Archives
                         }
                     }
                     else if (Items[PathSplit[0]] is ArchiveDirectory dir)
-                        dir[Path.Substring(PathSplit[0].Length + 1)] = value;
+                        dir[path.Substring(PathSplit[0].Length + 1)] = value;
                 }
             }
         }
         /// <summary>
         /// Checks to see if an Item Exists based on a Path
         /// </summary>
-        /// <param name="Path">The path to take</param>
+        /// <param name="path">The path to take</param>
         /// <param name="IgnoreCase">Ignore casing</param>
         /// <returns>false if the Item isn't found</returns>
-        public bool ItemExists(string Path, bool IgnoreCase = false)
+        public bool ItemExists(string path, bool IgnoreCase = false)
         {
-            string[] PathSplit = Path.Split('/');
+            string[] PathSplit = path.Split(Path.DirectorySeparatorChar);
             if (PathSplit.Length > 1 && ItemKeyExists(PathSplit[0]) && Items[PathSplit[0]] is ArchiveDirectory dir)
-                return dir.ItemExists(Path.Substring(PathSplit[0].Length + 1), IgnoreCase);
+                return dir.ItemExists(path.Substring(PathSplit[0].Length + 1), IgnoreCase);
             else if (PathSplit.Length > 1)
                 return false;
             else
@@ -171,27 +171,27 @@ namespace AuroraLip.Archives
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Path"></param>
+        /// <param name="path"></param>
         /// <param name="AttachRootName"></param>
         /// <returns></returns>
-        public string GetItemKeyFromNoCase(string Path, bool AttachRootName = false)
+        public string GetItemKeyFromNoCase(string path, bool AttachRootName = false)
         {
-            string[] PathSplit = Path.Split('/');
+            string[] PathSplit = path.Split(Path.DirectorySeparatorChar);
             if (PathSplit.Length > 1)
             {
                 string result = Items.FirstOrDefault(x => string.Equals(x.Key, PathSplit[0], StringComparison.OrdinalIgnoreCase)).Key;
                 if (result == null)
                     return null;
                 else
-                    result = ((ArchiveDirectory)Items[result]).GetItemKeyFromNoCase(Path.Substring(PathSplit[0].Length + 1), true);
-                return result == null ? null : (AttachRootName ? Name + "/" : "") + result;
+                    result = ((ArchiveDirectory)Items[result]).GetItemKeyFromNoCase(path.Substring(PathSplit[0].Length + 1), true);
+                return result == null ? null : (AttachRootName ? Name + Path.DirectorySeparatorChar : "") + result;
             }
             else if (PathSplit.Length > 1)
                 return null;
             else
             {
                 string result = Items.FirstOrDefault(x => string.Equals(x.Key, PathSplit[0], StringComparison.OrdinalIgnoreCase)).Key;
-                return result == null ? null : (AttachRootName ? Name + "/" : "") + result;
+                return result == null ? null : (AttachRootName ? Name + Path.DirectorySeparatorChar : "") + result;
             }
         }
         /// <summary>

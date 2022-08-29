@@ -70,9 +70,9 @@ namespace AuroraLip.Texture.Formats
                         substream.BaseStream.Seek(substream.Offset + StringOffset, SeekOrigin.Begin);
                         name = substream.BaseStream.ReadString();
                     }
-                    if (substream.Parent.ItemExists("root/Palettes(NW4R)"))
+                    if (substream.Parent.ItemExists("Palettes(NW4R)"))
                     {
-                        var Pallets = ((ArchiveDirectory)substream.Parent["root/Palettes(NW4R)"]).FindItems(name + "*");
+                        var Pallets = ((ArchiveDirectory)substream.Parent["Palettes(NW4R)"]).FindItems(name + "*");
                         if (Pallets.Count == 1)
                         {
                             ArchiveFile PFile = (ArchiveFile)substream.Parent[Pallets[0]];

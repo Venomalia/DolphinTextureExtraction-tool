@@ -154,14 +154,14 @@ namespace AuroraLip.Archives
         /// <summary>
         /// Checks to see if an Item Exists based on a Path
         /// </summary>
-        /// <param name="Path">The path to take</param>
+        /// <param name="path">The path to take</param>
         /// <param name="IgnoreCase">Ignore casing of the file</param>
         /// <returns>false if the Item isn't found</returns>
-        public bool ItemExists(string Path, bool IgnoreCase = false)
+        public bool ItemExists(string path, bool IgnoreCase = false)
         {
-            if (Path.StartsWith(Root.Name + "/"))
-                Path = Path.Substring(Root.Name.Length + 1);
-            return Root.ItemExists(Path, IgnoreCase);
+            if (path.StartsWith(Root.Name + Path.DirectorySeparatorChar))
+                path = path.Substring(Root.Name.Length + 1);
+            return Root.ItemExists(path, IgnoreCase);
         }
         /// <summary>
         /// This will return the absolute path of an item if it exists in some way. Useful if you don't know the casing of the filename inside the file. Returns null if nothing is found.

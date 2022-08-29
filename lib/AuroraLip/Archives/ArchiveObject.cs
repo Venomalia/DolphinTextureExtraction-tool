@@ -1,9 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 
 namespace AuroraLip.Archives
 {
-    public abstract class ArchiveObject: IDisposable
+    public abstract class ArchiveObject : IDisposable
     {
         /// <summary>
         /// Name of the <see cref="ArchiveObject" />.
@@ -38,18 +39,16 @@ namespace AuroraLip.Archives
         /// </summary>
         protected ArchiveObject() { }
 
-        internal void GetFullPath(StringBuilder Path)
+        internal void GetFullPath(StringBuilder PathBuilder)
         {
-            if (Parent != null)
+            if (Parent?.Parent != null)
             {
-                Parent.GetFullPath(Path);
-                Path.Append("/");
-                Path.Append(Name);
+                int i = PathBuilder.Length;
+                Parent.GetFullPath(PathBuilder);
+                if (i != PathBuilder.Length)
+                    PathBuilder.Append(Path.DirectorySeparatorChar);
             }
-            else
-            {
-                Path.Append(Name);
-            }
+            PathBuilder.Append(Name);
         }
 
         private bool disposedValue;

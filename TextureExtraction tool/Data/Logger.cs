@@ -9,26 +9,20 @@ namespace DolphinTextureExtraction_tool
         Unknown = -2, Unsupported = -1, Extract
     }
 
-    internal class ScanLogger : IDisposable
+    internal class ScanLogger : LogBase
     {
         private static readonly object LockFile = new object();
 
-        public string FullPath { get; private set; }
-
-        readonly StreamWriter LogFile;
-
-        public ScanLogger(string directory)
+        public ScanLogger(string directory) : base(GenerateFullPath(directory))
         {
-            Directory.CreateDirectory(directory);
-            GenerateLogFullPath(directory);
-            LogFile = new StreamWriter(FullPath, false);
             WriteHeader();
         }
 
-        private void GenerateLogFullPath(string directory)
+        private static string GenerateFullPath(string directory)
         {
             string basename = System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
+            string FullPath;
             if (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename), "log")))
             {
                 int i = 2;
@@ -37,50 +31,43 @@ namespace DolphinTextureExtraction_tool
                     i++;
                 }
             }
-        }
-
-        public void WriteLine(string value)
-        {
-            lock (LockFile)
-            {
-                LogFile.WriteLine(value);
-            }
+            return FullPath;
         }
 
         private void WriteHeader()
         {
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.Flush();
+            WriteLine("".PadLeft(64, '-'));
+            WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
+            WriteLine("".PadLeft(64, '-'));
+            Flush();
         }
 
-        public void WriteFoot(TextureExtractor.Result result)
+        public void WriteFoot(TextureExtractor.ExtractorResult result)
         {
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.WriteLine($"~END  {DateTime.Now.ToString()}");
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.WriteLine($"Extracted textures: {result.Extracted}");
-            LogFile.WriteLine($"Unsupported files: {result.Unsupported}");
-            if (result.Unsupported != 0) LogFile.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
-            LogFile.WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFormatType.Count != 0) LogFile.WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
-            LogFile.WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
-            LogFile.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
-            LogFile.WriteLine("".PadLeft(64, '-'));
-            LogFile.Flush();
+            WriteLine("".PadLeft(64, '-'));
+            WriteLine($"~END  {DateTime.Now.ToString()}");
+            WriteLine("".PadLeft(64, '-'));
+            WriteLine($"Extracted textures: {result.Extracted}");
+            WriteLine($"Unsupported files: {result.Unsupported}");
+            if (result.Unsupported != 0) WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
+            WriteLine($"Unknown files: {result.Unknown}");
+            if (result.UnknownFormatType.Count != 0) WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
+            WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
+            WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
+            WriteLine("".PadLeft(64, '-'));
+            Flush();
         }
 
         public void WriteEX(Exception ex,in string strMessage = "")
         {
             lock (LockFile)
             {
-                LogFile.WriteLine("".PadLeft(64, '-'));
-                LogFile.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
-                LogFile.WriteLine($"{ex?.Source}:{ex?.StackTrace}");
-                LogFile.WriteLine("".PadLeft(64, '-'));
+                WriteLine("".PadLeft(64, '-'));
+                WriteLine($"Error!!!... {strMessage} {ex?.Message}");
+                WriteLine($"{ex?.Source}:{ex?.StackTrace}");
+                WriteLine("".PadLeft(64, '-'));
                 Console.WriteLine($"Error!!!... {strMessage} {ex?.Message}");
-                LogFile.Flush();
+                Flush();
             }
         }
 
@@ -91,47 +78,19 @@ namespace DolphinTextureExtraction_tool
                 switch (action)
                 {
                     case FileAction.Unknown:
-                        LogFile.WriteLine("Unknown:");
+                        WriteLine("Unknown:");
                         break;
                     case FileAction.Unsupported:
-                        LogFile.WriteLine("Unsupported:");
+                        WriteLine("Unsupported:");
                         break;
                     case FileAction.Extract:
-                        LogFile.WriteLine("Extract:");
+                        WriteLine("Extract:");
                         break;
                 }
-                LogFile.Write($"\"~{file}\"\n");
-                LogFile.WriteLine($" {value}");
-                LogFile.Flush();
+                Write($"\"~{file}\"\n");
+                WriteLine($" {value}");
+                Flush();
             }
         }
-
-        #region Dispose
-
-        private bool disposedValue;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    LogFile.Dispose();
-                }
-                disposedValue = true;
-            }
-        }
-        ~ScanLogger()
-        {
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion
     }
 }

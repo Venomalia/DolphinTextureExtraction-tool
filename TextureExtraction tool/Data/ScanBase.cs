@@ -6,6 +6,7 @@ using LibCPK;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -35,7 +36,12 @@ namespace DolphinTextureExtraction_tool
         public class Results
         {
             public int Worke { get; internal set; }
+
             public int Progress { get; internal set; } = 0;
+
+            public double WorkeLength { get; internal set; }
+
+            public double ProgressLength { get; internal set; } = 0;
         }
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
@@ -58,12 +64,17 @@ namespace DolphinTextureExtraction_tool
             List<FileInfo> fileInfos = new List<FileInfo>();
             ScanInitialize(directory, fileInfos);
             Result.Worke = fileInfos.Count;
+            Result.WorkeLength =  directory.EnumerateFiles("*.*", SearchOption.AllDirectories).Sum(fi => fi.Length);
             Option.ProgressAction?.Invoke(Result);
 
             Parallel.ForEach(fileInfos, Option.Parallel, (file, localSum, i) =>
             {
                 Scan(file);
-                lock (Result) Result.Progress++;
+                lock (Result)
+                {
+                    Result.Progress++;
+                    Result.ProgressLength += file.Length;
+                }
                 Option.ProgressAction?.Invoke(Result);
             });
         }

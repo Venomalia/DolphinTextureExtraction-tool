@@ -14,6 +14,11 @@ namespace DolphinTextureExtraction_tool
 
         static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions();
 
+#if DEBUG
+        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
+#else
+        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+#endif
         static Program()
         {
             //link external classes
@@ -26,11 +31,8 @@ namespace DolphinTextureExtraction_tool
 
         static void Main(string[] args)
         {
-#if DEBUG
-            Console.Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
-#else
-            Console.Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
-#endif
+            Console.Title = Title;
+
             if (args.Length == 0)
             {
                 PrintHeader();
@@ -411,18 +413,25 @@ namespace DolphinTextureExtraction_tool
             {
                 if (ScanProgress == null)
                 {
-                    ScanProgress = new ConsoleBar(result.Worke, 40);
+                    ScanProgress = new ConsoleBar(result.WorkeLength, 40);
                 }
                 int Cursor = Console.CursorTop;
                 ScanProgress.CursorTop = Cursor;
-                ScanProgress.Value = result.Progress;
+                ScanProgress.Value = result.ProgressLength;
                 ScanProgress.Print();
-                Console.Write($" {(int)((float)result.Progress / result.Worke * 100)}%");
+                double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
+                Console.Write($" {(int)ProgressPercentage}%");
                 Console.WriteLine();
                 if (result.Progress < result.Worke)
+                {
                     Console.SetCursorPosition(0, Cursor);
+                    Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
+                }
                 else
+                {
                     ScanProgress = null;
+                    Console.Title = Title;
+                }
             }
         }
     }

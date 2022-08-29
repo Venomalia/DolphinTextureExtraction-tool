@@ -6,14 +6,14 @@ namespace DolphinTextureExtraction_tool
     {
 
         public ConsoleColor Color { get; private set; }
-        public float Max { get; private set; }
+        public double Max { get; private set; }
         public int Length { get; private set; }
-        public float Value { get; set; } = 0;
+        public double Value { get; set; } = 0;
 
         public int CursorTop { get; set; }
         public int CursorLeft { get; set; }
 
-        public ConsoleBar(float max, int length = 30, ConsoleColor color = ConsoleColor.Green)
+        public ConsoleBar(double max, int length = 30, ConsoleColor color = ConsoleColor.Green)
         {
             CursorTop = Console.CursorTop;
             CursorLeft = Console.CursorLeft;
@@ -29,7 +29,7 @@ namespace DolphinTextureExtraction_tool
             Console.ForegroundColor = Color;
 
             Console.Write("│");
-            float PL = Value * Length / Max;
+            float PL = (float)(Value * Length / Max);
             if (PL >= 1) Console.Write("".PadLeft((int)PL, '█'));
             if (PL < Length)
             {

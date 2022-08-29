@@ -115,8 +115,13 @@ namespace DolphinTextureExtraction_tool
                     //Start
                     Console.WriteLine($"Search and extract textures from {InputDirectory}");
                     Console.WriteLine("This may take a few seconds...");
+                    Console.WriteLine();
+
+                    Console.CursorVisible = false;
+                    options.ProgressAction = ProgressUpdate;
                     var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
 
+                    Console.CursorVisible = true;
                     Console.WriteLine();
                     PrintResult(result);
                 }
@@ -383,7 +388,7 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
         }
 
-        static void PrintResult(TextureExtractor.Result result)
+        static void PrintResult(TextureExtractor.ExtractorResult result)
         {
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             Console.WriteLine($"Extracted textures: {result.Extracted}");
@@ -395,6 +400,30 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+        }
+
+        private static ConsoleBar ScanProgress;
+        private static object ProgressLock = new object();
+
+        static void ProgressUpdate(ScanBase.Results result)
+        {
+            lock (ProgressLock)
+            {
+                if (ScanProgress == null)
+                {
+                    ScanProgress = new ConsoleBar(result.Worke, 40);
+                }
+                int Cursor = Console.CursorTop;
+                ScanProgress.CursorTop = Cursor;
+                ScanProgress.Value = result.Progress;
+                ScanProgress.Print();
+                Console.Write($" {(int)((float)result.Progress / result.Worke * 100)}%");
+                Console.WriteLine();
+                if (result.Progress < result.Worke)
+                    Console.SetCursorPosition(0, Cursor);
+                else
+                    ScanProgress = null;
+            }
         }
     }
 }

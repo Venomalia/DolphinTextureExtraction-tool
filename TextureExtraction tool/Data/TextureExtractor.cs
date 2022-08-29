@@ -16,7 +16,7 @@ namespace DolphinTextureExtraction_tool
     {
         private readonly ScanLogger Log;
 
-        private readonly Result result = new Result();
+        private new ExtractorResult Result => (ExtractorResult)base.Result;
 
         public class ExtractorOptions : Options
         {
@@ -47,7 +47,7 @@ namespace DolphinTextureExtraction_tool
 
         }
 
-        public class Result
+        public class ExtractorResult : Results
         {
             public TimeSpan TotalTime { get; internal set; }
 
@@ -103,33 +103,35 @@ namespace DolphinTextureExtraction_tool
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
+            Directory.CreateDirectory(SaveDirectory);
+            base.Result = new ExtractorResult();
             Log = new ScanLogger(SaveDirectory);
-            result.LogFullPath = Log.FullPath;
+            Result.LogFullPath = Log.FullPath;
         }
 
-        public static Result StartScan(string meindirectory, string savedirectory)
+        public static ExtractorResult StartScan(string meindirectory, string savedirectory)
             => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions()).Result;
 
-        public static Result StartScan(string meindirectory, string savedirectory, ExtractorOptions options)
+        public static ExtractorResult StartScan(string meindirectory, string savedirectory, ExtractorOptions options)
             => StartScan_Async(meindirectory, savedirectory, options).Result;
 
-        public static Task<Result> StartScan_Async(string meindirectory, string savedirectory)
+        public static Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory)
             => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions());
 
-        public static async Task<Result> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
+        public static async Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
         {
             TextureExtractor Extractor = new TextureExtractor(meindirectory, savedirectory, options);
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        public Result StartScan()
+        public ExtractorResult StartScan()
         {
             DateTime starttime = DateTime.Now;
 
             Scan(new DirectoryInfo(ScanDirectory));
 
-            result.TotalTime = DateTime.Now.Subtract(starttime);
-            Log.WriteFoot(result);
+            Result.TotalTime = DateTime.Now.Subtract(starttime);
+            Log.WriteFoot(Result);
             Log.Dispose();
 
             if (((ExtractorOptions)Option).Cleanup)
@@ -145,7 +147,7 @@ namespace DolphinTextureExtraction_tool
                 }
             }
 
-            return result;
+            return Result;
         }
 
         #endregion
@@ -172,7 +174,7 @@ namespace DolphinTextureExtraction_tool
 
                         AddResultUnknown(stream, FFormat, subdirectory + file.Extension);
                         //Exclude files that are too small, for calculation purposes only half the size.
-                        if (stream.Length > 130) result.SkippedSize += stream.Length / 2;
+                        if (stream.Length > 130) Result.SkippedSize += stream.Length / 2;
                         break;
                     case FormatType.Archive:
                     case FormatType.Texture:
@@ -195,8 +197,8 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, subdirectory + file.Extension);
-                result.Unsupported++;
-                result.UnsupportedSize += file.Length;
+                Result.Unsupported++;
+                Result.UnsupportedSize += file.Length;
             }
 #endif
             stream.Close();
@@ -217,7 +219,7 @@ namespace DolphinTextureExtraction_tool
                         if (TryForce(stream, subdirectory, FFormat))
                             break;
                         AddResultUnknown(stream, FFormat, subdirectory + Extension);
-                        if (stream.Length > 300) result.SkippedSize += stream.Length / 50;
+                        if (stream.Length > 300) Result.SkippedSize += stream.Length / 50;
                         break;
                     case FormatType.Texture:
                         if (((ExtractorOptions)Option).Raw)
@@ -231,7 +233,7 @@ namespace DolphinTextureExtraction_tool
                                 Texture.Open(stream);
                                 Save(Texture, subdirectory);
                             }
-                            result.ExtractedSize += stream.Length;
+                            Result.ExtractedSize += stream.Length;
                             break;
                         }
                         goto case FormatType.Archive;
@@ -252,7 +254,7 @@ namespace DolphinTextureExtraction_tool
                                         {
                                             Save(item, subdirectory);
                                         }
-                                        result.ExtractedSize += stream.Length;
+                                        Result.ExtractedSize += stream.Length;
                                         break;
                                     case "BMD":
                                         BMD bmdmodel = new BMD(stream);
@@ -260,11 +262,11 @@ namespace DolphinTextureExtraction_tool
                                         {
                                             Save(item, subdirectory);
                                         }
-                                        result.ExtractedSize += stream.Length;
+                                        Result.ExtractedSize += stream.Length;
                                         break;
                                     case "TEX0":
                                         using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
-                                        result.ExtractedSize += stream.Length;
+                                        Result.ExtractedSize += stream.Length;
                                         break;
                                 }
                             }
@@ -276,9 +278,9 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, subdirectory + Extension);
-                if (!result.UnsupportedFormatType.Contains(FFormat)) result.UnsupportedFormatType.Add(FFormat);
-                result.Unsupported++;
-                result.UnsupportedSize += stream.Length;
+                if (!Result.UnsupportedFormatType.Contains(FFormat)) Result.UnsupportedFormatType.Add(FFormat);
+                Result.Unsupported++;
+                Result.UnsupportedSize += stream.Length;
             }
 
 #endif
@@ -342,11 +344,11 @@ namespace DolphinTextureExtraction_tool
             foreach (JUTTexture.TexEntry tex in texture)
             {
                 //Skip duplicate textures
-                if (result.Hash.Contains(tex.Hash))
+                if (Result.Hash.Contains(tex.Hash))
                 {
                     continue;
                 }
-                result.Hash.Add(tex.Hash);
+                Result.Hash.Add(tex.Hash);
 
                 Log.Write(FileAction.Extract, subdirectory, $"Hash:{tex.Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "")}");
 
@@ -423,9 +425,9 @@ namespace DolphinTextureExtraction_tool
         private void AddResultUnsupported(Stream stream, string subdirectory, string Extension, FormatInfo FFormat)
         {
             Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
-            if (!result.UnsupportedFormatType.Contains(FFormat)) result.UnsupportedFormatType.Add(FFormat);
-            result.Unsupported++;
-            result.UnsupportedSize += stream.Length;
+            if (!Result.UnsupportedFormatType.Contains(FFormat)) Result.UnsupportedFormatType.Add(FFormat);
+            Result.Unsupported++;
+            Result.UnsupportedSize += stream.Length;
         }
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
@@ -443,9 +445,9 @@ namespace DolphinTextureExtraction_tool
 
             if (stream.Length > 130)
             {
-                if (!result.UnknownFormatType.Contains(FormatTypee)) result.UnknownFormatType.Add(FormatTypee);
+                if (!Result.UnknownFormatType.Contains(FormatTypee)) Result.UnknownFormatType.Add(FormatTypee);
             }
-            result.Unknown++;
+            Result.Unknown++;
         }
         #endregion
 

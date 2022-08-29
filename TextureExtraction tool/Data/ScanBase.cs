@@ -19,6 +19,8 @@ namespace DolphinTextureExtraction_tool
 
         protected readonly Options Option;
 
+        protected Results Result = new Results();
+
         public class Options
         {
 #if DEBUG
@@ -26,6 +28,14 @@ namespace DolphinTextureExtraction_tool
 #else
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 #endif
+            public Action<Results> ProgressAction;
+        }
+
+
+        public class Results
+        {
+            public int Worke { get; internal set; }
+            public int Progress { get; internal set; } = 0;
         }
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
@@ -47,10 +57,14 @@ namespace DolphinTextureExtraction_tool
         {
             List<FileInfo> fileInfos = new List<FileInfo>();
             ScanInitialize(directory, fileInfos);
+            Result.Worke = fileInfos.Count;
+            Option.ProgressAction?.Invoke(Result);
 
-            Parallel.ForEach(fileInfos, Option.Parallel, (FileInfo file) =>
+            Parallel.ForEach(fileInfos, Option.Parallel, (file, localSum, i) =>
             {
                 Scan(file);
+                lock (Result) Result.Progress++;
+                Option.ProgressAction?.Invoke(Result);
             });
         }
 
@@ -170,7 +184,7 @@ namespace DolphinTextureExtraction_tool
                         archive.Open(stream);
                         Scan(archive, subdirectory);
 
-                        if (stream.Length > 104857600*5) //100MB*5
+                        if (stream.Length > 104857600 * 5) //100MB*5
                             return true;
 
                         if (archive is IMagicIdentify identify)
@@ -232,8 +246,8 @@ namespace DolphinTextureExtraction_tool
             try
             {
                 if (badformats.Item1 == FFormat)
-                        if (badformats.Item2 > 4)
-                            return false;
+                    if (badformats.Item2 > 4)
+                        return false;
 
                 Archive archive = new DataCutter(stream);
                 if (archive.Root.Count > 0)

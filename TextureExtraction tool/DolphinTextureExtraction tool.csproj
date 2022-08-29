@@ -220,6 +220,7 @@
     <Compile Include="Data\DataCutter.cs" />
     <Compile Include="Data\Cleanup.cs" />
     <Compile Include="Data\ConsoleEx.cs" />
+    <Compile Include="Data\ConsoleBar.cs" />
     <Compile Include="Data\LogBase.cs" />
     <Compile Include="Data\Logger.cs" />
     <Compile Include="Data\ScanBase.cs" />

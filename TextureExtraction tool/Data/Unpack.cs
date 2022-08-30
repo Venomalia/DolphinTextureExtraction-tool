@@ -1,8 +1,6 @@
 ﻿using AuroraLip.Common;
-using LibCPK;
 using System;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
@@ -49,15 +47,10 @@ namespace DolphinTextureExtraction_tool
                     case FormatType.Archive:
                         switch (FFormat.Extension.ToLower())
                         {
-                            case "cpk":
-                                stream.Close();
-                                scanCPK(file.FullName, subdirectory);
-                                break;
                             default:
                                 if (!TryExtract(stream, subdirectory, FFormat))
                                 {
                                     Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
-                                    Save(stream, subdirectory, FFormat);
                                 }
                                 break;
                         }
@@ -113,29 +106,6 @@ namespace DolphinTextureExtraction_tool
             }
 #endif
             stream.Close();
-        }
-
-        private void scanCPK(string file, string subdirectory)
-        {
-            CPK CpkContent = new CPK();
-            CpkContent.ReadCPK(file, Encoding.UTF8);
-
-            BinaryReader CPKReader = new BinaryReader(File.OpenRead(file));
-
-            foreach (var entries in CpkContent.fileTable)
-            {
-                try
-                {
-                    if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
-                    {
-                        MemoryStream CpkContentStream = new MemoryStream(chunk);
-                        Scan(CpkContentStream, Path.Combine(subdirectory, Path.GetFileNameWithoutExtension(entries.FileName.ToString())));
-                        CpkContentStream.Dispose();
-                    }
-                }
-                catch (Exception) { }
-            }
-            CPKReader.Close();
         }
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)

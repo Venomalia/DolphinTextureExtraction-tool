@@ -72,7 +72,7 @@ namespace DolphinTextureExtraction_tool
             List<FileInfo> fileInfos = new List<FileInfo>();
             ScanInitialize(directory, fileInfos);
             Result.Worke = fileInfos.Count;
-            Result.WorkeLength =  directory.EnumerateFiles("*.*", SearchOption.AllDirectories).Sum(fi => fi.Length);
+            Result.WorkeLength = directory.EnumerateFiles("*.*", SearchOption.AllDirectories).Sum(fi => fi.Length);
             Option.ProgressAction?.Invoke(Result);
 
             Parallel.ForEach(fileInfos, Option.Parallel, (file, localSum, i) =>
@@ -228,6 +228,9 @@ namespace DolphinTextureExtraction_tool
                                     Scan(Streamitem.GetSubStream(), Path.Combine(subdirectory, Streamitem.SanitizedName), Path.GetExtension(Streamitem.SanitizedName));
                         }
                         break;
+                    case "CPK":
+                        scanCPK(stream, subdirectory);
+                        break;
                 }
             }
             return false;
@@ -275,6 +278,40 @@ namespace DolphinTextureExtraction_tool
             }
             catch (Exception) { }
             return false;
+        }
+
+        protected virtual void scanCPK(Stream stream, string subdirectory)
+        {
+            CPK CpkContent = new CPK();
+            CpkContent.ReadCPK(stream, Encoding.UTF8);
+            BinaryReader CPKReader = new BinaryReader(stream);
+
+            foreach (var entries in CpkContent.fileTable)
+            {
+                string FullPath;
+                if (entries.DirName != null)
+                {
+                    FullPath = Path.Combine(subdirectory, entries.DirName.ToString(), entries.FileName?.ToString());
+                }
+                else
+                {
+                    FullPath = Path.Combine(subdirectory, entries.FileName?.ToString());
+                }
+                try
+                {
+                    if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
+                    {
+                        MemoryStream CpkContentStream = new MemoryStream(chunk);
+                        Scan(CpkContentStream, FullPath);
+                        CpkContentStream.Dispose();
+                    }
+                }
+                catch (Exception t)
+                {
+                    Log.WriteEX(t, FullPath);
+                }
+            }
+            CPKReader.Close();
         }
 
         protected bool CpkDecompressEntrie(CPK CpkContent, BinaryReader CPKReader, LibCPK.FileEntry entrie, out byte[] chunk)

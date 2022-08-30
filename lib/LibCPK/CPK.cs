@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Runtime.InteropServices;
-using LibCRIComp;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace LibCPK
 {
@@ -19,134 +18,132 @@ namespace LibCPK
         public CPK()
         {
             isUtfEncrypted = false;
-            
         }
 
-        public bool ReadCPK(string sPath, Encoding encoding = null)
+        public void ReadCPK(string sPath, Encoding encoding = null)
         {
-            if (File.Exists(sPath))
-            {
-                uint Files;
-                ushort Align;
-
-                EndianReader br = new EndianReader(File.OpenRead(sPath), true);
-                MemoryStream ms;
-                EndianReader utfr;
-
-                if (Tools.ReadCString(br, 4) != "CPK ")
-                {
-                    br.Close();
-                    return false;
-                }
-
-                ReadUTFData(br);
-
-                CPK_packet = utf_packet;
-
-                FileEntry CPAK_entry = new FileEntry
-                {
-                    FileName = "CPK_HDR",
-                    FileOffsetPos = br.BaseStream.Position + 0x10,
-                    FileSize = CPK_packet.Length,
-                    Encrypted = isUtfEncrypted,
-                    FileType = "CPK"
-                };
-
-                fileTable.Add(CPAK_entry);
-
-                ms = new MemoryStream(utf_packet);
-                utfr = new EndianReader(ms, false);
-
-                utf = new UTF();
-                if (!utf.ReadUTF(utfr, encoding))
-                {
-                    br.Close();
-                    return false;
-                }
-
-                utfr.Close();
-                ms.Close();
-
-                cpkdata = new Dictionary<string, object>();
-
-                try
-                {
-                    for (int i = 0; i < utf.columns.Count; i++)
-                    {
-                        cpkdata.Add(utf.columns[i].name, utf.rows[0].rows[i].GetValue());
-                    }
-                }
-                catch (Exception ex)
-                {
-                    //MessageBox.Show(ex.ToString());
-                    Debug.Print(ex.ToString());
-                }
-
-                TocOffset = (ulong)GetColumsData(utf, 0, "TocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
-                long TocOffsetPos = GetColumnPostion(utf, 0, "TocOffset");
-
-                EtocOffset = (ulong)GetColumsData(utf, 0, "EtocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
-                long ETocOffsetPos = GetColumnPostion(utf, 0, "EtocOffset");
-
-                ItocOffset = (ulong)GetColumsData(utf, 0, "ItocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
-                long ITocOffsetPos = GetColumnPostion(utf, 0, "ItocOffset");
-
-                GtocOffset = (ulong)GetColumsData(utf, 0, "GtocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
-                long GTocOffsetPos = GetColumnPostion(utf, 0, "GtocOffset");
-
-                ContentOffset = (ulong)GetColumsData(utf, 0, "ContentOffset", E_ColumnDataType.DATA_TYPE_UINT64);
-                long ContentOffsetPos = GetColumnPostion(utf, 0, "ContentOffset");
-                fileTable.Add(CreateFileEntry("CONTENT_OFFSET", ContentOffset, typeof(ulong), ContentOffsetPos, "CPK", "CONTENT", false));
-
-                Files = (uint)GetColumsData(utf, 0, "Files", E_ColumnDataType.DATA_TYPE_UINT32);
-                Align = (ushort)GetColumsData(utf, 0, "Align", E_ColumnDataType.DATA_TYPE_USHORT);
-
-                if (TocOffset != 0xFFFFFFFFFFFFFFFF)
-                {
-                    FileEntry entry = CreateFileEntry("TOC_HDR", TocOffset, typeof(ulong), TocOffsetPos, "CPK", "HDR", false);
-                    fileTable.Add(entry);
-
-                    if (!ReadTOC(br, TocOffset, ContentOffset, encoding))
-                        return false;
-                }
-
-                if (EtocOffset != 0xFFFFFFFFFFFFFFFF)
-                {
-                    FileEntry entry = CreateFileEntry("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, "CPK", "HDR", false);
-                    fileTable.Add(entry);
-
-                    if (!ReadETOC(br, EtocOffset))
-                        return false;
-                }
-
-                if (ItocOffset != 0xFFFFFFFFFFFFFFFF)
-                {
-                    FileEntry entry = CreateFileEntry("ITOC_HDR", ItocOffset, typeof(ulong), ITocOffsetPos, "CPK", "HDR", false);
-                    fileTable.Add(entry);
-
-                    if (!ReadITOC(br, ItocOffset, ContentOffset, Align))
-                        return false;
-                }
-
-                if (GtocOffset != 0xFFFFFFFFFFFFFFFF)
-                {
-                    FileEntry entry = CreateFileEntry("GTOC_HDR", GtocOffset, typeof(ulong), GTocOffsetPos, "CPK", "HDR", false);
-                    fileTable.Add(entry);
-
-                    if (!ReadGTOC(br, GtocOffset))
-                        return false;
-                }
-
-                br.Close();
-
-                // at this point, we should have all needed file info
-
-                //utf = null;
-                files = null;
-                return true;
-            }
-            return false;
+            using (Stream stream = File.OpenRead(sPath))
+                ReadCPK(stream, encoding);
         }
+
+        public void ReadCPK(Stream stream, Encoding encoding = null)
+        {
+            uint Files;
+            ushort Align;
+
+            EndianReader br = new EndianReader(stream, true);
+            MemoryStream ms;
+            EndianReader utfr;
+
+            if (Tools.ReadCString(br, 4) != "CPK ")
+            {
+                br.Close();
+                throw new Exception($"Invalid Identifier, Expected \"CPK \"");
+            }
+
+            ReadUTFData(br);
+
+            CPK_packet = utf_packet;
+
+            FileEntry CPAK_entry = new FileEntry
+            {
+                FileName = "CPK_HDR",
+                FileOffsetPos = br.BaseStream.Position + 0x10,
+                FileSize = CPK_packet.Length,
+                Encrypted = isUtfEncrypted,
+                FileType = "CPK"
+            };
+
+            fileTable.Add(CPAK_entry);
+
+            ms = new MemoryStream(utf_packet);
+            utfr = new EndianReader(ms, false);
+
+            utf = new UTF();
+            if (!utf.ReadUTF(utfr, encoding))
+            {
+                br.Close();
+                throw new Exception($"UTF Error utfr:{utfr}, encoding:{encoding}");
+            }
+
+            utfr.Close();
+            ms.Close();
+
+            cpkdata = new Dictionary<string, object>();
+
+            try
+            {
+                for (int i = 0; i < utf.columns.Count; i++)
+                {
+                    cpkdata.Add(utf.columns[i].name, utf.rows[0].rows[i].GetValue());
+                }
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show(ex.ToString());
+                Debug.Print(ex.ToString());
+            }
+
+            TocOffset = (ulong)GetColumsData(utf, 0, "TocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
+            long TocOffsetPos = GetColumnPostion(utf, 0, "TocOffset");
+
+            EtocOffset = (ulong)GetColumsData(utf, 0, "EtocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
+            long ETocOffsetPos = GetColumnPostion(utf, 0, "EtocOffset");
+
+            ItocOffset = (ulong)GetColumsData(utf, 0, "ItocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
+            long ITocOffsetPos = GetColumnPostion(utf, 0, "ItocOffset");
+
+            GtocOffset = (ulong)GetColumsData(utf, 0, "GtocOffset", E_ColumnDataType.DATA_TYPE_UINT64);
+            long GTocOffsetPos = GetColumnPostion(utf, 0, "GtocOffset");
+
+            ContentOffset = (ulong)GetColumsData(utf, 0, "ContentOffset", E_ColumnDataType.DATA_TYPE_UINT64);
+            long ContentOffsetPos = GetColumnPostion(utf, 0, "ContentOffset");
+            fileTable.Add(CreateFileEntry("CONTENT_OFFSET", ContentOffset, typeof(ulong), ContentOffsetPos, "CPK", "CONTENT", false));
+
+            Files = (uint)GetColumsData(utf, 0, "Files", E_ColumnDataType.DATA_TYPE_UINT32);
+            Align = (ushort)GetColumsData(utf, 0, "Align", E_ColumnDataType.DATA_TYPE_USHORT);
+
+            if (TocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                FileEntry entry = CreateFileEntry("TOC_HDR", TocOffset, typeof(ulong), TocOffsetPos, "CPK", "HDR", false);
+                fileTable.Add(entry);
+
+                if (!ReadTOC(br, TocOffset, ContentOffset, encoding))
+                    throw new Exception($"TOC Error TocOffset:{TocOffset}, ContentOffset:{ContentOffset}");
+            }
+
+            if (EtocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                FileEntry entry = CreateFileEntry("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, "CPK", "HDR", false);
+                fileTable.Add(entry);
+
+                if (!ReadETOC(br, EtocOffset))
+                    throw new Exception($"ETOC Error br:{br}, EtocOffset:{EtocOffset}");
+            }
+
+            if (ItocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                FileEntry entry = CreateFileEntry("ITOC_HDR", ItocOffset, typeof(ulong), ITocOffsetPos, "CPK", "HDR", false);
+                fileTable.Add(entry);
+
+                if (!ReadITOC(br, ItocOffset, ContentOffset, Align))
+                    throw new Exception($"ITOC Error br:{br}, ItocOffset:{ItocOffset}, ContentOffset:{ContentOffset}, Align:{Align}");
+            }
+
+            if (GtocOffset != 0xFFFFFFFFFFFFFFFF)
+            {
+                FileEntry entry = CreateFileEntry("GTOC_HDR", GtocOffset, typeof(ulong), GTocOffsetPos, "CPK", "HDR", false);
+                fileTable.Add(entry);
+
+                if (!ReadGTOC(br, GtocOffset))
+                    throw new Exception($"GTOC Error br:{br}, GtocOffset:{GtocOffset}");
+            }
+            // at this point, we should have all needed file info
+
+            //utf = null;
+            files = null;
+        }
+
 
         FileEntry CreateFileEntry(string FileName, ulong FileOffset, Type FileOffsetType, long FileOffsetPos, string TOCName, string FileType, bool encrypted)
         {
@@ -172,7 +169,7 @@ namespace LibCPK
 
             if (fTocOffset > (ulong)0x800)
                 fTocOffset = (ulong)0x800;
-            
+
 
             if (ContentOffset < 0)
                 add_offset = fTocOffset;
@@ -462,7 +459,7 @@ namespace LibCPK
                 temp.TOCName = "ITOC";
 
                 temp.DirName = null;
-                temp.FileName = id.ToString() + ".bin" ;
+                temp.FileName = id.ToString() + ".bin";
 
                 temp.FileSize = value;
                 temp.FileSizePos = SizePosTable[id];
@@ -610,7 +607,7 @@ namespace LibCPK
             return result;
         }
 
-      
+
         unsafe public byte[] CompressCRILAYLA(byte[] input)
         {
             unsafe
@@ -624,9 +621,9 @@ namespace LibCPK
                     byte[] arr = new byte[destLength];
                     Marshal.Copy((IntPtr)dst, arr, 0, destLength);
                     return arr;
-                } 
+                }
             }
-            
+
         }
 
         public byte[] DecompressCRILAYLA(byte[] input, int USize)
@@ -656,15 +653,15 @@ namespace LibCPK
 
             while (bytes_output < uncompressed_size)
             {
-                if (get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 1) > 0)
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
                 {
-                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 13) + 3;
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
                     int backreference_length = 3;
                     int vle_level;
 
                     for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
                     {
-                        int this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, vle_lens[vle_level]);
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
                         backreference_length += this_level;
                         if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
                     }
@@ -674,7 +671,7 @@ namespace LibCPK
                         int this_level;
                         do
                         {
-                            this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                             backreference_length += this_level;
                         } while (this_level == 255);
                     }
@@ -688,7 +685,7 @@ namespace LibCPK
                 else
                 {
                     // verbatim byte
-                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                     bytes_output++;
                 }
             }
@@ -726,15 +723,15 @@ namespace LibCPK
 
             while (bytes_output < uncompressed_size)
             {
-                if (get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 1) > 0)
+                if (get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 1) > 0)
                 {
-                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 13) + 3;
+                    int backreference_offset = output_end - bytes_output + get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 13) + 3;
                     int backreference_length = 3;
                     int vle_level;
 
                     for (vle_level = 0; vle_level < vle_lens.Length; vle_level++)
                     {
-                        int this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, vle_lens[vle_level]);
+                        int this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, vle_lens[vle_level]);
                         backreference_length += this_level;
                         if (this_level != ((1 << vle_lens[vle_level]) - 1)) break;
                     }
@@ -744,7 +741,7 @@ namespace LibCPK
                         int this_level;
                         do
                         {
-                            this_level = get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                            this_level = get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                             backreference_length += this_level;
                         } while (this_level == 255);
                     }
@@ -758,7 +755,7 @@ namespace LibCPK
                 else
                 {
                     // verbatim byte
-                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref  bit_pool, ref bits_left, 8);
+                    result[output_end - bytes_output] = (byte)get_next_bits(input, ref input_offset, ref bit_pool, ref bits_left, 8);
                     bytes_output++;
                 }
             }
@@ -1140,8 +1137,8 @@ namespace LibCPK
 
         }
 
-       
-        public bool ReadUTF(EndianReader br ,Encoding encoding = null)
+
+        public bool ReadUTF(EndianReader br, Encoding encoding = null)
         {
             long offset = br.BaseStream.Position;
 
@@ -1255,17 +1252,17 @@ namespace LibCPK
     }
 
 
-    public class COLUMN: TypeData
+    public class COLUMN : TypeData
     {
         public COLUMN()
         {
         }
 
-        
+
         public byte flags { get; set; }
         public string name { get; set; }
 
-        
+
     }
 
 
@@ -1397,7 +1394,7 @@ namespace LibCPK
     {
         public ROW()
         {
-            
+
         }
 
     }

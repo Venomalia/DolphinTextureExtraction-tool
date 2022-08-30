@@ -157,6 +157,13 @@ namespace AuroraLip.Compression.Formats
                     }
                 }
             }
+
+            //Padding
+            while (stream.ReadByte() == 0)
+            { }
+
+            if (stream.Length > stream.Position)
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(YAZ0)} file steam contains {stream.Length - stream.Position} unread bytes, starting at position {stream.Position}.");
             return Decoding.ToArray();
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -58,7 +59,11 @@ namespace DolphinTextureExtraction_tool
             Flush();
         }
 
-        public void WriteEX(Exception ex,in string strMessage = "")
+
+        public void WriteNotification(NotificationType type, string message)
+            => WriteLine($"{type}: {message}");
+
+        public void WriteEX(Exception ex, in string strMessage = "")
         {
             lock (LockFile)
             {
@@ -71,7 +76,7 @@ namespace DolphinTextureExtraction_tool
             Console.Error.WriteLine($"Exception: {strMessage} {ex?.Message}");
         }
 
-        public void Write(FileAction action,in string file,in string value)
+        public void Write(FileAction action, in string file, in string value)
         {
             lock (LockFile)
             {

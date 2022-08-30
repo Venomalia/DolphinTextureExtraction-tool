@@ -79,6 +79,8 @@
     <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Archives\ArchiveObject.cs" />
+    <Compile Include="Common\Enums\NotificationType.cs" />
+    <Compile Include="Common\Events.cs" />
     <Compile Include="Common\MultiStream.cs" />
     <Compile Include="Common\Enums\Endian.cs" />
     <Compile Include="Common\Extensions\StreamExString.cs" />

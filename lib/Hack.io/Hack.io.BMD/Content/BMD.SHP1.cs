@@ -843,7 +843,7 @@ namespace Hack.io.BMD
                         default:
                             //Modification: Should not be so important in our case.
                             //throw new ArgumentException(String.Format("attribute {0}", attribute));
-                            Console.WriteLine(String.Format("Warning SetAttributeIndex unhandled attribute {0} index {1}", attribute, index));
+                            Events.NotificationEvent?.Invoke(NotificationType.Warning, $"SetAttributeIndex unhandled attribute {attribute} index {index}");
                             break;
                     }
                 }

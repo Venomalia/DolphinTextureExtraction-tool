@@ -78,6 +78,16 @@ namespace AuroraLip.Compression.Formats
                                 numArray = new byte[data];
                                 break;
                             }
+
+                            if (Data.Length > num)
+                            {
+                                num--;
+                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ77)} file steam contains {Data.Length - num} unread bytes, starting at position {num}.");
+                                while (Data.Length > num)
+                                {
+                                    ms.WriteByte(Data[num++]);
+                                }
+                            }
                         }
                         return ms.ToArray();
                     }

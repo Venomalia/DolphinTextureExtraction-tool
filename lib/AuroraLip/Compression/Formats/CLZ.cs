@@ -35,6 +35,8 @@ namespace AuroraLip.Compression.Formats
             using (MemoryStream infile = new MemoryStream(Data))
             {
                 Unpack(infile, outfile);
+                if (infile.Length > infile.Position)
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(CLZ)} file steam contains {infile.Length - infile.Position} unread bytes, starting at position {infile.Position}.");
                 return outfile.ToArray();
             }
         }

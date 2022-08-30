@@ -171,6 +171,23 @@ namespace AuroraLip.Compression.Formats
                     }
                     if (num3 >= data)
                     {
+
+                        //has chunks?
+                        if (Data.Length > num3)
+                        {
+                            //Padding
+                            while (Data.Length - 1 > num3 && Data[num3] == 0)
+                                num3++;
+
+                            //new chunk?
+                            if (Data[num3++] == 17)
+                            {
+                                Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{typeof(LZ11)} has chunks!");
+                            }
+
+                            if (Data.Length > num3)
+                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ11)} file steam contains {Data.Length - num3} unread bytes, starting at position {num3}.");
+                        }
                         return numArray;
                     }
                     data1 = (byte)(data1 << 1);

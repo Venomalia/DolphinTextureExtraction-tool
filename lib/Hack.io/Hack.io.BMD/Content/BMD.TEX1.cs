@@ -55,15 +55,9 @@ namespace Hack.io.BMD
             {
                 get
                 {
-                    if (Textures == null)
+                    if (Textures == null || Textures.Count == 0)
                     {
-                        Console.WriteLine("There are no textures currently loaded.");
-                        return null;
-                    }
-
-                    if (Textures.Count == 0)
-                    {
-                        Console.WriteLine("There are no textures currently loaded.");
+                        Events.NotificationEvent?.Invoke(NotificationType.Info, "There are no textures currently loaded.");
                         return null;
                     }
 
@@ -73,7 +67,7 @@ namespace Hack.io.BMD
                             return tex;
                     }
 
-                    Console.Write($"No texture with the name {TextureName} was found.");
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"No texture with the name {TextureName} was found.");
                     return null;
                 }
 

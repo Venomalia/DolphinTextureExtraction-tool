@@ -106,6 +106,7 @@ namespace DolphinTextureExtraction_tool
             Directory.CreateDirectory(SaveDirectory);
             base.Result = new ExtractorResult();
             Log = new ScanLogger(SaveDirectory);
+            Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
         }
 

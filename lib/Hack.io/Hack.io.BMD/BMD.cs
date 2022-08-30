@@ -326,7 +326,7 @@ namespace Hack.io.BMD
                 case MAT3.Material.BlendMode.BlendModeControl.InverseDstAlpha:
                     return OpenTK.Graphics.OpenGL.BlendingFactor.OneMinusDstAlpha;
                 default:
-                    Console.WriteLine("Unsupported BlendModeControl: \"{0}\" in FromGXToOpenTK!", Factor);
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Unsupported BlendModeControl: \"{Factor}\" in FromGXToOpenTK!");
                     return OpenTK.Graphics.OpenGL.BlendingFactor.SrcAlpha;
 
             }

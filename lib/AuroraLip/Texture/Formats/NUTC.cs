@@ -37,7 +37,7 @@ namespace AuroraLip.Texture.Formats
             stream.Position = 0x20;
 
             if (FormatVersion != 32770)
-                Console.WriteLine("NUTC Version: " + FormatVersion);
+                Events.NotificationEvent?.Invoke(NotificationType.Info, "Unknown NUTC Version " + FormatVersion);
 
             for (int i = 0; i < texturesCount; i++)
             {

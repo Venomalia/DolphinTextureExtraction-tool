@@ -167,6 +167,12 @@ namespace AuroraLip.Compression.Formats
                 maskBitCounter--;
             }
 
+            //Padding
+            while (YAY0.ReadByte() == 0)
+            { }
+
+            if (YAY0.Length > YAY0.Position)
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(YAY0)} file steam contains {YAY0.Length - YAY0.Position + 1} unread bytes, starting at position {YAY0.Position}.");
             return uncompressedData;
         }
 

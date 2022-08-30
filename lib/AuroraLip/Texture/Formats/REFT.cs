@@ -47,7 +47,7 @@ namespace AuroraLip.Texture.Formats
             ushort sections = stream.ReadUInt16(Endian.Big);
             if (sections > 1)
             {
-                Console.WriteLine("Warning, REFT with more than one sections are not fully supported.");
+                Events.NotificationEvent?.Invoke(NotificationType.Warning, "REFT with more than one sections are not fully supported.");
             }
             stream.Position = 0x10;
             //root sections

@@ -471,7 +471,7 @@ namespace Hack.io.BMD
                 }
                 else
                 {
-                    Console.WriteLine("Warning: Material {0} referenced an out of range IndirectTexBlock index", mat.Name);
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Material {mat.Name} referenced an out of range IndirectTexBlock index");
                 }
                 mat.ZCompLoc = m_zCompLocBlock[stream.ReadByte()];
                 mat.ZMode = m_zModeBlock[stream.ReadByte()];
@@ -499,7 +499,7 @@ namespace Hack.io.BMD
                     }
                     else
                     {
-                        Console.WriteLine(string.Format("Warning for material {0} i={2}, color channel index out of range: {1}", mat.Name, chanIndex, i));
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Material {mat.Name} i={i}, color channel index out of range: {chanIndex}");
                     }
                 }
                 for (int i = 0; i < 2; i++)
@@ -513,7 +513,7 @@ namespace Hack.io.BMD
                     }
                     else
                     {
-                        Console.WriteLine(string.Format("Warning for material {0} i={2}, ambient color index out of range: {1}", mat.Name, ambColorIndex, i));
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Material {mat.Name} i={i}, ambient color index out of range: {ambColorIndex}");
                     }
                 }
 
@@ -534,7 +534,7 @@ namespace Hack.io.BMD
                     else if (texGenIndex < m_TexCoord1GenBlock.Count)
                         mat.TexCoord1Gens[i] = m_TexCoord1GenBlock[texGenIndex];
                     else
-                        Console.WriteLine(string.Format("Warning for material {0} i={2}, TexCoord1GenBlock index out of range: {1}", mat.Name, texGenIndex, i));
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Material {mat.Name} i={i}, TexCoord1GenBlock index out of range: {texGenIndex}");
                 }
 
                 for (int i = 0; i < 8; i++)
@@ -563,7 +563,7 @@ namespace Hack.io.BMD
                     else if (texMatIndex < (m_TexMatrix2Block?.Count ?? 0))
                         mat.PostTexMatrix[i] = m_TexMatrix2Block[texMatIndex];
                     else
-                        Console.WriteLine(string.Format("Warning for material {0}, TexMatrix2Block index out of range: {1}", mat.Name, texMatIndex));
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Material {mat.Name}, TexMatrix2Block index out of range: {texMatIndex}");
                 }
 
                 for (int i = 0; i < 8; i++)

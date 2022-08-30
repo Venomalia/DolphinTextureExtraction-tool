@@ -18,6 +18,8 @@ namespace DolphinTextureExtraction_tool
 
         protected readonly string SaveDirectory;
 
+        internal readonly ScanLogger Log;
+
         protected readonly Options Option;
 
         protected Results Result = new Results();
@@ -42,12 +44,18 @@ namespace DolphinTextureExtraction_tool
             public double WorkeLength { get; internal set; }
 
             public double ProgressLength { get; internal set; } = 0;
+
+            public string LogFullPath { get; internal set; }
         }
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
         {
             ScanDirectory = scanDirectory;
             SaveDirectory = saveDirectory;
+            Directory.CreateDirectory(saveDirectory);
+            Log = new ScanLogger(SaveDirectory);
+            Events.NotificationEvent = Log.WriteNotification;
+            Result.LogFullPath = Log.FullPath;
 
             if (options == null)
             {

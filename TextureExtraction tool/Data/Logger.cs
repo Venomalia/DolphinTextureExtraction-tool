@@ -76,23 +76,11 @@ namespace DolphinTextureExtraction_tool
             Console.Error.WriteLine($"Exception: {strMessage} {ex?.Message}");
         }
 
-        public void Write(FileAction action, in string file, in string value)
+        public void Write(FileAction action, in string message, in string value)
         {
             lock (LockFile)
             {
-                switch (action)
-                {
-                    case FileAction.Unknown:
-                        WriteLine("Unknown:");
-                        break;
-                    case FileAction.Unsupported:
-                        WriteLine("Unsupported:");
-                        break;
-                    case FileAction.Extract:
-                        WriteLine("Extract:");
-                        break;
-                }
-                Write($"\"~{file}\"\n");
+                WriteLine($"{action}: {message}");
                 WriteLine($" {value}");
                 Flush();
             }

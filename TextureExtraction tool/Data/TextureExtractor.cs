@@ -14,7 +14,6 @@ namespace DolphinTextureExtraction_tool
 {
     public class TextureExtractor : ScanBase
     {
-        private readonly ScanLogger Log;
 
         private new ExtractorResult Result => (ExtractorResult)base.Result;
 
@@ -70,8 +69,6 @@ namespace DolphinTextureExtraction_tool
 
             public int Skipped { get; internal set; } = 0;
 
-            public string LogFullPath { get; internal set; }
-
             internal long ExtractedSize = 0;
 
             internal long UnsupportedSize = 0;
@@ -103,11 +100,7 @@ namespace DolphinTextureExtraction_tool
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
-            Directory.CreateDirectory(SaveDirectory);
             base.Result = new ExtractorResult();
-            Log = new ScanLogger(SaveDirectory);
-            Events.NotificationEvent = Log.WriteNotification;
-            Result.LogFullPath = Log.FullPath;
         }
 
         public static ExtractorResult StartScan(string meindirectory, string savedirectory)
@@ -141,6 +134,7 @@ namespace DolphinTextureExtraction_tool
                 {
                     Console.WriteLine("Start Cleanup...");
                     Cleanup.Default(new DirectoryInfo(SaveDirectory));
+                    Console.WriteLine("Cleanup Completed");
                 }
                 catch (Exception)
                 {

@@ -9,11 +9,8 @@ namespace DolphinTextureExtraction_tool
 {
     public class Unpack : ScanBase
     {
-        private readonly ScanLogger Log;
-
         public Unpack(string scanDirectory, string saveDirectory, Options options = null) : base(scanDirectory, saveDirectory, options)
         {
-            Log = new ScanLogger(SaveDirectory);
         }
 
         public static void StartScan(string meindirectory, string savedirectory, Options options)

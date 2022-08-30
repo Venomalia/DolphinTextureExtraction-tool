@@ -15,7 +15,6 @@ namespace DolphinTextureExtraction_tool
 
         internal Cutter(string scanDirectory, string saveDirectory, List<byte[]> pattern, Options options = null) : base(scanDirectory, saveDirectory, options)
         {
-            Directory.CreateDirectory(saveDirectory);
             Pattern = pattern;
         }
 
@@ -62,7 +61,7 @@ namespace DolphinTextureExtraction_tool
             }
             catch (Exception t)
             {
-                //Log.WriteEX(t, subdirectory + file.Extension);
+                Log.WriteEX(t, subdirectory + file.Extension);
             }
 #endif
             stream.Close();

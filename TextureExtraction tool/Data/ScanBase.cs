@@ -85,6 +85,7 @@ namespace DolphinTextureExtraction_tool
                 }
                 Option.ProgressAction?.Invoke(Result);
             });
+            GC.Collect();
         }
 
         private void ScanInitialize(DirectoryInfo directory, List<FileInfo> fileInfos)

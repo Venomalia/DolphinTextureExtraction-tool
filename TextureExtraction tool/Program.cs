@@ -27,6 +27,7 @@ namespace DolphinTextureExtraction_tool
             FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
             FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
             FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
+            GC.Collect();
         }
 
         static void Main(string[] args)

@@ -145,11 +145,12 @@ namespace DolphinTextureExtraction_tool
         protected void Save(Stream stream, string destFileName)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
+            stream.Seek(0, SeekOrigin.Begin);
             using (FileStream file = new FileStream(destFileName, FileMode.Create, FileAccess.Write))
             {
                 stream.CopyTo(file);
             }
-            stream.Position = 0;
+            stream.Seek(0, SeekOrigin.Begin);
         }
 
         protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)

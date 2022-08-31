@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
@@ -31,7 +32,33 @@ namespace DolphinTextureExtraction_tool
 #else
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 #endif
+            internal ParallelOptions SubParallel => new ParallelOptions() { MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism == 1 ? 1: Parallel.MaxDegreeOfParallelism/2, CancellationToken = Parallel.CancellationToken, TaskScheduler = Parallel.TaskScheduler };
+
             public Action<Results> ProgressAction;
+
+            private static double LastProgressLength = 0;
+            internal void ProgressUpdate(Results result)
+            {
+
+                if (!Monitor.TryEnter(result))
+                    return;
+
+                try
+                {
+                    if (result.ProgressLength < LastProgressLength)
+                        return;
+                    LastProgressLength = result.ProgressLength;
+                    if (result.Progress >= result.Worke)
+                        LastProgressLength = 0;
+
+                    ProgressAction?.Invoke(result);
+                }
+                finally
+                {
+                    Monitor.Exit(result);
+                }
+
+            }
         }
 
 
@@ -81,7 +108,7 @@ namespace DolphinTextureExtraction_tool
             ScanInitialize(directory, fileInfos);
             Result.Worke = fileInfos.Count;
             Result.WorkeLength = directory.EnumerateFiles("*.*", SearchOption.AllDirectories).Sum(fi => fi.Length);
-            Option.ProgressAction?.Invoke(Result);
+            Option.ProgressUpdate(Result);
 
             Parallel.ForEach(fileInfos, Option.Parallel, (file, localSum, i) =>
             {
@@ -91,7 +118,7 @@ namespace DolphinTextureExtraction_tool
                     Result.Progress++;
                     Result.ProgressLength += file.Length;
                 }
-                Option.ProgressAction?.Invoke(Result);
+                Option.ProgressUpdate(Result);
             });
             GC.Collect();
         }
@@ -118,10 +145,24 @@ namespace DolphinTextureExtraction_tool
             List<ArchiveFile> fileInfos = new List<ArchiveFile>();
             ArchiveInitialize(archivdirectory, fileInfos);
 
-            Parallel.ForEach(fileInfos, Option.Parallel, (file) =>
+            double ArchLength = 0;
+            Parallel.ForEach(fileInfos, Option.SubParallel, (file) =>
             {
+
+                double Length = file.FileData.Length;
                 Scan(file, subdirectory);
+                lock (Result)
+                {
+                    ArchLength += Length;
+                    Result.ProgressLength += Length;
+                }
+                Option.ProgressUpdate(Result);
             });
+
+            lock (Result)
+            {
+                Result.ProgressLength -= ArchLength;
+            }
         }
 
         private void ArchiveInitialize(ArchiveDirectory archivdirectory, List<ArchiveFile> files)

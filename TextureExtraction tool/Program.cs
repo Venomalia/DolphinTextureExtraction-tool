@@ -406,33 +406,32 @@ namespace DolphinTextureExtraction_tool
         }
 
         private static ConsoleBar ScanProgress;
-        private static object ProgressLock = new object();
 
         static void ProgressUpdate(ScanBase.Results result)
         {
-            lock (ProgressLock)
+
+            if (ScanProgress == null)
             {
-                if (ScanProgress == null)
-                {
-                    ScanProgress = new ConsoleBar(result.WorkeLength, 40);
-                }
-                int Cursor = Console.CursorTop;
-                ScanProgress.CursorTop = Cursor;
-                ScanProgress.Value = result.ProgressLength;
-                ScanProgress.Print();
-                double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
-                Console.Write($" {(int)ProgressPercentage}%");
-                Console.WriteLine();
-                if (result.Progress < result.Worke)
-                {
-                    Console.SetCursorPosition(0, Cursor);
-                    Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
-                }
-                else
-                {
-                    ScanProgress = null;
-                    Console.Title = Title;
-                }
+                ScanProgress = new ConsoleBar(result.WorkeLength, 40);
+            }
+
+            int Cursor = Console.CursorTop;
+            ScanProgress.CursorTop = Cursor;
+            ScanProgress.Value = result.ProgressLength;
+            ScanProgress.Print();
+
+            double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
+            Console.Write($" {(int)ProgressPercentage}%");
+            Console.WriteLine();
+            if (result.Progress < result.Worke)
+            {
+                Console.SetCursorPosition(0, Cursor);
+                Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
+            }
+            else
+            {
+                ScanProgress = null;
+                Console.Title = Title;
             }
         }
     }

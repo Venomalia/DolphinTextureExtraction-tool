@@ -76,10 +76,14 @@ namespace AuroraLip.Texture.Formats
                         if (Pallets.Count == 1)
                         {
                             ArchiveFile PFile = (ArchiveFile)substream.Parent[Pallets[0]];
-                            var Pallet = new PLT0(PFile.FileData);
-                            PaletteFormat = Pallet.PaletteFormat;
-                            PaletteData = Pallet.PaletteData;
-                            PaletteCount = Pallet.PaletteData.Length / 2;
+                            lock (PFile.FileData)
+                            {
+                                PFile.FileData.Seek(0, SeekOrigin.Begin);
+                                var Pallet = new PLT0(PFile.FileData);
+                                PaletteFormat = Pallet.PaletteFormat;
+                                PaletteData = Pallet.PaletteData;
+                                PaletteCount = Pallet.PaletteData.Length / 2;
+                            }
                         }
                         else if (Pallets.Count > 1)
                         {

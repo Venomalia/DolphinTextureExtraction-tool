@@ -1,6 +1,7 @@
 ﻿using AuroraLip.Archives.Formats;
 using AuroraLip.Compression.Formats;
 using AuroraLip.Texture.Formats;
+using System.IO;
 
 namespace AuroraLip.Common
 {
@@ -192,11 +193,12 @@ namespace AuroraLip.Common
             new FormatInfo(".cpp", FormatType.Skript, "C++ Source code"),
             new FormatInfo(".h",FormatType.Text,"Header file"),
             #endregion
-
+            
+            #region Mixed
             //CRIWARE
             new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE"),
             new FormatInfo(".afs", "AFS", FormatType.Archive, "File Archive", "CRIWARE"),
-            new FormatInfo(".adx", FormatType.Audio, "CRI Audio", "CRIWARE"),
+            new FormatInfo(".adx", "€", FormatType.Audio, "CRI Audio", "CRIWARE"){ IsMatch = ADX_Matcher},
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),
             new FormatInfo(".sfd", new byte[]{1,186,33},2 , FormatType.Video, "SofDec Video", "CRIWARE"),
 
@@ -217,10 +219,14 @@ namespace AuroraLip.Common
             new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),
             new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch"),
 
-            // Neverland
+            //Neverland
             new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland"),
-            new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive", "Neverland"),
+            new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive Header", "Neverland"),
             new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland"),
+
+            //Square Enix
+            new FormatInfo(".dat","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
+            new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix"),
 
             //Treasure
             new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure"),
@@ -229,6 +235,12 @@ namespace AuroraLip.Common
             new FormatInfo(".gvr", "GCIX", FormatType.Texture, "IKARUGA texture", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2054452
             new FormatInfo(".gvrt", "GVRT", FormatType.Texture, "IKARUGA texture", "Treasure"),
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
+
+            //Tri-Crescendo
+            new FormatInfo(".csl", "CSL ", FormatType.Archive, "Fragile Dreams compressed Archive", "Tri-Crescendo"),
+
+            //Vanillaware
+            new FormatInfo(".ftx", "FCMP", FormatType.Archive, "Muramasa compressed Archive","Vanillaware"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
 
             //Krome Studios
             new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),
@@ -240,25 +252,29 @@ namespace AuroraLip.Common
             //Cing
             new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing"),  // also pcha
 
-            #region Mixed
-            //mix Archives
+            //Victor Interactive
             new FormatInfo(".clz", "CLZ", FormatType.Archive, "Harvest Moon compressed", "Victor Interactive"),
+
+            //Ganbarion
+            new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
+            new FormatInfo(".aar","ALAR", FormatType.Archive, "Pandoras Tower Archive", "Ganbarion"),
+
+            //Hudson Soft
+            new FormatInfo(".h4m", "HVQM4 1.3" , FormatType.Video,"","Hudson Soft"),
+            new FormatInfo(".h4m", "HVQM4 1.4" , FormatType.Video,"","Hudson Soft"),
+            new FormatInfo(".h4m", "HVQM4 1.5", FormatType.Video,"","Hudson Soft"),
+
+            //mix
             new FormatInfo(".fpk", FormatType.Archive, "compressed"),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
-            new FormatInfo(".apf", FormatType.Archive, "Ganbarion"),
-            new FormatInfo(".aar","ALAR", FormatType.Archive, "Pandoras Tower"),
-            new FormatInfo(".dat","FREB", FormatType.Archive, "Rune Factory"),
-            new FormatInfo(".pos","POSD", FormatType.Else, "Rune Factory FREB Archive Info"),
             new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
-            new FormatInfo(".ftx", "FCMP", FormatType.Archive, "MURAMASA"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
             
             //Audio
             new FormatInfo(".mul", FormatType.Audio),
-            new FormatInfo(".pkb", "mca", FormatType.Audio, "Archive?"),
             new FormatInfo(".csb","@UTF", FormatType.Audio),
             new FormatInfo(".fsb","FSB3", FormatType.Audio),
             new FormatInfo(".dsp","Cstr", FormatType.Audio),
@@ -278,9 +294,6 @@ namespace AuroraLip.Common
             new FormatInfo(".dat", "MOC5", FormatType.Video,"Mobiclip"),
             new FormatInfo(".mds", "MDSV", FormatType.Video,"zack and wiki Video"),
             new FormatInfo(".bik", "BIKi", FormatType.Video,"Bink","Epic Game"),
-            new FormatInfo(".h4m", "HVQM4 1.3" , FormatType.Video,"","Hudson Soft"),
-            new FormatInfo(".h4m", "HVQM4 1.4" , FormatType.Video,"","Hudson Soft"),
-            new FormatInfo(".h4m", "HVQM4 1.5", FormatType.Video,"","Hudson Soft"),
 
             //Font
             new FormatInfo(".aft", "ALFT", FormatType.Font),
@@ -308,5 +321,15 @@ namespace AuroraLip.Common
             new FormatInfo(".efc", new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}, 0, FormatType.Unknown),
             #endregion
         };
+
+        //Is needed to detect ADX files reliably.
+        public static bool ADX_Matcher(Stream stream, in string extension = "")
+        {
+            if (stream.ReadByte() != 128 || stream.ReadByte() != 0)
+                return false;
+            ushort CopyrightOffset = stream.ReadUInt16(Endian.Big);
+            stream.Seek(CopyrightOffset-2, SeekOrigin.Begin);
+            return stream.MatchString("(c)CRI");
+        }
     }
 }

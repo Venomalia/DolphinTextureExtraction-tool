@@ -46,7 +46,7 @@ namespace DolphinTextureExtraction_tool
             while (stream.Search(pattern, out byte[] match))
             {
                 // if Compresst?
-                if (stream.Position > 10)
+                if (Root.Count <= 1 && stream.Position > 10)
                 {
                     stream.Seek(-5, SeekOrigin.Current);
                     switch (stream.ReadByte())
@@ -57,7 +57,7 @@ namespace DolphinTextureExtraction_tool
                             ArchiveFile ComSub = new ArchiveFile
                             {
                                 Parent = Root,
-                                Name = $"entry_{TotalFileCount + 1}.lz",
+                                Name = $"entrys.lz",
                                 FileData = new SubStream(stream,stream.Length - stream.Position, stream.Position)
                             };
                             Root.Items.Add(ComSub.Name, ComSub);
@@ -102,6 +102,15 @@ namespace DolphinTextureExtraction_tool
                         TotalSize = stream.ReadUInt32(Endian.Big);
                         if (ByteOrder != 65534 || TotalSize > stream.Length - entrystart)
                         {
+                            err++;
+                            continue;
+                        }
+                        break;
+                    case "RARC":
+                        TotalSize = stream.ReadUInt32(Endian.Big);
+                        if (TotalSize > entrystart - stream.Position)
+                        {
+                            stream.Seek(entrystart + format.Header.Offset + 1, SeekOrigin.Begin);
                             err++;
                             continue;
                         }
@@ -153,7 +162,10 @@ namespace DolphinTextureExtraction_tool
             }
 
             if (err > maxErr)
-                Root.Items = null;
+                throw new Exception($"maximum error tolerance of {maxErr} exceeded.");
+
+            if (Root.Count > 1)
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{nameof(DataCutter)} has seperated {this.Root.Count} files.");
         }
 
         protected override void Write(Stream ArchiveFile)

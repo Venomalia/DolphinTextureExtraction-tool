@@ -67,6 +67,14 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
+        public Results StartScan()
+        {
+            Scan(new DirectoryInfo(ScanDirectory));
+            Log.Flush();
+            Log.Dispose();
+            return Result;
+        }
+
         protected void Scan(DirectoryInfo directory)
         {
             List<FileInfo> fileInfos = new List<FileInfo>();
@@ -269,16 +277,19 @@ namespace DolphinTextureExtraction_tool
                     Scan(archive, subdirectory);
                     return true;
                 }
-
-                if (badformats.Item1 == FFormat)
-                {
-                    if (badformats.Item2 != -1)
-                        badformats.Item2++;
-                }
-                else
-                    badformats = (FFormat, 0);
             }
-            catch (Exception) { }
+            catch (Exception t)
+            {
+                Log.WriteEX(t, subdirectory + FFormat.Extension);
+            }
+
+            if (badformats.Item1 == FFormat)
+            {
+                if (badformats.Item2 != -1)
+                    badformats.Item2++;
+            }
+            else
+                badformats = (FFormat, 0);
             return false;
         }
 

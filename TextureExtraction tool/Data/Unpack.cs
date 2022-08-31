@@ -11,20 +11,13 @@ namespace DolphinTextureExtraction_tool
         {
         }
 
-        public static void StartScan(string meindirectory, string savedirectory, Options options)
-            => StartScan_Async(meindirectory, savedirectory, options).Wait();
+        public static Results StartScan(string meindirectory, string savedirectory, Options options)
+            => StartScan_Async(meindirectory, savedirectory, options).Result;
 
-        public static async Task StartScan_Async(string meindirectory, string savedirectory, Options options)
+        public static async Task<Results> StartScan_Async(string meindirectory, string savedirectory, Options options)
         {
             Unpack Extractor = new Unpack(meindirectory, savedirectory, options);
-            await Task.Run(() => Extractor.StartScan());
-            return;
-        }
-
-        public void StartScan()
-        {
-            Scan(new DirectoryInfo(ScanDirectory));
-            Log.Dispose();
+            return await Task.Run(() => Extractor.StartScan());
         }
 
         protected override void Scan(FileInfo file)

@@ -118,7 +118,7 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        public ExtractorResult StartScan()
+        public new ExtractorResult StartScan()
         {
             DateTime starttime = DateTime.Now;
 

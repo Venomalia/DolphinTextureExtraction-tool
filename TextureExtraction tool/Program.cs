@@ -221,6 +221,24 @@ namespace DolphinTextureExtraction_tool
                                     case "-c:n":
                                         options.Cleanup = false;
                                         break;
+                                    case "-progress:none":
+                                    case "-p:none":
+                                    case "-p:n":
+                                        options.ProgressAction = ProgressTitleUpdate;
+                                        options.TextureAction = null;
+                                        break;
+                                    case "-progress:bar":
+                                    case "-p:bar":
+                                    case "-p:b":
+                                        options.ProgressAction = ProgressUpdate;
+                                        options.TextureAction = null;
+                                        break;
+                                    case "-progress:list":
+                                    case "-p:list":
+                                    case "-p:l":
+                                        options.ProgressAction = ProgressTitleUpdate;
+                                        options.TextureAction = TextureUpdate;
+                                        break;
                                     case "-dolphinmipdetection":
                                     case "-dm":
                                         options.Cleanup = false;
@@ -329,6 +347,9 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
             Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
             Console.WriteLine("\tOption:\t -c:n -cleanup:none\tretains the original folder structure.");
+            Console.WriteLine("\tOption:\t -p:n -progress:none\toutputs only important events in the console.");
+            Console.WriteLine("\tOption:\t -p:b -progress:bar\tshows the progress as a progress bar in the console.");
+            Console.WriteLine("\tOption:\t -p:l -progress:list\toutputs the extracted textures as a list in the console.");
             Console.WriteLine("\tOption:\t -dmd -dolphinmipdetection\tTries to imitate dolphin mipmap detection.");
             Console.WriteLine("\tOption:\t -t -tasks \"i\"\tsets the maximum number of concurrent tasks.");
             Console.WriteLine($"\t\ti:\t integer that represents the maximum degree of parallelism. default:{options.Parallel.MaxDegreeOfParallelism}");

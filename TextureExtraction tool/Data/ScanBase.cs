@@ -32,8 +32,11 @@ namespace DolphinTextureExtraction_tool
 #else
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 #endif
-            internal ParallelOptions SubParallel => new ParallelOptions() { MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism == 1 ? 1: Parallel.MaxDegreeOfParallelism/2, CancellationToken = Parallel.CancellationToken, TaskScheduler = Parallel.TaskScheduler };
+            internal ParallelOptions SubParallel => new ParallelOptions() { MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism == 1 ? 1 : Parallel.MaxDegreeOfParallelism / 2, CancellationToken = Parallel.CancellationToken, TaskScheduler = Parallel.TaskScheduler };
 
+            /// <summary>
+            /// will be executed if progress was made
+            /// </summary>
             public Action<Results> ProgressAction;
 
             private static double LastProgressLength = 0;
@@ -45,9 +48,14 @@ namespace DolphinTextureExtraction_tool
 
                 try
                 {
+                    //if data was compressed
+                    if (result.ProgressLength > result.WorkeLength)
+                        result.ProgressLength = result.WorkeLength;
+
                     if (result.ProgressLength < LastProgressLength)
                         return;
                     LastProgressLength = result.ProgressLength;
+
                     if (result.Progress >= result.Worke)
                         LastProgressLength = 0;
 
@@ -64,14 +72,29 @@ namespace DolphinTextureExtraction_tool
 
         public class Results
         {
+            /// <summary>
+            /// count of all files to be searched.
+            /// </summary>
             public int Worke { get; internal set; }
 
+            /// <summary>
+            /// count of all files already searched.
+            /// </summary>
             public int Progress { get; internal set; } = 0;
 
+            /// <summary>
+            /// Size of all files to be searched in bytes.
+            /// </summary>
             public double WorkeLength { get; internal set; }
 
+            /// <summary>
+            /// Size of all already searched files in bytes.
+            /// </summary>
             public double ProgressLength { get; internal set; } = 0;
 
+            /// <summary>
+            /// Full path to the log file.
+            /// </summary>
             public string LogFullPath { get; internal set; }
         }
 

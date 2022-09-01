@@ -12,7 +12,7 @@ namespace DolphinTextureExtraction_tool
 
         static string OutputDirectory;
 
-        static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions();
+        static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions() { ProgressAction = ProgressUpdate};
 
 #if DEBUG
         private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
@@ -121,7 +121,6 @@ namespace DolphinTextureExtraction_tool
                     Console.WriteLine();
 
                     Console.CursorVisible = false;
-                    options.ProgressAction = ProgressUpdate;
                     var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
 
                     Console.CursorVisible = true;
@@ -163,7 +162,9 @@ namespace DolphinTextureExtraction_tool
                             }
                         }
 
+                        Console.CursorVisible = false;
                         Cutter.StartScan(InputDirectory, OutputDirectory, pattern, options);
+                        Console.CursorVisible = true;
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         #endregion
@@ -175,7 +176,9 @@ namespace DolphinTextureExtraction_tool
                         if (p <= 0)
                             goto default;
 
+                        Console.CursorVisible = false;
                         Unpack.StartScan(InputDirectory, OutputDirectory, options);
+                        Console.CursorVisible = true;
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         //PrintResult(result);
@@ -188,7 +191,7 @@ namespace DolphinTextureExtraction_tool
                         if (p <= 0)
                             goto default;
 
-                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false };
+                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = ProgressUpdate };
 
                         if (args.Length > p)
                         {
@@ -229,8 +232,9 @@ namespace DolphinTextureExtraction_tool
                                 }
                             }
                         }
-
+                        Console.CursorVisible = false;
                         var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
+                        Console.CursorVisible = true;
 
                         Console.WriteLine();
                         PrintResult(result);
@@ -244,12 +248,15 @@ namespace DolphinTextureExtraction_tool
                     default:
                         if (Directory.Exists(args[0]))
                         {
+                            Console.CursorVisible = false;
                             InputDirectory = args[0];
                             OutputDirectory = GetGenOutputPath(InputDirectory);
                             TextureExtractor.StartScan(InputDirectory, OutputDirectory);
+                            Console.CursorVisible = true;
                             return;
                         }
-                        Console.WriteLine("Wrong syntax. use h for help");
+                        Console.Error.WriteLine("Wrong syntax.");
+                        Console.WriteLine("use h for help");
                         break;
                 }
             }
@@ -411,9 +418,7 @@ namespace DolphinTextureExtraction_tool
         {
 
             if (ScanProgress == null)
-            {
                 ScanProgress = new ConsoleBar(result.WorkeLength, 40);
-            }
 
             int Cursor = Console.CursorTop;
             ScanProgress.CursorTop = Cursor;
@@ -423,16 +428,22 @@ namespace DolphinTextureExtraction_tool
             double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
             Console.Write($" {(int)ProgressPercentage}%");
             Console.WriteLine();
+
             if (result.Progress < result.Worke)
-            {
                 Console.SetCursorPosition(0, Cursor);
-                Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
-            }
             else
-            {
                 ScanProgress = null;
+
+            ProgressTitleUpdate(result);
+        }
+
+        static void ProgressTitleUpdate(ScanBase.Results result)
+        {
+            double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
+            if (result.Progress < result.Worke)
+                Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
+            else
                 Console.Title = Title;
-            }
         }
     }
 }

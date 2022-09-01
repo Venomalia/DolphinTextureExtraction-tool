@@ -44,6 +44,12 @@ namespace DolphinTextureExtraction_tool
             /// </summary>
             public bool Cleanup = true;
 
+            /// <summary>
+            /// is executed when a texture is extracted
+            /// </summary>
+            public TextureActionDelegate TextureAction;
+
+            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, in string subdirectory);
         }
 
         public class ExtractorResult : Results
@@ -357,8 +363,6 @@ namespace DolphinTextureExtraction_tool
                 }
                 Result.Hash.Add(tex.Hash);
 
-                Log.Write(FileAction.Extract, subdirectory, $"Hash:{tex.Hash.ToString("x").PadLeft(16, '0')} Size:{tex[0].Width}x{tex[0].Height} Format:{tex.Format} mips:{tex.Count != 1}{(tex.Count != 1 ? $" {tex.Count}" : "")}");
-
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)
                 {
@@ -369,6 +373,9 @@ namespace DolphinTextureExtraction_tool
                     //skip mips?
                     if (!((ExtractorOptions)Option).Mips) break;
                 }
+
+                Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash()) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
+                ((ExtractorOptions)Option).TextureAction?.Invoke(tex,subdirectory);
             }
         }
 

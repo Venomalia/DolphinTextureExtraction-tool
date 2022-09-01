@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die einer Assembly zugeordnet sind.
 [assembly: AssemblyTitle("DolphinTextureExtraction tool")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Dumps GC and Wii textures, compatible with the Dolphin texture hash.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("DolphinTextureExtraction tool")]
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 // Sie können alle Werte angeben oder Standardwerte für die Build- und Revisionsnummern verwenden,
 // indem Sie "*" wie unten gezeigt eingeben:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.8.3.3")]
-[assembly: AssemblyFileVersion("0.8.3.3")]
+[assembly: AssemblyVersion("0.8.3.4")]
+[assembly: AssemblyFileVersion("0.8.3.4")]

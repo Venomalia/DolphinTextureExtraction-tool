@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using static AuroraLip.Texture.J3D.JUtility;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -444,6 +445,11 @@ namespace DolphinTextureExtraction_tool
                 Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
             else
                 Console.Title = Title;
+        }
+
+        static void TextureUpdate(JUTTexture.TexEntry texture, in string subdirectory)
+        {
+            Console.WriteLine($"Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash())+ ".png"} mips:{texture.Count-1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
 }

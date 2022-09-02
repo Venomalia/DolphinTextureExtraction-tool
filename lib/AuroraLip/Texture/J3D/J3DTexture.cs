@@ -42,6 +42,26 @@ namespace AuroraLip.Texture.J3D
 
         public static bool IsPaletteFormat(this GXImageFormat Format) => Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2;
 
+        public static int GetCalculatedTotalDataSize(GXImageFormat Format, int Width, int Height, int Mipmap)
+        {
+            int TotalSize = 0;
+            for (int i = 0; i <= Mipmap; i++)
+            {
+                TotalSize += GetCalculatedDataSize(Format, Width, Height, i);
+            }
+            return TotalSize;
+        }
+
+        public static int GetCalculatedDataSize(GXImageFormat Format, int Width, int Height, int Mipmap)
+        {
+            for (int i = 0; i < Mipmap; i++)
+            {
+                Width /= 2;
+                Height /= 2;
+            }
+            return GetCalculatedDataSize(Format, Width, Height);
+        }
+
         public static int GetCalculatedDataSize(GXImageFormat Format, int Width, int Height)
         {
             while ((Width % BlockWidth[(int)Format]) != 0) Width++;
@@ -59,7 +79,7 @@ namespace AuroraLip.Texture.J3D
                 Height /= 2;
                 mips++;
             }
-            return mips-1;
+            return mips - 1;
         }
 
         public static int GetMaxColours(this GXImageFormat Format)
@@ -221,7 +241,7 @@ namespace AuroraLip.Texture.J3D
                     break;
                 case GXImageFormat.C14X2:
                     for (int i = 0; i < BlockSizeHalfed; i++)
-                    { 
+                    {
                         int ColourIndex = BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0);
                         if (ColourIndex > Colours.Length)
                             ColourIndex = 0;

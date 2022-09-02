@@ -43,18 +43,21 @@ namespace AuroraLip.Texture.Formats
             ushort ImageWidth = stream.ReadUInt16(Endian.Big);
             ushort ImageHeight = stream.ReadUInt16(Endian.Big);
             Typ = (TEXTyp)stream.ReadUInt16(Endian.Big);
-            TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
-            GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString());
 
             int DataSize;
             float MaxLOD;
+            GXImageFormat Format;
             if (Typ == TEXTyp.Old)
             {
+                OLDTEXImageFormat Tex_Format = (OLDTEXImageFormat)stream.ReadUInt16(Endian.Big);
+                Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString());
                 DataSize = stream.ReadInt32(Endian.Big);
                 stream.Seek(20, SeekOrigin.Current);
             }
             else
             {
+                TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
+                Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString());
                 MaxLOD = stream.ReadSingle(Endian.Big);
                 stream.Seek(16, SeekOrigin.Current);
                 DataSize = stream.ReadInt32(Endian.Big);
@@ -82,6 +85,18 @@ namespace AuroraLip.Texture.Formats
         }
 
         public enum TEXImageFormat : ushort
+        {
+            RGB565,
+            CMPR,
+            RGB5A3,
+            I4,
+            I8,
+            IA4,
+            IA8,
+            RGBA32,
+        }
+
+        public enum OLDTEXImageFormat : ushort
         {
             RGB5A3,
             CMPR,

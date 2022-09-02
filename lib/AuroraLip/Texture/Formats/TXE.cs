@@ -20,13 +20,19 @@ namespace AuroraLip.Texture.Formats
 
         public TXE(string filepath) : base(filepath) { }
 
+        public TEXTyp Typ = TEXTyp.ModTEX;
+
         public static bool Matcher(Stream stream, in string extension = "")
         {
+            if (stream.Length < 10 || !extension.ToLower().StartsWith(".txe"))
+                return false;
+
             ushort ImageWidth = stream.ReadUInt16(Endian.Big);
             ushort ImageHeight = stream.ReadUInt16(Endian.Big);
-            short Unknown = stream.ReadInt16(Endian.Big);
-            ushort Tex_Format = stream.ReadUInt16(Endian.Big);
-            return extension.ToLower().StartsWith(".txe") && ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && Tex_Format <= 7 && GetCalculatedDataSize(TEX_ImageFormat[Tex_Format], ImageWidth, ImageHeight) < stream.Length;
+            if (!Enum.IsDefined(typeof(TEXTyp), stream.ReadUInt16(Endian.Big)))
+                return false;
+            TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
+            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && GetCalculatedDataSize((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString()), ImageWidth, ImageHeight) < stream.Length;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
@@ -36,14 +42,26 @@ namespace AuroraLip.Texture.Formats
         {
             ushort ImageWidth = stream.ReadUInt16(Endian.Big);
             ushort ImageHeight = stream.ReadUInt16(Endian.Big);
-            short Unknown = stream.ReadInt16(Endian.Big);
-            ushort Tex_Format = stream.ReadUInt16(Endian.Big);
-            GXImageFormat Format = TEX_ImageFormat[Tex_Format];
-            //We use our own calculation
-            int DataSize = stream.ReadInt32(Endian.Big);
+            Typ = (TEXTyp)stream.ReadUInt16(Endian.Big);
+            TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
+            GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString());
 
-            stream.Position = 32;
-            TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight)
+            int DataSize;
+            float MaxLOD;
+            if (Typ == TEXTyp.Old)
+            {
+                DataSize = stream.ReadInt32(Endian.Big);
+                stream.Seek(20, SeekOrigin.Current);
+            }
+            else
+            {
+                MaxLOD = stream.ReadSingle(Endian.Big);
+                stream.Seek(16, SeekOrigin.Current);
+                DataSize = stream.ReadInt32(Endian.Big);
+            }
+            int Mipmaps = GetMipmapsFromSize(Format,DataSize,ImageWidth, ImageHeight);
+
+            TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, Mipmaps)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,
@@ -52,22 +70,28 @@ namespace AuroraLip.Texture.Formats
                 WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
                 MinLOD = 0,
-                MaxLOD = 0
+                MaxLOD = Mipmaps
             };
             Add(current);
         }
 
-        static readonly GXImageFormat[] TEX_ImageFormat = new GXImageFormat[]
+        public enum TEXTyp : ushort
         {
-            GXImageFormat.RGB5A3,
-            GXImageFormat.CMPR,
-            GXImageFormat.RGB565,
-            GXImageFormat.I4,
-            GXImageFormat.I8,
-            GXImageFormat.IA4,
-            GXImageFormat.IA8,
-            GXImageFormat.RGBA32,
-        };
+            ModTEX = 0,
+            Old = 2
+        }
+
+        public enum TEXImageFormat : ushort
+        {
+            RGB5A3,
+            CMPR,
+            RGB565,
+            I4,
+            I8,
+            IA4,
+            IA8,
+            RGBA32,
+        }
 
         protected override void Write(Stream stream)
         {

@@ -19,6 +19,7 @@ namespace AuroraLip.Common
             new FormatInfo(".szs", "Yaz0", FormatType.Archive, "compressed Archive", Nin_),
             new FormatInfo(".szp", "Yay0", FormatType.Archive, "compressed Archive", Nin_),
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_),
+            new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_){ Class = typeof(MOD), IsMatch = MOD.Matcher },
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),

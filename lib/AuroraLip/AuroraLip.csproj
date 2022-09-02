@@ -71,6 +71,7 @@
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
+    <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />

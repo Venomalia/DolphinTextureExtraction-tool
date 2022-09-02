@@ -1,6 +1,8 @@
 # DolphinTextureExtraction-tool
-Is a GC and Wii texture dump tool, it dumps all textures at once and compatible with Dolphins texture hash.
-The most common GameCube and Wii formats are already supported, new features and formats will be added over time.
+Is a Command line tool for extracting GC and Wii textures from disc and is compatible with Dolphin's texture hash.
+It allows you to extract textures from a game without having to play through the game with dolphin first.
+The tool can be used for [any game](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results), but the extraction rate depends on what formats the game uses and if the tool supports them.
+The most common formats are already supported, new features and formats will be added over time.
 
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  
@@ -27,7 +29,7 @@ output to the same place only with a "~" in front of the folder.
 - RARC, NARC, U8, CPK, bres, AFS, RKV2, FBC, FBTI, NLCM, PCKG,RTDP Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS Compressing
 - BTI, TPL, NUTC, REFT, TXE, TEX, TEX1, TEX0, TXTR, PTLG, HXTB, WTMD Textures
-- BMD3, BDL4 J3D Models
+- MOD, BMD3, BDL4 Models
 
 ## Credits
  
@@ -60,3 +62,6 @@ output to the same place only with a "~" in front of the folder.
 	
 - [Custom Mario Kart Wiiki](https://wiki.tockdom.com/wiki/BRRES_(File_Format))
     - reference for bres, REFT, TEX0.
+	
+- [MODConv](https://github.com/intns/MODConv)
+    - reference for MOD Format.

@@ -343,6 +343,16 @@ namespace AuroraLip.Archives
 
         protected virtual ArchiveDirectory NewDirectory(string filename, Archive Owner) => new ArchiveDirectory(filename, Owner);
 
+        public virtual void AddArchiveFile(Stream stream, long length, long offset, string name)
+        {
+            ArchiveFile Sub = new ArchiveFile() { Parent = this, Name = name };
+            Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, length, offset) { Parent = Sub };
+            this.Items.Add(Sub.Name, Sub);
+        }
+
+        public virtual void AddArchiveFile(Stream stream, long length, string name)
+            => AddArchiveFile(stream, length, stream.Position, name);
+
         private bool disposedValue;
 
         protected override void Dispose(bool disposing)

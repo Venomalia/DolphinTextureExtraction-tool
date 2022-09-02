@@ -62,7 +62,7 @@ namespace AuroraLip.Texture.Formats
 
             if (PaletteData == null && JUtility.IsPaletteFormat(Format))
             {
-                if (stream is bres.DataStream substream)
+                if (stream is ArchiveFile.ArchiveFileStream substream)
                 {
                     string name;
                     lock (substream.BaseStream)
@@ -70,12 +70,13 @@ namespace AuroraLip.Texture.Formats
                         substream.BaseStream.Seek(substream.Offset + StringOffset, SeekOrigin.Begin);
                         name = substream.BaseStream.ReadString();
                     }
-                    if (substream.Parent.ItemExists("Palettes(NW4R)"))
+                    Archive ParentBres = substream.Parent.OwnerArchive;
+                    if (ParentBres.ItemExists("Palettes(NW4R)"))
                     {
-                        var Pallets = ((ArchiveDirectory)substream.Parent["Palettes(NW4R)"]).FindItems(name + "*");
+                        var Pallets = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
                         if (Pallets.Count == 1)
                         {
-                            ArchiveFile PFile = (ArchiveFile)substream.Parent[Pallets[0]];
+                            ArchiveFile PFile = (ArchiveFile)ParentBres[Pallets[0]];
                             lock (PFile.FileData)
                             {
                                 PFile.FileData.Seek(0, SeekOrigin.Begin);

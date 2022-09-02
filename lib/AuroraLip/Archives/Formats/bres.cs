@@ -63,7 +63,6 @@ namespace AuroraLip.Archives.Formats
 
             for (int i = 0; i < Groups + 1; i++)
             {
-                //stream.ReadUInt16(Endian.Big)
                 ushort GroupID = stream.ReadUInt16(Endian.Big);
                 ushort Unknown = stream.ReadUInt16(Endian.Big);
                 ushort LeftIndex = stream.ReadUInt16(Endian.Big);
@@ -81,14 +80,14 @@ namespace AuroraLip.Archives.Formats
                     {
                         if (StartOfGroup + DataPointer >= EndOfRoot)
                         {
-                            ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory };
+                            ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory, OwnerArchive=this};
                             stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             string Magic = stream.ReadString(4);
                             uint FileSize = stream.ReadUInt32(Endian.Big);
                             stream.Position -= 8;
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
-                                Sub.FileData = new DataStream(stream, FileSize) { Parent = this };
+                                Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, FileSize) { Parent = Sub };
                                 ParentDirectory.Items.Add(Sub.Name, Sub);
                             }
                         }
@@ -108,15 +107,6 @@ namespace AuroraLip.Archives.Formats
         protected override void Write(Stream ArchiveFile)
         {
             throw new NotImplementedException();
-        }
-
-        public class DataStream : SubStream
-        {
-            public bres Parent { get; set; }
-
-            public DataStream(Stream stream, long length, bool protectBaseStream = true) : base(stream, length, protectBaseStream) { }
-
-            public DataStream(Stream stream, long length, long offset, bool protectBaseStream = true) : base(stream, length, offset, protectBaseStream) { }
         }
     }
 }

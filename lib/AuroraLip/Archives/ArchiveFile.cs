@@ -94,6 +94,15 @@ namespace AuroraLip.Archives
 
         //=====================================================================
 
+        public class ArchiveFileStream : SubStream
+        {
+            public ArchiveFile Parent { get; set; }
+
+            public ArchiveFileStream(Stream stream, long length, bool protectBaseStream = true) : base(stream, length, protectBaseStream) { }
+
+            public ArchiveFileStream(Stream stream, long length, long offset, bool protectBaseStream = true) : base(stream, length, offset, protectBaseStream) { }
+        }
+
         /// <summary>
         /// Cast a File to a Stream
         /// </summary>

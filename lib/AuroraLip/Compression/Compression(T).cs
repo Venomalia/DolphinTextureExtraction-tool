@@ -92,5 +92,12 @@ namespace AuroraLip.Compression
         /// <returns>"True" if it corresponds to the compression method.</returns>
         public static bool IsMatch(in byte[] Data) => new T().IsMatch(in Data);
 
+        /// <summary>
+        /// Checks if the data compressed with this compression method
+        /// </summary>
+        /// <param name="Data"></param>
+        /// <returns>"True" if it corresponds to the compression method.</returns>
+        public static bool IsMatch(Stream Data) => new T().IsMatch(Data);
+
     }
 }

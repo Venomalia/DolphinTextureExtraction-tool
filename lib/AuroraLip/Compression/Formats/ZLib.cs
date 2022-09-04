@@ -88,10 +88,8 @@ namespace AuroraLip.Compression.Formats
 
         private bool IsMatch(in byte[] Data)
         {
-            byte num = (byte)(Data[0] & 15);
             float single = Data[0] << 8 | Data[1];
-
-            return ((Data[0] & 15) != 8 || (Data[0] >> 4 & 15) <= 7) && single / 31f == (float)(single / 31) && num != 15;
+            return Data[0] % 16 == 8 && Data[0] / 16 <= 7 && single / 31f == (float)(single / 31) && Data[0] % 16 != 15;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")

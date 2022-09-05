@@ -26,11 +26,10 @@ output to the same place only with a "~" in front of the folder.
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, AFS, RKV2, FBC, FBTI, NLCM, PCKG,RTDP Archives
-- YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS Compressing
-- BTI, TPL, NUTC, REFT, TXE, TEX, TEX1, TEX0, TXTR, PTLG, HXTB, WTMD Textures
+- RARC, NARC, U8, CPK, bres, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5 Archives
+- YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib Compressing
+- BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD Textures
 - MOD, BMD3, BDL4 Models
-
 ## Credits
  
 - [Hack.io](https://github.com/SuperHackio/Hack.io)
@@ -42,6 +41,9 @@ output to the same place only with a "~" in front of the folder.
 - [HashDepot](https://github.com/ssg/HashDepot)
     - used for xxHash generation
 
+- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
+    - to read ZLib Compressing
+	
 - [AFSLib](https://github.com/MaikelChan/AFSLib)
     - to read AFS archive format
 

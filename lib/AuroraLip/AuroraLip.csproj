@@ -77,6 +77,8 @@
     <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
+    <Compile Include="Archives\Formats\PAK_Retro.cs" />
+    <Compile Include="Archives\Formats\PAK_RetroWii.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />
     <Compile Include="Archives\Formats\POD5.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />

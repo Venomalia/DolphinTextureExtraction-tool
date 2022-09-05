@@ -1,6 +1,5 @@
 ﻿using AuroraLip.Archives.Formats;
 using AuroraLip.Compression.Formats;
-using AuroraLip.Archives.Formats;
 using AuroraLip.Texture.Formats;
 using System.IO;
 
@@ -118,7 +117,8 @@ namespace AuroraLip.Common
 
             #region Second party developer
             //Retro Studios
-            new FormatInfo(".PAK", FormatType.Archive, "Retro Archive", Retro_), //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)
+            new FormatInfo(".PAK", FormatType.Archive, "Retro Archive", Retro_){ Class = typeof(PAK_Retro), IsMatch = PAK_Retro.Matcher }, //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
+            new FormatInfo(".PAK", FormatType.Archive, "Retro Wii Archive", Retro_){ Class = typeof(PAK_RetroWii), IsMatch = PAK_RetroWii.Matcher }, //Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)#Header
             new FormatInfo(".TXTR", FormatType.Texture, "Retro Texture", Retro_){ Class = typeof(TXTR) },
             new FormatInfo(".AGSC", FormatType.Audio, "Retro sound effect", Retro_), // https://www.metroid2002.com/retromodding/wiki/AGSC_(File_Format)
             new FormatInfo(".CSMP", FormatType.Audio, "Retro Audio", Retro_), // https://www.metroid2002.com/retromodding/wiki/CSMP_(File_Format)
@@ -128,6 +128,7 @@ namespace AuroraLip.Common
             new FormatInfo(".RULE", "RULE", FormatType.Parameter, "Retro Studios Rule Set", Retro_),
             new FormatInfo(".SCAN", "SCAN", FormatType.Else, "Metroid Scan", Retro_),
             new FormatInfo(".FONT", "FONT", FormatType.Font, "Retro Font", Retro_),
+            new FormatInfo(".MLVL", "Þ¯º¾", FormatType.Font, "Retro World Data", Retro_),
             new FormatInfo(".ANIM", FormatType.Animation, "Retro animation", Retro_),
             new FormatInfo(".CSKR", FormatType.Parameter, "Retro Skin Rules", Retro_),
             new FormatInfo(".STRG", FormatType.Text, "Retro String Table", Retro_),
@@ -334,7 +335,7 @@ namespace AuroraLip.Common
             if (stream.ReadByte() != 128 || stream.ReadByte() != 0)
                 return false;
             ushort CopyrightOffset = stream.ReadUInt16(Endian.Big);
-            stream.Seek(CopyrightOffset-2, SeekOrigin.Begin);
+            stream.Seek(CopyrightOffset - 2, SeekOrigin.Begin);
             return stream.MatchString("(c)CRI");
         }
     }

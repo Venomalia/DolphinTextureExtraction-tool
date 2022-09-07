@@ -2,7 +2,9 @@
 Is a Command line tool for extracting GC and Wii textures from disc and is compatible with Dolphin's texture hash.
 It allows you to extract textures from a game without having to play through the game with dolphin first.
 The tool can be used for [any game](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results), but the extraction rate depends on what formats the game uses and if the tool supports them.
+the tool can also unpack all supported formats.
 The most common formats are already supported, new features and formats will be added over time.
+
 
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  
@@ -26,9 +28,9 @@ output to the same place only with a "~" in front of the folder.
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5 Archives
+- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5 Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib Compressing
-- BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD Textures
+- ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD Textures
 - MOD, BMD3, BDL4 Models
 ## Credits
  
@@ -67,3 +69,9 @@ output to the same place only with a "~" in front of the folder.
 	
 - [MODConv](https://github.com/intns/MODConv)
     - reference for MOD Format.
+	
+- [mpbintools](https://github.com/gamemasterplc/mpbintools)
+    - reference for BIN_MP Format.
+	
+- [mpatbtools](https://github.com/gamemasterplc/mpatbtools)
+    - reference for ATB Format.

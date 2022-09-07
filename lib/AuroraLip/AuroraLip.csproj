@@ -71,6 +71,7 @@
     <Compile Include="Archives\ArchiveBase.cs" />
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
+    <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
     <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />

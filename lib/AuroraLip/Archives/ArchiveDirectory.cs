@@ -343,6 +343,12 @@ namespace AuroraLip.Archives
 
         protected virtual ArchiveDirectory NewDirectory(string filename, Archive Owner) => new ArchiveDirectory(filename, Owner);
 
+        public virtual void AddArchiveFile(Stream stream, string name)
+        {
+            ArchiveFile Sub = new ArchiveFile() { Parent = this, Name = name, FileData = stream};
+            this.Items.Add(Sub.Name, Sub);
+        }
+
         public virtual void AddArchiveFile(Stream stream, long length, long offset, string name)
         {
             ArchiveFile Sub = new ArchiveFile() { Parent = this, Name = name };

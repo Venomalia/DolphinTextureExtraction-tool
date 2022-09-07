@@ -39,8 +39,8 @@ namespace AuroraLip.Compression.Formats
                 {
                     throw new Exception("Need more Input");
                 }
-                inflater.Inflate(buffer);
-                ms.Write(buffer, 0, buffer.Length);
+                int i = inflater.Inflate(buffer);
+                ms.Write(buffer, 0, i);
             }
             Adler = inflater.Adler;
             inflater.Reset();

@@ -154,9 +154,8 @@ namespace AuroraLip.Common
             new FormatInfo(".dmg",new byte[]{120, 1, 115, 13, 98, 98, 96},0, FormatType.Archive, "Apple Disk Image","Apple Inc.") { Class = typeof(SevenZip)},
             new FormatInfo(".rpm",new byte[]{237, 171, 238, 219},0, FormatType.Archive, "Red Hat Pack","Red Hat") { Class = typeof(SevenZip)},
             new FormatInfo(".xar","xar!", FormatType.Archive, "eXtensible ARchive format","OpenDarwin project") { Class = typeof(SevenZip)},
-            new FormatInfo(".bz2","BZ\0", FormatType.Archive, "BZip compression","Julian Seward"),
-            new FormatInfo(".bz2","BZh", FormatType.Archive, "BZip2 compression","Julian Seward") { Class = typeof(SevenZip)},
-            new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki") { Class = typeof(SevenZip)},
+            new FormatInfo(".bz2","BZ", FormatType.Archive, "BZip2 compression","Julian Seward") { Class = typeof(SevenZip) , IsMatch = BZip_Matcher},
+            new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki") { Class = typeof(SevenZip) , IsMatch = LZH_Matcher},
             new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
@@ -353,6 +352,17 @@ namespace AuroraLip.Common
             ushort CopyrightOffset = stream.ReadUInt16(Endian.Big);
             stream.Seek(CopyrightOffset - 2, SeekOrigin.Begin);
             return stream.MatchString("(c)CRI");
+        }
+
+        public static bool BZip_Matcher(Stream stream, in string extension = "")
+        {
+            byte[] Data = stream.Read(4);
+            return stream.Length > 4 && Data[0] == 66 && Data[1] == 90 && (Data[2] == 104 || Data[2] == 0) && Data[3] >= 49 && Data[3] <= 57;
+        }
+
+        public static bool LZH_Matcher(Stream stream, in string extension = "")
+        {
+            return stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
         }
     }
 }

@@ -5,7 +5,6 @@ The tool can be used for [any game](https://github.com/Venomalia/DolphinTextureE
 the tool can also unpack all supported formats.
 The most common formats are already supported, new features and formats will be added over time.
 
-
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  
 Right click on a game -> **Properties** -> **Filesystem** -> right click on "**Disc - [Game ID]**" -> **Extract Files**...
@@ -28,10 +27,10 @@ output to the same place only with a "~" in front of the folder.
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5 Archives
+- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd) Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib Compressing
 - ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD Textures
-- MOD, BMD3, BDL4 Models
+- MOD, BMD3, BDL4 Models archives
 ## Credits
  
 - [Hack.io](https://github.com/SuperHackio/Hack.io)
@@ -43,6 +42,9 @@ output to the same place only with a "~" in front of the folder.
 - [HashDepot](https://github.com/ssg/HashDepot)
     - used for xxHash generation
 
+- [SevenZip](https://github.com/adoconnection/SevenZipExtractor)
+    - to read formats supported by 7Zip
+	
 - [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
     - to read ZLib Compressing
 	

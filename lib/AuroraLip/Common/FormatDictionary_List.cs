@@ -146,10 +146,22 @@ namespace AuroraLip.Common
 
             #region Common
             //Common Archives
+            new FormatInfo(".rar","Rar!", FormatType.Archive, "Roshal Archive","win.rar GmbH") { Class = typeof(SevenZip)},
+            new FormatInfo(".zip","PK", FormatType.Archive, "zip Archive","PKWARE, Inc") { Class = typeof(SevenZip)},
+            new FormatInfo(".7z",new byte[]{55, 122, 188, 175, 39, 28},0, FormatType.Archive, "7-Zip archive","Igor Pavlov") { Class = typeof(SevenZip)},
+            new FormatInfo(".tar","ustar", FormatType.Archive, "Unix Standard TAR","Unix") { Class = typeof(SevenZip)},
+            new FormatInfo(".deb","!<arch>", FormatType.Archive, "Debian pack","The Debian Projec") { Class = typeof(SevenZip)},
+            new FormatInfo(".dmg",new byte[]{120, 1, 115, 13, 98, 98, 96},0, FormatType.Archive, "Apple Disk Image","Apple Inc.") { Class = typeof(SevenZip)},
+            new FormatInfo(".rpm",new byte[]{237, 171, 238, 219},0, FormatType.Archive, "Red Hat Pack","Red Hat") { Class = typeof(SevenZip)},
+            new FormatInfo(".xar","xar!", FormatType.Archive, "eXtensible ARchive format","OpenDarwin project") { Class = typeof(SevenZip)},
+            new FormatInfo(".bz2","BZ\0", FormatType.Archive, "BZip compression","Julian Seward"),
+            new FormatInfo(".bz2","BZh", FormatType.Archive, "BZip2 compression","Julian Seward") { Class = typeof(SevenZip)},
+            new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki") { Class = typeof(SevenZip)},
+            new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
+            //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
             new FormatInfo(".lz77", FormatType.Archive, "Lempel-Ziv 77"),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
-            new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed"),
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
@@ -161,7 +173,8 @@ namespace AuroraLip.Common
             new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"),
 
             //Microsoft
-            new FormatInfo(".cab","MSCF", FormatType.Archive, "Cabinet Archive", "Microsoft"),
+            new FormatInfo(".cab","MSCF", FormatType.Archive, "Cabinet Archive", "Microsoft") { Class = typeof(SevenZip)},
+            new FormatInfo(".vhd","conectix", FormatType.Archive, "Virtual Hard Disk","Microsoft") { Class = typeof(SevenZip)},
             new FormatInfo(".bmp", "BM", FormatType.Texture,"BitMap Picture", "Microsoft"),
             new FormatInfo(".DDS", "DDS |", FormatType.Texture, "Direct Draw Surface", "Microsoft"),
             new FormatInfo(".exe", new byte[]{77,90,144}, 0, FormatType.Executable, "Windows Executable", "Microsoft"),
@@ -184,10 +197,10 @@ namespace AuroraLip.Common
             new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
             new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii"),
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
-            new FormatInfo(".iso", new byte[]{43,44,30,30,31},0, FormatType.Rom, "ISO-9660 table"),
+            new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table"),
             new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
             new FormatInfo(".GCZ", FormatType.Rom, "GameCube Zip"),
-            new FormatInfo(".WBFS", FormatType.Rom, "Wii Backup File System"),
+            new FormatInfo(".wbfs", FormatType.Rom, "Wii Backup File System"),
 
             //else
             new FormatInfo(".htm", FormatType.Else, "Hypertext Markup"),

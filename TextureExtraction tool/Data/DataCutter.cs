@@ -31,7 +31,7 @@ namespace DolphinTextureExtraction_tool
 
         public DataCutter(Stream stream, IEnumerable<byte[]> pattern, string filename = null) : base()
         {
-            FileName = filename;
+            FullPath = filename;
             Read(stream, pattern);
         }
 
@@ -45,10 +45,14 @@ namespace DolphinTextureExtraction_tool
 
             while (stream.Search(pattern, out byte[] match))
             {
+                FormatDictionary.Header.TryGetValue(match.ToValidString(), out FormatInfo format);
+                if (format == null) format = new FormatInfo(".bin", match, 0, FormatType.Unknown);
+                long entrystart = stream.Position - format.Header.Offset;
+
                 // if Compresst?
-                if (Root.Count <= 1 && stream.Position > 10)
+                if (Root.Count <= 1 && stream.Position > 6 + format.Header.Offset)
                 {
-                    stream.Seek(-5, SeekOrigin.Current);
+                    stream.Seek(-5-format.Header.Offset, SeekOrigin.Current);
                     switch (stream.ReadByte())
                     {
                         case 16: //LZ77
@@ -62,15 +66,10 @@ namespace DolphinTextureExtraction_tool
                             };
                             Root.Items.Add(ComSub.Name, ComSub);
                             return;
-                        default:
-                            stream.Seek(4, SeekOrigin.Current);
-                            break;
                     }
                 }
+                stream.Seek(entrystart, SeekOrigin.Begin);
 
-                FormatDictionary.Header.TryGetValue(match.ToValidString(), out FormatInfo format);
-                if (format == null) format = new FormatInfo(".bin", match, 0, FormatType.Unknown);
-                long entrystart = stream.Position - format.Header.Offset;
 
                 if (err > maxErr)
                     break;

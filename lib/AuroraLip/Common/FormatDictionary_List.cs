@@ -23,7 +23,7 @@ namespace AuroraLip.Common
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),
-            new FormatInfo(".TPL", new byte[]{32,175,48}, 1, FormatType.Texture, "Texture Palette Library", Nin_){ Class = typeof(TPL), IsMatch = TPL.Matcher },
+            new FormatInfo(".TPL", new byte[]{0,32,175,48},0, FormatType.Texture, "Texture Palette Library", Nin_){ Class = typeof(TPL), IsMatch = TPL.Matcher },
             new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_){ Class = typeof(TXE), IsMatch = TXE.Matcher },
             new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_){ Class = typeof(BTI) },
 
@@ -194,7 +194,7 @@ namespace AuroraLip.Common
             new FormatInfo(".nes", new byte[]{78,69,83,26,1,1},0 , FormatType.Rom, "Rom", Nin_),
             new FormatInfo(".rvz", new byte[]{82,86,90,1,1},0 , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
             new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii"),
+            new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii",Nin_),
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
             new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table"),
             new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
@@ -287,6 +287,7 @@ namespace AuroraLip.Common
             new FormatInfo(".h4m", "HVQM4 1.5", FormatType.Video,"","Hudson Soft"),
 
             //mix
+            //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".fpk", FormatType.Archive, "compressed"),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter

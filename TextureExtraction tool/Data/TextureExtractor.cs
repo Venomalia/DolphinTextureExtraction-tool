@@ -177,6 +177,7 @@ namespace DolphinTextureExtraction_tool
                         //Exclude files that are too small, for calculation purposes only half the size.
                         if (stream.Length > 130) Result.SkippedSize += stream.Length / 2;
                         break;
+                    case FormatType.Rom:
                     case FormatType.Archive:
                     case FormatType.Texture:
                         Scan(stream, subdirectory, file.Extension);
@@ -229,6 +230,7 @@ namespace DolphinTextureExtraction_tool
                             break;
                         }
                         goto case FormatType.Archive;
+                    case FormatType.Rom:
                     case FormatType.Archive:
 
                         if (!TryExtract(stream, subdirectory, FFormat))

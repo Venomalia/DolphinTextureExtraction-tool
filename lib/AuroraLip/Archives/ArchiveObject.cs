@@ -1,10 +1,11 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.IO;
 using System.Text;
 
 namespace AuroraLip.Archives
 {
-    public abstract class ArchiveObject : IDisposable
+    public abstract class ArchiveObject : IDisposable, IFileSystemInfo
     {
         /// <summary>
         /// Name of the <see cref="ArchiveObject" />.
@@ -33,6 +34,12 @@ namespace AuroraLip.Archives
         /// The Archive that owns this <see cref="ArchiveObject" />.
         /// </summary>
         public Archive OwnerArchive { get; set; }
+
+        public DateTime CreationTimeUtc { get; set; } = DateTime.UtcNow;
+
+        public DateTime LastWriteTimeUtc { get; set; } = DateTime.UtcNow;
+
+        public DateTime LastAccessTimeUtc { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Create a new <see cref="ArchiveObject" />.

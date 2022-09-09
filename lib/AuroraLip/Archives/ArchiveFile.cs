@@ -54,19 +54,6 @@ namespace AuroraLip.Archives
         }
 
         /// <summary>
-        /// Saves this file to the Computer's Disk
-        /// </summary>
-        /// <param name="Filepath">The full path to save to</param>
-        public void Save(string Filepath)
-            => File.WriteAllBytes(Filepath, FileData.ToArray());
-
-        public static bool operator ==(ArchiveFile left, ArchiveFile right)
-            => left.Equals(right);
-
-        public static bool operator !=(ArchiveFile left, ArchiveFile right)
-            => !left.Equals(right);
-        
-        /// <summary>
         /// Compare this file to another
         /// </summary>
         /// <param name="obj">The Object to check</param>

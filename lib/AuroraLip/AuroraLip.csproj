@@ -76,6 +76,7 @@
     <Compile Include="Archives\ArchiveBase.cs" />
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
+    <Compile Include="Archives\Extensions\ArchiveEX.cs" />
     <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
@@ -92,8 +93,11 @@
     <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Archives\ArchiveObject.cs" />
+    <Compile Include="Common\Interfaces\IName.cs" />
+    <Compile Include="Common\Interfaces\IFileSystemInfo.cs" />
     <Compile Include="Common\Enums\NotificationType.cs" />
     <Compile Include="Common\Events.cs" />
+    <Compile Include="Common\Interfaces\IDataTime.cs" />
     <Compile Include="Common\MultiStream.cs" />
     <Compile Include="Common\Enums\Endian.cs" />
     <Compile Include="Common\Extensions\StreamExString.cs" />

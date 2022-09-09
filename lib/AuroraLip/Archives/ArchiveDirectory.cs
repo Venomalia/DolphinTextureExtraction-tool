@@ -21,7 +21,7 @@ namespace AuroraLip.Archives
         /// <summary>
         /// The contents of this directory.
         /// </summary>
-        public Dictionary<string, object> Items { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, ArchiveObject> Items { get; set; } = new Dictionary<string, ArchiveObject>();
 
         /// <summary>
         /// Create a new Archive Directory
@@ -49,32 +49,11 @@ namespace AuroraLip.Archives
         }
 
         /// <summary>
-        /// Export this Directory to a folder.
-        /// </summary>
-        /// <param name="FolderPath">Folder to Export to. Don't expect the files to appear here. Expect a Folder with this <see cref="Name"/> to appear</param>
-        public void Export(string FolderPath)
-        {
-            Directory.CreateDirectory(FolderPath);
-            foreach (KeyValuePair<string, object> item in Items)
-            {
-                if (item.Value is ArchiveFile file)
-                {
-                    file.Save(Path.Combine(FolderPath,file.Name));
-                }
-                else if (item.Value is ArchiveDirectory directory)
-                {
-                    string newstring = Path.Combine(FolderPath, directory.Name);
-                    Directory.CreateDirectory(newstring);
-                    directory.Export(newstring);
-                }
-            }
-        }
-        /// <summary>
         /// Get or Set a file based on a path. When setting, if the file doesn't exist, it will be added (Along with any missing subdirectories)
         /// </summary>
         /// <param name="path">The Path to take</param>
         /// <returns></returns>
-        public object this[string path]
+        public ArchiveObject this[string path]
         {
             get
             {
@@ -163,7 +142,7 @@ namespace AuroraLip.Archives
             if (!IgnoreCase)
                 return Items.ContainsKey(ItemName);
 
-            foreach (KeyValuePair<string, object> item in Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Items)
                 if (item.Key.Equals(ItemName, StringComparison.OrdinalIgnoreCase))
                     return true;
             return false;
@@ -199,7 +178,7 @@ namespace AuroraLip.Archives
         /// </summary>
         public void Clear()
         {
-            foreach (KeyValuePair<string, object> item in Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Items)
             {
                 if (item.Value is ArchiveDirectory dir)
                     dir.Clear();
@@ -218,7 +197,7 @@ namespace AuroraLip.Archives
         public int GetCountAndChildren()
         {
             int count = 0;
-            foreach (KeyValuePair<string, object> item in Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Items)
             {
                 if (item.Value is ArchiveDirectory dir)
                     count += dir.GetCountAndChildren();
@@ -236,7 +215,7 @@ namespace AuroraLip.Archives
         {
             if (NewItemOrder.Length != Items.Count)
                 throw new Exception("Missing Items that exist in this Directory, but not in the provided Item Order");
-            Dictionary<string, object> NewItems = new Dictionary<string, object>();
+            Dictionary<string, ArchiveObject> NewItems = new Dictionary<string, ArchiveObject>();
             for (int i = 0; i < NewItemOrder.Length; i++)
             {
                 if (!Items.ContainsKey(NewItemOrder[i]))
@@ -284,7 +263,7 @@ namespace AuroraLip.Archives
             List<string> results = new List<string>();
             StringComparison sc = IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
             RegexOptions ro = (IgnoreCase ? RegexOptions.IgnoreCase : RegexOptions.None) | RegexOptions.Singleline;
-            foreach (KeyValuePair<string, object> item in Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Items)
             {
                 if (item.Value is ArchiveFile File)
                 {

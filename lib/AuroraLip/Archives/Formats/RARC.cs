@@ -242,11 +242,10 @@ namespace AuroraLip.Archives.Formats
         /// <summary>
         /// Only used when Reading / Writing
         /// </summary>
-        internal class RARCFileEntry
+        internal class RARCFileEntry : ArchiveObject
         {
             public short FileID;
             public short Type;
-            public string Name;
             /// <summary>
             /// For files: offset to file data in file data section, for subdirectories: index of the corresponding directory node
             /// </summary>
@@ -385,8 +384,8 @@ namespace AuroraLip.Archives.Formats
 
             for (int i = 0; i < Directories.Count; i++)
             {
-                List<KeyValuePair<string, object>> templist = new List<KeyValuePair<string, object>>();
-                foreach (KeyValuePair<string, object> DirectoryItem in Directories[i].Items)
+                List<KeyValuePair<string, ArchiveObject>> templist = new List<KeyValuePair<string, ArchiveObject>>();
+                foreach (KeyValuePair<string, ArchiveObject> DirectoryItem in Directories[i].Items)
                 {
                     if (DirectoryItem.Value is RARCFileEntry fe)
                     {
@@ -405,7 +404,7 @@ namespace AuroraLip.Archives.Formats
                         }
                         if (!Directories[fe.ModularA].Name.Equals(DirectoryItem.Key))
                             Directories[fe.ModularA].Name = DirectoryItem.Key;
-                        templist.Add(new KeyValuePair<string, object>(DirectoryItem.Key, Directories[fe.ModularA]));
+                        templist.Add(new KeyValuePair<string, ArchiveObject>(DirectoryItem.Key, Directories[fe.ModularA]));
                     }
                     else
                     {
@@ -583,7 +582,7 @@ namespace AuroraLip.Archives.Formats
         }
         private void SortFilesByLoadType(ArchiveDirectory Root, ref List<ArchiveFile> MRAM, ref List<ArchiveFile> ARAM, ref List<ArchiveFile> DVD)
         {
-            foreach (KeyValuePair<string, object> item in Root.Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Root.Items)
             {
                 if (item.Value is Directory dir)
                 {
@@ -612,7 +611,7 @@ namespace AuroraLip.Archives.Formats
         {
             List<RARCFileEntry> FileList = new List<RARCFileEntry>();
             List<KeyValuePair<int, Directory>> Directories = new List<KeyValuePair<int, Directory>>();
-            foreach (KeyValuePair<string, object> item in Root.Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Root.Items)
             {
                 if (item.Value is File file)
                 {
@@ -638,7 +637,7 @@ namespace AuroraLip.Archives.Formats
         private List<ArchiveFile> GetFlatFileList(ArchiveDirectory Root)
         {
             List<ArchiveFile> FileList = new List<ArchiveFile>();
-            foreach (KeyValuePair<string, object> item in Root.Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Root.Items)
             {
                 if (item.Value is ArchiveFile file)
                 {
@@ -657,7 +656,7 @@ namespace AuroraLip.Archives.Formats
             List<RARCDirEntry> FlatDirectoryList = new List<RARCDirEntry>();
             List<RARCDirEntry> TemporaryList = new List<RARCDirEntry>();
             FirstFileOffset += (uint)(Root.Items.Count + 2);
-            foreach (KeyValuePair<string, object> item in Root.Items)
+            foreach (KeyValuePair<string, ArchiveObject> item in Root.Items)
             {
                 if (item.Value is Directory Currentdir)
                 {

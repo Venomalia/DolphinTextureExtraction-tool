@@ -69,7 +69,7 @@ namespace AuroraLip.Archives.Formats
             {
                 RootNode
             };
-            List<object> FlatItems = new List<object>();
+            List<ArchiveObject> FlatItems = new List<ArchiveObject>();
             //entries.Add(RootNode);
             for (int i = 0; i < TotalNodeCount; i++)
             {
@@ -116,13 +116,13 @@ namespace AuroraLip.Archives.Formats
                 else
                 {
                     //if there is already an ellement with the names.
-                    if (DirectoryStack.Peek().Items.ContainsKey(((dynamic)FlatItems[i]).Name))
+                    if (DirectoryStack.Peek().Items.ContainsKey((FlatItems[i]).Name))
                     {
                         string name = ((ArchiveFile)FlatItems[i]).Name;
                         ((ArchiveFile)FlatItems[i]).Name = Path.GetFileName(name) + i + Path.GetExtension(name);
                     }
 
-                    DirectoryStack.Peek().Items.Add(((dynamic)FlatItems[i]).Name, FlatItems[i]);
+                    DirectoryStack.Peek().Items.Add((FlatItems[i]).Name, FlatItems[i]);
                 }
                 if (i == entries[FlatItems.IndexOf(DirectoryStack.Peek())].Size - 1)
                 {

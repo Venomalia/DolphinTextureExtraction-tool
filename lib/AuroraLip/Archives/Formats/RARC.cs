@@ -408,7 +408,7 @@ namespace AuroraLip.Archives.Formats
                     }
                     else
                     {
-                        ((File)DirectoryItem.Value).Parent = Directories[i];
+                        DirectoryItem.Value.Parent = Directories[i];
                         templist.Add(DirectoryItem);
                     }
                 }

@@ -78,15 +78,14 @@ namespace AuroraLip.Archives.Formats
                 long PausePosition = stream.Position;
                 if (entries[i].IsDirectory)
                 {
-                    ArchiveDirectory dir = new ArchiveDirectory();
+                    ArchiveDirectory dir = new ArchiveDirectory() { OwnerArchive = this};
                     stream.Position = StringTableLocation + entries[i].NameOffset;
                     dir.Name = stream.ReadString(); // x => x != 0
                     FlatItems.Add(dir);
-                    dir.OwnerArchive = this;
                 }
                 else
                 {
-                    ArchiveFile file = new ArchiveFile();
+                    ArchiveFile file = new ArchiveFile() { OwnerArchive = this };
                     stream.Position = StringTableLocation + entries[i].NameOffset;
                     file.Name = stream.ReadString();
                     stream.Position = entries[i].DataOffset;
@@ -122,6 +121,7 @@ namespace AuroraLip.Archives.Formats
                         ((ArchiveFile)FlatItems[i]).Name = Path.GetFileName(name) + i + Path.GetExtension(name);
                     }
 
+                    FlatItems[i].Parent = DirectoryStack.Peek();
                     DirectoryStack.Peek().Items.Add((FlatItems[i]).Name, FlatItems[i]);
                 }
                 if (i == entries[FlatItems.IndexOf(DirectoryStack.Peek())].Size - 1)

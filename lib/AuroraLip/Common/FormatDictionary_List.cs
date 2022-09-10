@@ -168,6 +168,7 @@ namespace AuroraLip.Common
 
             //Common Textures
             new FormatInfo(".PNG", new byte[]{137,80,78,71,13},0, FormatType.Texture, "Portable Network Graphics"),
+            new FormatInfo(".Gif", "GIF89", FormatType.Texture, "Graphics Interchange Format"),
             new FormatInfo(".Jpg", new byte[]{255,216,255,224},0, FormatType.Texture, "Joint Photographic Group"),
             new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"),
 
@@ -288,6 +289,7 @@ namespace AuroraLip.Common
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
+            new FormatInfo(".ash","ASH0", FormatType.Archive, "ASH compressed Data"), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
             new FormatInfo(".fpk", FormatType.Archive, "compressed"),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter

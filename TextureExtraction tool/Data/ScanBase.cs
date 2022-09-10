@@ -217,7 +217,12 @@ namespace DolphinTextureExtraction_tool
         /// <param name="destFileName"></param>
         protected void Save(Stream stream, string destFileName)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
+            string DirectoryName = Path.GetDirectoryName(destFileName);
+            //We can't create a folder if a file with the same name exists.
+            if (File.Exists(DirectoryName))
+                File.Move(DirectoryName, DirectoryName + "_");
+
+            Directory.CreateDirectory(DirectoryName);
             stream.Seek(0, SeekOrigin.Begin);
             using (FileStream file = new FileStream(destFileName, FileMode.Create, FileAccess.Write))
             {

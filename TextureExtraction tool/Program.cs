@@ -15,6 +15,13 @@ namespace DolphinTextureExtraction_tool
 
         static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions() { ProgressAction = ProgressUpdate};
 
+        static Modes Mode;
+        private enum Modes : byte
+        {
+            Extract = 1,
+            Unpacks = 2,
+        }
+
 #if DEBUG
         private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
 #else
@@ -38,8 +45,40 @@ namespace DolphinTextureExtraction_tool
             if (args.Length == 0)
             {
                 PrintHeader();
+
+                Console.WriteLine();
+                Console.WriteLine("Select Extraction Mode");
+                Console.WriteLine("1.\t Extract textures.");
+                Console.WriteLine("2.\t Unpacks all files.");
+                Console.WriteLine();
+                do
+                {
+                    switch (Console.ReadKey().Key)
+                    {
+                        case ConsoleKey.D1:
+                        case ConsoleKey.NumPad1:
+                        case ConsoleKey.E:
+                        case ConsoleKey.Enter:
+                            Mode = Modes.Extract;
+                            Console.CursorLeft = 0;
+                            Console.WriteLine("Mode: Extract textures.");
+                            break;
+                        case ConsoleKey.D2:
+                        case ConsoleKey.NumPad2:
+                        case ConsoleKey.U:
+                            Mode = Modes.Unpacks;
+                            Console.CursorLeft = 0;
+                            Console.WriteLine("Mode: Unpacks all files.");
+                            break;
+                        default:
+                            continue;
+                    }
+                    break;
+                } while (true);
+
                 while (true)
                 {
+
                     //Input Path
                     Console.WriteLine();
                     Console.WriteLine("Input Path:");
@@ -77,56 +116,77 @@ namespace DolphinTextureExtraction_tool
 
                     } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputDirectory);
 
-                    //Options
-                    Console.WriteLine();
-                    PrintOptions(options);
 
-                    Console.WriteLine();
-                    Console.WriteLine("Adjust settings? Yes or (No)");
-                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
+
+                    switch (Mode)
                     {
-                        Console.WriteLine($"Extract mipmaps. \t(True) or False");
-                        options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"Extracts raw image files. \tTrue or (False)");
-                        options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
-                        options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.Write($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
-                        options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.Write($"Clean up folder structure. \t(True) or False");
-                        options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
-                        if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
-                        {
-                            options.Parallel.MaxDegreeOfParallelism = 4;
-                        }
-                        else
-                        {
-                            options.Parallel.MaxDegreeOfParallelism = 1;
-                        }
+                        case Modes.Extract:
+                            //Options
+                            Console.WriteLine();
+                            PrintOptions(options);
+
+                            Console.WriteLine();
+                            Console.WriteLine("Adjust settings? Yes or (No)");
+                            if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
+                            {
+                                Console.WriteLine($"Extract mipmaps. \t(True) or False");
+                                options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.WriteLine($"Extracts raw image files. \tTrue or (False)");
+                                options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
+                                options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.Write($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
+                                options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.Write($"Clean up folder structure. \t(True) or False");
+                                options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
+                                if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
+                                {
+                                    options.Parallel.MaxDegreeOfParallelism = 4;
+                                }
+                                else
+                                {
+                                    options.Parallel.MaxDegreeOfParallelism = 1;
+                                }
+                            }
+                            break;
+                        case Modes.Unpacks:
+                            break;
                     }
 
                     //Inputs correct?
                     Console.WriteLine();
                     Console.WriteLine($"Input Path: \"{InputDirectory}\"");
                     Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                    PrintOptions(options);
+                    if (Mode == Modes.Extract)
+                        PrintOptions(options);
 
                     Console.WriteLine();
                     Console.WriteLine("Are the settings correct? \t(Yes) or No");
                     if (!ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
 
                     //Start
-                    Console.WriteLine($"Search and extract textures from {InputDirectory}");
-                    Console.WriteLine("This may take a few seconds...");
-                    Console.WriteLine();
-
                     Console.CursorVisible = false;
-                    var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
-
+                    switch (Mode)
+                    {
+                        case Modes.Extract:
+                            Console.WriteLine($"Search and extract textures from {InputDirectory}");
+                            Console.WriteLine("This may take a few seconds...");
+                            Console.WriteLine();
+                            var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
+                            Console.WriteLine();
+                            PrintResult(result);
+                            break;
+                        case Modes.Unpacks:
+                            Console.WriteLine($"Unpacks all files from {InputDirectory}");
+                            Console.WriteLine("This may take a few seconds...");
+                            Console.WriteLine();
+                            Unpack.StartScan(InputDirectory, OutputDirectory, options);
+                            Console.WriteLine();
+                            Console.WriteLine("Done.");
+                            break;
+                    }
                     Console.CursorVisible = true;
-                    Console.WriteLine();
-                    PrintResult(result);
                 }
             }
             else

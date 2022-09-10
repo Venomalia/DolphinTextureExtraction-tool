@@ -159,7 +159,6 @@ namespace AuroraLip.Common
             new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
-            new FormatInfo(".lz77", FormatType.Archive, "Lempel-Ziv 77"),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed"),

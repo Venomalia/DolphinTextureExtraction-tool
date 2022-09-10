@@ -13,14 +13,22 @@ namespace AuroraLip.Compression.Formats
     /// <summary>
     /// LZ77 compression algorithm
     /// </summary>
-    public class LZ77 : ICompression
+    public class LZ77 : ICompression, IMagicIdentify
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
+        public static string magic { get; } = "LZ77";
+
+        public string Magic => magic;
+
         public bool IsMatch(Stream stream, in string extension = "")
         {
+            if (stream.MatchString(magic))
+                return true;
+            
+            stream.Seek(0, SeekOrigin.Begin);
             return stream.Length > 16 && stream.ReadByte() == 16;
         }
 
@@ -31,8 +39,20 @@ namespace AuroraLip.Compression.Formats
 
         public byte[] Decompress(in byte[] Data)
         {
+            if (magic.ToByte().ArrayEqual(Data.AsSpan(0, 4).ToArray()))
+                return Decompress(Data.AsSpan(4));
+
+            return Decompress(Data.AsSpan());
+        }
+
+        public byte[] Decompress(ReadOnlySpan<byte> Data)
+        {
             uint data = (uint)(Data[1] | Data[2] << 8 | Data[3] << 16);
             byte[] numArray = new byte[data];
+
+            if (data == 0)
+                return numArray;
+
             MemoryStream ms = new MemoryStream();
             int num = 4;
             int num1 = 0;
@@ -75,6 +95,7 @@ namespace AuroraLip.Compression.Formats
                             {
                                 num1 = 0;
                                 data = (uint)(Data[num++] | Data[num++] << 8 | Data[num++] << 16);
+
                                 numArray = new byte[data];
                                 break;
                             }
@@ -83,10 +104,8 @@ namespace AuroraLip.Compression.Formats
                             {
                                 num--;
                                 Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ77)} file steam contains {Data.Length - num} unread bytes, starting at position {num}.");
-                                while (Data.Length > num)
-                                {
-                                    ms.WriteByte(Data[num++]);
-                                }
+
+                                ms.Write(Data.Slice(num-1).ToArray());
                             }
                         }
                         return ms.ToArray();
@@ -95,5 +114,6 @@ namespace AuroraLip.Compression.Formats
                 }
             }
         }
+
     }
 }

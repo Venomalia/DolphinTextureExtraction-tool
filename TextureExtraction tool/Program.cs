@@ -13,7 +13,7 @@ namespace DolphinTextureExtraction_tool
 
         static string OutputDirectory;
 
-        static TextureExtractor.ExtractorOptions options = new TextureExtractor.ExtractorOptions() { ProgressAction = ProgressUpdate};
+        static TextureExtractor.ExtractorOptions options;
 
         static Modes Mode;
         private enum Modes : byte
@@ -36,11 +36,30 @@ namespace DolphinTextureExtraction_tool
             FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
             FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
             GC.Collect();
+
+            //are we able to change the Title?
+            try
+            {
+                Console.Title = Title;
+            }
+            catch (Exception) { }
+
+            options = new TextureExtractor.ExtractorOptions();
+
+            //Do we have restricted access to the Console.Cursor?
+            try
+            {
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop);
+                options.ProgressAction = ProgressUpdate;
+            }
+            catch (Exception)
+            {
+                options.ProgressAction = ProgressTitleUpdate;
+            }
         }
 
         static void Main(string[] args)
         {
-            Console.Title = Title;
 
             if (args.Length == 0)
             {
@@ -223,9 +242,7 @@ namespace DolphinTextureExtraction_tool
                             }
                         }
 
-                        Console.CursorVisible = false;
                         Cutter.StartScan(InputDirectory, OutputDirectory, pattern, options);
-                        Console.CursorVisible = true;
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         #endregion
@@ -237,9 +254,7 @@ namespace DolphinTextureExtraction_tool
                         if (p <= 0)
                             goto default;
 
-                        Console.CursorVisible = false;
                         Unpack.StartScan(InputDirectory, OutputDirectory, options);
-                        Console.CursorVisible = true;
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         //PrintResult(result);
@@ -252,7 +267,7 @@ namespace DolphinTextureExtraction_tool
                         if (p <= 0)
                             goto default;
 
-                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = ProgressUpdate };
+                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
 
                         if (args.Length > p)
                         {
@@ -311,12 +326,12 @@ namespace DolphinTextureExtraction_tool
                                 }
                             }
                         }
-                        Console.CursorVisible = false;
                         var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
-                        Console.CursorVisible = true;
 
                         Console.WriteLine();
-                        PrintResult(result);
+
+                        if (options.TextureAction == null)
+                            PrintResult(result);
 
                         #endregion
                         break;
@@ -327,11 +342,9 @@ namespace DolphinTextureExtraction_tool
                     default:
                         if (Directory.Exists(args[0]))
                         {
-                            Console.CursorVisible = false;
                             InputDirectory = args[0];
                             OutputDirectory = GetGenOutputPath(InputDirectory);
                             TextureExtractor.StartScan(InputDirectory, OutputDirectory);
-                            Console.CursorVisible = true;
                             return;
                         }
                         Console.Error.WriteLine("Wrong syntax.");
@@ -521,16 +534,22 @@ namespace DolphinTextureExtraction_tool
 
         static void ProgressTitleUpdate(ScanBase.Results result)
         {
-            double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-            if (result.Progress < result.Worke)
-                Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
-            else
-                Console.Title = Title;
+            //are we able to change the Title?
+            try
+            {
+                double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
+                if (result.Progress < result.Worke)
+                    Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
+                else
+                    Console.Title = Title;
+            }
+            catch (Exception)
+            { }
         }
 
         static void TextureUpdate(JUTTexture.TexEntry texture, in string subdirectory)
         {
-            Console.WriteLine($"Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash())+ ".png"} mips:{texture.Count-1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
+            Console.WriteLine($"Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
 }

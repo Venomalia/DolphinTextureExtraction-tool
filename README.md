@@ -1,9 +1,20 @@
 # DolphinTextureExtraction-tool
+[![Wiki](https://img.shields.io/badge/Wiki-grey)](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki)
+[![Issues](https://img.shields.io/github/issues/Venomalia/DolphinTextureExtraction-tool?color=orange)](https://github.com/Venomalia/DolphinTextureExtraction-tool/issues)
+[![Dolphin](https://img.shields.io/badge/Dolphin-Forum-88e)](https://forums.dolphin-emu.org/Thread-textureextraction-tool-v0-8-2-6)
+[![Downloads](https://img.shields.io/github/downloads/Venomalia/DolphinTextureExtraction-tool/total?color=907&label=Downloads)](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases)
+[![Stars](https://img.shields.io/github/stars/Venomalia/DolphinTextureExtraction-tool?color=990&label=Stars)](https://github.com/Venomalia/DolphinTextureExtraction-tool/stargazers)
+
 Is a Command line tool for extracting GC and Wii textures from disc and is compatible with Dolphin's texture hash.
 It allows you to extract textures from a game without having to play through the game with dolphin first.
 The tool can be used for [any game](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results), but the extraction rate depends on what formats the game uses and if the tool supports them.
 the tool can also unpack all supported formats.
 The most common formats are already supported, new features and formats will be added over time.
+
+## Download
+[<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?style=for-the-badge" alt="Release Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/latest)
+
+[<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?include_prereleases&sort=semver&label=prerelease&style=for-the-badge" alt="Pre releases Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/)
 
 ## How to use
 INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  

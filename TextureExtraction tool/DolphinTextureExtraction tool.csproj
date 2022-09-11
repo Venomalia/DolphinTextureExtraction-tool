@@ -8,7 +8,7 @@
     <ProjectGuid>{89776DB8-07A1-4B36-BE77-7AB5E4237E3A}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>DolphinTextureExtraction_tool</RootNamespace>
-    <AssemblyName>DolphinTextureExtraction tool</AssemblyName>
+    <AssemblyName>DolphinTextureExtraction.tool</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -345,12 +345,13 @@ namespace DolphinTextureExtraction_tool
                             InputDirectory = args[0];
                             OutputDirectory = GetGenOutputPath(InputDirectory);
                             TextureExtractor.StartScan(InputDirectory, OutputDirectory);
-                            return;
                         }
                         Console.Error.WriteLine("Wrong syntax.");
                         Console.WriteLine("use h for help");
+                        Environment.Exit(-2);
                         break;
                 }
+                Environment.Exit(0);
             }
         }
 

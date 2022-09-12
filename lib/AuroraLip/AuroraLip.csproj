@@ -90,6 +90,7 @@
     <Compile Include="Archives\Formats\POD5.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RKV2.cs" />
+    <Compile Include="Archives\Formats\RMHG.cs" />
     <Compile Include="Archives\Formats\RTDP.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Archives\ArchiveObject.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Texture\DolphinTextureHash.cs" />
     <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
+    <Compile Include="Texture\Formats\GCT0.cs" />
     <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />
     <Compile Include="Texture\Formats\TEX_KS.cs" />

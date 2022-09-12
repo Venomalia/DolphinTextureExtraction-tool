@@ -243,6 +243,11 @@ namespace AuroraLip.Common
             new FormatInfo(".dat","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
             new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix"),
 
+            //Tecmo & Grasshopper Manufacture
+            new FormatInfo(".RSL","RMHG", FormatType.Archive, "Fatal Frame Archive", "Tecmo"),
+            new FormatInfo(".bin","GCT0", FormatType.Texture, "Fatal Frame Texture", "Tecmo"),
+            new FormatInfo(".bin","CGMG", FormatType.Model, "Fatal Frame Model", "Tecmo"),
+
             //Treasure
             new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure"),
             new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure"),

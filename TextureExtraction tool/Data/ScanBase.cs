@@ -39,31 +39,49 @@ namespace DolphinTextureExtraction_tool
             /// </summary>
             public Action<Results> ProgressAction;
 
-            private static double LastProgressLength = 0;
+            private double LastProgressLength = 0;
             internal void ProgressUpdate(Results result)
             {
 
-                if (!Monitor.TryEnter(result))
-                    return;
-
-                try
+                if (result.Progress >= result.Worke)
                 {
-                    //if data was compressed
-                    if (result.ProgressLength > result.WorkeLength)
-                        result.ProgressLength = result.WorkeLength;
-
-                    if (result.ProgressLength < LastProgressLength)
-                        return;
-                    LastProgressLength = result.ProgressLength;
-
-                    if (result.Progress >= result.Worke)
+                    //we have to report the last progress!
+                    Monitor.Enter(result);
+                    try
+                    {
                         LastProgressLength = 0;
-
-                    ProgressAction?.Invoke(result);
+                        result.ProgressLength = result.WorkeLength;
+                        ProgressAction?.Invoke(result);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(result);
+                    }
                 }
-                finally
+                else
                 {
-                    Monitor.Exit(result);
+                    //Try to tell the Progress
+                    if (!Monitor.TryEnter(result))
+                        return;
+
+                    try
+                    {
+                        //is there really progress to report.
+                        if (result.ProgressLength < LastProgressLength)
+                            return;
+
+                        //when data has been compressed, we can achieve more than 100%... we prevent this.
+                        if (result.ProgressLength > result.WorkeLength)
+                            result.ProgressLength = result.WorkeLength;
+
+                        LastProgressLength = result.ProgressLength;
+
+                        ProgressAction?.Invoke(result);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(result);
+                    }
                 }
 
             }

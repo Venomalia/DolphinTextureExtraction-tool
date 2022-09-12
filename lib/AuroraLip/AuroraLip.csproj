@@ -84,6 +84,7 @@
     <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
+    <Compile Include="Archives\Formats\PAK_FE.cs" />
     <Compile Include="Archives\Formats\PAK_Retro.cs" />
     <Compile Include="Archives\Formats\PAK_RetroWii.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />

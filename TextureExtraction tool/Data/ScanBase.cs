@@ -251,6 +251,8 @@ namespace DolphinTextureExtraction_tool
                     case ".wtm":
                     case ".vld":
                     case ".cxd":
+                    case ".cms":
+                    case ".cmp":
                     case ".cmparc":
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))

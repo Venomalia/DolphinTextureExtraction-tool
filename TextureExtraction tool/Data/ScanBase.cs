@@ -273,6 +273,28 @@ namespace DolphinTextureExtraction_tool
                         if (stream.Length > 104857600 * 5) //100MB*5
                             return true;
 
+                        //Reduces problems with multithreading
+                        if (archive.TotalFileCount > 0)
+                        {
+                            var last = archive.Root.Items.Last().Value;
+                            while (true)
+                            {
+                                if (last is ArchiveDirectory dir)
+                                {
+                                    last = dir.Items.Last().Value;
+                                    continue;
+                                }
+                                else if (last is ArchiveFile file)
+                                {
+                                    if (file.FileData is SubStream FileData)
+                                        if (stream.Position < FileData.Length + FileData.Offset)
+                                            stream.Seek(FileData.Length + FileData.Offset, SeekOrigin.Begin);
+                                }
+                                break;
+                            }
+                        }
+
+                        //checks if hidden files are present.
                         if (archive is IMagicIdentify identify)
                         {
                             if (stream.Search(identify.Magic))

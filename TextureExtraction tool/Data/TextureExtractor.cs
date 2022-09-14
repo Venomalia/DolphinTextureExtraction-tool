@@ -106,7 +106,7 @@ namespace DolphinTextureExtraction_tool
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
-            base.Result = new ExtractorResult();
+            base.Result = new ExtractorResult() {LogFullPath = base.Result.LogFullPath};
         }
 
         public static ExtractorResult StartScan(string meindirectory, string savedirectory)

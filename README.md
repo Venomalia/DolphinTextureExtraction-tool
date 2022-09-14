@@ -29,6 +29,8 @@ Drop a folder on the `DolphinTextureExtraction tool.exe`,
 output to the same place only with a "~" in front of the folder.
 
 ### Command-line
+List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Command-Line-Commands).
+
 - **Syntax:** `EXTRACT "Input" "Output" -mip`
    > Extracts all textures and their mipmaps textures.
 
@@ -38,9 +40,9 @@ output to the same place only with a "~" in front of the folder.
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_Retro, PAK_RetroWii, POD5, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd) Archives
+- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd) Archives
 - YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib Compressing
-- ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD Textures
+- ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD, GCT0 Textures
 - MOD, BMD3, BDL4 Models archives
 ## Credits
  
@@ -88,3 +90,6 @@ output to the same place only with a "~" in front of the folder.
 	
 - [mpatbtools](https://github.com/gamemasterplc/mpatbtools)
     - reference for ATB Format.
+	
+- [BrawlCrate](https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs)
+    - reference for ARC0 Format.

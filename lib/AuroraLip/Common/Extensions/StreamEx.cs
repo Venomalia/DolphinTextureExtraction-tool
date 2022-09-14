@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Linq;
 
 namespace AuroraLip.Common
@@ -72,7 +71,7 @@ namespace AuroraLip.Common
 
         [DebuggerStepThrough]
         public static void Write(this Stream stream, byte[] Array, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(Array, Array.Length,order,Offset);
+            => stream.Write(Array, Array.Length, order, Offset);
 
         [DebuggerStepThrough]
         public static void WriteBigEndian(this Stream FS, byte[] Array, int Count, int Offset = 0)
@@ -133,6 +132,33 @@ namespace AuroraLip.Common
             return stream.ReadString(magic.Length) == magic;
         }
 
+        /// <summary>
+        /// sets the position within the current stream to the nearest possible boundary.
+        /// </summary>
+        /// <param name="stream">the current stream</param>
+        /// <param name="offset">A byte offset relative to the origin parameter.</param>
+        /// <param name="origin">A value of type System.IO.SeekOrigin indicating the reference point used to obtain the new position.</param>
+        /// <param name="boundary"></param>
+        /// <returns></returns>
+        public static long Seek(this Stream stream, long offset, SeekOrigin origin, int boundary)
+        {
+            if (boundary <= 1)
+                throw new ArgumentException($"{nameof(boundary)}: Must be 2 or more");
+
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    break;
+                case SeekOrigin.Current:
+                    offset += stream.Position;
+                    break;
+                case SeekOrigin.End:
+                    offset = stream.Length + offset;
+                    break;
+            }
+            offset = (long)Math.Ceiling((double)offset / boundary) * boundary;
+            return stream.Seek(offset, SeekOrigin.Begin);
+        }
         /// <summary>
         /// searches for a specific pattern in a stream and moves its position until the pattern is found.
         /// </summary>
@@ -211,7 +237,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="stream">The Stream to add padding to</param>
         /// <param name="multiple">The byte multiple to pad to</param>
-        public static void AddPadding(this Stream stream, int multiple,in string Padding)
+        public static void AddPadding(this Stream stream, int multiple, in string Padding)
         {
             int PadCount = 0;
             while (stream.Position % multiple != 0)

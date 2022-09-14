@@ -264,7 +264,11 @@ namespace AuroraLip.Common
             new FormatInfo(".csl", "CSL ", FormatType.Archive, "Fragile Dreams compressed Archive", "Tri-Crescendo"),
 
             //Vanillaware
-            new FormatInfo(".ftx", "FCMP", FormatType.Archive, "Muramasa compressed Archive","Vanillaware"),// compressed MURAMASA: THE DEMON BLADE |.ftx|FCMP FTEX||.mbs|FCMP FMBS||.nms|FCMP NMSB||.nsb|FCMP NSBD|Skript Data||.esb|FCMP EMBP||.abf|FCMP MLIB|
+            new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa compressed Archive","Vanillaware"),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
+            new FormatInfo(".ftx", "FTEX", FormatType.Texture, "Muramasa Texture","Vanillaware"),
+            new FormatInfo(".mbs", "FMBS", FormatType.Model, "Muramasa Model","Vanillaware"),
+            new FormatInfo(".nms", "NMSB", FormatType.Text, "Muramasa Text","Vanillaware"),
+            new FormatInfo(".nsb", "NSBD", FormatType.Skript, "Muramasa Skript","Vanillaware"),
 
             //Krome Studios
             new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),

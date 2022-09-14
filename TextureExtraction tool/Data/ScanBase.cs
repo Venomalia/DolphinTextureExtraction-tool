@@ -485,12 +485,15 @@ namespace DolphinTextureExtraction_tool
             {
                 foreach (var item in usedformats)
                 {
+                    stream.Seek(0, SeekOrigin.Begin);
                     if (item.IsMatch.Invoke(stream, extension))
                     {
+                        if (item.Typ == FormatType.Unknown && FormatDictionary.Identify(stream, extension).Typ != FormatType.Unknown)
+                            break;
+
                         stream.Seek(0, SeekOrigin.Begin);
                         return item;
                     }
-                    stream.Seek(0, SeekOrigin.Begin);
                 }
                 FormatInfo info = FormatDictionary.Identify(stream, extension);
                 usedformats.Add(info);

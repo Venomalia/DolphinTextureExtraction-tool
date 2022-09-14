@@ -86,6 +86,7 @@ namespace DolphinTextureExtraction_tool
                 switch (match.ToValidString())
                 {
                     case "CLZ":
+                    case "pack":
                         continue;
                     case "AFS":
                         uint magic = stream.ReadUInt32();

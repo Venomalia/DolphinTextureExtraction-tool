@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
+using static DolphinTextureExtraction_tool.ScanBase;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -311,7 +312,7 @@ namespace DolphinTextureExtraction_tool
                                     case "-progress:list":
                                     case "-p:list":
                                     case "-p:l":
-                                        options.ProgressAction = ProgressTitleUpdate;
+                                        options.ProgressAction = null;
                                         options.TextureAction = TextureUpdate;
                                         break;
                                     case "-dolphinmipdetection":
@@ -548,9 +549,10 @@ namespace DolphinTextureExtraction_tool
             { }
         }
 
-        static void TextureUpdate(JUTTexture.TexEntry texture, in string subdirectory)
+        static void TextureUpdate(JUTTexture.TexEntry texture,Results result , in string subdirectory)
         {
-            Console.WriteLine($"Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
+            double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
+            Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
 }

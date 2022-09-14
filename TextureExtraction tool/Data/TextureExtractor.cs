@@ -49,7 +49,7 @@ namespace DolphinTextureExtraction_tool
             /// </summary>
             public TextureActionDelegate TextureAction;
 
-            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, in string subdirectory);
+            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, Results results, in string subdirectory);
         }
 
         public class ExtractorResult : Results
@@ -377,7 +377,7 @@ namespace DolphinTextureExtraction_tool
                 }
 
                 Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash()) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
-                ((ExtractorOptions)Option).TextureAction?.Invoke(tex,subdirectory);
+                ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
             }
         }
 

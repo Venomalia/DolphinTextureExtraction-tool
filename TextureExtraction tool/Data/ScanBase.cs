@@ -269,6 +269,7 @@ namespace DolphinTextureExtraction_tool
                     case ".wtm":
                     case ".vld":
                     case ".cxd":
+                    case ".pcs":
                     case ".cms":
                     case ".cmp":
                     case ".cmparc":

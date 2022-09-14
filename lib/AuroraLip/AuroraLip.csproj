@@ -79,6 +79,7 @@
     <Compile Include="Archives\Extensions\ArchiveEX.cs" />
     <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
+    <Compile Include="Archives\Formats\ARC0.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
     <Compile Include="Archives\Formats\MOD.cs" />

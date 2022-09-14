@@ -139,7 +139,7 @@ namespace AuroraLip.Common
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
             
             //HAL Laboratory & Sora Ltd.
-            new FormatInfo(".pac","ARC", FormatType.Archive, "Brawl Archive"),
+            new FormatInfo(".pac",new byte[]{65,82,67,0},0, FormatType.Archive, "Brawl Archive"){ Class = typeof(ARC0)},
             //new FormatInfo(".dat", FormatType.Archive, "HAL Archive", "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
             new FormatInfo(".msbin", FormatType.Text,"Brawl Text"),
 

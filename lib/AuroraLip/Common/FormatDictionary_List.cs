@@ -365,6 +365,7 @@ namespace AuroraLip.Common
             if (stream.ReadByte() != 128 || stream.ReadByte() != 0)
                 return false;
             ushort CopyrightOffset = stream.ReadUInt16(Endian.Big);
+            if (CopyrightOffset < 8) return false;
             stream.Seek(CopyrightOffset - 2, SeekOrigin.Begin);
             return stream.MatchString("(c)CRI");
         }

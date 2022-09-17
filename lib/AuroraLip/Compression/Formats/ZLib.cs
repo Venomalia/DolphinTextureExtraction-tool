@@ -28,7 +28,11 @@ namespace AuroraLip.Compression.Formats
             byte[] buffer = new byte[bufferSize];
 
             Inflater inflater = new Inflater(noHeader);
-            inflater.SetInput(Data);
+            if (IsMatch(Data))
+                inflater.SetInput(Data);
+            else
+                inflater.SetInput(Data.AsSpan().Slice(4).ToArray());
+
             while (!inflater.IsFinished)
             {
                 if (inflater.IsNeedingDictionary)
@@ -43,6 +47,11 @@ namespace AuroraLip.Compression.Formats
                 ms.Write(buffer, 0, i);
             }
             Adler = inflater.Adler;
+            if (inflater.RemainingInput != 0)
+            {
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(ZLib)} file contains {inflater.RemainingInput} unread bytes.");
+            }
+            
             inflater.Reset();
             return ms;
         }
@@ -86,16 +95,17 @@ namespace AuroraLip.Compression.Formats
             return ms;
         }
 
-        private bool IsMatch(in byte[] Data)
+        private static bool IsMatch(in byte[] Data)
         {
             float single = Data[0] << 8 | Data[1];
             return Data[0] % 16 == 8 && Data[0] / 16 <= 7 && single / 31f == (float)(single / 31) && Data[0] % 16 != 15;
         }
 
+        public static bool Matcher(Stream stream, in string extension = "")
+            => extension.ToLower() == "zlib" && (IsMatch(stream.Read(4)) || IsMatch(stream.Read(4)));
+
         public bool IsMatch(Stream stream, in string extension = "")
-        {
-            return IsMatch(stream.Read(2));
-        }
+            => IsMatch(stream.Read(4)) || IsMatch(stream.Read(4));
 
     }
 }

@@ -165,7 +165,7 @@ namespace AuroraLip.Common
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
-            new FormatInfo(".zlib", FormatType.Archive, "compressed"),
+            new FormatInfo(".zlib", FormatType.Archive, "compressed") {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
 

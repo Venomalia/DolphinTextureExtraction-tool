@@ -38,7 +38,7 @@ namespace DolphinTextureExtraction_tool
         private void WriteHeader()
         {
             WriteLine("".PadLeft(64, '-'));
-            WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
+            WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} {IntPtr.Size * 8}bit v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
             WriteLine("".PadLeft(64, '-'));
             Flush();
         }

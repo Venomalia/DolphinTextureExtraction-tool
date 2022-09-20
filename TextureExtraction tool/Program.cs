@@ -24,9 +24,9 @@ namespace DolphinTextureExtraction_tool
         }
 
 #if DEBUG
-        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} *DEBUG";
+        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit *DEBUG";
 #else
-        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}";
+        private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit";
 #endif
         static Program()
         {
@@ -442,9 +442,9 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
             Console.ForegroundColor = ConsoleColor.Cyan;
 #if DEBUG
-            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}\t\t*DEBUG");
+            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}\t\t*DEBUG");
 #else
-            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}\t\t{DateTime.Now.ToString()}");
+            Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}");
 #endif
             PrintFormats();
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);

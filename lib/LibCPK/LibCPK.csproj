@@ -47,17 +47,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CPK.cs" />
+    <Compile Include="CriCompression.cs" />
     <Compile Include="Endian.cs" />
     <Compile Include="PatchCPK.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LibCRIComp\LibCRIComp.vcxproj">
-      <Project>{e5829a5b-e121-41aa-a84b-e7b4c8dbdf30}</Project>
-      <Name>LibCRIComp</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

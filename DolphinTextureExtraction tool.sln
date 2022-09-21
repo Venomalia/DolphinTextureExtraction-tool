@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolphinTextureExtraction tool", "TextureExtraction tool\DolphinTextureExtraction tool.csproj", "{89776DB8-07A1-4B36-BE77-7AB5E4237E3A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{E5829A5B-E121-41AA-A84B-E7B4C8DBDF30} = {E5829A5B-E121-41AA-A84B-E7B4C8DBDF30}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibCPK", "lib\LibCPK\LibCPK.csproj", "{BA3A00E4-4F51-4AB4-A8FB-F4B64A874449}"
 EndProject

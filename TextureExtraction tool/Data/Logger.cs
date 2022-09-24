@@ -38,7 +38,7 @@ namespace DolphinTextureExtraction_tool
         private void WriteHeader()
         {
             WriteLine("".PadLeft(64, '-'));
-            WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} {IntPtr.Size * 8}bit v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString()}  {DateTime.Now.ToString()}");
+            WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} {IntPtr.Size * 8}bit v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now}");
             WriteLine("".PadLeft(64, '-'));
             Flush();
         }
@@ -46,15 +46,9 @@ namespace DolphinTextureExtraction_tool
         public void WriteFoot(TextureExtractor.ExtractorResult result)
         {
             WriteLine("".PadLeft(64, '-'));
-            WriteLine($"~END  {DateTime.Now.ToString()}");
+            WriteLine($"~END  {DateTime.Now}");
             WriteLine("".PadLeft(64, '-'));
-            WriteLine($"Extracted textures: {result.Extracted}");
-            WriteLine($"Unsupported files: {result.Unsupported}");
-            if (result.Unsupported != 0) WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
-            WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFormatType.Count != 0) WriteLine($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
-            WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
-            WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
+            WriteLine(result.ToString());
             WriteLine("".PadLeft(64, '-'));
             Flush();
         }

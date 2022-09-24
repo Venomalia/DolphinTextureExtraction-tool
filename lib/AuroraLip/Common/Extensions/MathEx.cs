@@ -90,5 +90,20 @@ namespace AuroraLip.Common
             return adjustedSize + SizeSuffixes[ex];
         }
         private static readonly string[] SizeSuffixes = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
+
+        /// <summary>
+        /// Rounds a double-precision floating-point value to an integer, and rounds midpoint values to the nearest even number
+        /// </summary>
+        /// <param name="value">A double-precision floating-point number to be rounded</param>
+        /// <returns>The whole number nearest to value</returns>
+        public static int RoundToInt(double value) => (int)Math.Round(value, MidpointRounding.ToEven);
+
+        /// <summary>
+        /// Rounds a double-precision floating-point value to an integer, and rounds midpoint values to the specified mode
+        /// </summary>
+        /// <param name="value">A double-precision floating-point number to be rounded</param>
+        /// <param name="mode">Specification for how to round value if it is midway between two other numbers</param>
+        /// <returns>The whole number nearest to value</returns>
+        public static int RoundToInt(double value, MidpointRounding mode) => (int)Math.Round(value, mode);
     }
 }

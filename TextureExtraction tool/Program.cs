@@ -159,6 +159,8 @@ namespace DolphinTextureExtraction_tool
                                 options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"Clean up folder structure. \t(True) or False");
                                 options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.WriteLine($"Perform a Dry Run. \tTrue or (False)");
+                                options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
                                 options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? -1 : 1;
                             }
@@ -280,6 +282,10 @@ namespace DolphinTextureExtraction_tool
                                     case "-force":
                                     case "-f":
                                         options.Force = true;
+                                        break;
+                                    case "-dryrun":
+                                    case "-d":
+                                        options.DryRun = true;
                                         break;
                                     case "-cleanup":
                                     case "-c":
@@ -420,6 +426,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("\tOption:\t -m -mip\tExtract mipmaps.");
             Console.WriteLine("\tOption:\t -r -raw\tExtracts raw images.");
             Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
+            Console.WriteLine("\tOption:\t -d -dryrun\tDoesn't actually extract anything.");
             Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
             Console.WriteLine("\tOption:\t -c:n -cleanup:none\tretains the original folder structure.");
             Console.WriteLine("\tOption:\t -p:n -progress:none\toutputs only important events in the console.");
@@ -464,19 +471,7 @@ namespace DolphinTextureExtraction_tool
             formats.Add("BMD3");
             formats.Add("TEX1");
             formats.Sort();
-            Console.WriteLine(LineBreak($"Supported formats: {string.Join(", ", formats)}.", 108, "\n                  "));
-        }
-
-        static string LineBreak(string str, int max, in string insert)
-        {
-            int Index = 0;
-            while (Index + max < str.Length)
-            {
-                ReadOnlySpan<char> line = str.AsSpan(Index, max);
-                Index += line.LastIndexOf(' ');
-                str = str.Insert(Index, insert);
-            }
-            return str;
+            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(108, "\n                  "));
         }
 
         static void PrintOptions(TextureExtractor.ExtractorOptions options)
@@ -491,6 +486,8 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Clean up folder structure: ");
             ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Perform a dry run: ");
+            ConsoleEx.WriteBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");
             ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
         }
@@ -498,13 +495,7 @@ namespace DolphinTextureExtraction_tool
         static void PrintResult(TextureExtractor.ExtractorResult result)
         {
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
-            Console.WriteLine($"Extracted textures: {result.Extracted}");
-            Console.WriteLine($"Unsupported files: {result.Unsupported}");
-            if (result.Unsupported != 0) Console.WriteLine($"Unsupported files Typs: {string.Join(", ", result.UnsupportedFormatType.Select(x => (x.GetFullDescription())))}");
-            Console.WriteLine($"Unknown files: {result.Unknown}");
-            if (result.UnknownFormatType.Count != 0) Console.WriteLine(LineBreak($"Unknown files Typs: {string.Join(", ", result.UnknownFormatType.Select(x => (x.Header == null || x.Header.MagicASKI.Length < 2) ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}", 108, "\n                   "));
-            Console.WriteLine($"Extraction rate: ~ {result.GetExtractionSize()}");
-            Console.WriteLine($"Scan time: {Math.Round(result.TotalTime.TotalSeconds, 3)}s");
+            Console.WriteLine(result.ToString());
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
             ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
         }

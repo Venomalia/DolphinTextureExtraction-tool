@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,9 @@ namespace AuroraLip.Common
     /// </summary>
     public static class TextEx
     {
+        static string exePath = null;
+        public static string ExePath => exePath = exePath ?? Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
+
         /// <summary>
         /// Introduces a linebreak if a certain threshold is passed
         /// </summary>

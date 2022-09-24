@@ -124,21 +124,15 @@ namespace DolphinTextureExtraction_tool
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
         {
+            Option = options ?? new Options();
+            if (options is TextureExtractor.ExtractorOptions texOpt && texOpt.DryRun)
+                saveDirectory = TextEx.ExePath;
             ScanDirectory = scanDirectory;
             SaveDirectory = saveDirectory;
-            Directory.CreateDirectory(saveDirectory);
+            Directory.CreateDirectory(SaveDirectory);
             Log = new ScanLogger(SaveDirectory);
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
-
-            if (options == null)
-            {
-                Option = new Options();
-            }
-            else
-            {
-                Option = options;
-            }
         }
 
         public Results StartScan()

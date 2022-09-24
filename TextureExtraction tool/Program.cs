@@ -155,9 +155,9 @@ namespace DolphinTextureExtraction_tool
                                 options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
                                 options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.Write($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
+                                Console.WriteLine($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
                                 options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.Write($"Clean up folder structure. \t(True) or False");
+                                Console.WriteLine($"Clean up folder structure. \t(True) or False");
                                 options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
                                 if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
@@ -523,7 +523,7 @@ namespace DolphinTextureExtraction_tool
             ScanProgress.Print();
 
             double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
-            Console.Write($" {(int)ProgressPercentage}%");
+            Console.Write($" {ProgressPercentage:00.00}%");
             Console.WriteLine();
 
             if (result.Progress < result.Worke)
@@ -541,7 +541,7 @@ namespace DolphinTextureExtraction_tool
             {
                 double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
                 if (result.Progress < result.Worke)
-                    Console.Title = $"{Title} | {Math.Round(ProgressPercentage, 2)}%";
+                    Console.Title = $"{Title} | {ProgressPercentage:00.00}%";
                 else
                     Console.Title = Title;
             }
@@ -552,7 +552,7 @@ namespace DolphinTextureExtraction_tool
         static void TextureUpdate(JUTTexture.TexEntry texture,Results result , in string subdirectory)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-            Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
+            Console.WriteLine($"Prog:{ProgressPercentage:00.00}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
 }

@@ -80,8 +80,8 @@ namespace DolphinTextureExtraction_tool
         {
             lock (LockFile)
             {
-                WriteLine($"{action}: {message}");
-                WriteLine($" {value}");
+                WriteLine($"[{TextureExtractor.ThreadIndex:D2}] {action}: {message}");
+                WriteLine($"• {value}");
                 Flush();
             }
         }

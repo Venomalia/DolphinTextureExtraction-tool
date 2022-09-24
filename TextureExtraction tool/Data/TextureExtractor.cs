@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static AuroraLip.Texture.J3D.JUtility;
 
@@ -106,7 +107,7 @@ namespace DolphinTextureExtraction_tool
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
-            base.Result = new ExtractorResult() {LogFullPath = base.Result.LogFullPath};
+            base.Result = new ExtractorResult() { LogFullPath = base.Result.LogFullPath };
         }
 
         public static ExtractorResult StartScan(string meindirectory, string savedirectory)
@@ -124,8 +125,27 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
+        private static Dictionary<int, int> ThreadIndices = new Dictionary<int, int>();
+        /// <summary>
+        /// Convert a thread's id to a base 1 index, increasing in increments of 1 (Makes logs prettier)
+        /// </summary>
+        public static int ThreadIndex
+        {
+            get
+            {
+                int managed = Thread.CurrentThread.ManagedThreadId;
+                if (ThreadIndices.TryGetValue(managed, out int id))
+                    return id;
+                ThreadIndices.Add(managed, id = ThreadIndices.Count + 1);
+                return id;
+            }
+        }
+
         public new ExtractorResult StartScan()
         {
+            // Reset Thread Indicies, no longer guaranteed to be the same threads as before
+            ThreadIndices.Clear();
+
             DateTime starttime = DateTime.Now;
 
             Scan(new DirectoryInfo(ScanDirectory));
@@ -201,7 +221,6 @@ namespace DolphinTextureExtraction_tool
         {
             FormatInfo FFormat = GetFormatTypee(stream, Extension);
             subdirectory = GetDirectoryWithoutExtension(subdirectory);
-
 #if !DEBUG
             try
             {
@@ -451,12 +470,12 @@ namespace DolphinTextureExtraction_tool
             if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Bytes32:[{string.Join(",", stream.Read(32))}]");
+                    $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
             }
             else
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{string.Join(",", FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
+                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{BitConverter.ToString(FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
             }
 
             if (stream.Length > 130)

@@ -160,14 +160,7 @@ namespace DolphinTextureExtraction_tool
                                 Console.WriteLine($"Clean up folder structure. \t(True) or False");
                                 options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
-                                if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red))
-                                {
-                                    options.Parallel.MaxDegreeOfParallelism = 4;
-                                }
-                                else
-                                {
-                                    options.Parallel.MaxDegreeOfParallelism = 1;
-                                }
+                                options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? -1 : 1;
                             }
                             break;
                         case Modes.Unpacks:
@@ -321,8 +314,15 @@ namespace DolphinTextureExtraction_tool
                                         break;
                                     case "-tasks":
                                     case "-t":
-                                        i++;
-                                        options.Parallel.MaxDegreeOfParallelism = Int32.Parse(args[i]);
+                                        if (!int.TryParse(args[++i], out int parse))
+                                        {
+                                            Console.Error.WriteLine("Wrong syntax.");
+                                            Console.WriteLine("use h for help");
+                                            Environment.Exit(-2);
+                                            break;
+                                        }
+                                        options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1
+                                            : Math.Min(parse, Environment.ProcessorCount);
                                         break;
                                 }
                             }
@@ -492,7 +492,7 @@ namespace DolphinTextureExtraction_tool
             Console.Write($"Clean up folder structure: ");
             ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");
-            ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism > 1, ConsoleColor.Green, ConsoleColor.Red);
+            ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
         }
 
         static void PrintResult(TextureExtractor.ExtractorResult result)

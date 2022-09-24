@@ -30,9 +30,15 @@ namespace DolphinTextureExtraction_tool
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else
-            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
 #endif
-            internal ParallelOptions SubParallel => new ParallelOptions() { MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism == 1 ? 1 : Parallel.MaxDegreeOfParallelism / 2, CancellationToken = Parallel.CancellationToken, TaskScheduler = Parallel.TaskScheduler };
+            internal ParallelOptions SubParallel => new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism <= 0 ? -1
+                    : Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
+                CancellationToken = Parallel.CancellationToken,
+                TaskScheduler = Parallel.TaskScheduler
+            };
 
             /// <summary>
             /// will be executed if progress was made

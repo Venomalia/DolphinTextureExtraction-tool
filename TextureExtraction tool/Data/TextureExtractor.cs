@@ -106,7 +106,7 @@ namespace DolphinTextureExtraction_tool
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
         {
-            base.Result = new ExtractorResult() {LogFullPath = base.Result.LogFullPath};
+            base.Result = new ExtractorResult() { LogFullPath = base.Result.LogFullPath };
         }
 
         public static ExtractorResult StartScan(string meindirectory, string savedirectory)
@@ -358,12 +358,15 @@ namespace DolphinTextureExtraction_tool
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
-                //Skip duplicate textures
-                if (Result.Hash.Contains(tex.Hash))
+                lock (Result.Hash)
                 {
-                    continue;
+                    //Skip duplicate textures
+                    if (Result.Hash.Contains(tex.Hash))
+                    {
+                        continue;
+                    }
+                    Result.Hash.Add(tex.Hash);
                 }
-                Result.Hash.Add(tex.Hash);
 
                 //Extract the main texture and mips
                 for (int i = 0; i < tex.Count; i++)

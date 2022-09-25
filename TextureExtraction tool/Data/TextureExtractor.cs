@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static AuroraLip.Texture.J3D.JUtility;
 
@@ -50,22 +51,26 @@ namespace DolphinTextureExtraction_tool
             public TextureActionDelegate TextureAction;
 
             public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, Results results, in string subdirectory);
+
+            public ExtractorOptions()
+            {
+                if (!UseConfig) return;
+
+                if (bool.TryParse(Config.Get("Mips"), out bool value)) Mips = value;
+                if (bool.TryParse(Config.Get("Raw"), out value)) Raw = value;
+                if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
+                if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
+                if (bool.TryParse(Config.Get("Cleanup"), out value)) Cleanup = value;
+            }
         }
 
         public class ExtractorResult : Results
         {
             public TimeSpan TotalTime { get; internal set; }
 
-            public int MinExtractionRate => (int)Math.Round((double)100 / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
+            public int MinExtractionRate => MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
 
-            public int MaxExtractionRate
-            {
-                get
-                {
-                    if (Extracted > 150) return (int)Math.Round((double)100 / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize);
-                    return MinExtractionRate;
-                }
-            }
+            public int MaxExtractionRate => Extracted > 150 ? MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
 
             public int Extracted => Hash.Count();
 
@@ -90,13 +95,19 @@ namespace DolphinTextureExtraction_tool
 
             public List<FormatInfo> UnknownFormatType = new List<FormatInfo>();
 
-            public string GetExtractionSize()
+            public string GetExtractionSize() => MinExtractionRate + MinExtractionRate / 10 >= MaxExtractionRate ? $"{(MinExtractionRate + MaxExtractionRate) / 2}%" : $"{MinExtractionRate}% - {MaxExtractionRate}%";
+
+            public override string ToString()
             {
-                if (MinExtractionRate + MinExtractionRate / 10 >= MaxExtractionRate)
-                {
-                    return $"{(int)(MinExtractionRate + MaxExtractionRate) / 2}%";
-                }
-                return $"{MinExtractionRate}% - {MaxExtractionRate}%";
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"Extracted textures: {Extracted}");
+                sb.AppendLine($"Unsupported files: {Unsupported}");
+                if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}".LineBreak(108, "\n                  "));
+                sb.AppendLine($"Unknown files: {Unknown}");
+                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.Header == null || x.Header.MagicASKI.Length < 2 ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}".LineBreak(108, "\n                  "));
+                sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
+                sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
+                return sb.ToString();
             }
         }
 
@@ -124,8 +135,27 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
+        private static Dictionary<int, int> ThreadIndices = new Dictionary<int, int>();
+        /// <summary>
+        /// Convert a thread's id to a base 1 index, increasing in increments of 1 (Makes logs prettier)
+        /// </summary>
+        public static int ThreadIndex
+        {
+            get
+            {
+                int managed = Thread.CurrentThread.ManagedThreadId;
+                if (ThreadIndices.TryGetValue(managed, out int id))
+                    return id;
+                ThreadIndices.Add(managed, id = ThreadIndices.Count + 1);
+                return id;
+            }
+        }
+
         public new ExtractorResult StartScan()
         {
+            // Reset Thread Indicies, no longer guaranteed to be the same threads as before
+            ThreadIndices.Clear();
+
             DateTime starttime = DateTime.Now;
 
             Scan(new DirectoryInfo(ScanDirectory));
@@ -201,7 +231,6 @@ namespace DolphinTextureExtraction_tool
         {
             FormatInfo FFormat = GetFormatTypee(stream, Extension);
             subdirectory = GetDirectoryWithoutExtension(subdirectory);
-
 #if !DEBUG
             try
             {
@@ -368,15 +397,19 @@ namespace DolphinTextureExtraction_tool
                     Result.Hash.Add(tex.Hash);
                 }
 
-                //Extract the main texture and mips
-                for (int i = 0; i < tex.Count; i++)
+                // Don't extract anything if performing a dry run
+                if (!Option.DryRun)
                 {
-                    string path = GetFullSaveDirectory(subdirectory);
-                    Directory.CreateDirectory(path);
-                    tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i, false, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                    //Extract the main texture and mips
+                    for (int i = 0; i < tex.Count; i++)
+                    {
+                        string path = GetFullSaveDirectory(subdirectory);
+                        Directory.CreateDirectory(path);
+                        tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i, false, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
-                    //skip mips?
-                    if (!((ExtractorOptions)Option).Mips) break;
+                        //skip mips?
+                        if (!((ExtractorOptions)Option).Mips) break;
+                    }
                 }
 
                 Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash()) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
@@ -454,12 +487,12 @@ namespace DolphinTextureExtraction_tool
             if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Bytes32:[{string.Join(",", stream.Read(32))}]");
+                    $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
             }
             else
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{string.Join(",", FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
+                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{BitConverter.ToString(FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
             }
 
             if (stream.Length > 130)

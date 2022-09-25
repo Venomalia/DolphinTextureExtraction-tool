@@ -5,6 +5,8 @@ using AuroraLip.Compression;
 using LibCPK;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,12 +29,34 @@ namespace DolphinTextureExtraction_tool
 
         public class Options
         {
+            static NameValueCollection config;
+            public static NameValueCollection Config => config = config ?? ConfigurationManager.AppSettings;
+            static bool? useConfig = null;
+            public static bool UseConfig = (bool)(useConfig = useConfig ?? Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 #endif
-            internal ParallelOptions SubParallel => new ParallelOptions() { MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism == 1 ? 1 : Parallel.MaxDegreeOfParallelism / 2, CancellationToken = Parallel.CancellationToken, TaskScheduler = Parallel.TaskScheduler };
+            internal ParallelOptions SubParallel => new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
+                CancellationToken = Parallel.CancellationToken,
+                TaskScheduler = Parallel.TaskScheduler
+            };
+
+            public Options()
+            {
+                if (!UseConfig) return;
+
+                if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
+                if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing <= 0 ? Environment.ProcessorCount : thing;
+            }
+
+            /// <summary>
+            /// Don't actually extract anything.
+            /// </summary>
+            public bool DryRun = false;
 
             /// <summary>
             /// will be executed if progress was made
@@ -118,21 +142,15 @@ namespace DolphinTextureExtraction_tool
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
         {
+            Option = options ?? new Options();
+            if (Option.DryRun)
+                saveDirectory = StringEx.ExePath;
             ScanDirectory = scanDirectory;
             SaveDirectory = saveDirectory;
-            Directory.CreateDirectory(saveDirectory);
+            Directory.CreateDirectory(SaveDirectory);
             Log = new ScanLogger(SaveDirectory);
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
-
-            if (options == null)
-            {
-                Option = new Options();
-            }
-            else
-            {
-                Option = options;
-            }
         }
 
         public Results StartScan()
@@ -235,6 +253,9 @@ namespace DolphinTextureExtraction_tool
         /// <param name="destFileName"></param>
         protected void Save(Stream stream, string destFileName)
         {
+            // Don't save anything if performing a dry run
+            if (Option.DryRun) return;
+
             string DirectoryName = Path.GetDirectoryName(destFileName);
             //We can't create a folder if a file with the same name exists.
             if (File.Exists(DirectoryName))

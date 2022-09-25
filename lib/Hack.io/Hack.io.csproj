@@ -7,8 +7,8 @@
     <ProjectGuid>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hack.io.BMD</RootNamespace>
-    <AssemblyName>Hack.io.BMD</AssemblyName>
+    <RootNamespace>Hack.io</RootNamespace>
+    <AssemblyName>Hack.io</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -51,7 +51,7 @@
     <Compile Include="ShaderGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AuroraLip\AuroraLip.csproj">
+    <ProjectReference Include="..\AuroraLip\AuroraLip.csproj">
       <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
       <Name>AuroraLip</Name>
     </ProjectReference>

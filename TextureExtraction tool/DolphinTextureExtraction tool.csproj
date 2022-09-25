@@ -94,7 +94,7 @@
       <Name>LibCPK</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
-    <ProjectReference Include="..\lib\Hack.io\Hack.io.BMD\Hack.io.BMD.csproj">
+    <ProjectReference Include="..\lib\Hack.io\Hack.io.csproj">
       <Project>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</Project>
       <Name>Hack.io.BMD</Name>
       <EmbedInteropTypes>False</EmbedInteropTypes>

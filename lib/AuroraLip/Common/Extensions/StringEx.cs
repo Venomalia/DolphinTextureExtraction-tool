@@ -1,19 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraLip.Common
 {
     /// <summary>
-    /// Extra text functions
+    /// Extra <see cref="string"/> functions
     /// </summary>
-    public static class TextEx
+    public static class StringEx
     {
         static string exePath = null;
         public static string ExePath => exePath = exePath ?? Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
+
+        public static string SimpleDate => DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
 
         /// <summary>
         /// Introduces a linebreak if a certain threshold is passed

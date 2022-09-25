@@ -21,7 +21,7 @@ namespace DolphinTextureExtraction_tool
 
         private static string GenerateFullPath(string directory)
         {
-            string basename = directory == TextEx.ExePath ? $"{DateTime.Now:yy-MM-dd_HH-mm-ss}" : System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            string basename = directory == StringEx.ExePath ? StringEx.SimpleDate : System.Diagnostics.Process.GetCurrentProcess().ProcessName;
 
             string FullPath;
             if (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename), "log")))

@@ -162,7 +162,7 @@ namespace DolphinTextureExtraction_tool
                                 Console.WriteLine($"Perform a Dry Run. \tTrue or (False)");
                                 options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
-                                options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? -1 : 1;
+                                options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
                             }
                             break;
                         case Modes.Unpacks:
@@ -327,8 +327,7 @@ namespace DolphinTextureExtraction_tool
                                             Environment.Exit(-2);
                                             break;
                                         }
-                                        options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1
-                                            : Math.Min(parse, Environment.ProcessorCount);
+                                        options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? Environment.ProcessorCount : parse;
                                         break;
                                 }
                             }

@@ -36,12 +36,11 @@ namespace DolphinTextureExtraction_tool
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else
-            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 #endif
             internal ParallelOptions SubParallel => new ParallelOptions()
             {
-                MaxDegreeOfParallelism = Parallel.MaxDegreeOfParallelism <= 0 ? -1
-                    : Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
+                MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
                 CancellationToken = Parallel.CancellationToken,
                 TaskScheduler = Parallel.TaskScheduler
             };
@@ -51,6 +50,7 @@ namespace DolphinTextureExtraction_tool
                 if (!UseConfig) return;
 
                 if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
+                if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing <= 0 ? Environment.ProcessorCount : thing;
             }
 
             /// <summary>
@@ -144,7 +144,7 @@ namespace DolphinTextureExtraction_tool
         {
             Option = options ?? new Options();
             if (Option.DryRun)
-                saveDirectory = TextEx.ExePath;
+                saveDirectory = StringEx.ExePath;
             ScanDirectory = scanDirectory;
             SaveDirectory = saveDirectory;
             Directory.CreateDirectory(SaveDirectory);

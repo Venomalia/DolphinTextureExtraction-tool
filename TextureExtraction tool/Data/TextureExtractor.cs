@@ -61,7 +61,6 @@ namespace DolphinTextureExtraction_tool
                 if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
                 if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
                 if (bool.TryParse(Config.Get("Cleanup"), out value)) Cleanup = value;
-                if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing;
             }
         }
 

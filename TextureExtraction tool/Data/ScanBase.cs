@@ -5,6 +5,8 @@ using AuroraLip.Compression;
 using LibCPK;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -27,6 +29,10 @@ namespace DolphinTextureExtraction_tool
 
         public class Options
         {
+            static NameValueCollection config;
+            public static NameValueCollection Config => config = config ?? ConfigurationManager.AppSettings;
+            static bool? useConfig = null;
+            public static bool UseConfig = (bool)(useConfig = useConfig ?? Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else
@@ -39,6 +45,18 @@ namespace DolphinTextureExtraction_tool
                 CancellationToken = Parallel.CancellationToken,
                 TaskScheduler = Parallel.TaskScheduler
             };
+
+            public Options()
+            {
+                if (!UseConfig) return;
+
+                if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
+            }
+
+            /// <summary>
+            /// Don't actually extract anything.
+            /// </summary>
+            public bool DryRun = false;
 
             /// <summary>
             /// will be executed if progress was made
@@ -125,7 +143,7 @@ namespace DolphinTextureExtraction_tool
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
         {
             Option = options ?? new Options();
-            if (options is TextureExtractor.ExtractorOptions texOpt && texOpt.DryRun)
+            if (Option.DryRun)
                 saveDirectory = TextEx.ExePath;
             ScanDirectory = scanDirectory;
             SaveDirectory = saveDirectory;
@@ -235,6 +253,9 @@ namespace DolphinTextureExtraction_tool
         /// <param name="destFileName"></param>
         protected void Save(Stream stream, string destFileName)
         {
+            // Don't save anything if performing a dry run
+            if (Option.DryRun) return;
+
             string DirectoryName = Path.GetDirectoryName(destFileName);
             //We can't create a folder if a file with the same name exists.
             if (File.Exists(DirectoryName))

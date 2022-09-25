@@ -4,8 +4,6 @@ using Hack.io.BMD;
 using LibCPK;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -48,11 +46,6 @@ namespace DolphinTextureExtraction_tool
             public bool Cleanup = true;
 
             /// <summary>
-            /// Don't actually extract anything.
-            /// </summary>
-            public bool DryRun = false;
-
-            /// <summary>
             /// is executed when a texture is extracted
             /// </summary>
             public TextureActionDelegate TextureAction;
@@ -61,16 +54,14 @@ namespace DolphinTextureExtraction_tool
 
             public ExtractorOptions()
             {
-                NameValueCollection config = ConfigurationManager.AppSettings;
-                if (!config.HasKeys() || !bool.TryParse(config.Get("UseConfig"), out bool value) || !value) return;
+                if (!UseConfig) return;
 
-                if (bool.TryParse(config.Get("Mips"), out value)) Mips = value;
-                if (bool.TryParse(config.Get("Raw"), out value)) Raw = value;
-                if (bool.TryParse(config.Get("Force"), out value)) Force = value;
-                if (bool.TryParse(config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
-                if (bool.TryParse(config.Get("Cleanup"), out value)) Cleanup = value;
-                if (bool.TryParse(config.Get("DryRun"), out value)) DryRun = value;
-                if (int.TryParse(config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing;
+                if (bool.TryParse(Config.Get("Mips"), out bool value)) Mips = value;
+                if (bool.TryParse(Config.Get("Raw"), out value)) Raw = value;
+                if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
+                if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
+                if (bool.TryParse(Config.Get("Cleanup"), out value)) Cleanup = value;
+                if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing;
             }
         }
 
@@ -408,7 +399,7 @@ namespace DolphinTextureExtraction_tool
                 }
 
                 // Don't extract anything if performing a dry run
-                if (!((ExtractorOptions)Option).DryRun)
+                if (!Option.DryRun)
                 {
                     //Extract the main texture and mips
                     for (int i = 0; i < tex.Count; i++)

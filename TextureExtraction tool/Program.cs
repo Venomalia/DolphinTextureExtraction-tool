@@ -322,7 +322,7 @@ namespace DolphinTextureExtraction_tool
                                     case "-t":
                                         if (!int.TryParse(args[++i], out int parse))
                                         {
-                                            Console.Error.WriteLine($"Wrong syntax: \"{args[i-1]} {args[i]}\" Task needs a second parameter".);
+                                            Console.Error.WriteLine($"Wrong syntax: \"{args[i-1]} {args[i]}\" Task needs a second parameter.");
                                             Console.WriteLine("use h for help");
                                             Environment.Exit(-2);
                                             break;

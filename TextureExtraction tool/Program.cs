@@ -10,7 +10,7 @@ namespace DolphinTextureExtraction_tool
 {
     partial class Program
     {
-        static string InputDirectory;
+        static string InputPath;
 
         static string OutputDirectory;
 
@@ -102,39 +102,39 @@ namespace DolphinTextureExtraction_tool
                     //Input Path
                     Console.WriteLine();
                     Console.WriteLine("Input Path:");
-                    Console.WriteLine("Specify a directory from which the textures should be extracted.");
+                    Console.WriteLine("Specify a directory or a file to be extracted.");
                     do
                     {
-                        InputDirectory = Console.ReadLine().Trim('"');
+                        InputPath = Console.ReadLine().Trim('"');
 
-                        if (!Directory.Exists(InputDirectory))
+                        if (!Directory.Exists(InputPath) && !File.Exists(InputPath))
                         {
-                            ConsoleEx.WriteLineColoured("The directory could not be found!", ConsoleColor.Red);
+                            ConsoleEx.WriteLineColoured("The directory or file could not be found!", ConsoleColor.Red);
                         }
-                    } while (!Directory.Exists(InputDirectory));
+                    } while (!Directory.Exists(InputPath) && !File.Exists(InputPath));
 
                     //Output Path
                     Console.WriteLine();
                     Console.WriteLine("Output Path:");
-                    Console.WriteLine("Specify a directory where the textures should be saved.");
-                    Console.WriteLine($"Or use default \t\"{GetGenOutputPath(InputDirectory)}\"");
+                    Console.WriteLine("Specify an output directory where the extra files will be saved.");
+                    Console.WriteLine($"Or use default \t\"{GetGenOutputPath(InputPath)}\"");
                     do
                     {
                         OutputDirectory = Console.ReadLine().Trim('"');
                         if (OutputDirectory == "")
                         {
-                            OutputDirectory = GetGenOutputPath(InputDirectory);
+                            OutputDirectory = GetGenOutputPath(InputPath);
                         }
                         if (!PathIsValid(OutputDirectory))
                         {
                             ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
                         }
-                        if (OutputDirectory == InputDirectory)
+                        if (OutputDirectory == InputPath)
                         {
-                            ConsoleEx.WriteLineColoured("Output Directory and Input Directory cannot be the same!", ConsoleColor.Red);
+                            ConsoleEx.WriteLineColoured("Output Directory and Input Path cannot be the same!", ConsoleColor.Red);
                         }
 
-                    } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputDirectory);
+                    } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputPath);
 
 
 
@@ -171,7 +171,7 @@ namespace DolphinTextureExtraction_tool
 
                     //Inputs correct?
                     Console.WriteLine();
-                    Console.WriteLine($"Input Path: \"{InputDirectory}\"");
+                    Console.WriteLine($"Input Path: \"{InputPath}\"");
                     Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
                     if (Mode == Modes.Extract)
                         PrintOptions(options);
@@ -185,18 +185,18 @@ namespace DolphinTextureExtraction_tool
                     switch (Mode)
                     {
                         case Modes.Extract:
-                            Console.WriteLine($"Search and extract textures from {InputDirectory}");
+                            Console.WriteLine($"Search and extract textures from {InputPath}");
                             Console.WriteLine("This may take a few seconds...");
                             Console.WriteLine();
-                            var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
+                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
                             Console.WriteLine();
                             PrintResult(result);
                             break;
                         case Modes.Unpacks:
-                            Console.WriteLine($"Unpacks all files from {InputDirectory}");
+                            Console.WriteLine($"Unpacks all files from {InputPath}");
                             Console.WriteLine("This may take a few seconds...");
                             Console.WriteLine();
-                            Unpack.StartScan(InputDirectory, OutputDirectory, options);
+                            Unpack.StartScan(InputPath, OutputDirectory, options);
                             Console.WriteLine();
                             Console.WriteLine("Done.");
                             break;
@@ -238,7 +238,7 @@ namespace DolphinTextureExtraction_tool
                             }
                         }
 
-                        Cutter.StartScan(InputDirectory, OutputDirectory, pattern, options);
+                        Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         #endregion
@@ -250,7 +250,7 @@ namespace DolphinTextureExtraction_tool
                         if (p <= 0)
                             goto default;
 
-                        Unpack.StartScan(InputDirectory, OutputDirectory, options);
+                        Unpack.StartScan(InputPath, OutputDirectory, options);
                         Console.WriteLine();
                         Console.WriteLine("completed.");
                         //PrintResult(result);
@@ -322,7 +322,7 @@ namespace DolphinTextureExtraction_tool
                                     case "-t":
                                         if (!int.TryParse(args[++i], out int parse))
                                         {
-                                            Console.Error.WriteLine($"Wrong syntax: \"{args[i-1]} {args[i]}\" Task needs a second parameter.");
+                                            Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
                                             Console.WriteLine("use h for help");
                                             Environment.Exit(-2);
                                             break;
@@ -332,7 +332,7 @@ namespace DolphinTextureExtraction_tool
                                 }
                             }
                         }
-                        var result = TextureExtractor.StartScan(InputDirectory, OutputDirectory, options);
+                        var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
 
                         Console.WriteLine();
 
@@ -348,9 +348,9 @@ namespace DolphinTextureExtraction_tool
                     default:
                         if (Directory.Exists(args[0]))
                         {
-                            InputDirectory = args[0];
-                            OutputDirectory = GetGenOutputPath(InputDirectory);
-                            TextureExtractor.StartScan(InputDirectory, OutputDirectory);
+                            InputPath = args[0];
+                            OutputDirectory = GetGenOutputPath(InputPath);
+                            TextureExtractor.StartScan(InputPath, OutputDirectory);
                         }
                         Console.Error.WriteLine("Wrong syntax.");
                         Console.WriteLine("use h for help");
@@ -366,21 +366,21 @@ namespace DolphinTextureExtraction_tool
             if (args.Length < 2)
                 return -1;
 
-            InputDirectory = args[1];
+            InputPath = args[1];
             if (args.Length >= 3)
                 OutputDirectory = args[2];
             else
-                OutputDirectory = GetGenOutputPath(InputDirectory);
+                OutputDirectory = GetGenOutputPath(InputPath);
 
-            if (!Directory.Exists(InputDirectory))
+            if (!Directory.Exists(InputPath) && !File.Exists(InputPath))
             {
                 Console.WriteLine("The directory could not be found!");
-                Console.WriteLine(InputDirectory);
+                Console.WriteLine(InputPath);
                 return -1;
             }
             if (!PathIsValid(OutputDirectory))
             {
-                OutputDirectory = GetGenOutputPath(InputDirectory);
+                OutputDirectory = GetGenOutputPath(InputPath);
                 return 2;
             }
             return 3;
@@ -539,8 +539,8 @@ namespace DolphinTextureExtraction_tool
             { }
         }
 
-        //change only with caution! this function is required by Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
-        static void TextureUpdate(JUTTexture.TexEntry texture,Results result , in string subdirectory)
+        //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
+        static void TextureUpdate(JUTTexture.TexEntry texture, Results result, in string subdirectory)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
             Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");

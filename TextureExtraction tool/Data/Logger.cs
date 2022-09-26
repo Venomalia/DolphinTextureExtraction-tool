@@ -43,7 +43,7 @@ namespace DolphinTextureExtraction_tool
             Flush();
         }
 
-        public void WriteFoot(TextureExtractor.ExtractorResult result)
+        public void WriteFoot(ScanBase.Results result)
         {
             WriteLine("".PadLeft(64, '-'));
             WriteLine($"~END  {DateTime.Now}");

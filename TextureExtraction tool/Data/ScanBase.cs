@@ -17,7 +17,7 @@ namespace DolphinTextureExtraction_tool
 {
     public abstract class ScanBase
     {
-        protected readonly string ScanDirectory;
+        protected readonly string ScanPath;
 
         protected readonly string SaveDirectory;
 
@@ -115,6 +115,11 @@ namespace DolphinTextureExtraction_tool
         public class Results
         {
             /// <summary>
+            /// the time the scan process has taken
+            /// </summary>
+            public TimeSpan TotalTime { get; internal set; }
+
+            /// <summary>
             /// count of all files to be searched.
             /// </summary>
             public int Worke { get; internal set; }
@@ -138,6 +143,13 @@ namespace DolphinTextureExtraction_tool
             /// Full path to the log file.
             /// </summary>
             public string LogFullPath { get; internal set; }
+
+            public override string ToString()
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
+                return sb.ToString();
+            }
         }
 
         protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
@@ -145,7 +157,7 @@ namespace DolphinTextureExtraction_tool
             Option = options ?? new Options();
             if (Option.DryRun)
                 saveDirectory = StringEx.ExePath;
-            ScanDirectory = scanDirectory;
+            ScanPath = scanDirectory;
             SaveDirectory = saveDirectory;
             Directory.CreateDirectory(SaveDirectory);
             Log = new ScanLogger(SaveDirectory);
@@ -153,11 +165,31 @@ namespace DolphinTextureExtraction_tool
             Result.LogFullPath = Log.FullPath;
         }
 
-        public Results StartScan()
+        public virtual Results StartScan()
         {
-            Scan(new DirectoryInfo(ScanDirectory));
-            Log.Flush();
+            DateTime starttime = DateTime.Now;
+
+            if (Directory.Exists(ScanPath))
+            {
+                Scan(new DirectoryInfo(ScanPath));
+            }
+            else if (File.Exists(ScanPath))
+            {
+                var file = new FileInfo(ScanPath);
+                Result.Worke = 1;
+                Result.WorkeLength = file.Length;
+                Scan(file);
+            }
+            else
+            {
+                throw new ArgumentException($"{ScanPath}: does not exist!");
+            }
+
+            Result.TotalTime = DateTime.Now.Subtract(starttime);
+
+            Log.WriteFoot(Result);
             Log.Dispose();
+            GC.Collect();
             return Result;
         }
 
@@ -179,7 +211,6 @@ namespace DolphinTextureExtraction_tool
                 }
                 Option.ProgressUpdate(Result);
             });
-            GC.Collect();
         }
 
         private void ScanInitialize(DirectoryInfo directory, List<FileInfo> fileInfos)

@@ -31,7 +31,7 @@ namespace DolphinTextureExtraction_tool
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanDirectory + Path.DirectorySeparatorChar, ""));
+            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanPath + Path.DirectorySeparatorChar, ""));
 
 #if !DEBUG
             try

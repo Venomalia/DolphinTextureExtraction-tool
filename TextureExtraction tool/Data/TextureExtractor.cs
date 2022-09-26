@@ -66,8 +66,6 @@ namespace DolphinTextureExtraction_tool
 
         public class ExtractorResult : Results
         {
-            public TimeSpan TotalTime { get; internal set; }
-
             public int MinExtractionRate => MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
 
             public int MaxExtractionRate => Extracted > 150 ? MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
@@ -156,13 +154,7 @@ namespace DolphinTextureExtraction_tool
             // Reset Thread Indicies, no longer guaranteed to be the same threads as before
             ThreadIndices.Clear();
 
-            DateTime starttime = DateTime.Now;
-
-            Scan(new DirectoryInfo(ScanDirectory));
-
-            Result.TotalTime = DateTime.Now.Subtract(starttime);
-            Log.WriteFoot(Result);
-            Log.Dispose();
+            base.StartScan();
 
             if (((ExtractorOptions)Option).Cleanup)
             {
@@ -191,7 +183,7 @@ namespace DolphinTextureExtraction_tool
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
 
-            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanDirectory + Path.DirectorySeparatorChar, ""));
+            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanPath + Path.DirectorySeparatorChar, ""));
 
 #if !DEBUG
             try

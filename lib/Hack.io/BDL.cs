@@ -3,7 +3,7 @@ using System;
 using System.IO;
 
 //Heavily based on the SuperBMD Library.
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public partial class BDL : BMD, IFileAccess, IMagicIdentify
     {

@@ -33,9 +33,9 @@ namespace DolphinTextureExtraction_tool
             //link external classes
             FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
             FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
-            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BMD.BDL);
-            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD.BMD);
-            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.BMD.TEX1);
+            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BDL);
+            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD);
+            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.TEX1);
             GC.Collect();
 
             //are we able to change the Title?

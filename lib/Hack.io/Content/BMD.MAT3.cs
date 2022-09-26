@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 
 //Heavily based on the SuperBMD Library.
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public partial class BMD
     {
@@ -2920,7 +2920,7 @@ namespace Hack.io.BMD
                         One = 12,
                         Half = 13,
                         Konst = 14,
-                        Zero = 15       // 
+                        Zero = 15       //
                     }
                     public enum CombineAlphaInput
                     {
@@ -3392,7 +3392,7 @@ namespace Hack.io.BMD
                     /// If the result of the comparison is false, the newly rasterized pixel is discarded. </summary>
                     public AlphaCompare.CompareType Function;
 
-                    /// <summary> If true, the Z buffer is updated with the new Z value after a comparison is performed. 
+                    /// <summary> If true, the Z buffer is updated with the new Z value after a comparison is performed.
                     /// Example: Disabling this would prevent a write to the Z buffer, useful for UI elements or other things
                     /// that shouldn't write to Z Buffer. See glDepthMask. </summary>
                     public bool UpdateEnable;

@@ -71,6 +71,7 @@ StyleCopReport.xml
 # Files built by Visual Studio
 *_i.c
 *_p.c
+*_i.h
 *_h.h
 *.ilk
 *.meta
@@ -301,7 +302,7 @@ node_modules/
 *.dsw
 *.dsp
 
-# Visual Studio 6 technical files 
+# Visual Studio 6 technical files
 *.ncb
 *.aps
 
@@ -375,6 +376,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+FodyWeavers.xml
 
 # VS Code files for those working on multiple tools
 .vscode/*
@@ -396,4 +398,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-TextureExtraction tool/FodyWeavers.xml

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public enum ShaderAttributeIds
     {
@@ -35,7 +35,7 @@ namespace Hack.io.BMD
             #region Vertex Shader
             Vert.AppendLine("#version 330");
             //TODO: J3DView has 2 lines I can't figure out what to do with
-            
+
             string position = "";
             switch (shape.MatrixType)
             {
@@ -217,7 +217,7 @@ namespace Hack.io.BMD
             Frag.AppendLine("   gl_FragColor.rgb = truncc3(rprev.rgb);");
             Frag.AppendLine("   gl_FragColor.a = truncc1(rprev.a);");
             Frag.AppendLine("");
-            
+
             Frag.AppendLine("    // Alpha test");
             if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.AlphaOp.Or && (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.CompareType.Always || Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.CompareType.Always))
             {

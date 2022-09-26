@@ -4,7 +4,7 @@ using System.IO;
 using static AuroraLip.Texture.J3D.JUtility;
 
 //Heavily based on the SuperBMD Library.
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public partial class BMD : IFileAccess, IMagicIdentify
     {

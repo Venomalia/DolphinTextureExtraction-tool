@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 
 //Heavily based on the SuperBMD Library.
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public partial class BMD
     {
@@ -56,7 +56,7 @@ namespace Hack.io.BMD
 
                 for (int SID = 0; SID < ShapeEntryCount; SID++)
                 {
-                    // Shapes can have different attributes for each shape. (ie: Some have only Position, while others have Pos & TexCoord, etc.) Each 
+                    // Shapes can have different attributes for each shape. (ie: Some have only Position, while others have Pos & TexCoord, etc.) Each
                     // shape (which has a consistent number of attributes) it is split into individual packets, which are a collection of geometric primitives.
                     // Each packet can have individual unique skinning data.
                     //      ~Probably LordNed

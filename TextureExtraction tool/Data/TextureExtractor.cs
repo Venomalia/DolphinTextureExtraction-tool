@@ -1,6 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Texture.Formats;
-using Hack.io.BMD;
+using Hack.io;
 using LibCPK;
 using System;
 using System.Collections.Generic;

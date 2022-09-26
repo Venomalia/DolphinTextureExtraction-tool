@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 
 //Heavily based on the SuperBMD Library.
-namespace Hack.io.BMD
+namespace Hack.io
 {
     public partial class BMD
     {

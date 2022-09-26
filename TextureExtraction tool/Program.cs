@@ -539,10 +539,11 @@ namespace DolphinTextureExtraction_tool
             { }
         }
 
+        //change only with caution! this function is required by Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
         static void TextureUpdate(JUTTexture.TexEntry texture,Results result , in string subdirectory)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-            Console.WriteLine($"Prog:{ProgressPercentage:00.00}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
+            Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
 }

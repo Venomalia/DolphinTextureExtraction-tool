@@ -163,7 +163,7 @@ namespace AuroraLip.Common
             new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
-            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
+            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"){ Class = typeof(LZ77)},
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed") {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
@@ -289,7 +289,13 @@ namespace AuroraLip.Common
 
             //Ganbarion
             new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
-            new FormatInfo(".aar","ALAR", FormatType.Archive, "Pandoras Tower Archive", "Ganbarion"),
+
+            //Aqualead. use in Pandora's Tower
+            new FormatInfo(".aar","ALAR", FormatType.Archive, "Aqualead Archive", "Aqualead"),
+            new FormatInfo(".aar","ALLZ", FormatType.Archive, "Aqualead LZSS Compressed", "Aqualead"), //https://github.com/Brolijah/Aqualead_LZSS
+            new FormatInfo(".amt","ALMT", FormatType.Parameter, "Aqualead Archive", "Aqualead"),
+            new FormatInfo(".lz77","GCLZ", FormatType.Parameter, "Lz77"){ Class = typeof(LZ77)},
+            new FormatInfo(".aig","ALIG", FormatType.Texture, "Aqualead Texture"),
 
             //Hudson Soft
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },
@@ -334,7 +340,6 @@ namespace AuroraLip.Common
 
             //Font
             new FormatInfo(".aft", "ALFT", FormatType.Font),
-            new FormatInfo(".aig",  "ALIG", FormatType.Font),
             new FormatInfo(".bfn", "FONTbfn1", FormatType.Font),
             new FormatInfo(".pkb",  "RFNA", FormatType.Font),
             //Model

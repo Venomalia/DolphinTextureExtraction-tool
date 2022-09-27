@@ -20,7 +20,11 @@ namespace AuroraLip.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+        {
+            stream.Seek(12, SeekOrigin.Begin);
+            uint pattern_offset = stream.ReadUInt32(Endian.Big);
+            return extension.ToLower() == Extension && pattern_offset == 20;
+        }
 
         public List<PatternEntry> Patterns = new List<PatternEntry>();
 

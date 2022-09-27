@@ -25,7 +25,7 @@ namespace AuroraLip.Compression.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
-            if (stream.MatchString(magic))
+            if (stream.MatchString(magic) && stream.ReadByte() == 16)
                 return true;
             
             stream.Seek(0, SeekOrigin.Begin);
@@ -39,10 +39,12 @@ namespace AuroraLip.Compression.Formats
 
         public byte[] Decompress(in byte[] Data)
         {
-            if (magic.ToByte().ArrayEqual(Data.AsSpan(0, 4).ToArray()))
+            if (Data[0] == 16)
+                return Decompress(Data.AsSpan());
+            else if (Data[4] == 16)
                 return Decompress(Data.AsSpan(4));
-
-            return Decompress(Data.AsSpan());
+            else
+                throw new InvalidIdentifierException(Magic);
         }
 
         public byte[] Decompress(ReadOnlySpan<byte> Data)

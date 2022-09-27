@@ -7,6 +7,25 @@ namespace AuroraLip.Common
     public static partial class StreamEx
     {
         #region Read
+
+        /// <summary>
+        /// Returns a 8-bit unsigned integer, read from one byte at the current position.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static byte ReadUInt8(this Stream stream)
+            => (byte)stream.ReadByte();
+
+        /// <summary>
+        /// Returns a 8-bit signed integer, read from one byte at the current position.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static sbyte ReadInt8(this Stream stream)
+            => (sbyte)stream.ReadByte();
+
         /// <summary>
         /// Returns a 16-bit unsigned integer converted from two bytes at a specified position.
         /// </summary>

@@ -21,12 +21,12 @@ INFO: currently no ROM images are supported, Please unpack them with dolphin int
 Right click on a game -> **Properties** -> **Filesystem** -> right click on "**Disc - [Game ID]**" -> **Extract Files**...
 
 ### Command-line UI
-Launch `DolphinTextureExtraction tool.exe` and
+Launch `DolphinTextureExtraction.tool.exe` and
 Follow the instructions of the application
 
 ### Drag and Drop
-Drop a folder on the `DolphinTextureExtraction tool.exe`,
-output to the same place only with a "~" in front of the folder.
+Drop a folder on the `DolphinTextureExtraction.tool.exe`,
+output to the same place only with a "~" in front of the new folder.
 
 ### Command-line
 List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Command-Line-Commands).
@@ -40,56 +40,43 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-- RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd) Archives
-- YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib Compressing
-- ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD, GCT0 Textures
-- MOD, BMD3, BDL4 Models archives
+### Archives
+- ALAR, RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, FBC, FBTI, NLCM, PCKG, RTDP, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
+### Compressing
+- YAZ, YAY, CLZ, GZIP, LZ11, LZ77, LZSS, ZLib
+### Textures
+- ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD, GCT0
+### Model archives
+- MOD, BMD3, BDL4
+
 ## Credits
  
-- [Hack.io](https://github.com/SuperHackio/Hack.io)
-    - to read RARC, U8 Archives
-    - YAZ, YAY Compressing
-    - BTI, TPL, TEX1 Textures
-    - BMD, BDL J3D Models
+- [Hack.io](https://github.com/SuperHackio/Hack.io) to read RARC, U8, YAZ, YAY, BTI, TPL, TEX1, BMD and BDL Format
 
-- [HashDepot](https://github.com/ssg/HashDepot)
-    - used for xxHash generation
+- [HashDepot](https://github.com/ssg/HashDepot) used for xxHash generation
 
-- [SevenZip](https://github.com/adoconnection/SevenZipExtractor)
-    - to read formats supported by 7Zip
+- [SevenZip](https://github.com/adoconnection/SevenZipExtractor) to read formats supported by 7Zip
 	
-- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib)
-    - to read ZLib Compressing
+- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib) to read ZLib Compressing
 	
-- [AFSLib](https://github.com/MaikelChan/AFSLib)
-    - to read AFS archive format
+- [AFSLib](https://github.com/MaikelChan/AFSLib) to read AFS archive format
 
-- [cpk-tools](https://github.com/ConnorKrammer/cpk-tools)
-    - to read CRIWARE's CPK archive format
+- [cpk-tools](https://github.com/ConnorKrammer/cpk-tools) to read CRIWARE's CPK archive format
 	
-- [CLZ-Compression](https://github.com/sukharah/CLZ-Compression)
-    - Code reference for CLZ Compressing
+- [CLZ-Compression](https://github.com/sukharah/CLZ-Compression) Code reference for CLZ Compressing
 
-- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox)
-    - Code reference for LZ11, LZ77 Compressing
+- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox) Code reference for LZ11, LZ77 Compressing
 	
-- [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs)
-    - Code reference for PTLG Format
+- [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs) Code reference for PTLG Format
 	
-- [Rune Factory Frontier Tools](https://github.com/master801/Rune-Factory-Frontier-Tools)
-    - Code reference for NLCM Archives
+- [Rune Factory Frontier Tools](https://github.com/master801/Rune-Factory-Frontier-Tools) Code reference for NLCM Archives
 	
-- [Custom Mario Kart Wiiki](https://wiki.tockdom.com/wiki/BRRES_(File_Format))
-    - reference for bres, REFT, TEX0.
+- [Custom Mario Kart Wiiki](https://wiki.tockdom.com/wiki/BRRES_(File_Format)) reference for bres, REFT, TEX0.
 	
-- [MODConv](https://github.com/intns/MODConv)
-    - reference for MOD Format.
+- [MODConv](https://github.com/intns/MODConv) reference for MOD Format.
 	
-- [mpbintools](https://github.com/gamemasterplc/mpbintools)
-    - reference for BIN_MP Format.
+- [mpbintools](https://github.com/gamemasterplc/mpbintools) reference for BIN_MP Format.
 	
-- [mpatbtools](https://github.com/gamemasterplc/mpatbtools)
-    - reference for ATB Format.
+- [mpatbtools](https://github.com/gamemasterplc/mpatbtools) reference for ATB Format.
 	
-- [BrawlCrate](https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs)
-    - reference for ARC0 Format.
+- [BrawlCrate](https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs) reference for ARC0 Format.

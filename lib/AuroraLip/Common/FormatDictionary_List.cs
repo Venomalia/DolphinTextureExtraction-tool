@@ -232,6 +232,10 @@ namespace AuroraLip.Common
 
             //SEGA
             new FormatInfo(".one", FormatType.Archive, "Sonic Archive", "SEGA"),
+            new FormatInfo(".gvm", "GVMH", FormatType.Archive, "Sonic Stage archive", "SEGA"),
+            new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA"),
+            new FormatInfo(".gvr", "GCIX", FormatType.Texture, "VR Texture", "SEGA"),
+            new FormatInfo(".gvrt","GVRT", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo(".XVRs", FormatType.Texture, "SonicRiders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
 
             //Imageepoch
@@ -255,9 +259,6 @@ namespace AuroraLip.Common
             //Treasure
             new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure"),
             new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure"),
-            new FormatInfo(".gvm", "GVMH", FormatType.Archive, "IKARUGA Stage archive", "Treasure"),
-            new FormatInfo(".gvr", "GCIX", FormatType.Texture, "IKARUGA texture", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2054452
-            new FormatInfo(".gvrt", "GVRT", FormatType.Texture, "IKARUGA texture", "Treasure"),
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
 
             //Tri-Crescendo

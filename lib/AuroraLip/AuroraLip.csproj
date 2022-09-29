@@ -51,6 +51,7 @@
     <Compile Include="Archives\Formats\ARC0.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
+    <Compile Include="Archives\Formats\GVMH.cs" />
     <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
@@ -115,7 +116,10 @@
     <Compile Include="Texture\DolphinTextureHash.cs" />
     <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
+    <Compile Include="Texture\Formats\GCIX.cs" />
+    <Compile Include="Texture\Formats\GBIX.cs" />
     <Compile Include="Texture\Formats\GCT0.cs" />
+    <Compile Include="Texture\Formats\GVRT.cs" />
     <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />
     <Compile Include="Texture\Formats\TEX_KS.cs" />

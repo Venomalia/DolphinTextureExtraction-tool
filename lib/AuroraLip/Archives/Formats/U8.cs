@@ -39,7 +39,7 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!IsMatch(stream))
-                throw new Exception($"Invalid Magic. Expected \"{Magic}\"");
+                    throw new InvalidIdentifierException(Magic);
 
             uint OffsetToNodeSection = stream.ReadUInt32(Endian.Big); //usually 0x20
             uint NodeSectionSize = stream.ReadUInt32(Endian.Big);

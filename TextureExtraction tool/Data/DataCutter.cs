@@ -94,13 +94,16 @@ namespace DolphinTextureExtraction_tool
                             goto default;
 
                         continue;
+                    case "GVRT":
+                        TotalSize = stream.ReadUInt32() + 8;
+                        break;
                     case "RSTM":
                     case "REFT":
                     case "bres":
                         uint ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
                         ushort Version = stream.ReadUInt16(Endian.Big);
                         TotalSize = stream.ReadUInt32(Endian.Big);
-                        if (ByteOrder != 65534 || TotalSize > stream.Length - entrystart)
+                        if (ByteOrder != 65534)
                         {
                             err++;
                             continue;
@@ -108,12 +111,6 @@ namespace DolphinTextureExtraction_tool
                         break;
                     case "RARC":
                         TotalSize = stream.ReadUInt32(Endian.Big);
-                        if (TotalSize > entrystart - stream.Position)
-                        {
-                            stream.Seek(entrystart + format.Header.Offset + 1, SeekOrigin.Begin);
-                            err++;
-                            continue;
-                        }
                         break;
                     case "PLT0":
                     case "MDL0":
@@ -137,7 +134,7 @@ namespace DolphinTextureExtraction_tool
                         int EOH = stream.ReadInt32(Endian.Big);
                         int NrEntries = (int)stream.ReadUInt32(Endian.Big);
                         TotalSize = stream.ReadUInt32(Endian.Big);
-                        if (NrEntries < 1 || NrEntries > 256 || TotalSize > stream.Length - stream.Position)
+                        if (NrEntries < 1 || NrEntries > 256)
                         {
                             err++;
                             continue;
@@ -147,6 +144,13 @@ namespace DolphinTextureExtraction_tool
                         stream.Search(pattern, out _);
                         TotalSize = (uint)(stream.Position - entrystart);
                         break;
+                }
+
+                if (TotalSize > stream.Length - entrystart)
+                {
+                    stream.Seek(entrystart + format.Header.Offset + 1, SeekOrigin.Begin);
+                    err++;
+                    continue;
                 }
                 err--;
 

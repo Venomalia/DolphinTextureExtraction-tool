@@ -55,6 +55,7 @@
     <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
+    <Compile Include="Archives\Formats\ONE_UN.cs" />
     <Compile Include="Archives\Formats\PAK_FE.cs" />
     <Compile Include="Archives\Formats\PAK_Retro.cs" />
     <Compile Include="Archives\Formats\PAK_RetroWii.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Common\Exceptions.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />
+    <Compile Include="Compression\Formats\PRS.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
     <Compile Include="Compression\Formats\LZSS.cs" />
     <Compile Include="Compression\Formats\GZip.cs" />
@@ -121,6 +123,7 @@
     <Compile Include="Texture\Formats\GCT0.cs" />
     <Compile Include="Texture\Formats\GVRT.cs" />
     <Compile Include="Texture\Formats\HXTB.cs" />
+    <Compile Include="Archives\Formats\ONE_SB.cs" />
     <Compile Include="Texture\Formats\PTLG.cs" />
     <Compile Include="Texture\Formats\TEX_KS.cs" />
     <Compile Include="Texture\Formats\TEX_RFS.cs" />

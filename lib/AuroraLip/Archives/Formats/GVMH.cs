@@ -16,14 +16,14 @@ namespace AuroraLip.Archives.Formats
         private const string magic = "GVMH";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic) && stream.ReadInt32() + 16 < stream.Length;
+            => stream.MatchString(Magic);
 
         protected override void Read(Stream stream)
         {
             if (!IsMatch(stream))
                 throw new InvalidIdentifierException(Magic);
 
-            int entryOffset = stream.ReadInt32() + 8;
+            uint entryOffset = stream.ReadUInt32() + 8;
             stream.Position++;
             byte properties = stream.ReadUInt8();
 

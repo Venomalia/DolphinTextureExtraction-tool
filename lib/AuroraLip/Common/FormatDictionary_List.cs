@@ -231,6 +231,8 @@ namespace AuroraLip.Common
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco"),
 
             //SEGA
+            new FormatInfo(".one", FormatType.Archive, "Sonic Storybook Series Archive", "SEGA") { Class = typeof(ONE_SB), IsMatch = ONE_SB.Matcher},
+            new FormatInfo(".one","one.", FormatType.Archive, "Sonic Unleashed Archive", "SEGA"),
             new FormatInfo(".one", FormatType.Archive, "Sonic Archive", "SEGA"),
             new FormatInfo(".gvm", "GVMH", FormatType.Archive, "Sonic Stage archive", "SEGA"),
             new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA"),

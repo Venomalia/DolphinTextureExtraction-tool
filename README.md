@@ -79,6 +79,6 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 	
 - [mpatbtools](https://github.com/gamemasterplc/mpatbtools) reference for ATB Format.
 
-- [Puyo Tools](https://github.com/nickworonekin/puyotools) reference for GVMH, GBIX, GCIX and GVRT Format.
+- [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT Format and to read PRS Compressing.
 	
 - [BrawlCrate](https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs) reference for ARC0 Format.

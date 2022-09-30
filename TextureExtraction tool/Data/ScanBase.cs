@@ -313,6 +313,7 @@ namespace DolphinTextureExtraction_tool
                     case ".arc":
                     case ".tpl":
                     case ".bti":
+                    case ".onz":
                     case ".lz":
                     case ".brres":
                     case ".breff":

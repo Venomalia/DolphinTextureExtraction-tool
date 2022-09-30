@@ -69,6 +69,45 @@ namespace AuroraLip.Common
             stream.Write(Array, Offset, Count);
         }
 
+        /// <summary>
+        /// Invokes <paramref name="func"/> at the given <paramref name="position"/> within the <typeparamref name="S"/>, retains the current position within the <typeparamref name="S"/>.
+        /// </summary>
+        /// <typeparam name="T">The value returned by <paramref name="func"/>.</typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="position">the position within the current</param>
+        /// <param name="func">a function to be Invoke at the desired position</param>
+        /// <returns>The value <typeparamref name="T"/> returned by <paramref name="func"/>.</returns>
+        /// <exception cref="IOException">An I/O error occurred, or Another thread may have caused an unexpected change in the position of the operating system's file handle</exception>
+        /// <exception cref="ObjectDisposedException">The stream is closed</exception>
+        /// <exception cref="NotSupportedException">The current stream instance does not support writing</exception>
+        [DebuggerStepThrough]
+        public static T At<T, S>(this S stream, long position, Func<S, T> func) where S : Stream
+            => stream.At(position,SeekOrigin.Begin, func);
+
+        /// <summary>
+        /// Invokes <paramref name="func"/> at the given <paramref name="offset"/> and <paramref name="origin"/> within the <typeparamref name="S"/>, retains the current position within the <typeparamref name="S"/>.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="offset">A byte offset relative to the origin parameter.</param>
+        /// <param name="origin">A value of type SeekOrigin indicating the reference point used to obtain the new position.</param>
+        /// <param name="func">a function to be Invoke at the desired position</param>
+        /// <returns>The value <typeparamref name="T"/> returned by <paramref name="func"/>.</returns>
+        /// <exception cref="IOException">An I/O error occurred, or Another thread may have caused an unexpected change in the position of the operating system's file handle</exception>
+        /// <exception cref="ObjectDisposedException">The stream is closed</exception>
+        /// <exception cref="NotSupportedException">The current stream instance does not support writing</exception>
+        [DebuggerStepThrough]
+        public static T At<T, S>(this S stream, long offset, SeekOrigin origin, Func<S, T> func) where S : Stream
+        {
+            var orpos = stream.Position;
+            stream.Seek(offset, origin);
+            T value = func(stream);
+            stream.Seek(orpos, origin);
+            return value;
+        }
+
         [DebuggerStepThrough]
         public static void Write(this Stream stream, byte[] Array, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(Array, Array.Length, order, Offset);

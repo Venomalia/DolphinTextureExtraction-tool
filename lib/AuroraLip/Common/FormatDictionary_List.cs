@@ -228,6 +228,7 @@ namespace AuroraLip.Common
 
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
+            new FormatInfo(".olk", "olnk".ToByte(),4, FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco"),
 
             //SEGA
@@ -238,7 +239,9 @@ namespace AuroraLip.Common
             new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo(".gvr", "GCIX", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo(".gvrt","GVRT", FormatType.Texture, "VR Texture", "SEGA"),
-            new FormatInfo(".XVRs", FormatType.Texture, "SonicRiders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
+            new FormatInfo("", new byte[]{128,0,0,1,0},0, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
+            new FormatInfo(".rvm","CVMH", FormatType.Archive, "Sonic Riders Archive", "SEGA"),
+            new FormatInfo(".XVRs", FormatType.Texture, "Sonic Riders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
 
             //Imageepoch
             new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),

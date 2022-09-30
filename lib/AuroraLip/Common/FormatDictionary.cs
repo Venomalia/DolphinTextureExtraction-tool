@@ -16,7 +16,7 @@ namespace AuroraLip.Common
                 info = Master.First(x => x.Extension == key);
                 return true;
             }
-            catch (System.Exception) {}
+            catch (System.Exception) { }
 
             return false;
         }
@@ -54,7 +54,9 @@ namespace AuroraLip.Common
                         file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
                     }
                     catch (System.Exception) { }
-                    Header.Add(file.Header.Magic, file);
+                    if (file.Header.Magic.Length > 1)
+                        Header.Add(file.Header.Magic, file);
+
                 }
             }
         }

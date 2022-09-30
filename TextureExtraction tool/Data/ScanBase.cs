@@ -415,11 +415,12 @@ namespace DolphinTextureExtraction_tool
 
         protected virtual bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
         {
-            if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
-            {
-                Scan(test, subdirectory);
-                return true;
-            }
+            if (stream.Length < 25165824) // 24 MB
+                if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
+                {
+                    Scan(test, subdirectory);
+                    return true;
+                }
 
             if (TryCut(stream, subdirectory, FFormat))
                 return true;

@@ -22,7 +22,7 @@ namespace DolphinTextureExtraction_tool
 
         protected override void Scan(FileInfo file)
         {
-            Stream stream = new FileStream(file.FullName, FileMode.Open);
+            Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
             string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanPath + Path.DirectorySeparatorChar, ""));
 

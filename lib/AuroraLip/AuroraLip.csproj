@@ -61,6 +61,7 @@
     <Compile Include="Archives\Formats\PAK_RetroWii.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />
     <Compile Include="Archives\Formats\POD5.cs" />
+    <Compile Include="Archives\Formats\POSD.cs" />
     <Compile Include="Archives\Formats\RARC.cs" />
     <Compile Include="Archives\Formats\RKV2.cs" />
     <Compile Include="Archives\Formats\RMHG.cs" />

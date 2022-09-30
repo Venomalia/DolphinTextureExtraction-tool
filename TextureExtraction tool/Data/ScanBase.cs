@@ -308,6 +308,7 @@ namespace DolphinTextureExtraction_tool
         {
             if (FFormat.Class == null)
             {
+                //If we have not detected the format yet, we will try to decompress them if they have a typical extension.
                 switch (FFormat.Extension.ToLower())
                 {
                     case ".arc":
@@ -319,6 +320,7 @@ namespace DolphinTextureExtraction_tool
                     case ".breff":
                     case ".zlib":
                     case ".lz77":
+                    case ".prs":
                     case ".wtm":
                     case ".vld":
                     case ".cxd":

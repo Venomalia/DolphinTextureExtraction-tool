@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace AuroraLip.Common
@@ -80,6 +80,35 @@ namespace AuroraLip.Common
         [DebuggerStepThrough]
         public static byte ToByte(this char Char)
             => DefaultEncoding.GetBytes(Char.ToString())[0];
+
+        /// <summary>
+        /// Flip the ByteOrder for each field of the given <paramref name="type"/>
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="type"></param>
+        /// <param name="offset"></param>
+        [DebuggerStepThrough]
+        public static void FlipByteOrder(this byte[] buffer, Type type, int offset = 0)
+        {
+            if (type.IsPrimitive)
+            {
+                Array.Reverse(buffer, offset, Marshal.SizeOf(type));
+                return;
+            }
+
+            foreach (var field in type.GetFields())
+            {
+                if (field.IsStatic || !field.IsPublic) continue;
+
+                Type fieldtype = field.FieldType;
+
+                if (fieldtype.IsEnum)
+                    fieldtype = Enum.GetUnderlyingType(fieldtype);
+
+                var subOffset = Marshal.OffsetOf(type, field.Name).ToInt32();
+                buffer.FlipByteOrder(fieldtype, subOffset);
+            }
+        }
         /// <summary>
         /// 
         /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace AuroraLip.Common
 {
@@ -20,6 +21,7 @@ namespace AuroraLip.Common
         /// <param name="order">Byte order, in which bytes are read.</param>
         /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
         /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
         /// <exception cref="IOException">An I/O error occurred.</exception>
@@ -70,6 +72,97 @@ namespace AuroraLip.Common
         }
 
         /// <summary>
+        /// Reads a object of <typeparamref name="T"/> from the stream. (Requires more testing)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="order">Byte order, in which bytes are read.</param>
+        /// <returns>The value <typeparamref name="T"/> that were read.</returns>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
+        /// <exception cref="IOException">An I/O error occurred.</exception>
+        /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        public static T Read<T>(this Stream stream, Endian order = Endian.Little)
+        {
+            byte[] buffer = new byte[Marshal.SizeOf<T>()];
+            stream.Read(buffer, 0, buffer.Length);
+            switch (order)
+            {
+                case Endian.Big:
+                    buffer.FlipByteOrder(typeof(T));
+                    break;
+                case Endian.Middle:
+                    throw new NotImplementedException();
+            }
+
+            GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            try
+            {
+                IntPtr rawDataPtr = handle.AddrOfPinnedObject();
+                return Marshal.PtrToStructure<T>(rawDataPtr);
+            }
+            finally
+            {
+                handle.Free();
+            }
+        }
+        /// <summary>
+        /// Writes an <paramref name="objekt"/> of <typeparamref name="T"/> to the <paramref name="stream"/>. (Requires more testing)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="objekt"></param>
+        /// <param name="order">Byte order, in which bytes are read.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        public static void WriteObjekt<T>(this Stream stream, T objekt, Endian order = Endian.Little)
+        {
+            byte[] buffer = new byte[Marshal.SizeOf<T>()];
+
+            GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+            try
+            {
+                IntPtr rawDataPtr = handle.AddrOfPinnedObject();
+                Marshal.StructureToPtr<T>(objekt, rawDataPtr, false);
+            }
+            finally
+            {
+                handle.Free();
+            }
+
+            switch (order)
+            {
+                case Endian.Big:
+                    buffer.FlipByteOrder(typeof(T));
+                    break;
+                case Endian.Middle:
+                    throw new NotImplementedException();
+            }
+            stream.Write(buffer, 0, buffer.Length);
+        }
+
+        /// <summary>
+        /// Invokes <paramref name="func"/> of <typeparamref name="T"/> for <paramref name="count"/> times within this <typeparamref name="S"/>/>.
+        /// </summary>
+        /// <typeparam name="T">The value returned by <paramref name="func"/>.</typeparam>
+        /// <typeparam name="S"></typeparam>
+        /// <param name="stream"></param>
+        /// <param name="count">How many times the <paramref name="func"/> should be Invoke</param>
+        /// <param name="func">a function to be called <paramref name="count"/> times x</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static T[] For<T, S>(this S stream, int count, Func<S, T> func) where S : Stream
+        {
+            T[] values = new T[count];
+            for (int i = 0; i < count; i++)
+            {
+                values[i] = func(stream);
+            }
+            return values;
+        }
+
+        /// <summary>
         /// Invokes <paramref name="func"/> at the given <paramref name="position"/> within the <typeparamref name="S"/>, retains the current position within the <typeparamref name="S"/>.
         /// </summary>
         /// <typeparam name="T">The value returned by <paramref name="func"/>.</typeparam>
@@ -83,7 +176,7 @@ namespace AuroraLip.Common
         /// <exception cref="NotSupportedException">The current stream instance does not support writing</exception>
         [DebuggerStepThrough]
         public static T At<T, S>(this S stream, long position, Func<S, T> func) where S : Stream
-            => stream.At(position,SeekOrigin.Begin, func);
+            => stream.At(position, SeekOrigin.Begin, func);
 
         /// <summary>
         /// Invokes <paramref name="func"/> at the given <paramref name="offset"/> and <paramref name="origin"/> within the <typeparamref name="S"/>, retains the current position within the <typeparamref name="S"/>.

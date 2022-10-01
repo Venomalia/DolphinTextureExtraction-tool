@@ -254,8 +254,9 @@ namespace AuroraLip.Common
             new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland"),
 
             //Square Enix
-            new FormatInfo(".dat","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
             new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix"),
+            new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
+            new FormatInfo(".MPD", new byte[]{(byte)'M', (byte)'P', (byte)'D',0}, 0, FormatType.Unknown, "Crystal Bearers data", "Square Enix"),
 
             //Tecmo & Grasshopper Manufacture
             new FormatInfo(".RSL","RMHG", FormatType.Archive, "Fatal Frame Archive", "Tecmo"),

@@ -54,11 +54,8 @@ namespace AuroraLip.Texture.J3D
 
         public static int GetCalculatedDataSize(GXImageFormat Format, int Width, int Height, int Mipmap)
         {
-            for (int i = 0; i < Mipmap; i++)
-            {
-                Width /= 2;
-                Height /= 2;
-            }
+            Width = Math.Max(1, Width >> Mipmap);
+            Height = Math.Max(1, Height >> Mipmap);
             return GetCalculatedDataSize(Format, Width, Height);
         }
 
@@ -102,11 +99,8 @@ namespace AuroraLip.Texture.J3D
 
         public static Bitmap DecodeImage(Stream TextureFile, in byte[] PaletteData, GXImageFormat Format, GXPaletteFormat? PaletteFormat, int? PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
         {
-            for (int i = 0; i < Mipmap; i++)
-            {
-                ImageWidth /= 2;
-                ImageHeight /= 2;
-            }
+            ImageWidth = Math.Max(1, ImageWidth >> Mipmap);
+            ImageHeight = Math.Max(1, ImageHeight >> Mipmap);
             return DecodeImage(TextureFile.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight)), PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight);
         }
 

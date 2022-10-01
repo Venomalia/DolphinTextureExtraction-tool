@@ -66,6 +66,7 @@
     <Compile Include="Archives\Formats\RKV2.cs" />
     <Compile Include="Archives\Formats\RMHG.cs" />
     <Compile Include="Archives\Formats\RTDP.cs" />
+    <Compile Include="Archives\Formats\TXAG.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Archives\ArchiveObject.cs" />
     <Compile Include="Common\Extensions\StringEx.cs" />

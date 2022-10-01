@@ -59,6 +59,7 @@
     <Compile Include="Archives\Formats\PAK_FE.cs" />
     <Compile Include="Archives\Formats\PAK_Retro.cs" />
     <Compile Include="Archives\Formats\PAK_RetroWii.cs" />
+    <Compile Include="Archives\Formats\pBin.cs" />
     <Compile Include="Archives\Formats\PCKG.cs" />
     <Compile Include="Archives\Formats\POD5.cs" />
     <Compile Include="Archives\Formats\POSD.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Texture\DolphinTextureHash.cs" />
     <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
+    <Compile Include="Texture\Formats\FIPAFTEX.cs" />
     <Compile Include="Texture\Formats\GCIX.cs" />
     <Compile Include="Texture\Formats\GBIX.cs" />
     <Compile Include="Texture\Formats\GCT0.cs" />

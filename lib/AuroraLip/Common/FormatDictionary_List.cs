@@ -24,6 +24,7 @@ namespace AuroraLip.Common
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),
             new FormatInfo(".TPL", new byte[]{0,32,175,48},0, FormatType.Texture, "Texture Palette Library", Nin_){ Class = typeof(TPL), IsMatch = TPL.Matcher },
+            new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library v0", Nin_){ Class = typeof(TPL_0), IsMatch = TPL_0.Matcher },
             new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_){ Class = typeof(TXE), IsMatch = TXE.Matcher },
             new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_){ Class = typeof(BTI) },
 

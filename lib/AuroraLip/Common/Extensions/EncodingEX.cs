@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -96,9 +97,9 @@ namespace AuroraLip.Common
                 return;
             }
 
-            foreach (var field in type.GetFields())
+            foreach (var field in type.GetRuntimeFields())
             {
-                if (field.IsStatic || !field.IsPublic) continue;
+                if (field.IsStatic) continue;
 
                 Type fieldtype = field.FieldType;
 

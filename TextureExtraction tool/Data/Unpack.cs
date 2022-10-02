@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Common.Extensions;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace DolphinTextureExtraction_tool
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanPath + Path.DirectorySeparatorChar, ""));
+            string subdirectory = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan())).ToString();
 
 #if !DEBUG
             try
@@ -64,7 +65,7 @@ namespace DolphinTextureExtraction_tool
         protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
         {
             FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            subdirectory = GetDirectoryWithoutExtension(subdirectory);
+            subdirectory = PathEX.WithoutExtension(subdirectory.AsSpan()).ToString();
 
 #if !DEBUG
             try

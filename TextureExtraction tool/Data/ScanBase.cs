@@ -520,9 +520,6 @@ namespace DolphinTextureExtraction_tool
         protected string GetFullSaveDirectory(string directory)
             => Path.Combine(SaveDirectory, directory);
 
-        protected static string GetDirectoryWithoutExtension(string directory)
-            => Path.Combine(Path.GetDirectoryName(directory), Path.GetFileNameWithoutExtension(directory)).Trim();
-
         private List<FormatInfo> usedformats = new List<FormatInfo>();
         private readonly object Lock = new object();
 

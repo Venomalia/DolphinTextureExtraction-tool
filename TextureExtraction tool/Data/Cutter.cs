@@ -1,5 +1,6 @@
 ﻿using AuroraLip.Archives;
 using AuroraLip.Common;
+using AuroraLip.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,13 +32,14 @@ namespace DolphinTextureExtraction_tool
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open);
             FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-            string subdirectory = GetDirectoryWithoutExtension(file.FullName.Replace(ScanPath + Path.DirectorySeparatorChar, ""));
+
+            string subdirectory = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan())).ToString();
 
 #if !DEBUG
             try
             {
 #endif
-                Archive archive;
+            Archive archive;
                 if (Pattern == null)
                     archive = new DataCutter(stream);
                 else
@@ -64,7 +66,7 @@ namespace DolphinTextureExtraction_tool
         protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
         {
             FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            subdirectory = GetDirectoryWithoutExtension(subdirectory);
+            subdirectory = PathEX.WithoutExtension(subdirectory.AsSpan()).ToString();
             Save(stream, subdirectory, FFormat);
         }
     }

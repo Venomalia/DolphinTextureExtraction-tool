@@ -24,23 +24,27 @@ namespace DolphinTextureExtraction_tool
 
         public void Print()
         {
-            Console.SetCursorPosition(CursorLeft, CursorTop);
-            ConsoleColor color = Console.ForegroundColor;
-            Console.ForegroundColor = Color;
+            lock (Console.Out)
+                lock (Console.Error)
+                {
+                    Console.SetCursorPosition(CursorLeft, CursorTop);
+                    ConsoleColor color = Console.ForegroundColor;
+                    Console.ForegroundColor = Color;
 
-            Console.Write("│");
-            float PL = (float)(Value * Length / Max);
-            if (PL >= 1) Console.Write("".PadLeft((int)PL, '█'));
-            if (PL < Length)
-            {
-                if ((PL - (int)PL) >= 0.75) Console.Write('▓');
-                else if ((PL - (int)PL) >= 0.5) Console.Write('▒');
-                else if ((PL - (int)PL) >= 0.25) Console.Write('░');
-                else Console.Write(' ');
-                Console.Write("".PadLeft(Length - (int)PL - 1, ' '));
-            }
-            Console.Write("│");
-            Console.ForegroundColor = color;
+                    Console.Write("│");
+                    float PL = (float)(Value * Length / Max);
+                    if (PL >= 1) Console.Write("".PadLeft((int)PL, '█'));
+                    if (PL < Length)
+                    {
+                        if ((PL - (int)PL) >= 0.75) Console.Write('▓');
+                        else if ((PL - (int)PL) >= 0.5) Console.Write('▒');
+                        else if ((PL - (int)PL) >= 0.25) Console.Write('░');
+                        else Console.Write(' ');
+                        Console.Write("".PadLeft(Length - (int)PL - 1, ' '));
+                    }
+                    Console.Write("│");
+                    Console.ForegroundColor = color;
+                }
         }
     }
 }

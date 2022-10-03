@@ -51,7 +51,7 @@ namespace LibCPK
                 FileOffsetPos = br.BaseStream.Position + 0x10,
                 FileSize = CPK_packet.Length,
                 Encrypted = isUtfEncrypted,
-                FileType = "CPK"
+                FileType = FileTypeFlag.CPK
             };
 
             fileTable.Add(CPAK_entry);
@@ -98,14 +98,14 @@ namespace LibCPK
 
             ContentOffset = (ulong)GetColumsData(utf, 0, "ContentOffset", E_ColumnDataType.DATA_TYPE_UINT64);
             long ContentOffsetPos = GetColumnPostion(utf, 0, "ContentOffset");
-            fileTable.Add(CreateFileEntry("CONTENT_OFFSET", ContentOffset, typeof(ulong), ContentOffsetPos, "CPK", "CONTENT", false));
+            fileTable.Add(CreateFileEntry("CONTENT_OFFSET", ContentOffset, typeof(ulong), ContentOffsetPos, TOCFlag.CPK, FileTypeFlag.CONTENT, false));
 
             Files = (uint)GetColumsData(utf, 0, "Files", E_ColumnDataType.DATA_TYPE_UINT32);
             Align = (ushort)GetColumsData(utf, 0, "Align", E_ColumnDataType.DATA_TYPE_USHORT);
 
             if (TocOffset != 0xFFFFFFFFFFFFFFFF)
             {
-                FileEntry entry = CreateFileEntry("TOC_HDR", TocOffset, typeof(ulong), TocOffsetPos, "CPK", "HDR", false);
+                FileEntry entry = CreateFileEntry("TOC_HDR", TocOffset, typeof(ulong), TocOffsetPos, TOCFlag.CPK, FileTypeFlag.HDR, false);
                 fileTable.Add(entry);
 
                 if (!ReadTOC(br, TocOffset, ContentOffset, encoding))
@@ -114,7 +114,7 @@ namespace LibCPK
 
             if (EtocOffset != 0xFFFFFFFFFFFFFFFF)
             {
-                FileEntry entry = CreateFileEntry("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, "CPK", "HDR", false);
+                FileEntry entry = CreateFileEntry("ETOC_HDR", EtocOffset, typeof(ulong), ETocOffsetPos, TOCFlag.CPK, FileTypeFlag.HDR, false);
                 fileTable.Add(entry);
 
                 if (!ReadETOC(br, EtocOffset))
@@ -123,7 +123,7 @@ namespace LibCPK
 
             if (ItocOffset != 0xFFFFFFFFFFFFFFFF)
             {
-                FileEntry entry = CreateFileEntry("ITOC_HDR", ItocOffset, typeof(ulong), ITocOffsetPos, "CPK", "HDR", false);
+                FileEntry entry = CreateFileEntry("ITOC_HDR", ItocOffset, typeof(ulong), ITocOffsetPos, TOCFlag.CPK, FileTypeFlag.HDR, false);
                 fileTable.Add(entry);
 
                 if (!ReadITOC(br, ItocOffset, ContentOffset, Align))
@@ -132,7 +132,7 @@ namespace LibCPK
 
             if (GtocOffset != 0xFFFFFFFFFFFFFFFF)
             {
-                FileEntry entry = CreateFileEntry("GTOC_HDR", GtocOffset, typeof(ulong), GTocOffsetPos, "CPK", "HDR", false);
+                FileEntry entry = CreateFileEntry("GTOC_HDR", GtocOffset, typeof(ulong), GTocOffsetPos, TOCFlag.CPK, FileTypeFlag.HDR, false);
                 fileTable.Add(entry);
 
                 if (!ReadGTOC(br, GtocOffset))
@@ -145,7 +145,7 @@ namespace LibCPK
         }
 
 
-        FileEntry CreateFileEntry(string FileName, ulong FileOffset, Type FileOffsetType, long FileOffsetPos, string TOCName, string FileType, bool encrypted)
+        FileEntry CreateFileEntry(string FileName, ulong FileOffset, Type FileOffsetType, long FileOffsetPos, TOCFlag TOCName, FileTypeFlag FileType, bool encrypted)
         {
             FileEntry entry = new FileEntry
             {
@@ -221,10 +221,10 @@ namespace LibCPK
             {
                 temp = new FileEntry();
 
-                temp.TOCName = "TOC";
+                temp.TOCName = TOCFlag.TOC;
 
-                temp.DirName = GetColumnData(files, i, "DirName");
-                temp.FileName = GetColumnData(files, i, "FileName");
+                temp.DirName = (string)GetColumnData(files, i, "DirName");
+                temp.FileName = (string)GetColumnData(files, i, "FileName");
 
                 temp.FileSize = GetColumnData(files, i, "FileSize");
                 temp.FileSizePos = GetColumnPostion(files, i, "FileSize");
@@ -238,12 +238,12 @@ namespace LibCPK
                 temp.FileOffsetPos = GetColumnPostion(files, i, "FileOffset");
                 temp.FileOffsetType = GetColumnType(files, i, "FileOffset");
 
-                temp.FileType = "FILE";
+                temp.FileType = FileTypeFlag.FILE;
 
                 temp.Offset = add_offset;
 
                 temp.ID = GetColumnData(files, i, "ID");
-                temp.UserString = GetColumnData(files, i, "UserString");
+                temp.UserString = (string)GetColumnData(files, i, "UserString");
 
                 fileTable.Add(temp);
             }
@@ -456,7 +456,7 @@ namespace LibCPK
                 SizeTable.TryGetValue(id, out value);
                 CSizeTable.TryGetValue(id, out value2);
 
-                temp.TOCName = "ITOC";
+                temp.TOCName = TOCFlag.ITOC;
 
                 temp.DirName = null;
                 temp.FileName = id.ToString() + ".bin";
@@ -472,7 +472,7 @@ namespace LibCPK
                     temp.ExtractSizeType = CSizeTypeTable[id];
                 }
 
-                temp.FileType = "FILE";
+                temp.FileType = FileTypeFlag.FILE;
 
 
                 temp.FileOffset = baseoffset;
@@ -573,11 +573,11 @@ namespace LibCPK
             utfr.Close();
             ms.Close();
 
-            List<FileEntry> fileEntries = fileTable.Where(x => x.FileType == "FILE").ToList();
+            List<FileEntry> fileEntries = fileTable.Where(x => x.FileType == FileTypeFlag.FILE).ToList();
 
             for (int i = 0; i < fileEntries.Count; i++)
             {
-                fileTable[i].LocalDir = GetColumnData(files, i, "LocalDir");
+                fileTable[i].LocalDir = (string)GetColumnData(files, i, "LocalDir");
                 var tUpdateDateTime = GetColumnData(files, i, "UpdateDateTime");
                 if (tUpdateDateTime == null) tUpdateDateTime = 0;
                 fileTable[i].UpdateDateTime = (ulong)tUpdateDateTime;
@@ -971,24 +971,24 @@ namespace LibCPK
 
         public void UpdateFileEntry(FileEntry fileEntry)
         {
-            if (fileEntry.FileType == "FILE" || fileEntry.FileType == "HDR")
+            if (fileEntry.FileType == FileTypeFlag.FILE || fileEntry.FileType == FileTypeFlag.HDR)
             {
                 byte[] updateMe = null;
                 switch (fileEntry.TOCName)
                 {
-                    case "CPK":
+                    case TOCFlag.CPK:
                         updateMe = CPK_packet;
                         break;
-                    case "TOC":
+                    case TOCFlag.TOC:
                         updateMe = TOC_packet;
                         break;
-                    case "ITOC":
+                    case TOCFlag.ITOC:
                         updateMe = ITOC_packet;
                         break;
-                    case "ETOC":
+                    case TOCFlag.ETOC:
                         updateMe = ETOC_packet;
                         break;
-                    case "GTOC":
+                    case TOCFlag.GTOC:
                         updateMe = GTOC_packet;
                         break;
                     default:
@@ -1006,7 +1006,7 @@ namespace LibCPK
 
                 //Update FileOffset
                 if (fileEntry.FileOffsetPos > 0)
-                    if (fileEntry.TOCName == "TOC" && fileEntry.FileType == "FILE")
+                    if (fileEntry.TOCName == TOCFlag.TOC && fileEntry.FileType == FileTypeFlag.FILE)
                     {
                         UpdateValue(ref updateMe, fileEntry.FileOffset - (ulong)fileEntry.Offset, fileEntry.FileOffsetPos, fileEntry.FileOffsetType);
                     }
@@ -1017,19 +1017,19 @@ namespace LibCPK
 
                 switch (fileEntry.TOCName)
                 {
-                    case "CPK":
+                    case TOCFlag.CPK:
                         CPK_packet = updateMe;
                         break;
-                    case "TOC":
+                    case TOCFlag.TOC:
                         TOC_packet = updateMe;
                         break;
-                    case "ITOC":
+                    case TOCFlag.ITOC:
                         ITOC_packet = updateMe;
                         break;
-                    case "ETOC":
+                    case TOCFlag.ETOC:
                         updateMe = ETOC_packet;
                         break;
-                    case "GTOC":
+                    case TOCFlag.GTOC:
                         updateMe = GTOC_packet;
                         break;
                     default:
@@ -1415,8 +1415,8 @@ namespace LibCPK
             UpdateDateTime = 0;
         }
 
-        public object DirName { get; set; } // string
-        public object FileName { get; set; } // string
+        public string DirName { get; set; } // string
+        public string FileName { get; set; } // string
 
         public object FileSize { get; set; }
         public long FileSizePos { get; set; }
@@ -1433,13 +1433,30 @@ namespace LibCPK
 
         public ulong Offset { get; set; }
         public object ID { get; set; } // int
-        public object UserString { get; set; } // string
+        public string UserString { get; set; } // string
         public ulong UpdateDateTime { get; set; }
-        public object LocalDir { get; set; } // string
-        public string TOCName { get; set; }
+        public string LocalDir { get; set; } // string
+        public TOCFlag TOCName { get; set; }
 
         public bool Encrypted { get; set; }
 
-        public string FileType { get; set; }
+        public FileTypeFlag FileType { get; set; }
+    }
+
+    public enum FileTypeFlag
+    {
+        CPK,
+        HDR,
+        CONTENT,
+        FILE = default
+    }
+
+    public enum TOCFlag
+    {
+        CPK,
+        TOC,
+        ITOC,
+        ETOC,
+        GTOC
     }
 }

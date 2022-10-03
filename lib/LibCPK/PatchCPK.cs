@@ -44,7 +44,7 @@ namespace LibCPK
             for (int i = 0; i < entries.Count; i++)
             {
                 onProgressChanged?.Invoke((float)i / (float)entries.Count * 100f);
-                if (entries[i].FileType != "CONTENT")
+                if (entries[i].FileType != FileTypeFlag.CONTENT)
                 {
                     id = Convert.ToInt32(entries[i].ID);
                     string currentName;
@@ -80,7 +80,7 @@ namespace LibCPK
                     {
                         currentName = "/" + currentName;
                     }
-                    if (entries[i].FileType == "FILE")
+                    if (entries[i].FileType == FileTypeFlag.FILE)
                     {
                         // I'm too lazy to figure out how to update the ContextOffset position so this works :)
                         if ((ulong)newCPK.BaseStream.Position < cpk.ContentOffset)
@@ -133,7 +133,7 @@ namespace LibCPK
                             entries[i].FileOffset = (ulong)newCPK.BaseStream.Position;
                             int o_ext_size = Int32.Parse((entries[i].ExtractSize).ToString());
                             int o_com_size = Int32.Parse((entries[i].FileSize).ToString());
-                            if ((o_com_size < o_ext_size) && entries[i].FileType == "FILE" && bForceCompress == true)
+                            if ((o_com_size < o_ext_size) && entries[i].FileType == FileTypeFlag.FILE && bForceCompress == true)
                             {
                                 // is compressed
                                 msg = string.Format("Compressing data:{0:x8}", newbie.Length);

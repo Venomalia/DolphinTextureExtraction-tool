@@ -1,6 +1,7 @@
 ﻿using AFSLib;
 using AuroraLip.Archives;
 using AuroraLip.Common;
+using AuroraLip.Common.Extensions;
 using AuroraLip.Compression;
 using LibCPK;
 using System;
@@ -223,9 +224,24 @@ namespace DolphinTextureExtraction_tool
         }
 
         #region Scan
-        protected abstract void Scan(FileInfo file);
+        protected virtual void Scan(FileInfo file)
+        {
+            Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+            FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
+            var SubPath = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan()));
+            Scan(stream, FFormat, SubPath, 0, file.Extension);
+            stream.Close();
+        }
 
-        protected abstract void Scan(Stream stream, string subdirectory, in string Extension = "");
+        protected abstract void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "");
+
+        protected virtual void Scan(Stream stream, string subdirectory, in string Extension = "")
+        {
+            FormatInfo FFormat = GetFormatTypee(stream, Extension);
+            var SubPath = PathEX.WithoutExtension(subdirectory.AsSpan());
+            Scan(stream, FFormat, SubPath, 1, Extension);
+            stream.Close();
+        }
 
         protected void Scan(Archive archiv, in string subdirectory)
             => Scan(archiv.Root, subdirectory);
@@ -304,12 +320,12 @@ namespace DolphinTextureExtraction_tool
         protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));
 
-        protected virtual bool TryExtract(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected virtual bool TryExtract(Stream stream,in string subdirectory, FormatInfo Format)
         {
-            if (FFormat.Class == null)
+            if (Format.Class == null)
             {
                 //If we have not detected the format yet, we will try to decompress them if they have a typical extension.
-                switch (FFormat.Extension.ToLower())
+                switch (Format.Extension.ToLower())
                 {
                     case ".arc":
                     case ".tpl":
@@ -339,9 +355,9 @@ namespace DolphinTextureExtraction_tool
             }
             else
             {
-                if (FFormat.Class.IsSubclassOf(typeof(Archive)))
+                if (Format.Class.IsSubclassOf(typeof(Archive)))
                 {
-                    using (Archive archive = (Archive)Activator.CreateInstance(FFormat.Class))
+                    using (Archive archive = (Archive)Activator.CreateInstance(Format.Class))
                     {
                         archive.Open(stream);
                         Scan(archive, subdirectory);
@@ -389,13 +405,13 @@ namespace DolphinTextureExtraction_tool
                     }
                     return true;
                 }
-                if (FFormat.Class.GetInterface(nameof(ICompression)) != null)
+                if (Format.Class.GetInterface(nameof(ICompression)) != null)
                 {
-                    Scan(((ICompression)Activator.CreateInstance(FFormat.Class)).Decompress(stream), subdirectory);
+                    Scan(((ICompression)Activator.CreateInstance(Format.Class)).Decompress(stream), subdirectory);
                     return true;
                 }
                 //External classes
-                switch (FFormat.Class.Name)
+                switch (Format.Class.Name)
                 {
                     case "AFS":
                         using (AFS afs = new AFS(stream))

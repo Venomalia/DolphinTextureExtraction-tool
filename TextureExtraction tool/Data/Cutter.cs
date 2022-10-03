@@ -4,6 +4,7 @@ using AuroraLip.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
@@ -27,40 +28,33 @@ namespace DolphinTextureExtraction_tool
             Cutter Extractor = new Cutter(meindirectory, savedirectory, pattern, options);
             return await Task.Run(() => Extractor.StartScan());
         }
-
-        protected override void Scan(FileInfo file)
+        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
         {
-            Stream stream = new FileStream(file.FullName, FileMode.Open);
-            FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-
-            string subdirectory = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan())).ToString();
-
 #if !DEBUG
             try
             {
 #endif
-            Archive archive;
+                Archive archive;
                 if (Pattern == null)
-                    archive = new DataCutter(stream);
+                    archive = new DataCutter(Stream);
                 else
-                    archive = new DataCutter(stream, Pattern);
+                    archive = new DataCutter(Stream, Pattern);
 
                 if (archive.Root.Count > 0)
                 {
                     if (archive.Root.Count == 1)
                         foreach (var item in archive.Root.Items)
-                            Save(((ArchiveFile)item.Value).FileData, subdirectory, FFormat);
+                            Save(((ArchiveFile)item.Value).FileData, SubPath.ToString(), Format);
                     else
-                        Scan(archive, subdirectory);
+                        Scan(archive, SubPath.ToString());
                 }
 #if !DEBUG
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, subdirectory + file.Extension);
+                Log.WriteEX(t, SubPath.ToString() + OExtension);
             }
 #endif
-            stream.Close();
         }
 
         protected override void Scan(Stream stream, string subdirectory, in string Extension = "")

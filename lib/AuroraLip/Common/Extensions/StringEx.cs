@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace AuroraLip.Common
 {
@@ -30,5 +31,28 @@ namespace AuroraLip.Common
             }
             return str;
         }
+
+        public static string Combine(in ReadOnlySpan<char> path, in ReadOnlySpan<char> path2)
+        {
+            var str = new string('\0', path.Length + path2.Length);
+            var strSpan = MemoryMarshal.AsMemory(str.AsMemory()).Span;
+            path.CopyTo(strSpan);
+            strSpan = strSpan.Slice(path.Length);
+            path2.CopyTo(strSpan);
+            return str;
+        }
+
+        public static string Combine(in ReadOnlySpan<char> path, in ReadOnlySpan<char> path2, in ReadOnlySpan<char> path3)
+        {
+            var str = new string('\0', path.Length + path2.Length + path3.Length);
+            var strSpan = MemoryMarshal.AsMemory(str.AsMemory()).Span;
+            path.CopyTo(strSpan);
+            strSpan = strSpan.Slice(path.Length);
+            path2.CopyTo(strSpan);
+            strSpan = strSpan.Slice(path2.Length);
+            path3.CopyTo(strSpan);
+            return str;
+        }
+
     }
 }

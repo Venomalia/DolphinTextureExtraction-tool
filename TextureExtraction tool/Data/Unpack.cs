@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -21,85 +20,43 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        protected override void Scan(FileInfo file)
+        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
         {
-            Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-            string subdirectory = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan())).ToString();
-
 #if !DEBUG
             try
             {
 #endif
-                switch (FFormat.Typ)
+                switch (Format.Typ)
                 {
                     case FormatType.Unknown:
-                        if (!TryForce(stream, subdirectory, FFormat))
-                            AddResultUnknown(stream, FFormat, subdirectory + file.Extension);
-
-                        break;
-                    case FormatType.Archive:
-                        switch (FFormat.Extension.ToLower())
-                        {
-                            default:
-                                if (!TryExtract(stream, subdirectory, FFormat))
-                                {
-                                    Log.Write(FileAction.Unsupported, subdirectory + file.Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
-                                }
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-#if !DEBUG
-            }
-            catch (Exception t)
-            {
-                Log.WriteEX(t, subdirectory + file.Extension);
-            }
-#endif
-            stream.Close();
-        }
-
-        protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
-        {
-            FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            subdirectory = PathEX.WithoutExtension(subdirectory.AsSpan()).ToString();
-
-#if !DEBUG
-            try
-            {
-#endif
-                switch (FFormat.Typ)
-                {
-                    case FormatType.Unknown:
-                        if (TryForce(stream, subdirectory, FFormat))
+                        if (TryForce(Stream, SubPath.ToString(), Format))
                             break;
 
-                        AddResultUnknown(stream, FFormat, subdirectory + Extension);
-                        Save(stream, subdirectory, FFormat);
+                        AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
+                        if (Deep != 0)
+                            Save(Stream, SubPath.ToString(), Format);
                         break;
                     case FormatType.Archive:
-                        if (!TryExtract(stream, subdirectory, FFormat))
+                        if (!TryExtract(Stream, SubPath.ToString(), Format))
                         {
-                            Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
-                            Save(stream, subdirectory, FFormat);
+                            Log.Write(FileAction.Unsupported, SubPath.ToString() + OExtension + $" ~{MathEx.SizeSuffix(Stream.Length, 2)}", $"Description: {Format.GetFullDescription()}");
+                            Save(Stream, SubPath.ToString(), Format);
                         }
                         break;
                     default:
-                        Save(stream, subdirectory, FFormat);
+                        if (Deep != 0)
+                            Save(Stream, SubPath.ToString(), Format);
                         break;
                 }
 #if !DEBUG
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, subdirectory + Extension);
-                Save(stream, subdirectory);
+                Log.WriteEX(t, SubPath.ToString() + OExtension);
+                if (Deep != 0)
+                    Save(Stream, SubPath.ToString(), Format);
             }
 #endif
-            stream.Close();
         }
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)

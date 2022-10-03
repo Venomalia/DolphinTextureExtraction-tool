@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
 using AuroraLip.Texture.Formats;
 using Hack.io;
 using LibCPK;
@@ -179,112 +178,78 @@ namespace DolphinTextureExtraction_tool
         #region Scan
 
         #region main
-        protected override void Scan(FileInfo file)
+        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
         {
-            Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-
-            string subdirectory = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan())).ToString();
-
-            var test = PathEX.Join(file.FullName.AsSpan(), ScanPath.AsSpan());
-
 #if !DEBUG
             try
             {
 #endif
-                switch (FFormat.Typ)
+                switch (Format.Typ)
                 {
                     case FormatType.Unknown:
-                        if (TryForce(stream, subdirectory, FFormat))
+                        if (TryForce(Stream, SubPath.ToString(), Format))
                             break;
 
-                        AddResultUnknown(stream, FFormat, subdirectory + file.Extension);
+                        AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
+
                         //Exclude files that are too small, for calculation purposes only half the size.
-                        if (stream.Length > 130) Result.SkippedSize += stream.Length / 2;
-                        break;
-                    case FormatType.Rom:
-                    case FormatType.Archive:
-                    case FormatType.Texture:
-                        Scan(stream, subdirectory, file.Extension);
-                        break;
-                    default:
-                        break;
-                }
-#if !DEBUG
-            }
-            catch (Exception t)
-            {
-                Log.WriteEX(t, subdirectory + file.Extension);
-                Result.Unsupported++;
-                Result.UnsupportedSize += file.Length;
-            }
-#endif
-            stream.Close();
-        }
-
-        protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
-        {
-            FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            subdirectory = PathEX.WithoutExtension(subdirectory.AsSpan()).ToString();
-#if !DEBUG
-            try
-            {
-#endif
-                switch (FFormat.Typ)
-                {
-                    case FormatType.Unknown:
-                        if (TryForce(stream, subdirectory, FFormat))
-                            break;
-                        AddResultUnknown(stream, FFormat, subdirectory + Extension);
-                        if (stream.Length > 300) Result.SkippedSize += stream.Length / 50;
+                        if (Deep == 0)
+                        {
+                            if (Stream.Length > 130) Result.SkippedSize += Stream.Length / 2;
+                        }
+                        else
+                        {
+                            if (Stream.Length > 300)
+                                Result.SkippedSize += Stream.Length / 50;
+                        }
                         break;
                     case FormatType.Texture:
                         if (((ExtractorOptions)Option).Raw)
                         {
-                            Save(stream, Path.Combine("~Raw", subdirectory), FFormat);
+                            Save(Stream, Path.Combine("~Raw", SubPath.ToString()), Format);
                         }
-                        if (FFormat.Class != null && FFormat.Class.GetMember(nameof(JUTTexture)) != null)
+                        if (Format.Class != null && Format.Class.GetMember(nameof(JUTTexture)) != null)
                         {
-                            using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(FFormat.Class))
+                            using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(Format.Class))
                             {
-                                Texture.Open(stream);
-                                Save(Texture, subdirectory);
+                                Texture.Open(Stream);
+                                Save(Texture, SubPath.ToString());
                             }
-                            Result.ExtractedSize += stream.Length;
+                            Result.ExtractedSize += Stream.Length;
                             break;
                         }
                         goto case FormatType.Archive;
                     case FormatType.Rom:
                     case FormatType.Archive:
 
-                        if (!TryExtract(stream, subdirectory, FFormat))
+                        if (!TryExtract(Stream, SubPath.ToString(), Format))
                         {
 
-                            if (FFormat.Class == null)
-                                AddResultUnsupported(stream, subdirectory, Extension, FFormat);
+                            if (Format.Class == null)
+                                AddResultUnsupported(Stream, SubPath.ToString(), OExtension, Format);
                             else
                             {
-                                switch (FFormat.Class.Name)
+                                switch (Format.Class.Name)
                                 {
                                     case "BDL":
-                                        BDL bdlmodel = new BDL(stream);
+                                        BDL bdlmodel = new BDL(Stream);
                                         foreach (var item in bdlmodel.Textures.Textures)
                                         {
-                                            Save(item, subdirectory);
+                                            Save(item, SubPath.ToString());
                                         }
-                                        Result.ExtractedSize += stream.Length;
+                                        Result.ExtractedSize += Stream.Length;
                                         break;
                                     case "BMD":
-                                        BMD bmdmodel = new BMD(stream);
+                                        BMD bmdmodel = new BMD(Stream);
                                         foreach (var item in bmdmodel.Textures.Textures)
                                         {
-                                            Save(item, subdirectory);
+                                            Save(item, SubPath.ToString());
                                         }
-                                        Result.ExtractedSize += stream.Length;
+                                        Result.ExtractedSize += Stream.Length;
                                         break;
                                     case "TEX0":
-                                        using (JUTTexture Texture = new TEX0(stream)) Save(Texture, subdirectory);
-                                        Result.ExtractedSize += stream.Length;
+                                        using (JUTTexture Texture = new TEX0(Stream)) Save(Texture, SubPath.ToString());
+                                        Result.ExtractedSize += Stream.Length;
                                         break;
                                 }
                             }
@@ -295,16 +260,15 @@ namespace DolphinTextureExtraction_tool
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, subdirectory + Extension);
-                if (!Result.UnsupportedFormatType.Contains(FFormat)) Result.UnsupportedFormatType.Add(FFormat);
+                Log.WriteEX(t, SubPath.ToString() + OExtension);
+                if (Deep != 0 || !Result.UnsupportedFormatType.Contains(Format))
+                    Result.UnsupportedFormatType.Add(Format);
                 Result.Unsupported++;
-                Result.UnsupportedSize += stream.Length;
+                Result.UnsupportedSize += Stream.Length;
             }
 
 #endif
-            stream.Close();
         }
-
         #endregion
 
         #region CPK

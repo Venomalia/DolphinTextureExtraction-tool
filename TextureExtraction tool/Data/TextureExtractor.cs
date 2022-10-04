@@ -1,7 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Texture.Formats;
 using Hack.io;
-using LibCPK;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -271,68 +270,6 @@ namespace DolphinTextureExtraction_tool
         }
         #endregion
 
-        #region CPK
-        protected override void scanCPK(Stream stream, string subdirectory)
-        {
-            CPK CpkContent = new CPK();
-            CpkContent.ReadCPK(stream, Encoding.UTF8);
-            BinaryReader CPKReader = new BinaryReader(stream);
-
-            foreach (var entries in CpkContent.fileTable)
-            {
-                string FullPath;
-                if (entries.DirName != null)
-                {
-                    FullPath = Path.Combine(subdirectory, entries.DirName.ToString(), entries.FileName?.ToString());
-                }
-                else
-                {
-                    FullPath = Path.Combine(subdirectory, entries.FileName?.ToString());
-                }
-                try
-                {
-                    string Extension = Path.GetExtension(entries.FileName?.ToString()).ToLower();
-                    if (Extension != "")
-                    {
-                        try
-                        {
-                            FormatInfo format = FormatDictionary.Master.First(x => x.Extension == Extension);
-                            switch (format.Typ)
-                            {
-                                case FormatType.Archive:
-                                case FormatType.Texture:
-                                    break;
-                                default:
-                                    continue;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            Log.Write(FileAction.Unknown, FullPath + $" ~{MathEx.SizeSuffix(entries.ExtractSizePos, 2)}", $"ID:{entries.ID} TOCName:{entries.TOCName}");
-                            Result.Unknown++;
-                            continue;
-                        }
-                    }
-
-                    if (entries.FileSize == null)
-                        continue;
-
-                    if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
-                    {
-                        MemoryStream CpkContentStream = new MemoryStream(chunk);
-                        Scan(CpkContentStream, FullPath);
-                        CpkContentStream.Dispose();
-                    }
-                }
-                catch (Exception t)
-                {
-                    Log.WriteEX(t, FullPath);
-                    Result.Unknown++;
-                }
-            }
-            CPKReader.Close();
-        }
-        #endregion
 
         #endregion
 

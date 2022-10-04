@@ -608,7 +608,7 @@ namespace LibCPK
         }
 
 
-        unsafe public byte[] CompressCRILAYLA(byte[] input)
+        unsafe static public byte[] CompressCRILAYLA(byte[] input)
         {
             unsafe
             {
@@ -626,7 +626,7 @@ namespace LibCPK
 
         }
 
-        public byte[] DecompressCRILAYLA(byte[] input, int USize)
+        public static byte[] DecompressCRILAYLA(byte[] input, int USize = 0)
         {
             byte[] result;// = new byte[USize];
 
@@ -696,7 +696,7 @@ namespace LibCPK
             return result;
         }
 
-        public byte[] DecompressLegacyCRI(byte[] input, int USize)
+        public static byte[] DecompressLegacyCRI(byte[] input, int USize = 0)
         {
             byte[] result;// = new byte[USize];
 
@@ -766,7 +766,7 @@ namespace LibCPK
             return result;
         }
 
-        private ushort get_next_bits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)
+        private static ushort get_next_bits(byte[] input, ref int offset_p, ref byte bit_pool_p, ref int bits_left_p, int bit_count)
         {
             ushort out_bits = 0;
             int num_bits_produced = 0;
@@ -1445,10 +1445,10 @@ namespace LibCPK
 
     public enum FileTypeFlag
     {
+        FILE = default,
         CPK,
         HDR,
         CONTENT,
-        FILE = default
     }
 
     public enum TOCFlag

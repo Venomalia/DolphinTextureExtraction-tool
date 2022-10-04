@@ -217,6 +217,7 @@ namespace AuroraLip.Common
             #region Mixed
             //CRIWARE
             new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE"),
+            new FormatInfo(".CCRI", "CRILAYLA" , FormatType.Archive, "Compact Compressed", "CRIWARE"),
             new FormatInfo(".afs", "AFS", FormatType.Archive, "File Archive", "CRIWARE"),
             new FormatInfo(".adx", "€", FormatType.Audio, "CRI Audio", "CRIWARE"){ IsMatch = ADX_Matcher},
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),

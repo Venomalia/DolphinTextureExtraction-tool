@@ -89,11 +89,6 @@
       <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
       <Name>AuroraLip</Name>
     </ProjectReference>
-    <ProjectReference Include="..\lib\LibCPK\LibCPK.csproj">
-      <Project>{ba3a00e4-4f51-4ab4-a8fb-f4b64a874449}</Project>
-      <Name>LibCPK</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
-    </ProjectReference>
     <ProjectReference Include="..\lib\Hack.io\Hack.io.csproj">
       <Project>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</Project>
       <Name>Hack.io</Name>

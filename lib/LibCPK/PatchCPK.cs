@@ -139,7 +139,7 @@ namespace LibCPK
                                 msg = string.Format("Compressing data:{0:x8}", newbie.Length);
                                 onMsgUpdateChanged?.Invoke(msg);
 
-                                byte[] dest_comp = cpk.CompressCRILAYLA(newbie);
+                                byte[] dest_comp = CPK.CompressCRILAYLA(newbie);
 
                                 entries[i].FileSize = Convert.ChangeType(dest_comp.Length, entries[i].FileSizeType);
                                 entries[i].ExtractSize = Convert.ChangeType(newbie.Length, entries[i].FileSizeType);

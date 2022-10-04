@@ -31,7 +31,6 @@ namespace DolphinTextureExtraction_tool
         static Program()
         {
             //link external classes
-            FormatDictionary.GetValue("CPK ").Class = typeof(LibCPK.CPK);
             FormatDictionary.GetValue("AFS").Class = typeof(AFSLib.AFS);
             FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BDL);
             FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD);
@@ -464,7 +463,6 @@ namespace DolphinTextureExtraction_tool
         static void PrintFormats()
         {
             List<string> formats = new List<string>(AuroraLip.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name));
-            formats.Add("CPK");
             formats.Add("AFS");
             formats.Add("BDL4");
             formats.Add("BMD3");

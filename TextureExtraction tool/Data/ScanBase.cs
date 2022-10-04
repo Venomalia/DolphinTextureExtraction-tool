@@ -3,7 +3,6 @@ using AuroraLip.Archives;
 using AuroraLip.Common;
 using AuroraLip.Common.Extensions;
 using AuroraLip.Compression;
-using LibCPK;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -421,9 +420,6 @@ namespace DolphinTextureExtraction_tool
                                     Scan(Streamitem.GetSubStream(), Path.Combine(subdirectory, Streamitem.SanitizedName), Path.GetExtension(Streamitem.SanitizedName));
                         }
                         break;
-                    case "CPK":
-                        scanCPK(stream, subdirectory);
-                        break;
                 }
             }
             return false;
@@ -474,62 +470,6 @@ namespace DolphinTextureExtraction_tool
             }
             else
                 badformats = (FFormat, 0);
-            return false;
-        }
-
-        protected virtual void scanCPK(Stream stream, string subdirectory)
-        {
-            CPK CpkContent = new CPK();
-            CpkContent.ReadCPK(stream, Encoding.UTF8);
-            BinaryReader CPKReader = new BinaryReader(stream);
-
-            foreach (var entries in CpkContent.fileTable)
-            {
-                string FullPath;
-                if (entries.DirName != null)
-                {
-                    FullPath = Path.Combine(subdirectory, entries.DirName.ToString(), entries.FileName?.ToString());
-                }
-                else
-                {
-                    FullPath = Path.Combine(subdirectory, entries.FileName?.ToString());
-                }
-                try
-                {
-                    if (CpkDecompressEntrie(CpkContent, CPKReader, entries, out byte[] chunk))
-                    {
-                        MemoryStream CpkContentStream = new MemoryStream(chunk);
-                        Scan(CpkContentStream, FullPath);
-                        CpkContentStream.Dispose();
-                    }
-                }
-                catch (Exception t)
-                {
-                    Log.WriteEX(t, FullPath);
-                }
-            }
-            CPKReader.Close();
-        }
-
-        protected bool CpkDecompressEntrie(CPK CpkContent, BinaryReader CPKReader, LibCPK.FileEntry entrie, out byte[] chunk)
-        {
-            CPKReader.BaseStream.Seek((long)entrie.FileOffset, SeekOrigin.Begin);
-
-            string isComp = Encoding.ASCII.GetString(CPKReader.ReadBytes(8));
-            CPKReader.BaseStream.Seek((long)entrie.FileOffset, SeekOrigin.Begin);
-
-            chunk = CPKReader.ReadBytes(Int32.Parse(entrie.FileSize.ToString()));
-
-            if (isComp == "CRILAYLA")
-            {
-                int size = Int32.Parse(entrie.ExtractSize.ToString()) == 0 ? Int32.Parse(entrie.FileSize.ToString()) : Int32.Parse(entrie.ExtractSize.ToString());
-
-                if (size != 0)
-                {
-                    chunk = CpkContent.DecompressLegacyCRI(chunk, size);
-                    return true;
-                }
-            }
             return false;
         }
 

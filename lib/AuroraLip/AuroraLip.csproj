@@ -49,6 +49,7 @@
     <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\ARC0.cs" />
+    <Compile Include="Archives\Formats\CPK.cs" />
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
     <Compile Include="Archives\Formats\GVMH.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Compression\CompressionReflection.cs" />
     <Compile Include="Compression\Enums\CompressionLevel.cs" />
     <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Compression\Formats\CRILAYLA.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />
     <Compile Include="Compression\Formats\PRS.cs" />
@@ -162,6 +164,12 @@
     <PackageReference Include="System.Drawing.Common">
       <Version>6.0.0</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LibCPK\LibCPK.csproj">
+      <Project>{ba3a00e4-4f51-4ab4-a8fb-f4b64a874449}</Project>
+      <Name>LibCPK</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

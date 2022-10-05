@@ -15,8 +15,7 @@ namespace AuroraLip.Texture.Formats
 
     public class TPL : JUTTexture, IFileAccess
     {
-
-        protected static readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
+        public static readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
 
         public bool CanRead => true;
 
@@ -32,17 +31,15 @@ namespace AuroraLip.Texture.Formats
         public TPL(string filepath) : base(filepath) { }
         public TPL(Stream stream) => Read(stream);
 
-        protected override void Read(Stream stream)
+        // Helper function to read a TPL stream
+        // exposed so other classes that wish to read
+        // a TPL can do so
+        public static void ProcessStream(Stream stream, long HeaderStart, List<TexEntry> textures)
         {
-            long HeaderStart = stream.Position;
-
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException("0x0020AF30");
-
             int TotalImageCount = stream.ReadInt32(Endian.Big);
             int ImageTableOffset = stream.ReadInt32(Endian.Big);
 
-            stream.Position = ImageTableOffset;
+            stream.Seek(HeaderStart + ImageTableOffset, SeekOrigin.Begin);
 
             List<KeyValuePair<int, int>> ImageHeaderOffset = new List<KeyValuePair<int, int>>();
             for (int i = 0; i < TotalImageCount; i++)
@@ -56,16 +53,16 @@ namespace AuroraLip.Texture.Formats
                 GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
                 if (ImageHeaderOffset[i].Value != 0)
                 {
-                    stream.Position = ImageHeaderOffset[i].Value;
+                    stream.Seek(HeaderStart + ImageHeaderOffset[i].Value, SeekOrigin.Begin);
                     PaletteCount = stream.ReadInt16(Endian.Big);
                     stream.Position += 0x02;
                     PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
                     PaletteDataAddress = stream.ReadUInt32(Endian.Big);
-                    stream.Position = HeaderStart + PaletteDataAddress;
+                    stream.Seek(HeaderStart + PaletteDataAddress, SeekOrigin.Begin);
                     PaletteData = stream.Read(PaletteCount * 2);
                 }
 
-                stream.Position = ImageHeaderOffset[i].Key;
+                stream.Seek(HeaderStart + ImageHeaderOffset[i].Key, SeekOrigin.Begin);
 
                 ushort ImageHeight = stream.ReadUInt16(Endian.Big);
                 ushort ImageWidth = stream.ReadUInt16(Endian.Big);
@@ -81,7 +78,7 @@ namespace AuroraLip.Texture.Formats
                 byte MaxLOD = (byte)stream.ReadByte();
                 byte Unpacked = (byte)stream.ReadByte();
 
-                stream.Position = ImageDataAddress;
+                stream.Seek(HeaderStart + ImageDataAddress, SeekOrigin.Begin);
                 TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, MaxLOD)
                 {
                     LODBias = LODBias,
@@ -93,8 +90,18 @@ namespace AuroraLip.Texture.Formats
                     MinLOD = MinLOD,
                     MaxLOD = MaxLOD
                 };
-                Add(current);
+                textures.Add(current);
             }
+        }
+
+        protected override void Read(Stream stream)
+        {
+            long HeaderStart = stream.Position;
+
+            if (!IsMatch(stream))
+                throw new InvalidIdentifierException("0x0020AF30");
+
+            ProcessStream(stream, HeaderStart, this);
         }
 
         protected override void Write(Stream stream)

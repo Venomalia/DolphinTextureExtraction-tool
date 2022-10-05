@@ -250,6 +250,10 @@ namespace AuroraLip.Common
             new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),
             new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch"),
 
+            //Natsume
+            new FormatInfo(".pBin", "pBin", FormatType.Archive, "Harvest Moon Archive", "Natsume"),
+            new FormatInfo(".tex", FormatType.Texture, "Harvest Moon Texture", "Natsume"){ Class = typeof(FIPAFTEX), IsMatch = FIPAFTEX.Matcher },
+
             //Neverland
             new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland"),
             new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive Header", "Neverland"),

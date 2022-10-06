@@ -91,7 +91,7 @@ namespace AuroraLip.Common
         [DebuggerStepThrough]
         public static void FlipByteOrder(this byte[] buffer, Type type, int offset = 0)
         {
-            if (type.IsPrimitive)
+            if (type.IsPrimitive || type == typeof(UInt24) || type == typeof(Int24))
             {
                 Array.Reverse(buffer, offset, Marshal.SizeOf(type));
                 return;

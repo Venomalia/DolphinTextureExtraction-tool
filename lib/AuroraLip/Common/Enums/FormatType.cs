@@ -2,7 +2,7 @@
 {
     public enum FormatType
     {
-        Unknown = -1,
+        Unknown = default,
         Archive,
         Texture,
         Audio,

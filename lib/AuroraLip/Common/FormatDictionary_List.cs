@@ -201,6 +201,7 @@ namespace AuroraLip.Common
             new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
             new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii",Nin_),
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
+            new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_){ Class = typeof(GCDisk), IsMatch = GCDisk.Matcher},
             new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table"),
             new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
             new FormatInfo(".GCZ", FormatType.Rom, "GameCube Zip"),

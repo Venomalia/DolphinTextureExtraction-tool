@@ -50,7 +50,7 @@ namespace AuroraLip.Common
                 position = value;
             }
         }
-        private long position = 0;
+        protected long position = 0;
 
         /// <summary>
         /// Creates a new substream instance of the specified stream at the specified offset with the specified length.
@@ -79,15 +79,15 @@ namespace AuroraLip.Common
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            long remaining = Length - Position;
+            long remaining = Length - position;
             if (remaining <= 0) return 0;
             if (remaining < count) count = (int)remaining;
 
             lock (basestream)
             {
-                BaseStream.Seek(Position + Offset, SeekOrigin.Begin);
+                BaseStream.Seek(position + Offset, SeekOrigin.Begin);
                 int r = BaseStream.Read(buffer, offset, count);
-                Position += r;
+                position += r;
                 return r;
             }
         }
@@ -114,13 +114,13 @@ namespace AuroraLip.Common
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            long remaining = Length - Position;
-            if (Length - Position < count)
+            long remaining = Length - position;
+            if (Length - position < count)
                 throw new ArgumentException(nameof(count));
 
-            BaseStream.Position = Position + Offset;
+            BaseStream.Position = position + Offset;
             BaseStream.Write(buffer, offset, count);
-            Position += count;
+            position += count;
         }
 
         public override string ToString() => $"[0x{Offset:X8}] [0x{Length:X8}]";

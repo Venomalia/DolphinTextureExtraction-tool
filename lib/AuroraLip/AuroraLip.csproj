@@ -75,6 +75,9 @@
     <Compile Include="Archives\Formats\TXAG.cs" />
     <Compile Include="Archives\Formats\U8.cs" />
     <Compile Include="Archives\ArchiveObject.cs" />
+    <Compile Include="Archives\DiscImage\V0Ticket.cs" />
+    <Compile Include="Archives\Formats\WiiDisk.cs" />
+    <Compile Include="Common\Extensions\MiscEX.cs" />
     <Compile Include="Common\Extensions\PathEX.cs" />
     <Compile Include="Common\Extensions\StringEx.cs" />
     <Compile Include="Common\Interfaces\IName.cs" />

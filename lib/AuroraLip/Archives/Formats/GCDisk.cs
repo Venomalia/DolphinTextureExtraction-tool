@@ -18,6 +18,12 @@ namespace AuroraLip.Archives.Formats
 
         public BootBin Boot;
 
+        public GCDisk() { }
+
+        public GCDisk(string filename) : base(filename) { }
+
+        public GCDisk(Stream stream, string fullpath = null) : base(stream, fullpath) { }
+
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
@@ -203,8 +209,11 @@ namespace AuroraLip.Archives.Formats
             public FSTEntry[] Entires;
             public long stringTableOffset;
 
-            public FSTBin(Stream stream)
+            private readonly bool _IsGC;
+
+            public FSTBin(Stream stream, bool isGC = true)
             {
+                _IsGC = isGC;
                 var root = stream.Read<FSTEntry>(Endian.Big);
                 Entires = stream.For((int)root.Data - 1, S => S.Read<FSTEntry>(Endian.Big));
                 stringTableOffset = stream.Position;
@@ -227,7 +236,10 @@ namespace AuroraLip.Archives.Formats
                     }
                     else
                     {
-                        directory.AddArchiveFile(stream, Entires[i].Data, Entires[i].Offset, name);
+                        if (_IsGC)
+                            directory.AddArchiveFile(stream, Entires[i].Data, Entires[i].Offset, name);
+                        else
+                            directory.AddArchiveFile(stream, Entires[i].Data, Entires[i].Offset << 2, name);
                         i++;
                     }
                 }
@@ -247,6 +259,7 @@ namespace AuroraLip.Archives.Formats
                     set => Flag = (byte)(value ? 1 : 0);
                 }
             }
+
         }
     }
 

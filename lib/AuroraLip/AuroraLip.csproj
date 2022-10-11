@@ -45,6 +45,9 @@
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
     <Compile Include="Archives\Extensions\ArchiveEX.cs" />
+    <Compile Include="Archives\DiscImage\RegionCode.cs" />
+    <Compile Include="Archives\DiscImage\GameID.cs" />
+    <Compile Include="Archives\DiscImage\SystemCode.cs" />
     <Compile Include="Archives\Formats\ALAR.cs" />
     <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
@@ -53,6 +56,7 @@
     <Compile Include="Archives\Formats\FBC.cs" />
     <Compile Include="Archives\Formats\FBTI.cs" />
     <Compile Include="Archives\Formats\GVMH.cs" />
+    <Compile Include="Archives\Formats\GCDisk.cs" />
     <Compile Include="Archives\Formats\MOD.cs" />
     <Compile Include="Archives\Formats\NARC.cs" />
     <Compile Include="Archives\Formats\NLCM.cs" />
@@ -119,6 +123,7 @@
     <Compile Include="Compression\Formats\YAZ0.cs" />
     <Compile Include="Compression\Interfaces\ICompressionLevel.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
+    <Compile Include="Archives\DiscImage\GameID_MakerCodes.cs" />
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Texture\DolphinTextureHash.cs" />
@@ -173,5 +178,6 @@
       <Name>LibCPK</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

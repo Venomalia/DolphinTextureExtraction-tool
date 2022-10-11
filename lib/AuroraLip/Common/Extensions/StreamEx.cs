@@ -378,5 +378,11 @@ namespace AuroraLip.Common
                 if (Padding.Length < PadCount) PadCount = 0;
             }
         }
+
+        public static void AddPadding(this Stream stream, int length, byte Padding = 0)
+        {
+            for (int i = 0; i < length; i++)
+                stream.WriteByte(Padding);
+        }
     }
 }

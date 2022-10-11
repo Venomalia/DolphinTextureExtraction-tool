@@ -36,7 +36,8 @@ namespace DolphinTextureExtraction_tool
                         if (Deep != 0)
                             Save(Stream, SubPath.ToString(), Format);
                         break;
-                    case FormatType.Archive:
+                case FormatType.Rom:
+                case FormatType.Archive:
                         if (!TryExtract(Stream, SubPath.ToString(), Format))
                         {
                             Log.Write(FileAction.Unsupported, SubPath.ToString() + OExtension + $" ~{MathEx.SizeSuffix(Stream.Length, 2)}", $"Description: {Format.GetFullDescription()}");

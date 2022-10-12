@@ -103,6 +103,7 @@
     <Compile Include="Common\Enums\FormatType.cs" />
     <Compile Include="Common\Interfaces\IMagicNumber.cs" />
     <Compile Include="Common\Struct\Int24.cs" />
+    <Compile Include="Common\Struct\UInt128.cs" />
     <Compile Include="Common\Struct\UInt24.cs" />
     <Compile Include="Common\SubStream.cs" />
     <Compile Include="Compression\CompressionEx.cs" />

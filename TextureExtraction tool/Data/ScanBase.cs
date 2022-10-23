@@ -178,7 +178,10 @@ namespace DolphinTextureExtraction_tool
                 var file = new FileInfo(ScanPath);
                 Result.Worke = 1;
                 Result.WorkeLength = file.Length;
+                Option.ProgressUpdate(Result);
                 Scan(file);
+                Result.Progress++;
+                Result.ProgressLength += file.Length;
             }
             else
             {

@@ -99,9 +99,9 @@ namespace DolphinTextureExtraction_tool
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine($"Extracted textures: {Extracted}");
                 sb.AppendLine($"Unsupported files: {Unsupported}");
-                if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}".LineBreak(108, "\n                  "));
+                if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}");
                 sb.AppendLine($"Unknown files: {Unknown}");
-                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.Header == null || x.Header.MagicASKI.Length < 2 ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}".LineBreak(108, "\n                  "));
+                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.Header == null || x.Header.MagicASKI.Length < 2 ? x.Extension : $"{x.Extension} \"{x.Header.MagicASKI}\""))}");
                 sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
                 sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
                 return sb.ToString();

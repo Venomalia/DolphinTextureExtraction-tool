@@ -212,12 +212,12 @@ namespace DolphinTextureExtraction_tool
                     case "format":
                     case "f":
                         #region formats
-                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
                         Console.WriteLine($"Known formats: {FormatDictionary.Master.Length}.");
-                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
                         foreach (var item in FormatDictionary.Master)
                             Console.WriteLine($"{item.GetFullDescription()} Typ:{item.Typ}");
-                        ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
                         #endregion
                         break;
                     case "cut":
@@ -444,7 +444,7 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintHeader()
         {
-            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             Console.ForegroundColor = ConsoleColor.Cyan;
 #if DEBUG
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}\t\t*DEBUG");
@@ -452,7 +452,7 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}");
 #endif
             PrintFormats();
-            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
@@ -468,7 +468,7 @@ namespace DolphinTextureExtraction_tool
             formats.Add("BMD3");
             formats.Add("TEX1");
             formats.Sort();
-            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(108, "\n                  "));
+            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(20));
         }
 
         static void PrintOptions(TextureExtractor.ExtractorOptions options)
@@ -491,10 +491,10 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintResult(TextureExtractor.ExtractorResult result)
         {
-            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
-            Console.WriteLine(result.ToString());
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            Console.WriteLine(result.ToString().LineBreak(20));
             Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
-            ConsoleEx.WriteLineColoured("".PadLeft(108, '-'), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
         }
 
         private static ConsoleBar ScanProgress;

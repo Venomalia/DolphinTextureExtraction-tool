@@ -37,19 +37,19 @@ namespace DolphinTextureExtraction_tool
 
         private void WriteHeader()
         {
-            WriteLine("".PadLeft(64, '-'));
+            WriteLine(StringEx.Divider(64));
             WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} {IntPtr.Size * 8}bit v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now}");
-            WriteLine("".PadLeft(64, '-'));
+            WriteLine(StringEx.Divider(64));
             Flush();
         }
 
         public void WriteFoot(ScanBase.Results result)
         {
-            WriteLine("".PadLeft(64, '-'));
+            WriteLine(StringEx.Divider(64));
             WriteLine($"~END  {DateTime.Now}");
-            WriteLine("".PadLeft(64, '-'));
-            WriteLine(result.ToString());
-            WriteLine("".PadLeft(64, '-'));
+            WriteLine(StringEx.Divider(64));
+            WriteLine(result.ToString().LineBreak(120, 20));
+            WriteLine(StringEx.Divider(64));
             Flush();
         }
 
@@ -61,10 +61,10 @@ namespace DolphinTextureExtraction_tool
         {
             lock (LockFile)
             {
-                WriteLine("".PadLeft(64, '-'));
+                WriteLine(StringEx.Divider(64));
                 WriteLine($"Exception: {strMessage} {ex?.Message}");
                 WriteLine($"{ex?.Source}:{ex?.StackTrace}");
-                WriteLine("".PadLeft(64, '-'));
+                WriteLine(StringEx.Divider(64));
                 Flush();
             }
             Console.Error.WriteLine($"Exception: {strMessage} {ex?.Message}");

@@ -65,7 +65,7 @@ namespace DolphinTextureExtraction_tool
             if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Bytes32:[{string.Join(",", stream.Read(32))}]");
+                    $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
             }
             else
             {

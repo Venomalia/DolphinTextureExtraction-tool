@@ -1,7 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Texture;
-using System;
-using System.IO;
+using OpenTK.Graphics.OpenGL;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io
@@ -42,15 +41,6 @@ namespace Hack.io
             FileName = Filename;
         }
         public BMD(Stream BMD) => Read(BMD);
-
-        public static bool CheckFile(string Filename)
-        {
-            FileStream FS = new FileStream(Filename, FileMode.Open);
-            bool result = FS.ReadString(8).Equals(magic);
-            FS.Close();
-            return result;
-        }
-        public static bool CheckFile(Stream BMD) => BMD.ReadString(8).Equals(magic);
 
         public virtual void Save(string Filename)
         {
@@ -221,60 +211,16 @@ namespace Hack.io
             TriangleFan = 0xA0,
             Quads = 0x80,
         }
-        public static OpenTK.Graphics.OpenGL.PrimitiveType FromGXToOpenTK(GXPrimitiveType Type)
-        {
-            switch (Type)
-            {
-                case GXPrimitiveType.Points:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.Points;
-                case GXPrimitiveType.Lines:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.Lines;
-                case GXPrimitiveType.LineStrip:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.LineStrip;
-                case GXPrimitiveType.Triangles:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.Triangles;
-                case GXPrimitiveType.TriangleStrip:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.TriangleStrip;
-                case GXPrimitiveType.TriangleFan:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.TriangleFan;
-                case GXPrimitiveType.Quads:
-                    return OpenTK.Graphics.OpenGL.PrimitiveType.Quads;
-            }
-            throw new Exception("Bruh moment!!");
-        }
-        public static OpenTK.Graphics.OpenGL.TextureWrapMode FromGXToOpenTK(GXWrapMode Type)
-        {
-            switch (Type)
-            {
-                case GXWrapMode.CLAMP:
-                    return OpenTK.Graphics.OpenGL.TextureWrapMode.Clamp;
-                case GXWrapMode.REPEAT:
-                    return OpenTK.Graphics.OpenGL.TextureWrapMode.Repeat;
-                case GXWrapMode.MIRRORREAPEAT:
-                    return OpenTK.Graphics.OpenGL.TextureWrapMode.MirroredRepeat;
-            }
-            throw new Exception("Bruh moment!!");
-        }
-        public static OpenTK.Graphics.OpenGL.TextureMinFilter FromGXToOpenTK_Min(GXFilterMode Type)
-        {
-            switch (Type)
-            {
-                case GXFilterMode.Nearest:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.Nearest;
-                case GXFilterMode.Linear:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.Linear;
-                case GXFilterMode.NearestMipmapNearest:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.NearestMipmapNearest;
-                case GXFilterMode.NearestMipmapLinear:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.NearestMipmapLinear;
-                case GXFilterMode.LinearMipmapNearest:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.LinearMipmapNearest;
-                case GXFilterMode.LinearMipmapLinear:
-                    return OpenTK.Graphics.OpenGL.TextureMinFilter.LinearMipmapLinear;
-            }
-            throw new Exception("Bruh moment!!");
-        }
-        public static OpenTK.Graphics.OpenGL.TextureMagFilter FromGXToOpenTK_Mag(GXFilterMode Type)
+        public static PrimitiveType FromGXToOpenTK(GXPrimitiveType Type)
+            => Enum.Parse<PrimitiveType>(Type.ToString());
+
+        public static TextureWrapMode FromGXToOpenTK(GXWrapMode Type)
+            => Enum.Parse<TextureWrapMode>(Type.ToString());
+
+        public static TextureMinFilter FromGXToOpenTK_Min(GXFilterMode Type)
+            => Enum.Parse<TextureMinFilter>(Type.ToString());
+
+        public static TextureMagFilter FromGXToOpenTK_Mag(GXFilterMode Type)
         {
             switch (Type)
             {
@@ -290,73 +236,73 @@ namespace Hack.io
             }
             throw new Exception("Bruh moment!!");
         }
-        public static OpenTK.Graphics.OpenGL.CullFaceMode? FromGXToOpenTK(MAT3.CullMode Type)
+        public static CullFaceMode? FromGXToOpenTK(MAT3.CullMode Type)
         {
             switch (Type)
             {
                 case MAT3.CullMode.None:
                     return null;
                 case MAT3.CullMode.Front:
-                    return OpenTK.Graphics.OpenGL.CullFaceMode.Back;
+                    return CullFaceMode.Back;
                 case MAT3.CullMode.Back:
-                    return OpenTK.Graphics.OpenGL.CullFaceMode.Front;
+                    return CullFaceMode.Front;
                 case MAT3.CullMode.All:
-                    return OpenTK.Graphics.OpenGL.CullFaceMode.FrontAndBack;
+                    return CullFaceMode.FrontAndBack;
             }
             throw new Exception("Bruh moment!!");
         }
-        public static OpenTK.Graphics.OpenGL.BlendingFactor FromGXToOpenTK(MAT3.Material.BlendMode.BlendModeControl Factor)
+        public static BlendingFactor FromGXToOpenTK(MAT3.Material.BlendMode.BlendModeControl Factor)
         {
             switch (Factor)
             {
                 case MAT3.Material.BlendMode.BlendModeControl.Zero:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.Zero;
+                    return BlendingFactor.Zero;
                 case MAT3.Material.BlendMode.BlendModeControl.One:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.One;
+                    return BlendingFactor.One;
                 case MAT3.Material.BlendMode.BlendModeControl.SrcColor:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.SrcColor;
+                    return BlendingFactor.SrcColor;
                 case MAT3.Material.BlendMode.BlendModeControl.InverseSrcColor:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.OneMinusSrcColor;
+                    return BlendingFactor.OneMinusSrcColor;
                 case MAT3.Material.BlendMode.BlendModeControl.SrcAlpha:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.SrcAlpha;
+                    return BlendingFactor.SrcAlpha;
                 case MAT3.Material.BlendMode.BlendModeControl.InverseSrcAlpha:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.OneMinusSrcAlpha;
+                    return BlendingFactor.OneMinusSrcAlpha;
                 case MAT3.Material.BlendMode.BlendModeControl.DstAlpha:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.DstAlpha;
+                    return BlendingFactor.DstAlpha;
                 case MAT3.Material.BlendMode.BlendModeControl.InverseDstAlpha:
-                    return OpenTK.Graphics.OpenGL.BlendingFactor.OneMinusDstAlpha;
+                    return BlendingFactor.OneMinusDstAlpha;
                 default:
                     Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Unsupported BlendModeControl: \"{Factor}\" in FromGXToOpenTK!");
                     return OpenTK.Graphics.OpenGL.BlendingFactor.SrcAlpha;
 
             }
         }
-        public static OpenTK.Graphics.OpenGL.PixelInternalFormat FromGXToOpenTK_InternalFormat(GXImageFormat imageformat)
+        public static PixelInternalFormat FromGXToOpenTK_InternalFormat(GXImageFormat imageformat)
         {
             switch (imageformat)
             {
                 case GXImageFormat.I4:
                 case GXImageFormat.I8:
-                    return OpenTK.Graphics.OpenGL.PixelInternalFormat.Intensity;
+                    return PixelInternalFormat.Intensity;
                 case GXImageFormat.IA4:
                 case GXImageFormat.IA8:
-                    return OpenTK.Graphics.OpenGL.PixelInternalFormat.Luminance8Alpha8;
+                    return PixelInternalFormat.Luminance8Alpha8;
                 default:
-                    return OpenTK.Graphics.OpenGL.PixelInternalFormat.Four;
+                    return PixelInternalFormat.Four;
             }
         }
-        public static OpenTK.Graphics.OpenGL.PixelFormat FromGXToOpenTK_PixelFormat(GXImageFormat imageformat)
+        public static PixelFormat FromGXToOpenTK_PixelFormat(GXImageFormat imageformat)
         {
             switch (imageformat)
             {
                 case GXImageFormat.I4:
                 case GXImageFormat.I8:
-                    return OpenTK.Graphics.OpenGL.PixelFormat.Luminance;
+                    return PixelFormat.Luminance;
                 case GXImageFormat.IA4:
                 case GXImageFormat.IA8:
-                    return OpenTK.Graphics.OpenGL.PixelFormat.LuminanceAlpha;
+                    return PixelFormat.LuminanceAlpha;
                 default:
-                    return OpenTK.Graphics.OpenGL.PixelFormat.Bgra;
+                    return PixelFormat.Bgra;
             }
         }
     }

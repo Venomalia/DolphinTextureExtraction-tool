@@ -11,7 +11,7 @@ namespace AuroraLip.Common
     public static class StringEx
     {
         static string exePath = null;
-        public static string ExePath => exePath = exePath ?? Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
+        public static string ExePath => exePath ??= Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
 
         public static string SimpleDate => DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
 

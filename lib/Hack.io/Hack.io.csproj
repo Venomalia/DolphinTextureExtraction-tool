@@ -1,65 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net6.0</TargetFramework>
+    <ProjectGuid>{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}</ProjectGuid>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IncludeSymbols>False</IncludeSymbols>
     <RootNamespace>Hack.io</RootNamespace>
-    <AssemblyName>Hack.io</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
+    <AssemblyName>$(AssemblyTitle)</AssemblyName>
+    <SignAssembly>False</SignAssembly>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Drawing" />
+    <PackageReference Include="OpenTK" Version="4.7.5" />
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="BDL.cs" />
-    <Compile Include="Content\BDL.MDL3.cs" />
-    <Compile Include="BMD.cs" />
-    <Compile Include="Content\BMD.DRW1.cs" />
-    <Compile Include="Content\BMD.EVP1.cs" />
-    <Compile Include="Content\BMD.INF1.cs" />
-    <Compile Include="Content\BMD.JNT1.cs" />
-    <Compile Include="Content\BMD.MAT3.cs" />
-    <Compile Include="Content\BMD.SHP1.cs" />
-    <Compile Include="Content\BMD.TEX1.cs" />
-    <Compile Include="Content\BMD.VTX1.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaderGenerator.cs" />
+    <ProjectReference Include="..\AuroraLip\AuroraLip.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AuroraLip\AuroraLip.csproj">
-      <Project>{ce629181-0090-46d0-81bc-16682e497573}</Project>
-      <Name>AuroraLip</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="OpenTK">
-      <Version>3.2.0</Version>
-    </PackageReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
 </Project>

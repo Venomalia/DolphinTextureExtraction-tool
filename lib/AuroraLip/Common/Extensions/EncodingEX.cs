@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -9,7 +7,7 @@ namespace AuroraLip.Common
 {
     public static class EncodingEX
     {
-        public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(1252);
+        public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(28591);
 
         internal static readonly Predicate<byte> AllValidBytes_ASKI = b => b >= 32 && b < 127;
 
@@ -20,7 +18,7 @@ namespace AuroraLip.Common
         /// <param name="bytes"></param>
         /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, Predicate<byte> validbytes = null)
             => bytes.ToValidString(DefaultEncoding, validbytes);
         /// <summary>
@@ -30,7 +28,7 @@ namespace AuroraLip.Common
         /// <param name="Encoding">Encoding to use when getting the string</param>
         /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, Encoding Encoding, Predicate<byte> validbytes = null)
         {
             if (validbytes == null) validbytes = GetValidbytesPredicate(Encoding);
@@ -44,7 +42,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="String"></param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static byte[] ToByte(this string String)
             => DefaultEncoding.GetBytes(String);
         /// <summary>
@@ -61,7 +59,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="Byte"></param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static char ToChar(this byte Byte)
             => DefaultEncoding.GetChars(new byte[] { Byte })[0];
         /// <summary>
@@ -70,7 +68,7 @@ namespace AuroraLip.Common
         /// <param name="Byte"></param>
         /// <param name="Encoding">Encoding to use when getting the char</param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static char ToChar(this byte Byte, Encoding Encoding)
             => Encoding.GetChars(new byte[] { Byte })[0];
         /// <summary>
@@ -78,7 +76,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="Char"></param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static byte ToByte(this char Char)
             => DefaultEncoding.GetBytes(Char.ToString())[0];
 
@@ -88,7 +86,7 @@ namespace AuroraLip.Common
         /// <param name="buffer"></param>
         /// <param name="type"></param>
         /// <param name="offset"></param>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static void FlipByteOrder(this byte[] buffer, Type type, int offset = 0)
         {
             if (type.IsPrimitive || type == typeof(UInt24) || type == typeof(Int24))
@@ -116,7 +114,7 @@ namespace AuroraLip.Common
         /// <param name="Char"></param>
         /// <param name="Encoding">Encoding to use when getting the byte</param>
         /// <returns></returns>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static byte ToByte(this char Char, Encoding Encoding)
             => Encoding.GetBytes(Char.ToString())[0];
 

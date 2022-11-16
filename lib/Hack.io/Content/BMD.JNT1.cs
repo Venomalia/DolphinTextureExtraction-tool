@@ -1,9 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Texture.J3D;
-using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.IO;
+using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io
@@ -178,7 +175,7 @@ namespace Hack.io
                         } while (parentnode.Type != INF1.NodeType.Joint);
 
                         if (parentnode != null)
-                            Matrix4.Mult(ref jnt.NormalMatrix, ref FlatSkeleton[parentnode.Index].CompiledMatrix, out jnt.CompiledMatrix);
+                            Matrix4.Mult(jnt.NormalMatrix, FlatSkeleton[parentnode.Index].CompiledMatrix, out jnt.CompiledMatrix);
                         else
                             jnt.CompiledMatrix = jnt.NormalMatrix;
 

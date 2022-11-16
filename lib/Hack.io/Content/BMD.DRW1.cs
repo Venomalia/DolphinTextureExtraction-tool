@@ -1,8 +1,5 @@
 ﻿using AuroraLip.Common;
-using OpenTK;
-using System;
-using System.Collections.Generic;
-using System.IO;
+using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io

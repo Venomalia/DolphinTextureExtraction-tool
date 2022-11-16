@@ -53,7 +53,9 @@ namespace AuroraLip.Common
                         file.Class = Reflection.FileAccess.GetMagic(file.Header.Magic);
                         file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
                     }
-                    catch (System.Exception) { }
+                    catch (System.Exception)
+                    {
+                    }
                     if (file.Header.Magic.Length > 1)
                         Header.Add(file.Header.Magic, file);
 

@@ -20,6 +20,8 @@ namespace AuroraLip.Common
             new FormatInfo(".szp", "Yay0", FormatType.Archive, "compressed Archive", Nin_),
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_),
             new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_){ Class = typeof(MOD), IsMatch = MOD.Matcher },
+            new FormatInfo(".mdl", new byte[]{4, 180, 0,0}, 0, FormatType.Texture, "Luigi's mansion Model", Nin_){ Class = typeof(MDL_LM), IsMatch = MDL_LM.Matcher },
+            new FormatInfo(".bin", new byte[]{2}, 0, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),
@@ -399,6 +401,11 @@ namespace AuroraLip.Common
         public static bool LZH_Matcher(Stream stream, in string extension = "")
         {
             return stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
+        }
+
+        public static bool BIN_LM_Matcher(Stream stream, in string extension = "")
+        {
+            return stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
         }
     }
 }

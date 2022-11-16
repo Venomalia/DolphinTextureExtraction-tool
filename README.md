@@ -40,7 +40,7 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
 ## Supported formats
-###ROM images
+### ROM images
 - GCDisk (ISO)
 ### Archives
 - ALAR, RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, FBC, GVMH, FBTI, NLCM, PCKG, RTDP, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, pBin, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
@@ -49,7 +49,7 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 ### Textures
 - ATB, BTI, TPL, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, XTR, PTLG, HXTB, WTMD, GCT0, GBIX, GCIX, GVRT, FIPAFTEX.
 ### Model archives
-- MOD, BMD3, BDL4
+- MOD, BMD3, BDL4, MDL_LM
 
 ## Credits
  

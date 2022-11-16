@@ -2,12 +2,8 @@
 using AuroraLip.Common;
 using AuroraLip.Common.Extensions;
 using AuroraLip.Compression;
-using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -30,9 +26,9 @@ namespace DolphinTextureExtraction_tool
         public class Options
         {
             static NameValueCollection config;
-            public static NameValueCollection Config => config = config ?? ConfigurationManager.AppSettings;
+            public static NameValueCollection Config => config ??= ConfigurationManager.AppSettings;
             static bool? useConfig = null;
-            public static bool UseConfig = (bool)(useConfig = useConfig ?? Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
+            public static bool UseConfig = (bool)(useConfig ??= Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else

@@ -1,8 +1,5 @@
 ﻿using AuroraLip.Common;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io

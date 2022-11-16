@@ -1,9 +1,5 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Texture;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using static DolphinTextureExtraction_tool.ScanBase;
 
 namespace DolphinTextureExtraction_tool

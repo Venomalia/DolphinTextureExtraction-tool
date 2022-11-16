@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Hack.io
 {
@@ -219,12 +215,12 @@ namespace Hack.io
             Frag.AppendLine("");
 
             Frag.AppendLine("    // Alpha test");
-            if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.AlphaOp.Or && (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.CompareType.Always || Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.CompareType.Always))
+            if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.GXAlphaOp.Or && (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Always || Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Always))
             {
                 // always pass -- do nothing :)
                 Frag.AppendLine("    // Alpha test will ALWAYS PASS");
             }
-            else if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.AlphaOp.And && (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.CompareType.Never || Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.CompareType.Never))
+            else if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.GXAlphaOp.And && (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Never || Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Never))
             {
                 // never pass
                 // (we did all those color/alpha calculations for uh, nothing ;_; )
@@ -236,18 +232,18 @@ namespace Hack.io
                 string compare1 = string.Format(forceusa, alphacompare[(int)Material.AlphCompare.Comp1], "gl_FragColor.a", (float)Material.AlphCompare.Reference1 / 255f);
                 string fullcompare = "";
 
-                if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.AlphaOp.Or)
+                if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.GXAlphaOp.Or)
                 {
-                    if (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.CompareType.Never)
+                    if (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Never)
                         fullcompare = compare1;
-                    else if (Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.CompareType.Never)
+                    else if (Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Never)
                         fullcompare = compare0;
                 }
-                else if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.AlphaOp.And)
+                else if (Material.AlphCompare.Operation == BMD.MAT3.Material.AlphaCompare.GXAlphaOp.And)
                 {
-                    if (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.CompareType.Always)
+                    if (Material.AlphCompare.Comp0 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Always)
                         fullcompare = compare1;
-                    else if (Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.CompareType.Always)
+                    else if (Material.AlphCompare.Comp1 == BMD.MAT3.Material.AlphaCompare.GxCompareType.Always)
                         fullcompare = compare0;
                 }
 
@@ -292,7 +288,7 @@ namespace Hack.io
                                       "k0.r", "k1.r", "k2.r", "k3.r", "k0.g", "k1.g", "k2.g", "k3.g",
                                       "k0.b", "k1.b", "k2.b", "k3.b", "k0.a", "k1.a", "k2.a", "k3.a" };
 
-        static string[] tevbias = { "0.0", "0.5", "-0.5","0.0" };
+        static string[] tevbias = { "0.0", "0.5", "-0.5", "0.0" };
         static string[] tevscale = { "1.0", "2.0", "4.0", "0.5" };
 
         static string[] alphacompare = { "{0} != {0}", "{0} < {1}", "{0} == {1}", "{0} <= {1}", "{0} > {1}", "{0} != {1}", "{0} >= {1}", "{0} == {0}" };

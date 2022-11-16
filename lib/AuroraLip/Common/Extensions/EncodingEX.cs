@@ -1,13 +1,14 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace AuroraLip.Common
 {
     public static class EncodingEX
     {
-        public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(1252);
+        public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(28591);
 
         internal static readonly Predicate<byte> AllValidBytes_ASKI = b => b >= 32 && b < 127;
 
@@ -98,9 +99,18 @@ namespace AuroraLip.Common
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="Char"></param>
+        /// <param name="Byte"></param>
+        /// <param name="Encoding">Encoding to use when getting the char</param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        public static char ToChar(this byte Byte, Encoding Encoding)
+            => Encoding.GetChars(new byte[] { Byte })[0];
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Char"></param>
+        /// <returns></returns>
+        //[DebuggerStepThrough]
         public static byte ToByte(this char Char)
             => DefaultEncoding.GetBytes(Char.ToString())[0];
 

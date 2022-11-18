@@ -27,6 +27,10 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanRead { get; } = true;
 
+        public const short WINDOW_START = 958;
+
+        public const short WINDOW_SIZE = 1024;
+
         public byte[] Compress(in byte[] Data)
         {
             throw new NotImplementedException();
@@ -50,44 +54,41 @@ namespace AuroraLip.Compression.Formats
             }
 
             List<byte> outdata = new List<byte>();
-            byte[] BUFFER = new byte[4096];
+            byte[] window_buffer = new byte[4096];
 
-            for (int i = 0; i < BUFFER.Length; i++) BUFFER[i] = 0;
-            byte flags8 = 0;
-            ushort writeidx = 0xFEE;
-            ushort readidx = 0;
+            for (int i = 0; i < window_buffer.Length; i++) window_buffer[i] = 0;
+            byte code_word = 0;
+            ushort writeidx = 4078;
+            ushort window_offset = 0;
             uint fidx = 0x10;
             if (!IsMatch(in Data)) fidx = 4;
 
             while (fidx < Data.Length)
             {
-                flags8 = Data[fidx];
-                fidx++;
+                code_word = Data[fidx++];
 
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((flags8 & 1) != 0)
+                    if ((code_word & 1) != 0)
                     {
                         outdata.Add(Data[fidx]);
-                        BUFFER[writeidx] = Data[fidx];
-                        writeidx++; writeidx %= 4096;
-                        fidx++;
+                        window_buffer[writeidx++] = Data[fidx++];
+                        writeidx %= 4096;
                     }
                     else
                     {
-                        readidx = Data[fidx];
-                        fidx++;
-                        readidx |= (ushort)((Data[fidx] & 0xF0) << 4);
+                        window_offset = Data[fidx++];
+                        window_offset |= (ushort)((Data[fidx] & 0xF0) << 4);
                         for (int j = 0; j < (Data[fidx] & 0x0F) + 3; j++)
                         {
-                            outdata.Add(BUFFER[readidx]);
-                            BUFFER[writeidx] = BUFFER[readidx];
-                            readidx++; readidx %= 4096;
-                            writeidx++; writeidx %= 4096;
+                            outdata.Add(window_buffer[window_offset]);
+                            window_buffer[writeidx++] = window_buffer[window_offset++];
+                            window_offset %= 4096;
+                            writeidx %= 4096;
                         }
                         fidx++;
                     }
-                    flags8 >>= 1;
+                    code_word >>= 1;
                     if (fidx >= Data.Length) break;
                 }
             }
@@ -96,6 +97,56 @@ namespace AuroraLip.Compression.Formats
                 throw new Exception($"Size mismatch: got {outdata.Count} bytes after decompression, expected {decompressedSize}.\n");
 
             return outdata.ToArray();
+        }
+
+        /// <summary>
+        /// simple LZSS algorithm used in mario party games.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="decompressed_size"></param>
+        /// <returns></returns>
+        //Base: https://github.com/gamemasterplc/mpbintools/blob/master/bindump.c#L170
+        public static byte[] Decompress(Stream stream, int decompressed_size)
+        {
+            byte[] window_buffer = new byte[WINDOW_SIZE];
+            byte[] decompress_buffer = new byte[decompressed_size];
+            int window_offset = WINDOW_START;
+            int code_word = 0, dest_offset = 0;
+
+            while (dest_offset < decompressed_size)
+            {
+                //Reads New Code Word from Compressed Stream if Expired
+                if ((code_word & 0x100) == 0)
+                {
+                    code_word = stream.ReadUInt8();
+                    code_word |= 0xFF00;
+                }
+
+                //Copies a Byte from the Source to the Destination and Window Buffer
+                if ((code_word & 0x1) != 0)
+                {
+                    window_buffer[window_offset++] = decompress_buffer[dest_offset++] = stream.ReadUInt8();
+                    window_offset %= WINDOW_SIZE;
+                }
+                else
+                {
+                    //Interpret Next 2 Bytes as an Offset and Length into the Window Buffer
+                    byte byte1 = stream.ReadUInt8();
+                    byte byte2 = stream.ReadUInt8();
+
+                    int offset = ((byte2 & 0xC0) << 2) | byte1;
+                    int copy_length = (byte2 & 0x3F) + 3;
+
+                    //Copy Some Bytes from Window Buffer
+                    for (int i = 0; i < copy_length; i++)
+                    {
+                        window_buffer[window_offset++] = decompress_buffer[dest_offset++] = window_buffer[offset++ % WINDOW_SIZE];
+                        window_offset %= WINDOW_SIZE;
+                    }
+                }
+                code_word >>= 1;
+            }
+            return decompress_buffer;
         }
 
         private bool IsMatch(in byte[] Data)

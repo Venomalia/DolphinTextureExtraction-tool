@@ -115,6 +115,7 @@ namespace AuroraLip.Texture.J3D
 
                     byte[] RowDate = Stream.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight));
                     Hash = HashDepot.XXHash.Hash64(RowDate);
+
                     if (IsPaletteFormat(Format) && PaletteCount > 0)
                     {
                         int PalettesNumber = PaletteData.Length / (PaletteCount * 2);
@@ -128,6 +129,24 @@ namespace AuroraLip.Texture.J3D
                                 Palettes.Add(PaletteData.Skip(i * PaletteSize).Take(PaletteSize).ToArray());
                         }
                         TlutHash = HashDepot.XXHash.Hash64(Palettes[0]);
+                    }
+
+                    if (JUtility.IsPaletteFormat(Format) && PaletteData == null || PaletteData?.Length == 0)
+                    {
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"The Image Hash:{Hash} Format:{Format} has no palette data, it will be rendered in grayscale!");
+
+                        switch (Format)
+                        {
+                            case GXImageFormat.C4:
+                                Format = GXImageFormat.I4;
+                                break;
+                            case GXImageFormat.C8:
+                                Format = GXImageFormat.I8;
+                                break;
+                            case GXImageFormat.C14X2:
+                                Format = GXImageFormat.IA4;
+                                break;
+                        }
                     }
                     this.Add(DecodeImage(RowDate, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight));
 

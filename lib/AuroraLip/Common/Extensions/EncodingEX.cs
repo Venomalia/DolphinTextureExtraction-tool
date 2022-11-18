@@ -107,7 +107,7 @@ namespace AuroraLip.Common
                     fieldtype = Enum.GetUnderlyingType(fieldtype);
 
                 var subOffset = Marshal.OffsetOf(type, field.Name).ToInt32();
-                buffer.FlipByteOrder(fieldtype, subOffset);
+                buffer.FlipByteOrder(fieldtype, subOffset + offset);
             }
         }
         /// <summary>

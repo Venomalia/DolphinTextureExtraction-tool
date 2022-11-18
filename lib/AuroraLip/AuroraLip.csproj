@@ -135,6 +135,7 @@
     <Compile Include="Texture\Formats\GBIX.cs" />
     <Compile Include="Texture\Formats\GCT0.cs" />
     <Compile Include="Texture\Formats\GVRT.cs" />
+    <Compile Include="Texture\Formats\HSF.cs" />
     <Compile Include="Texture\Formats\HXTB.cs" />
     <Compile Include="Archives\Formats\ONE_SB.cs" />
     <Compile Include="Texture\Formats\MDL_LM.cs" />

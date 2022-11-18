@@ -316,7 +316,7 @@ namespace AuroraLip.Common
 
             //Hudson Soft
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },
-            new FormatInfo(".hsf", "HSFV" , FormatType.Model,"Mario Party Model","Hudson Soft"),
+            new FormatInfo(".hsf", "HSFV037" , FormatType.Texture,"Mario Party Model","Hudson Soft"),
             new FormatInfo(".atb", FormatType.Texture,"Mario Party texture","Hudson Soft"){ Class = typeof(ATB), IsMatch = ATB.Matcher },
             new FormatInfo(".h4m", "HVQM4 1.3" , FormatType.Video,"","Hudson Soft"),
             new FormatInfo(".h4m", "HVQM4 1.4" , FormatType.Video,"","Hudson Soft"),

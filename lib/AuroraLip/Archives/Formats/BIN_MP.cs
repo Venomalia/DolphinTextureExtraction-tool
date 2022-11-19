@@ -15,6 +15,8 @@ namespace AuroraLip.Archives.Formats
 
         public static string Extension => ".bin";
 
+        private static readonly LZSS lZSS = new LZSS(10, 6, 2);
+
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
@@ -58,6 +60,7 @@ namespace AuroraLip.Archives.Formats
                 offsets[i] = stream.ReadUInt32(Endian.Big);
             }
 
+
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < files; i++)
             {
@@ -82,7 +85,8 @@ namespace AuroraLip.Archives.Formats
                         DeStream = new SubStream(stream, DeSize);
                         break;
                     case CompressionType.LZSS:
-                        DeStream = new MemoryStream(LZSS.Decompress(stream, (int)DeSize));
+                        //DeStream = new MemoryStream(LZSS.Decompress(stream, (int)DeSize));
+                        DeStream = lZSS.Decompress(stream, (int)DeSize);
                         break;
                     case CompressionType.SLIDE:
                     case CompressionType.FSLIDE_ALT:

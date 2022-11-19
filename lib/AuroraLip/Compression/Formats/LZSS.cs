@@ -1,35 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AuroraLip.Common;
+using System;
 using System.IO;
-using AuroraLip.Common;
 
 namespace AuroraLip.Compression.Formats
 {
-
-    /*
-     * xdanieldzd & lue
-     * Library for Decompressing LZSS files
-     * https://github.com/xdanieldzd/N3DSCmbViewer/blob/master/N3DSCmbViewer/LZSS.cs
-     * https://github.com/lue/MM3D/blob/master/src/lzs.cpp
-     */
-
     /// <summary>
     /// LZSS Lempel–Ziv–Storer–Szymanski algorithm, a derivative of LZ77.
     /// </summary>
+    // base on original C implementation from Haruhiko Okumura
+    // Mario Party  = EI=10 EJ=6 P=2
+    // Pokemon FSYS = EI=12 EJ=4 P=2
     public class LZSS : ICompression, IMagicIdentify
     {
+        public bool CanRead => true;
 
-        public string Magic { get; } = "LzS";
+        public bool CanWrite => false;
 
-        public int MagicOffset { get; } = 0;
+        public string Magic => magic;
 
-        public bool CanWrite { get; } = false;
+        private const string magic = "LZSS";
 
-        public bool CanRead { get; } = true;
+        public byte EI = 10; // offset bits
+        public byte EJ = 6; // length bits
+        public byte P = 2; // threshold
 
-        public const short WINDOW_START = 958;
+        public LZSS() { }
 
-        public const short WINDOW_SIZE = 1024;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eI">offset bits</param>
+        /// <param name="eJ">length bits</param>
+        /// <param name="p">threshold</param>
+        public LZSS(byte eI, byte eJ, byte p)
+        {
+            EI = eI; EJ = eJ; P = p;
+        }
 
         public byte[] Compress(in byte[] Data)
         {
@@ -38,135 +44,69 @@ namespace AuroraLip.Compression.Formats
 
         public byte[] Decompress(in byte[] Data)
         {
-            uint decompressedSize;
+            MemoryStream stream = new MemoryStream(Data);
 
-            if (IsMatch(in Data))
-            {
-                //string tag = Encoding.ASCII.GetString(Data, 0, 4);
-                //uint unknown = BitConverter.ToUInt32(Data, 4);
-                decompressedSize = BitConverter.ToUInt32(Data, 8);
-                uint compressedSize = BitConverter.ToUInt32(Data, 12);
-                if (Data.Length != compressedSize + 0x10) throw new Exception("compressed size mismatch");
-            }
-            else
-            {
-                decompressedSize = BitConverter.ToUInt32(Data, 0);
-            }
+            if (!IsMatch(stream))
+                throw new InvalidIdentifierException(Magic);
+            uint decompressedSize = stream.ReadUInt32(Endian.Big);
+            uint compressedSize = stream.ReadUInt32(Endian.Big);
+            uint unk = stream.ReadUInt32(Endian.Big);
 
-            List<byte> outdata = new List<byte>();
-            byte[] window_buffer = new byte[4096];
-
-            for (int i = 0; i < window_buffer.Length; i++) window_buffer[i] = 0;
-            byte code_word = 0;
-            ushort writeidx = 4078;
-            ushort window_offset = 0;
-            uint fidx = 0x10;
-            if (!IsMatch(in Data)) fidx = 4;
-
-            while (fidx < Data.Length)
-            {
-                code_word = Data[fidx++];
-
-                for (int i = 0; i < 8; i++)
-                {
-                    if ((code_word & 1) != 0)
-                    {
-                        outdata.Add(Data[fidx]);
-                        window_buffer[writeidx++] = Data[fidx++];
-                        writeidx %= 4096;
-                    }
-                    else
-                    {
-                        window_offset = Data[fidx++];
-                        window_offset |= (ushort)((Data[fidx] & 0xF0) << 4);
-                        for (int j = 0; j < (Data[fidx] & 0x0F) + 3; j++)
-                        {
-                            outdata.Add(window_buffer[window_offset]);
-                            window_buffer[writeidx++] = window_buffer[window_offset++];
-                            window_offset %= 4096;
-                            writeidx %= 4096;
-                        }
-                        fidx++;
-                    }
-                    code_word >>= 1;
-                    if (fidx >= Data.Length) break;
-                }
-            }
-
-            if (decompressedSize != outdata.Count)
-                throw new Exception($"Size mismatch: got {outdata.Count} bytes after decompression, expected {decompressedSize}.\n");
-
-            return outdata.ToArray();
+            return Decompress(stream, (int)compressedSize).ToArray();
         }
 
-        /// <summary>
-        /// simple LZSS algorithm used in mario party games.
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="decompressed_size"></param>
-        /// <returns></returns>
-        //Base: https://github.com/gamemasterplc/mpbintools/blob/master/bindump.c#L170
-        public static byte[] Decompress(Stream stream, int decompressed_size)
+        public MemoryStream Decompress(Stream inputStream, int compressedSize)
         {
-            byte[] window_buffer = new byte[WINDOW_SIZE];
-            byte[] decompress_buffer = new byte[decompressed_size];
-            int window_offset = WINDOW_START;
-            int code_word = 0, dest_offset = 0;
+            int n = 1 << EI;
+            int f = 1 << EJ;
 
-            while (dest_offset < decompressed_size)
+            int flags = 0;
+            byte[] slidingWindow = new byte[n];
+            MemoryStream outStream = new MemoryStream(compressedSize);
+
+            int r = n - f - P;
+            n--;
+            f--;
+
+            while (outStream.Position < compressedSize)
             {
                 //Reads New Code Word from Compressed Stream if Expired
-                if ((code_word & 0x100) == 0)
+                if ((flags & 0x100) == 0)
                 {
-                    code_word = stream.ReadUInt8();
-                    code_word |= 0xFF00;
+                    flags = inputStream.ReadByte();
+                    flags |= 0xff00;
                 }
-
                 //Copies a Byte from the Source to the Destination and Window Buffer
-                if ((code_word & 0x1) != 0)
+                if ((flags & 1) != 0)
                 {
-                    window_buffer[window_offset++] = decompress_buffer[dest_offset++] = stream.ReadUInt8();
-                    window_offset %= WINDOW_SIZE;
+                    byte c = (byte)inputStream.ReadByte();
+                    outStream.WriteByte(c);
+                    slidingWindow[r] = c;
+                    r = r + 1 & n;
                 }
                 else
                 {
                     //Interpret Next 2 Bytes as an Offset and Length into the Window Buffer
-                    byte byte1 = stream.ReadUInt8();
-                    byte byte2 = stream.ReadUInt8();
+                    int b1 = inputStream.ReadByte();
+                    int b2 = inputStream.ReadByte();
 
-                    int offset = ((byte2 & 0xC0) << 2) | byte1;
-                    int copy_length = (byte2 & 0x3F) + 3;
+                    b1 |= b2 >> EJ << 8;
+                    b2 = (b2 & f) + P;
 
                     //Copy Some Bytes from Window Buffer
-                    for (int i = 0; i < copy_length; i++)
+                    for (var i = 0; i <= b2; i++)
                     {
-                        window_buffer[window_offset++] = decompress_buffer[dest_offset++] = window_buffer[offset++ % WINDOW_SIZE];
-                        window_offset %= WINDOW_SIZE;
+                        slidingWindow[r] = slidingWindow[b1 + i & n];
+                        outStream.WriteByte(slidingWindow[r]);
+                        r = r + 1 & n;
                     }
                 }
-                code_word >>= 1;
+                flags >>= 1;
             }
-            return decompress_buffer;
-        }
-
-        private bool IsMatch(in byte[] Data)
-        {
-            // is LzS
-            return Data.Length > 16 && Data[0] == 76 && Data[1] == 122 && Data[2] == 83;
+            return outStream;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-        {
-            if (stream.Length < 16 && stream.MatchString(Magic))
-{
-                stream.Position = 12;
-                // compressed size match?
-                uint compressedSize = BitConverter.ToUInt32(stream.Read(4), 0);
-                return stream.Length == compressedSize + 0x10;
-
-            }
-            return false;
-
-        }
+            => stream.Length > 112 && stream.MatchString(Magic);
     }
 }

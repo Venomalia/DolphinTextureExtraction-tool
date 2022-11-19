@@ -114,9 +114,10 @@
     <Compile Include="Compression\Formats\CRILAYLA.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />
+    <Compile Include="Compression\Formats\LZSS.cs" />
     <Compile Include="Compression\Formats\PRS.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
-    <Compile Include="Compression\Formats\LZSS.cs" />
+    <Compile Include="Compression\Formats\LZS.cs" />
     <Compile Include="Compression\Formats\GZip.cs" />
     <Compile Include="Compression\Formats\CLZ.cs" />
     <Compile Include="Compression\Formats\LZ11.cs" />
@@ -131,6 +132,7 @@
     <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
     <Compile Include="Texture\Formats\FIPAFTEX.cs" />
+    <Compile Include="Archives\Formats\FSYS.cs" />
     <Compile Include="Texture\Formats\GCIX.cs" />
     <Compile Include="Texture\Formats\GBIX.cs" />
     <Compile Include="Texture\Formats\GCT0.cs" />

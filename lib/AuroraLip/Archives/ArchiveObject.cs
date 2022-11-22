@@ -26,6 +26,11 @@ namespace AuroraLip.Archives
         }
 
         /// <summary>
+        /// Size of the <see cref="ArchiveObject" />.
+        /// </summary>
+        public abstract long Size { get; }
+
+        /// <summary>
         /// The parent directory (Null if non-existant)
         /// </summary>
         public ArchiveDirectory Parent { get; set; }

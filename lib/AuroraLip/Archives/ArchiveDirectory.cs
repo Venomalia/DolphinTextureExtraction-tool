@@ -18,6 +18,8 @@ namespace AuroraLip.Archives
     public class ArchiveDirectory : ArchiveObject
     {
 
+        public override long Size => Items.Sum(A => A.Value.Size);
+
         /// <summary>
         /// The contents of this directory.
         /// </summary>

@@ -244,6 +244,7 @@ namespace AuroraLip.Archives.Formats
         /// </summary>
         internal class RARCFileEntry : ArchiveObject
         {
+            public override long Size => 0;
             public short FileID;
             public short Type;
             /// <summary>

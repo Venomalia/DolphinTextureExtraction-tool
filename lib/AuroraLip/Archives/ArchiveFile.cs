@@ -18,6 +18,8 @@ namespace AuroraLip.Archives
     public class ArchiveFile : ArchiveObject
     {
 
+        public override long Size => FileData.CanRead?(long)FileData?.Length : 0;
+
         /// <summary>
         /// The extension of this file
         /// </summary>

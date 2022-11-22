@@ -17,7 +17,7 @@ The most common formats are already supported, new features and formats will be 
 [<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?include_prereleases&sort=semver&label=prerelease&style=for-the-badge" alt="Pre releases Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/)
 
 ## How to use
-INFO: currently no ROM images are supported, Please unpack them with dolphin into a folder.  
+INFO: If you use RVZ images, unpack them into a folder using Dolphin.  
 Right click on a game -> **Properties** -> **Filesystem** -> right click on "**Disc - [Game ID]**" -> **Extract Files**...
 
 ### Command-line UI
@@ -41,7 +41,7 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 
 ## Supported formats
 ### ROM images
-- GCDisk (ISO)
+- GCDisk (ISO), WiiDisk (ISO)
 ### Archives
 - ALAR, RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, ONE_SB, ONE_UN, FBC, GVMH, FBTI, NLCM, PCKG, RTDP, TXAG, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, pBin, FSYS, POSD, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
 ### Compressing
@@ -83,4 +83,4 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 
 - [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT Format and to read PRS Compressing.
 	
-- [BrawlCrate](https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs) reference for ARC0 Format.
+- [BrawlCrate](https://github.com/soopercool101/BrawlCrate) reference for ARC0 Format.

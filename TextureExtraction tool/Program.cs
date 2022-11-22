@@ -454,7 +454,7 @@ namespace DolphinTextureExtraction_tool
             PrintFormats();
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
-            Console.WriteLine(" currently no ROM images are supported, Please unpack them with dolphin into a folder.");
+            Console.WriteLine(" If you use RVZ images, unpack them into a folder using Dolphin.");
             Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
             Console.ResetColor();
             Console.WriteLine();

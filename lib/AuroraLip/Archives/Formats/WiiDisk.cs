@@ -15,7 +15,7 @@ namespace AuroraLip.Archives.Formats
     // ref https://wiibrew.org/wiki/Wii_disc
     public partial class WiiDisk : Archive, IFileAccess
     {
-        public bool CanRead => false;
+        public bool CanRead => true;
 
         public bool CanWrite => false;
 

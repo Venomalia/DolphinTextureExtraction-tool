@@ -26,7 +26,8 @@ namespace DolphinTextureExtraction_tool
             try
             {
 #endif
-                switch (Format.Typ)
+
+            switch (Format.Typ)
                 {
                     case FormatType.Unknown:
                         if (TryForce(Stream, SubPath.ToString(), Format))

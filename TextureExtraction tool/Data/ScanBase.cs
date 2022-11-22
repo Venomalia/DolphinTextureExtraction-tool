@@ -256,7 +256,6 @@ namespace DolphinTextureExtraction_tool
             double ArchLength = 0;
             Parallel.ForEach(fileInfos, Option.SubParallel, (file) =>
             {
-
                 double Length = file.FileData.Length;
                 Scan(file, subdirectory);
                 lock (Result)
@@ -322,7 +321,7 @@ namespace DolphinTextureExtraction_tool
         protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));
 
-        protected virtual bool TryExtract(Stream stream,in string subdirectory, FormatInfo Format)
+        protected virtual bool TryExtract(Stream stream, in string subdirectory, FormatInfo Format)
         {
             if (Format.Class == null)
             {
@@ -362,31 +361,14 @@ namespace DolphinTextureExtraction_tool
                     using (Archive archive = (Archive)Activator.CreateInstance(Format.Class))
                     {
                         archive.Open(stream);
+                        long size = archive.Root.Size;
                         Scan(archive, subdirectory);
 
                         if (stream.Length > 104857600 * 5) //100MB*5
                             return true;
 
                         //Reduces problems with multithreading
-                        if (archive.TotalFileCount > 0)
-                        {
-                            var last = archive.Root.Items.Last().Value;
-                            while (true)
-                            {
-                                if (last is ArchiveDirectory dir)
-                                {
-                                    last = dir.Items.Last().Value;
-                                    continue;
-                                }
-                                else if (last is ArchiveFile file)
-                                {
-                                    if (file.FileData is SubStream FileData)
-                                        if (stream.Position < FileData.Length + FileData.Offset)
-                                            stream.Seek(FileData.Length + FileData.Offset, SeekOrigin.Begin);
-                                }
-                                break;
-                            }
-                        }
+                        stream.Seek(size > stream.Length? stream.Length : size , SeekOrigin.Begin);
 
                         //checks if hidden files are present.
                         if (archive is IMagicIdentify identify)
@@ -436,9 +418,10 @@ namespace DolphinTextureExtraction_tool
                     Scan(test, subdirectory);
                     return true;
                 }
-
+            stream.Seek(0, SeekOrigin.Begin);
             if (TryCut(stream, subdirectory, FFormat))
                 return true;
+            stream.Seek(0, SeekOrigin.Begin);
 
             return false;
         }

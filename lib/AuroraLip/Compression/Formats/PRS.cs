@@ -22,7 +22,7 @@ namespace AuroraLip.Compression.Formats
         public bool CanWrite => true;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => (stream.ReadByte() & 0x1) == 1 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
+            => stream.Length > 3 && (stream.ReadByte() & 0x1) == 1 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
 
         public byte[] Decompress(in byte[] Data)
         {

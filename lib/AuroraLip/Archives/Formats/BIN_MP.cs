@@ -26,7 +26,7 @@ namespace AuroraLip.Archives.Formats
                 return false;
 
             uint files = stream.ReadUInt32(Endian.Big);
-            if (files > 1000)
+            if (files > 1000 || files == 0)
                 return false;
             uint[] offsets = new uint[files];
             for (int i = 0; i < files; i++)
@@ -34,12 +34,12 @@ namespace AuroraLip.Archives.Formats
                 offsets[i] = stream.ReadUInt32(Endian.Big);
             }
 
-            uint lastoffset = 0;
+            uint lastoffset = (uint)stream.Position - 1;
             for (int i = 0; i < files; i++)
             {
-                if (offsets[i] < lastoffset || stream.Length < offsets[i] + 10)
+                if (offsets[i] <= lastoffset || stream.Length < offsets[i] + 10)
                     return false;
-                lastoffset = offsets[i];
+                lastoffset = offsets[i] + 0x10;
 
                 stream.Seek(offsets[i] + 4, SeekOrigin.Begin);
                 uint type = stream.ReadUInt32(Endian.Big);

@@ -23,8 +23,29 @@ namespace DolphinTextureExtraction_tool
             return (response == Yes);
         }
 
-        public static bool WriteBoolPrint(in bool value, ConsoleColor YesColour = ConsoleColor.White, ConsoleColor NoColour = ConsoleColor.White) => WriteBoolPrint(value,true.ToString(),false.ToString(), YesColour, NoColour);
+        public static int ReadInt32(int? defaultvalue = null)
+        {
+            do
+                if (Int32.TryParse(Console.ReadLine(), out int value)) defaultvalue = value;
+            while (defaultvalue == null);
+            return defaultvalue.Value;
+        }
 
+        public static T ReadEnum<T>(T? defaultvalue = null) where T : struct, Enum, IComparable, IConvertible, IFormattable
+        {
+            do
+            {
+                string value = Console.ReadLine();
+                if (Int32.TryParse(value, out int intvalue))
+                    if (Enum.IsDefined(typeof(T), intvalue))
+                        value = Enum.GetName(typeof(T), intvalue);
+                if (Enum.TryParse<T>(value, out T enumvalue))
+                    return enumvalue;
+            } while (defaultvalue == null);
+            return defaultvalue.Value;
+        }
+
+        public static bool WriteBoolPrint(in bool value, ConsoleColor YesColour = ConsoleColor.White, ConsoleColor NoColour = ConsoleColor.White) => WriteBoolPrint(value, true.ToString(), false.ToString(), YesColour, NoColour);
 
         public static bool WriteBoolPrint(in bool value, in string Yes, in string No, ConsoleColor YesColour = ConsoleColor.White, ConsoleColor NoColour = ConsoleColor.White)
         {

@@ -15,6 +15,7 @@ namespace DolphinTextureExtraction_tool
         static string OutputDirectory;
 
         static TextureExtractor.ExtractorOptions options;
+        static Cleanup.Option cleanOptions;
 
         static Modes Mode;
         private enum Modes : byte
@@ -45,6 +46,7 @@ namespace DolphinTextureExtraction_tool
             catch (Exception) { }
 
             options = new TextureExtractor.ExtractorOptions();
+            cleanOptions = new Cleanup.Option();
 
             //Do we have restricted access to the Console.Cursor?
             try
@@ -156,8 +158,13 @@ namespace DolphinTextureExtraction_tool
                                 options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
                                 options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"Clean up folder structure. \t(True) or False");
-                                options.Cleanup = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                                Console.WriteLine($"Clean up typ. \t0={Cleanup.Type.None} (1)={Cleanup.Type.Default} 2={Cleanup.Type.Simple}");
+                                cleanOptions.CleanupType = ConsoleEx.ReadEnum<Cleanup.Type>(Cleanup.Type.Default);
+                                if (cleanOptions.CleanupType == Cleanup.Type.Default)
+                                {
+                                    Console.WriteLine($"CleanUp, minimum files per folder. \t(3)");
+                                    cleanOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
+                                }
                                 Console.WriteLine($"Perform a Dry Run. \tTrue or (False)");
                                 options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
@@ -190,6 +197,15 @@ namespace DolphinTextureExtraction_tool
                             var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
                             Console.WriteLine();
                             PrintResult(result);
+
+                            if (cleanOptions.CleanupType != Cleanup.Type.None)
+                            {
+                                Console.WriteLine("Start Cleanup...");
+                                if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
+                                    Console.WriteLine("Cleanup Completed");
+                                else
+                                    Console.WriteLine("Error! Cleanup failed");
+                            }
                             break;
                         case Modes.Unpacks:
                             Console.WriteLine($"Unpacks all files from {InputPath}");
@@ -198,6 +214,7 @@ namespace DolphinTextureExtraction_tool
                             Unpack.StartScan(InputPath, OutputDirectory, options);
                             Console.WriteLine();
                             Console.WriteLine("Done.");
+
                             break;
                     }
                     Console.CursorVisible = true;
@@ -288,12 +305,20 @@ namespace DolphinTextureExtraction_tool
                                         break;
                                     case "-cleanup":
                                     case "-c":
-                                        options.Cleanup = true;
+                                    case "-cleanup:default":
+                                    case "-c:default":
+                                    case "-c:d":
+                                        cleanOptions.CleanupType = Cleanup.Type.Default;
                                         break;
                                     case "-cleanup:none":
                                     case "-c:none":
                                     case "-c:n":
-                                        options.Cleanup = false;
+                                        cleanOptions.CleanupType = Cleanup.Type.None;
+                                        break;
+                                    case "-cleanup:simple":
+                                    case "-c:simple":
+                                    case "-c:s":
+                                        cleanOptions.CleanupType = Cleanup.Type.Simple;
                                         break;
                                     case "-progress:none":
                                     case "-p:none":
@@ -315,8 +340,10 @@ namespace DolphinTextureExtraction_tool
                                         break;
                                     case "-dolphinmipdetection":
                                     case "-dm":
-                                        options.Cleanup = false;
+                                        options.DolphinMipDetection = true;
                                         break;
+                                    case "-groups":
+                                    case "-g":
                                     case "-tasks":
                                     case "-t":
                                         if (!int.TryParse(args[++i], out int parse))
@@ -326,8 +353,17 @@ namespace DolphinTextureExtraction_tool
                                             Environment.Exit(-2);
                                             break;
                                         }
-                                        options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? Environment.ProcessorCount : parse;
-                                        break;
+                                        switch (args[i-1].ToLower())
+                                        {
+                                            case "-groups":
+                                            case "-g":
+                                                cleanOptions.MinGroupsSize = parse <= 0 ? 1 : parse;
+                                                break;
+                                            case "-tasks":
+                                            case "-t":
+                                                options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
+                                                break;
+                                        }break;
                                 }
                             }
                         }
@@ -426,7 +462,9 @@ namespace DolphinTextureExtraction_tool
             Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
             Console.WriteLine("\tOption:\t -d -dryrun\tDoesn't actually extract anything.");
             Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
-            Console.WriteLine("\tOption:\t -c:n -cleanup:none\tretains the original folder structure.");
+            Console.WriteLine("\tOption:\t -c:n -cleanup:none\tRetains the original folder structure.");
+            Console.WriteLine("\tOption:\t -c:s -cleanup:simple\tMove all files to a single folder.");
+            Console.WriteLine("\tOption:\t -c:s -cleanup:simple\tMove all files to a single folder.");
             Console.WriteLine("\tOption:\t -p:n -progress:none\toutputs only important events in the console.");
             Console.WriteLine("\tOption:\t -p:b -progress:bar\tshows the progress as a progress bar in the console.");
             Console.WriteLine("\tOption:\t -p:l -progress:list\toutputs the extracted textures as a list in the console.");
@@ -481,8 +519,15 @@ namespace DolphinTextureExtraction_tool
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"Imitate dolphin mipmap detection: ");
             ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Clean up folder structure: ");
-            ConsoleEx.WriteBoolPrint(options.Cleanup, ConsoleColor.Green, ConsoleColor.Red);
+            Console.Write($"Clean up type: ");
+            if (cleanOptions.CleanupType == Cleanup.Type.None)
+                ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
+            else
+            {
+                ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
+                Console.Write($"Clean minimum files per foldere: ");
+                ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
+            }
             Console.Write($"Perform a dry run: ");
             ConsoleEx.WriteBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
             Console.Write($"High performance mode (Multithreading): ");

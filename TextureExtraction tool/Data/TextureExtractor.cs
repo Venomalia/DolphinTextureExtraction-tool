@@ -35,11 +35,6 @@ namespace DolphinTextureExtraction_tool
             public bool DolphinMipDetection = true;
 
             /// <summary>
-            /// Sorts the textures and removes unnecessary folders.
-            /// </summary>
-            public bool Cleanup = true;
-
-            /// <summary>
             /// is executed when a texture is extracted
             /// </summary>
             public TextureActionDelegate TextureAction;
@@ -53,7 +48,6 @@ namespace DolphinTextureExtraction_tool
                 if (bool.TryParse(Config.Get("Mips"), out bool value)) Mips = value;
                 if (bool.TryParse(Config.Get("Raw"), out value)) Raw = value;
                 if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
-                if (bool.TryParse(Config.Get("Cleanup"), out value)) Cleanup = value;
             }
         }
 
@@ -126,7 +120,7 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        private static Dictionary<int, int> ThreadIndices = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> ThreadIndices = new Dictionary<int, int>();
         /// <summary>
         /// Convert a thread's id to a base 1 index, increasing in increments of 1 (Makes logs prettier)
         /// </summary>
@@ -149,20 +143,6 @@ namespace DolphinTextureExtraction_tool
 
             base.StartScan();
 
-            if (((ExtractorOptions)Option).Cleanup)
-            {
-                try
-                {
-                    Console.WriteLine("Start Cleanup...");
-                    Cleanup.Default(new DirectoryInfo(SaveDirectory));
-                    Console.WriteLine("Cleanup Completed");
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine("Error! Cleanup failed");
-                }
-            }
-
             return Result;
         }
 
@@ -177,78 +157,78 @@ namespace DolphinTextureExtraction_tool
             try
             {
 #endif
-                switch (Format.Typ)
-                {
-                    case FormatType.Unknown:
-                        if (TryForce(Stream, SubPath.ToString(), Format))
-                            break;
+            switch (Format.Typ)
+            {
+                case FormatType.Unknown:
+                    if (TryForce(Stream, SubPath.ToString(), Format))
+                        break;
 
-                        AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
+                    AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
 
-                        //Exclude files that are too small, for calculation purposes only half the size.
-                        if (Deep == 0)
+                    //Exclude files that are too small, for calculation purposes only half the size.
+                    if (Deep == 0)
+                    {
+                        if (Stream.Length > 130) Result.SkippedSize += Stream.Length / 2;
+                    }
+                    else
+                    {
+                        if (Stream.Length > 300)
+                            Result.SkippedSize += Stream.Length / 50;
+                    }
+                    break;
+                case FormatType.Texture:
+                    if (((ExtractorOptions)Option).Raw)
+                    {
+                        Save(Stream, Path.Combine("~Raw", SubPath.ToString()), Format);
+                    }
+                    if (Format.Class != null && Format.Class.GetMember(nameof(JUTTexture)) != null)
+                    {
+                        using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(Format.Class))
                         {
-                            if (Stream.Length > 130) Result.SkippedSize += Stream.Length / 2;
+                            Texture.Open(Stream);
+                            Save(Texture, SubPath.ToString());
                         }
+                        Result.ExtractedSize += Stream.Length;
+                        break;
+                    }
+                    goto case FormatType.Archive;
+                case FormatType.Rom:
+                case FormatType.Archive:
+
+                    if (!TryExtract(Stream, SubPath.ToString(), Format))
+                    {
+
+                        if (Format.Class == null)
+                            AddResultUnsupported(Stream, SubPath.ToString(), OExtension, Format);
                         else
                         {
-                            if (Stream.Length > 300)
-                                Result.SkippedSize += Stream.Length / 50;
-                        }
-                        break;
-                    case FormatType.Texture:
-                        if (((ExtractorOptions)Option).Raw)
-                        {
-                            Save(Stream, Path.Combine("~Raw", SubPath.ToString()), Format);
-                        }
-                        if (Format.Class != null && Format.Class.GetMember(nameof(JUTTexture)) != null)
-                        {
-                            using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(Format.Class))
+                            switch (Format.Class.Name)
                             {
-                                Texture.Open(Stream);
-                                Save(Texture, SubPath.ToString());
-                            }
-                            Result.ExtractedSize += Stream.Length;
-                            break;
-                        }
-                        goto case FormatType.Archive;
-                    case FormatType.Rom:
-                    case FormatType.Archive:
-
-                        if (!TryExtract(Stream, SubPath.ToString(), Format))
-                        {
-
-                            if (Format.Class == null)
-                                AddResultUnsupported(Stream, SubPath.ToString(), OExtension, Format);
-                            else
-                            {
-                                switch (Format.Class.Name)
-                                {
-                                    case "BDL":
-                                        BDL bdlmodel = new BDL(Stream);
-                                        foreach (var item in bdlmodel.Textures.Textures)
-                                        {
-                                            Save(item, SubPath.ToString());
-                                        }
-                                        Result.ExtractedSize += Stream.Length;
-                                        break;
-                                    case "BMD":
-                                        BMD bmdmodel = new BMD(Stream);
-                                        foreach (var item in bmdmodel.Textures.Textures)
-                                        {
-                                            Save(item, SubPath.ToString());
-                                        }
-                                        Result.ExtractedSize += Stream.Length;
-                                        break;
-                                    case "TEX0":
-                                        using (JUTTexture Texture = new TEX0(Stream)) Save(Texture, SubPath.ToString());
-                                        Result.ExtractedSize += Stream.Length;
-                                        break;
-                                }
+                                case "BDL":
+                                    BDL bdlmodel = new BDL(Stream);
+                                    foreach (var item in bdlmodel.Textures.Textures)
+                                    {
+                                        Save(item, SubPath.ToString());
+                                    }
+                                    Result.ExtractedSize += Stream.Length;
+                                    break;
+                                case "BMD":
+                                    BMD bmdmodel = new BMD(Stream);
+                                    foreach (var item in bmdmodel.Textures.Textures)
+                                    {
+                                        Save(item, SubPath.ToString());
+                                    }
+                                    Result.ExtractedSize += Stream.Length;
+                                    break;
+                                case "TEX0":
+                                    using (JUTTexture Texture = new TEX0(Stream)) Save(Texture, SubPath.ToString());
+                                    Result.ExtractedSize += Stream.Length;
+                                    break;
                             }
                         }
-                        break;
-                }
+                    }
+                    break;
+            }
 #if !DEBUG
             }
             catch (Exception t)

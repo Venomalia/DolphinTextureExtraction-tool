@@ -30,11 +30,6 @@ namespace DolphinTextureExtraction_tool
             public bool Raw = false;
 
             /// <summary>
-            /// Tries to extract textures from unknown files, may cause errors.
-            /// </summary>
-            public bool Force = false;
-
-            /// <summary>
             /// Tries to Imitate dolphin mipmap detection.
             /// </summary>
             public bool DolphinMipDetection = true;
@@ -57,7 +52,6 @@ namespace DolphinTextureExtraction_tool
 
                 if (bool.TryParse(Config.Get("Mips"), out bool value)) Mips = value;
                 if (bool.TryParse(Config.Get("Raw"), out value)) Raw = value;
-                if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
                 if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
                 if (bool.TryParse(Config.Get("Cleanup"), out value)) Cleanup = value;
             }

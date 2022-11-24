@@ -45,11 +45,16 @@ namespace DolphinTextureExtraction_tool
                 TaskScheduler = Parallel.TaskScheduler
             };
 
+            /// <summary>
+            /// Tries to extract files from unknown files, may cause errors.
+            /// </summary>
+            public bool Force = false;
+
             public Options()
             {
                 if (!UseConfig) return;
-
                 if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
+                if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
                 if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing <= 0 ? Environment.ProcessorCount : thing;
             }
 
@@ -152,13 +157,11 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        protected ScanBase(string scanDirectory, string saveDirectory, Options options = null)
+        protected ScanBase(in string scanDirectory, in string saveDirectory, Options options = null)
         {
             Option = options ?? new Options();
-            if (Option.DryRun)
-                saveDirectory = StringEx.ExePath;
             ScanPath = scanDirectory;
-            SaveDirectory = saveDirectory;
+            SaveDirectory = Option.DryRun ? StringEx.ExePath : saveDirectory;
             Directory.CreateDirectory(SaveDirectory);
             Log = new ScanLogger(SaveDirectory);
             Events.NotificationEvent = Log.WriteNotification;

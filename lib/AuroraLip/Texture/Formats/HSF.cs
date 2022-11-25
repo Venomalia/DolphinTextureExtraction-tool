@@ -1,6 +1,7 @@
 ﻿using AuroraLip.Common;
 using System;
 using System.IO;
+using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
@@ -38,19 +39,49 @@ namespace AuroraLip.Texture.Formats
 
                 texInfo[i].GetGXFormat(out GXImageFormat Format, out GXPaletteFormat PaletteFormat);
 
+                // Get palett Info
+                PaletteInfo? palette = null;
+                if (texInfo[i].PaletteIndex == -1)
+                {
+                    try
+                    {
+                        palette = palInfo.First(p => p.NameOffset == texInfo[i].NameOffset);
+                    }
+                    catch (Exception) { }
+                }
+                else
+                {
+                    palette = palInfo[texInfo[i].PaletteIndex];
+                }
+
+                //unfortunately i do not know where the mip flag is, so => Get Mipmaps From Size
+                var Images = 0;
+                if (i == texInfo.Length - 1)
+                {
+                    Images = (int)(header.Palettes.Offset - startOffset - texInfo[i].DataOffset);
+                }
+                else
+                {
+                    Images = (int)(texInfo[i + 1].DataOffset - texInfo[i].DataOffset);
+                }
+                Images = GetMipmapsFromSize(Format, Images, texInfo[i].Width, texInfo[i].Height);
+
+                // get Palett Data
                 var PaletteCount = 0;
                 byte[] PaletteData = null;
-                if (texInfo[i].PaletteIndex > -1)
+                if (Format.IsPaletteFormat())
                 {
-                    var palette = palInfo[texInfo[i].PaletteIndex];
-                    PaletteCount = palette.Count;
-                    var palName = stream.At(header.StringTable.Offset + palette.NameOffset, S => S.ReadString());
-                    PaletteData = stream.At(palSectionOffset + palette.DataOffset, S => S.Read(2 * PaletteCount));
+                    if (palette != null)
+                    {
+                        PaletteCount = palette.Value.Count;
+                        var palName = stream.At(header.StringTable.Offset + palette.Value.NameOffset, S => S.ReadString());
+                        PaletteData = stream.At(palSectionOffset + palette.Value.DataOffset, S => S.Read(2 * PaletteCount));
+                    }
                 }
 
                 stream.Seek(startOffset + texInfo[i].DataOffset, SeekOrigin.Begin);
 
-                TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, texInfo[i].Width, texInfo[i].Height, 0)
+                TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, texInfo[i].Width, texInfo[i].Height, Images)
                 {
                     LODBias = 0,
                     MagnificationFilter = GXFilterMode.Nearest,

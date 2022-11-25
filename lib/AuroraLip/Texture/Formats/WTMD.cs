@@ -48,7 +48,7 @@ namespace AuroraLip.Texture.Formats
 
             //the number of mips are not specified, we calculate them from the rest size.
             int size = (int)(stream.Length - ImagePosition);
-            int mipmaps = GetMipmapsFromSize(Format, size, ImageWidth, ImageHeight);
+            int mipmaps = Format.GetMipmapsFromSize(size, ImageWidth, ImageHeight);
 
             byte[] PaletteData = null;
             int PaletteCount = 0;

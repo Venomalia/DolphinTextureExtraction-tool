@@ -57,7 +57,7 @@ namespace AuroraLip.Texture.Formats
 
             int mipmaps = 0;
             if (Flags.HasFlag(DataFlags.Mipmaps))
-                mipmaps = GetMipmapsFromSize(PixelFormat, (int)size - 6, Width, Height);
+                mipmaps = PixelFormat.GetMipmapsFromSize((int)size - 6, Width, Height);
 
 
             TexEntry current = new TexEntry(stream, PaletteData, PixelFormat, PaletteFormat, Colors, Width, Height, mipmaps)

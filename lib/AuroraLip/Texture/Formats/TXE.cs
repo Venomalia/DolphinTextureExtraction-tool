@@ -32,7 +32,7 @@ namespace AuroraLip.Texture.Formats
             if (!Enum.IsDefined(typeof(TEXTyp), stream.ReadUInt16(Endian.Big)))
                 return false;
             TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
-            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && GetCalculatedDataSize((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString()), ImageWidth, ImageHeight) < stream.Length;
+            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && ((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString())).GetCalculatedDataSize(ImageWidth, ImageHeight) < stream.Length;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
@@ -62,7 +62,7 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(16, SeekOrigin.Current);
                 DataSize = stream.ReadInt32(Endian.Big);
             }
-            int Mipmaps = GetMipmapsFromSize(Format,DataSize,ImageWidth, ImageHeight);
+            int Mipmaps = Format.GetMipmapsFromSize(DataSize,ImageWidth, ImageHeight);
 
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, Mipmaps)
             {

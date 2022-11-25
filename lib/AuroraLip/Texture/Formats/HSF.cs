@@ -64,7 +64,7 @@ namespace AuroraLip.Texture.Formats
                 {
                     Images = (int)(texInfo[i + 1].DataOffset - texInfo[i].DataOffset);
                 }
-                Images = GetMipmapsFromSize(Format, Images, texInfo[i].Width, texInfo[i].Height);
+                Images = Format.GetMipmapsFromSize(Images, texInfo[i].Width, texInfo[i].Height);
 
                 // get Palett Data
                 var PaletteCount = 0;

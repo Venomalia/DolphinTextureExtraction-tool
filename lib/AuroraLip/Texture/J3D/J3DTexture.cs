@@ -25,7 +25,7 @@ namespace AuroraLip.Texture.J3D
         private static readonly int[] Bpp = { 4, 8, 8, 16, 16, 16, 32, 0, 4, 8, 16, 0, 0, 0, 4 };
 
         /// <summary>
-        /// 
+        /// Get block width and height
         /// </summary>
         /// <param name="format"></param>
         /// <returns></returns>
@@ -34,15 +34,45 @@ namespace AuroraLip.Texture.J3D
             blockWidth = BlockWidth[(int)format];
             blockHeight = BlockHeight[(int)format];
         }
-
-        public static (int, int) GetBlockSize(GXImageFormat format) => (BlockWidth[(int)format], BlockHeight[(int)format]);
-        public static int GetBlockWidth(GXImageFormat format) => BlockWidth[(int)format];
-        public static int GetBlockHeight(GXImageFormat format) => BlockHeight[(int)format];
-        public static int GetBpp(GXImageFormat Format) { return Bpp[(int)Format]; }
-
+        /// <summary>
+        /// Get block width and height
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns></returns>
+        public static (int, int) GetBlockSize(this GXImageFormat format) => (BlockWidth[(int)format], BlockHeight[(int)format]);
+        /// <summary>
+        /// Get block width
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns>Block Width</returns>
+        public static int GetBlockWidth(this GXImageFormat format) => BlockWidth[(int)format];
+        /// <summary>
+        /// Get block height
+        /// </summary>
+        /// <param name="format"></param>
+        /// <returns>Block Height</returns>
+        public static int GetBlockHeight(this GXImageFormat format) => BlockHeight[(int)format];
+        /// <summary>
+        /// Get bits per pixel
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns>bits per pixel</returns>
+        public static int GetBpp(this GXImageFormat Format) { return Bpp[(int)Format]; }
+        /// <summary>
+        /// Indicates whether it is a format with palette.
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
         public static bool IsPaletteFormat(this GXImageFormat Format) => Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2;
-
-        public static int GetCalculatedTotalDataSize(GXImageFormat Format, int Width, int Height, int Mipmap)
+        /// <summary>
+        /// Calculates the size of the image plus its mipmaps in bytes
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <param name="Mipmap"></param>
+        /// <returns></returns>
+        public static int GetCalculatedTotalDataSize(this GXImageFormat Format, int Width, int Height, int Mipmap)
         {
             int TotalSize = 0;
             for (int i = 0; i <= Mipmap; i++)
@@ -51,22 +81,43 @@ namespace AuroraLip.Texture.J3D
             }
             return TotalSize;
         }
-
-        public static int GetCalculatedDataSize(GXImageFormat Format, int Width, int Height, int Mipmap)
+        /// <summary>
+        /// Calculates the size of the mipmap in byts
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <param name="Mipmap"></param>
+        /// <returns></returns>
+        public static int GetCalculatedDataSize(this GXImageFormat Format, int Width, int Height, int Mipmap)
         {
             Width = Math.Max(1, Width >> Mipmap);
             Height = Math.Max(1, Height >> Mipmap);
             return GetCalculatedDataSize(Format, Width, Height);
         }
 
-        public static int GetCalculatedDataSize(GXImageFormat Format, int Width, int Height)
+        /// <summary>
+        /// Calculates the size of the image in bytes
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
+        public static int GetCalculatedDataSize(this GXImageFormat Format, int Width, int Height)
         {
             while ((Width % BlockWidth[(int)Format]) != 0) Width++;
             while ((Height % BlockHeight[(int)Format]) != 0) Height++;
             return Width * Height * GetBpp(Format) / 8;
         }
-
-        public static int GetMipmapsFromSize(GXImageFormat Format, int Size, int Width, int Height)
+        /// <summary>
+        /// Calculates the possible number of mipmaps based on size.
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <param name="Size"></param>
+        /// <param name="Width"></param>
+        /// <param name="Height"></param>
+        /// <returns></returns>
+        public static int GetMipmapsFromSize(this GXImageFormat Format, int Size, int Width, int Height)
         {
             int mips = 0;
             while (Size > 0 && Width != 0 && Height != 0)
@@ -78,8 +129,13 @@ namespace AuroraLip.Texture.J3D
             }
             return mips - 1;
         }
-
-        public static int GetMaxColours(this GXImageFormat Format)
+        /// <summary>
+        /// get the maximum number of color pallets
+        /// </summary>
+        /// <param name="Format"></param>
+        /// <returns></returns>
+        /// <exception cref="FormatException"></exception>
+        public static int GetMaxPaletteColours(this GXImageFormat Format)
         {
             switch (Format)
             {
@@ -428,13 +484,13 @@ namespace AuroraLip.Texture.J3D
                     colors_to_color_indexes.Add(Col, encoded_colors.IndexOf(ColEncoded));
             }
 
-            if (encoded_colors.Count > GetMaxColours(Format))
+            if (encoded_colors.Count > GetMaxPaletteColours(Format))
             {
                 // If the image has more colors than the selected image format can support, we automatically reduce the number of colors.
                 // For C4 and C8, the colors should have already been reduced by Pillow's quantize method.
                 // So the maximum number of colors can only be exceeded for C14X2.
 
-                Color[] LimitedPalette = CreateLimitedPalette(Images, GetMaxColours(Format), PaletteFormat != GXPaletteFormat.RGB565);
+                Color[] LimitedPalette = CreateLimitedPalette(Images, GetMaxPaletteColours(Format), PaletteFormat != GXPaletteFormat.RGB565);
                 encoded_colors = new List<ushort>();
                 colors_to_color_indexes = new Dictionary<Color, int>();
                 for (int i = 0; i < Images.Count; i++)
@@ -479,13 +535,13 @@ namespace AuroraLip.Texture.J3D
                 }
             }
 
-            if (encoded_colors.Count > GetMaxColours(Format))
+            if (encoded_colors.Count > GetMaxPaletteColours(Format))
             {
                 // If the image has more colors than the selected image format can support, we automatically reduce the number of colors.
                 //For C4 and C8, the colors should have already been reduced by Pillow's quantize method.
                 // So the maximum number of colors can only be exceeded for C14X2.
 
-                Color[] LimitedPalette = CreateLimitedPalette(Image, GetMaxColours(Format), PaletteFormat != GXPaletteFormat.RGB565);
+                Color[] LimitedPalette = CreateLimitedPalette(Image, GetMaxPaletteColours(Format), PaletteFormat != GXPaletteFormat.RGB565);
                 encoded_colors = new List<ushort>();
                 colors_to_color_indexes = new Dictionary<Color, int>();
 

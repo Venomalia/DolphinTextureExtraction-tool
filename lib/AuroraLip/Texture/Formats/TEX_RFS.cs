@@ -36,7 +36,7 @@ namespace AuroraLip.Texture.Formats
             uint ImageWidth = stream.ReadUInt32(Endian.Little);
             uint ImageHeight = stream.ReadUInt32(Endian.Little);
             stream.Seek(0x34, SeekOrigin.Begin);
-            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && GetCalculatedDataSize(TEX_ImageFormat[Tex_Format], (int)ImageWidth, (int)ImageHeight) < stream.Length;
+            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && TEX_ImageFormat[Tex_Format].GetCalculatedDataSize( (int)ImageWidth, (int)ImageHeight) < stream.Length;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")

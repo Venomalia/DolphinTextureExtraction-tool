@@ -54,7 +54,7 @@ namespace AuroraLip.Texture.Formats
 
                 //some images have a too large or too small image_count!
                 //We keep calculating the mipmaps until we know why this is so.
-                int mipmaps = GetMipmapsFromSize(format, (int)size, width, height);
+                int mipmaps = format.GetMipmapsFromSize((int)size, width, height);
 
                 byte[] palette_data = null;
                 GXPaletteFormat palette_format = GXPaletteFormat.IA8;

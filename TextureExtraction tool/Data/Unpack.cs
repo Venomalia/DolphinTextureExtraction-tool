@@ -20,43 +20,43 @@ namespace DolphinTextureExtraction_tool
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
+        protected override void Scan(ScanObjekt so)
         {
 #if !DEBUG
             try
             {
 #endif
 
-            switch (Format.Typ)
+            switch (so.Format.Typ)
                 {
                     case FormatType.Unknown:
-                        if (Option.Force && TryForce(Stream, SubPath.ToString(), Format))
+                        if (Option.Force && TryForce(so))
                             break;
 
-                        AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
-                        if (Deep != 0)
-                            Save(Stream, SubPath.ToString(), Format);
+                        AddResultUnknown(so.Stream, so.Format, so.SubPath.ToString() + so.Extension);
+                        if (so.Deep != 0)
+                            Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
                 case FormatType.Rom:
                 case FormatType.Archive:
-                        if (!TryExtract(Stream, SubPath.ToString(), Format))
+                        if (!TryExtract(so))
                         {
-                            Log.Write(FileAction.Unsupported, SubPath.ToString() + OExtension + $" ~{MathEx.SizeSuffix(Stream.Length, 2)}", $"Description: {Format.GetFullDescription()}");
-                            Save(Stream, SubPath.ToString(), Format);
+                            Log.Write(FileAction.Unsupported, so.SubPath.ToString() + so.Extension + $" ~{MathEx.SizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+                            Save(so.Stream, so.SubPath.ToString(), so.Format);
                         }
                         break;
                     default:
-                        if (Deep != 0)
-                            Save(Stream, SubPath.ToString(), Format);
+                        if (so.Deep != 0)
+                            Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
                 }
 #if !DEBUG
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, SubPath.ToString() + OExtension);
-                if (Deep != 0)
-                    Save(Stream, SubPath.ToString(), Format);
+                Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
+                if (so.Deep != 0)
+                    Save(so.Stream, so.SubPath.ToString(), so.Format);
             }
 #endif
         }

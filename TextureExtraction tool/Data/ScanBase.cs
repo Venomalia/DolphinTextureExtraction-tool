@@ -232,26 +232,17 @@ namespace DolphinTextureExtraction_tool
         protected virtual void Scan(FileInfo file)
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            FormatInfo FFormat = GetFormatTypee(stream, file.Extension);
-            var SubPath = PathEX.WithoutExtension(PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan()));
-            Scan(stream, FFormat, SubPath, 0, file.Extension);
+            var SubPath = PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
+            Scan(new ScanObjekt(stream, SubPath, 0, file.Extension));
             stream.Close();
         }
 
-        protected abstract void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "");
+        protected abstract void Scan(ScanObjekt so);
 
-        protected virtual void Scan(Stream stream, string subdirectory, in string Extension = "")
-        {
-            FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            var SubPath = PathEX.WithoutExtension(subdirectory.AsSpan());
-            Scan(stream, FFormat, SubPath, 1, Extension);
-            stream.Close();
-        }
+        protected void Scan(Archive archiv, ReadOnlySpan<char> subPath, int deep)
+            => Scan(archiv.Root, subPath.ToString(), deep);
 
-        protected void Scan(Archive archiv, in string subdirectory)
-            => Scan(archiv.Root, subdirectory);
-
-        protected void Scan(ArchiveDirectory archivdirectory, string subdirectory)
+        protected void Scan(ArchiveDirectory archivdirectory, string subPath, int deep)
         {
             List<ArchiveFile> fileInfos = new List<ArchiveFile>();
             ArchiveInitialize(archivdirectory, fileInfos);
@@ -260,7 +251,7 @@ namespace DolphinTextureExtraction_tool
             Parallel.ForEach(fileInfos, Option.SubParallel, (file) =>
             {
                 double Length = file.FileData.Length;
-                Scan(file, subdirectory);
+                Scan(file, Path.Combine(subPath, file.FullPath).AsSpan(), deep);
                 lock (Result)
                 {
                     ArchLength += Length;
@@ -290,10 +281,9 @@ namespace DolphinTextureExtraction_tool
             }
         }
 
-        protected void Scan(ArchiveFile file, in string subdirectory)
-        {
-            Scan(file.FileData, Path.Combine(subdirectory, file.FullPath), file.Extension.ToLower());
-        }
+        protected void Scan(ArchiveFile file, ReadOnlySpan<char> subPath, int deep)
+            => Scan(new ScanObjekt(file, subPath, deep));
+
         #endregion
 
         #region Helper
@@ -302,7 +292,7 @@ namespace DolphinTextureExtraction_tool
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="destFileName"></param>
-        protected void Save(Stream stream, string destFileName)
+        protected void Save(Stream stream, in string destFileName)
         {
             // Don't save anything if performing a dry run
             if (Option.DryRun) return;
@@ -324,12 +314,12 @@ namespace DolphinTextureExtraction_tool
         protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));
 
-        protected virtual bool TryExtract(Stream stream, in string subdirectory, FormatInfo Format)
+        protected virtual bool TryExtract(ScanObjekt so)
         {
-            if (Format.Class == null)
+            if (so.Format.Class == null)
             {
                 //If we have not detected the format yet, we will try to decompress them if they have a typical extension.
-                switch (Format.Extension.ToLower())
+                switch (so.Format.Extension.ToLower())
                 {
                     case ".arc":
                     case ".tpl":
@@ -349,9 +339,9 @@ namespace DolphinTextureExtraction_tool
                     case ".cmp":
                     case ".cmparc":
                     case ".cmpres":
-                        if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
+                        if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                         {
-                            Scan(test, subdirectory);
+                            Scan(new ScanObjekt(test, so.SubPath, so.Deep, so.Extension));
                             return true;
                         }
                         break;
@@ -359,53 +349,56 @@ namespace DolphinTextureExtraction_tool
             }
             else
             {
-                if (Format.Class.IsSubclassOf(typeof(Archive)))
+                if (so.Format.Class.IsSubclassOf(typeof(Archive)))
                 {
-                    using (Archive archive = (Archive)Activator.CreateInstance(Format.Class))
+                    using (Archive archive = (Archive)Activator.CreateInstance(so.Format.Class))
                     {
-                        archive.Open(stream);
+                        archive.Open(so.Stream);
                         long size = archive.Root.Size;
-                        Scan(archive, subdirectory);
+                        Scan(archive, so.SubPath, so.Deep + 1);
 
-                        if (stream.Length > 104857600 * 5) //100MB*5
+                        if (so.Stream.Length > 104857600 * 5) //100MB*5
                             return true;
 
                         //Reduces problems with multithreading
-                        stream.Seek(size < stream.Length ? stream.Length : size, SeekOrigin.Begin);
+                        so.Stream.Seek(size < so.Stream.Length ? so.Stream.Length : size, SeekOrigin.Begin);
 
                         //checks if hidden files are present.
                         if (archive is IMagicIdentify identify)
                         {
-                            if (stream.Search(identify.Magic))
+                            if (so.Stream.Search(identify.Magic))
                             {
-                                List<byte[]> ident = new List<byte[]>();
-                                ident.Add(identify.Magic.ToByte());
-                                using (Archive Cut = new DataCutter(stream, ident))
+                                List<byte[]> ident = new List<byte[]>
+                                {
+                                    identify.Magic.ToByte()
+                                };
+                                using (Archive Cut = new DataCutter(so.Stream, ident))
                                 {
                                     foreach (var item in Cut.Root.Items)
                                         ((ArchiveFile)item.Value).Name = ((ArchiveFile)item.Value).Extension;
 
-                                    Scan(Cut, subdirectory);
+                                    Scan(Cut, so.SubPath, so.Deep + 1);
                                 }
                             }
                         }
                     }
                     return true;
                 }
-                if (Format.Class.GetInterface(nameof(ICompression)) != null)
+                if (so.Format.Class.GetInterface(nameof(ICompression)) != null)
                 {
-                    Scan(((ICompression)Activator.CreateInstance(Format.Class)).Decompress(stream), subdirectory);
+                    Stream destream = ((ICompression)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream);
+                    Scan(new ScanObjekt(destream, so.SubPath, so.Deep, so.Extension));
                     return true;
                 }
                 //External classes
-                switch (Format.Class.Name)
+                switch (so.Format.Class.Name)
                 {
                     case "AFS":
-                        using (AFS afs = new AFS(stream))
+                        using (AFS afs = new AFS(so.Stream))
                         {
                             foreach (Entry item in afs.Entries)
                                 if (item is StreamEntry Streamitem)
-                                    Scan(Streamitem.GetSubStream(), Path.Combine(subdirectory, Streamitem.SanitizedName), Path.GetExtension(Streamitem.SanitizedName));
+                                    Scan(new ScanObjekt(Streamitem.GetSubStream(), Path.Combine(so.SubPath.ToString(), Streamitem.SanitizedName).AsSpan(), so.Deep + 1, Path.GetExtension(Streamitem.SanitizedName)));
                         }
                         break;
                 }
@@ -413,93 +406,88 @@ namespace DolphinTextureExtraction_tool
             return false;
         }
 
-        protected virtual bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected virtual bool TryForce(ScanObjekt so)
         {
-            if (stream.Length < 25165824) // 24 MB
-                if (Reflection.Compression.TryToDecompress(stream, out Stream test, out _))
+            if (so.Stream.Length < 25165824) // 24 MB
+                if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                 {
-                    Scan(test, subdirectory);
+                    Scan(new ScanObjekt(test, so.SubPath, so.Deep, so.Extension));
                     return true;
                 }
-            stream.Seek(0, SeekOrigin.Begin);
-            if (TryCut(stream, subdirectory, FFormat))
+            so.Stream.Seek(0, SeekOrigin.Begin);
+            if (TryCut(so))
                 return true;
-            stream.Seek(0, SeekOrigin.Begin);
+            so.Stream.Seek(0, SeekOrigin.Begin);
 
             return false;
         }
 
         private (FormatInfo, int) badformats;
-        protected bool TryCut(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected bool TryCut(ScanObjekt so)
         {
             try
             {
-                if (badformats.Item1 == FFormat)
+                if (badformats.Item1 == so.Format)
                     if (badformats.Item2 > 4)
                         return false;
 
-                Archive archive = new DataCutter(stream);
+                Archive archive = new DataCutter(so.Stream);
                 if (archive.Root.Count > 0)
                 {
 
-                    badformats = (FFormat, -1);
-                    Scan(archive, subdirectory);
+                    badformats = (so.Format, -1);
+                    Scan(archive, so.SubPath, so.Deep + 1);
                     return true;
                 }
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, subdirectory + FFormat.Extension);
+                Log.WriteEX(t, so.SubPath.ToString() + so.Format.Extension);
             }
 
-            if (badformats.Item1 == FFormat)
+            if (badformats.Item1 == so.Format)
             {
                 if (badformats.Item2 != -1)
                     badformats.Item2++;
             }
             else
-                badformats = (FFormat, 0);
+                badformats = (so.Format, 0);
             return false;
         }
 
-        protected string GetFullSaveDirectory(string directory)
+        protected string GetFullSaveDirectory(in string directory)
             => Path.Combine(SaveDirectory, directory);
 
-        private List<FormatInfo> usedformats = new List<FormatInfo>();
-        private readonly object Lock = new object();
+        #endregion
 
-        protected FormatInfo GetFormatTypee(Stream stream, string extension = "")
+        protected ref struct ScanObjekt
         {
-            if (FormatDictionary.Header.TryGetValue(new HeaderInfo(stream).Magic, out FormatInfo Info))
+            public Stream Stream { get; }
+            public FormatInfo Format { get; }
+            public ReadOnlySpan<char> SubPath { get; }
+            public int Deep { get; }
+            public string Extension { get; }
+            public ArchiveFile File { get; }
+
+            public ScanObjekt(Stream stream, ReadOnlySpan<char> subPath, int deep = 0, string extension = "")
             {
-                if (Info.IsMatch.Invoke(stream, extension))
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    return Info;
-                }
-                stream.Seek(0, SeekOrigin.Begin);
+                Stream = stream;
+                Extension = extension;
+                Format = stream.Identify(Extension);
+                SubPath = PathEX.WithoutExtension(subPath);
+                Deep = deep;
+                File = null;
             }
 
-            lock (Lock)
+            public ScanObjekt(ArchiveFile file, ReadOnlySpan<char> subPath, int deep)
             {
-                foreach (var item in usedformats)
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-                    if (item.IsMatch.Invoke(stream, extension))
-                    {
-                        if (item.Typ == FormatType.Unknown && FormatDictionary.Identify(stream, extension).Typ != FormatType.Unknown)
-                            break;
-
-                        stream.Seek(0, SeekOrigin.Begin);
-                        return item;
-                    }
-                }
-                FormatInfo info = FormatDictionary.Identify(stream, extension);
-                usedformats.Add(info);
-
-                return info;
+                Stream = file.FileData;
+                Extension = file.Extension;
+                Format = Stream.Identify(Extension);
+                SubPath = PathEX.WithoutExtension(subPath);
+                Deep = deep;
+                File = file;
             }
         }
-        #endregion
     }
 }

@@ -27,7 +27,13 @@ namespace AuroraLip.Common
             throw new KeyNotFoundException(key);
         }
 
-        public static FormatInfo Identify(Stream stream, string extension = "")
+        /// <summary>
+        /// Identifies the file format
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="extension"></param>
+        /// <returns></returns>
+        public static FormatInfo Identify(this Stream stream, string extension = "")
         {
             foreach (var item in Master)
             {

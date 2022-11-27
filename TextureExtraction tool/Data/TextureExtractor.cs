@@ -151,78 +151,78 @@ namespace DolphinTextureExtraction_tool
         #region Scan
 
         #region main
-        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
+        protected override void Scan(ScanObjekt so)
         {
 #if !DEBUG
             try
             {
 #endif
-            switch (Format.Typ)
+            switch (so.Format.Typ)
             {
                 case FormatType.Unknown:
-                    if (TryForce(Stream, SubPath.ToString(), Format))
+                    if (TryForce(so))
                         break;
 
-                    AddResultUnknown(Stream, Format, SubPath.ToString() + OExtension);
+                    AddResultUnknown(so.Stream, so.Format, so.SubPath.ToString() + so.Extension);
 
                     //Exclude files that are too small, for calculation purposes only half the size.
-                    if (Deep == 0)
+                    if (so.Deep == 0)
                     {
-                        if (Stream.Length > 130) Result.SkippedSize += Stream.Length / 2;
+                        if (so.Stream.Length > 130) Result.SkippedSize += so.Stream.Length / 2;
                     }
                     else
                     {
-                        if (Stream.Length > 300)
-                            Result.SkippedSize += Stream.Length / 50;
+                        if (so.Stream.Length > 300)
+                            Result.SkippedSize += so.Stream.Length / 50;
                     }
                     break;
                 case FormatType.Texture:
                     if (((ExtractorOptions)Option).Raw)
                     {
-                        Save(Stream, Path.Combine("~Raw", SubPath.ToString()), Format);
+                        Save(so.Stream, Path.Combine("~Raw", so.SubPath.ToString()), so.Format);
                     }
-                    if (Format.Class != null && Format.Class.GetMember(nameof(JUTTexture)) != null)
+                    if (so.Format.Class != null && so.Format.Class.GetMember(nameof(JUTTexture)) != null)
                     {
-                        using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(Format.Class))
+                        using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(so.Format.Class))
                         {
-                            Texture.Open(Stream);
-                            Save(Texture, SubPath.ToString());
+                            Texture.Open(so.Stream);
+                            Save(Texture, so.SubPath.ToString());
                         }
-                        Result.ExtractedSize += Stream.Length;
+                        Result.ExtractedSize += so.Stream.Length;
                         break;
                     }
                     goto case FormatType.Archive;
                 case FormatType.Rom:
                 case FormatType.Archive:
 
-                    if (!TryExtract(Stream, SubPath.ToString(), Format))
+                    if (!TryExtract(so))
                     {
 
-                        if (Format.Class == null)
-                            AddResultUnsupported(Stream, SubPath.ToString(), OExtension, Format);
+                        if (so.Format.Class == null)
+                            AddResultUnsupported(so.Stream, so.SubPath.ToString(), so.Extension, so.Format);
                         else
                         {
-                            switch (Format.Class.Name)
+                            switch (so.Format.Class.Name)
                             {
                                 case "BDL":
-                                    BDL bdlmodel = new BDL(Stream);
+                                    BDL bdlmodel = new BDL(so.Stream);
                                     foreach (var item in bdlmodel.Textures.Textures)
                                     {
-                                        Save(item, SubPath.ToString());
+                                        Save(item, so.SubPath.ToString());
                                     }
-                                    Result.ExtractedSize += Stream.Length;
+                                    Result.ExtractedSize += so.Stream.Length;
                                     break;
                                 case "BMD":
-                                    BMD bmdmodel = new BMD(Stream);
+                                    BMD bmdmodel = new BMD(so.Stream);
                                     foreach (var item in bmdmodel.Textures.Textures)
                                     {
-                                        Save(item, SubPath.ToString());
+                                        Save(item, so.SubPath.ToString());
                                     }
-                                    Result.ExtractedSize += Stream.Length;
+                                    Result.ExtractedSize += so.Stream.Length;
                                     break;
                                 case "TEX0":
-                                    using (JUTTexture Texture = new TEX0(Stream)) Save(Texture, SubPath.ToString());
-                                    Result.ExtractedSize += Stream.Length;
+                                    using (JUTTexture Texture = new TEX0(so.Stream)) Save(Texture, so.SubPath.ToString());
+                                    Result.ExtractedSize += so.Stream.Length;
                                     break;
                             }
                         }
@@ -233,11 +233,11 @@ namespace DolphinTextureExtraction_tool
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, SubPath.ToString() + OExtension);
-                if (Deep != 0 || !Result.UnsupportedFormatType.Contains(Format))
-                    Result.UnsupportedFormatType.Add(Format);
+                Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
+                if (so.Deep != 0 || !Result.UnsupportedFormatType.Contains(so.Format))
+                    Result.UnsupportedFormatType.Add(so.Format);
                 Result.Unsupported++;
-                Result.UnsupportedSize += Stream.Length;
+                Result.UnsupportedSize += so.Stream.Length;
             }
 
 #endif
@@ -318,27 +318,27 @@ namespace DolphinTextureExtraction_tool
         #endregion
 
         #region Helper
-        protected override bool TryForce(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected override bool TryForce(ScanObjekt so)
         {
             if (((ExtractorOptions)Option).Force)
             {
-                if (base.TryForce(stream, subdirectory, FFormat))
+                if (base.TryForce(so))
                     return true;
 
-                stream.Position = 0;
-                if (TryBTI(stream, subdirectory))
+                so.Stream.Position = 0;
+                if (TryBTI(so.Stream, so.SubPath.ToString()))
                     return true;
-                stream.Position = 0;
+                so.Stream.Position = 0;
             }
             else
             {
-                if (FFormat.Extension.ToLower() == "")
+                if (so.Format.Extension.ToLower() == "")
                 {
-                    if (TryBTI(stream, subdirectory))
+                    if (TryBTI(so.Stream, so.SubPath.ToString()))
                         return true;
-                    stream.Position = 0;
+                    so.Stream.Position = 0;
                 }
-                else if (TryExtract(stream, subdirectory, FFormat))
+                else if (TryExtract(so))
                     return true;
             }
             return false;

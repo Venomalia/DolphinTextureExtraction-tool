@@ -1,10 +1,6 @@
 ﻿using AuroraLip.Archives;
-using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
@@ -28,40 +24,36 @@ namespace DolphinTextureExtraction_tool
             Cutter Extractor = new Cutter(meindirectory, savedirectory, pattern, options);
             return await Task.Run(() => Extractor.StartScan());
         }
-        protected override void Scan(Stream Stream, FormatInfo Format, ReadOnlySpan<char> SubPath, int Deep, in string OExtension = "")
+        protected override void Scan(ScanObjekt so)
         {
 #if !DEBUG
+            if (so.Deep != 0)
+                Save(so.Stream, so.SubPath.ToString(), so.Format);
+
             try
             {
 #endif
                 Archive archive;
                 if (Pattern == null)
-                    archive = new DataCutter(Stream);
+                    archive = new DataCutter(so.Stream);
                 else
-                    archive = new DataCutter(Stream, Pattern);
+                    archive = new DataCutter(so.Stream, Pattern);
 
                 if (archive.Root.Count > 0)
                 {
                     if (archive.Root.Count == 1)
                         foreach (var item in archive.Root.Items)
-                            Save(((ArchiveFile)item.Value).FileData, SubPath.ToString(), Format);
+                            Save(((ArchiveFile)item.Value).FileData, so.SubPath.ToString(), so.Format);
                     else
-                        Scan(archive, SubPath.ToString());
+                        Scan(archive, so.SubPath, so.Deep + 1);
                 }
 #if !DEBUG
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, SubPath.ToString() + OExtension);
+                Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
             }
 #endif
-        }
-
-        protected override void Scan(Stream stream, string subdirectory, in string Extension = "")
-        {
-            FormatInfo FFormat = GetFormatTypee(stream, Extension);
-            subdirectory = PathEX.WithoutExtension(subdirectory.AsSpan()).ToString();
-            Save(stream, subdirectory, FFormat);
         }
     }
 }

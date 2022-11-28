@@ -80,6 +80,7 @@
     <Compile Include="Common\Extensions\MiscEX.cs" />
     <Compile Include="Common\Extensions\PathEX.cs" />
     <Compile Include="Common\Extensions\StringEx.cs" />
+    <Compile Include="Common\Interfaces\IFileRequest.cs" />
     <Compile Include="Common\Interfaces\IName.cs" />
     <Compile Include="Common\Interfaces\IFileSystemInfo.cs" />
     <Compile Include="Common\Enums\NotificationType.cs" />

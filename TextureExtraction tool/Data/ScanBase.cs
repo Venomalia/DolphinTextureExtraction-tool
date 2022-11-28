@@ -240,49 +240,59 @@ namespace DolphinTextureExtraction_tool
         protected abstract void Scan(ScanObjekt so);
 
         protected void Scan(Archive archiv, ReadOnlySpan<char> subPath, int deep)
-            => Scan(archiv.Root, subPath.ToString(), deep);
+            => Scan(archiv.Root, subPath, deep);
 
-        protected void Scan(ArchiveDirectory archivdirectory, string subPath, int deep)
+        protected void Scan(ArchiveDirectory archivdirectory, ReadOnlySpan<char> subPath, int deep)
         {
-            List<ArchiveFile> fileInfos = new List<ArchiveFile>();
-            ArchiveInitialize(archivdirectory, fileInfos);
+            List<ArchiveFile> files = new List<ArchiveFile>();
+            List<ArchiveFile> unkFiles = new List<ArchiveFile>();
 
+            ArchiveInitialize(archivdirectory, files, unkFiles);
+
+            double ArchLength = Scan(subPath.ToString(), deep, files);
+            ArchLength += Scan(subPath.ToString(), deep, unkFiles);
+
+            lock (Result)
+                Result.ProgressLength -= ArchLength;
+        }
+
+        private double Scan(string subPath, int deep, List<ArchiveFile> fileInfos)
+        {
             double ArchLength = 0;
             Parallel.ForEach(fileInfos, Option.SubParallel, (file) =>
             {
-                double Length = file.FileData.Length;
-                Scan(file, Path.Combine(subPath, file.FullPath).AsSpan(), deep);
-                lock (Result)
+                if (file.FileData.CanRead)
                 {
-                    ArchLength += Length;
-                    Result.ProgressLength += Length;
+                    double Length = file.FileData.Length;
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath).AsSpan(), deep));
+                    lock (Result)
+                    {
+                        ArchLength += Length;
+                        Result.ProgressLength += Length;
+                    }
+                    Option.ProgressUpdate(Result);
                 }
-                Option.ProgressUpdate(Result);
             });
-
-            lock (Result)
-            {
-                Result.ProgressLength -= ArchLength;
-            }
+            return ArchLength;
         }
 
-        private void ArchiveInitialize(ArchiveDirectory archivdirectory, List<ArchiveFile> files)
+        private void ArchiveInitialize(ArchiveDirectory archivdirectory, List<ArchiveFile> files, List<ArchiveFile> unkFiles)
         {
             foreach (var item in archivdirectory.Items)
             {
                 if (item.Value is ArchiveFile file)
                 {
-                    files.Add(file);
+                    if (file.FileData.Identify(file.Extension).Typ == FormatType.Unknown)
+                        unkFiles.Add(file);
+                    else
+                        files.Add(file);
                 }
                 if (item.Value is ArchiveDirectory directory)
                 {
-                    ArchiveInitialize(directory, files);
+                    ArchiveInitialize(directory, files, unkFiles);
                 }
             }
         }
-
-        protected void Scan(ArchiveFile file, ReadOnlySpan<char> subPath, int deep)
-            => Scan(new ScanObjekt(file, subPath, deep));
 
         #endregion
 
@@ -353,8 +363,20 @@ namespace DolphinTextureExtraction_tool
                 {
                     using (Archive archive = (Archive)Activator.CreateInstance(so.Format.Class))
                     {
-                        archive.Open(so.Stream);
+                        // if the archive needs more files.
+                        if (so.Deep == 0)
+                        {
+                            string subPath = so.SubPath.ToString();
+                            archive.FileRequest = new Events.FileRequestDelegate(N => new FileStream(Path.Combine(Path.GetDirectoryName(Path.Combine(ScanPath, subPath)), N), FileMode.Open, FileAccess.Read, FileShare.Read));
+                        }
+                        else
+                        {
+                            ArchiveFile file = so.File;
+                            archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file.Parent[N]).FileData);
+                        }
+                        archive.Open(so.Stream, so.SubPath.ToString());
                         long size = archive.Root.Size;
+                        //scan the archive file.
                         Scan(archive, so.SubPath, so.Deep + 1);
 
                         if (so.Stream.Length > 104857600 * 5) //100MB*5

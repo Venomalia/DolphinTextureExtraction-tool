@@ -16,7 +16,7 @@ namespace AuroraLip.Archives.Formats
 
         private const string magic = "NLCM";
 
-        private FileStream reference_stream;
+        private Stream reference_stream;
 
         public NLCM() { }
 
@@ -47,10 +47,18 @@ namespace AuroraLip.Archives.Formats
             uint unknown2 = stream.ReadUInt32(Endian.Big);
             uint file_count = stream.ReadUInt32(Endian.Big);
             uint unknown3 = stream.ReadUInt32(Endian.Big);
-            string reference_file = Path.Combine(Directory.GetParent(((System.IO.FileStream)stream).Name).FullName, stream.ReadString());
+            string reference_file = stream.ReadString();
             stream.Seek(table_offset, SeekOrigin.Begin);
-            reference_stream = new FileStream(reference_file,
-                       FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            //try to request an external file.
+            try
+            {
+                reference_stream = FileRequest.Invoke(reference_file);
+            }
+            catch (Exception)
+            {
+                throw new Exception($"{nameof(NLCM)}: could not request the file {reference_file}.");
+            }
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (uint i = 0; i < file_count; i++)

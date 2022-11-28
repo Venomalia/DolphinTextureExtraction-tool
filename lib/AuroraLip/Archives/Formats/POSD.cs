@@ -33,10 +33,17 @@ namespace AuroraLip.Archives.Formats
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
-            if (stream is FileStream fileStream)
-                this.FullPath = fileStream.Name;
-
-            reference_stream = new FileStream(Path.ChangeExtension(this.FullPath, ".dat"), FileMode.Open, FileAccess.Read, FileShare.Read);
+            //try to request an external file.
+            string datname = Path.ChangeExtension(Path.GetFileNameWithoutExtension(FullPath), ".dat");
+            try
+            {
+                reference_stream = FileRequest.Invoke(datname);
+            }
+            catch (Exception)
+            {
+                throw new Exception($"{nameof(POSD)}: could not request the file {datname}.");
+            }
+            //reference_stream = new FileStream(Path.ChangeExtension(this.FullPath, ".dat"), FileMode.Open, FileAccess.Read, FileShare.Read);
 
             for (int f = 0; f < dir_count; f++)
             {
@@ -72,7 +79,7 @@ namespace AuroraLip.Archives.Formats
             }
         }
 
-        private FileStream reference_stream;
+        private Stream reference_stream;
 
         protected override void Dispose(bool disposing)
         {

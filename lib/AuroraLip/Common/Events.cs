@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace AuroraLip.Common
 {
@@ -23,7 +20,15 @@ namespace AuroraLip.Common
         /// <param name="message">The notification message.</param>
         public delegate void NotificationDelegate(NotificationType type, string message);
 
+        /// <summary>
+        /// Represents the method to request a missing file.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <returns></returns>
+        public delegate Stream FileRequestDelegate(string Name);
+
         private static void DefaultNotification(NotificationType type, string message)
             => Console.WriteLine($"{type}: {message}");
+
     }
 }

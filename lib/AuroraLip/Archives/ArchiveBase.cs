@@ -14,7 +14,7 @@ namespace AuroraLip.Archives
     /// <summary>
     /// The base class for Archive like systems
     /// </summary>
-    public abstract class Archive : IDisposable, IFileSystemInfo
+    public abstract class Archive : IDisposable, IFileSystemInfo, IFileRequest
     {
         /// <summary>
         /// Filename of this Archive.
@@ -55,6 +55,8 @@ namespace AuroraLip.Archives
 
         public DateTime LastAccessTimeUtc { get; set; } = DateTime.UtcNow;
 
+        public Events.FileRequestDelegate FileRequest { get; set; }
+
         #region Constructors
         /// <summary>
         /// Create an empty archive
@@ -67,9 +69,8 @@ namespace AuroraLip.Archives
         public Archive(string filename)
         {
             FileStream stream = new FileStream(filename, FileMode.Open);
-            Read(stream);
+            Open(stream, filename);
             stream.Close();
-            FullPath = filename;
         }
         /// <summary>
         /// Open an archive that's stored inside a stream.
@@ -78,10 +79,7 @@ namespace AuroraLip.Archives
         /// <param name="stream">Memorystream containing the archiev</param>
         /// <param name="fullpath">Filename to give</param>
         public Archive(Stream stream, string fullpath = null)
-        {
-            Read(stream);
-            FullPath = fullpath;
-        }
+            => Open(stream, fullpath);
         #endregion
         /// <summary>
         /// The Binary I/O function for reading the file
@@ -116,7 +114,11 @@ namespace AuroraLip.Archives
         /// Read a Archive from Stream.
         /// </summary>
         /// <param name="stream"></param>
-        public void Open(Stream stream) => Read(stream);
+        public void Open(Stream stream,in string fullpath = null)
+        {
+            FullPath = fullpath;
+            Read(stream);
+        }
 
         /// <summary>
         /// 

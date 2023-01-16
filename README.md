@@ -1,5 +1,6 @@
 # DolphinTextureExtraction-tool
 [![Wiki](https://img.shields.io/badge/Wiki-grey)](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki)
+[![Discord](https://img.shields.io/badge/Discord-blue?logo=Discord&logoColor=fff)](https://discord.gg/vtNRNxahTw)
 [![Issues](https://img.shields.io/github/issues/Venomalia/DolphinTextureExtraction-tool?color=orange)](https://github.com/Venomalia/DolphinTextureExtraction-tool/issues)
 [![Dolphin](https://img.shields.io/badge/Dolphin-Forum-88e)](https://forums.dolphin-emu.org/Thread-textureextraction-tool-v0-8-2-6)
 [![Downloads](https://img.shields.io/github/downloads/Venomalia/DolphinTextureExtraction-tool/total?color=907&label=Downloads)](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases)

@@ -86,6 +86,12 @@ namespace AuroraLip.Common
                 return (Developer != "" ? Developer + ' ' : "") + Extension + ' ' + Description;
         }
 
+        public string GetFullType()
+        {
+            return (Header == null || Header.MagicASKI.Length < 2) ? Extension :
+                Extension + (Extension != "" ? " " : "") + Header.MagicASKI;
+        }
+
         public virtual bool Equals(FormatInfo other)
         {
             if (Header != null)

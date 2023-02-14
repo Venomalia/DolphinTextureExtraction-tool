@@ -18,7 +18,7 @@ namespace AuroraLip.Common
             BitmapData bmpdata = null;
             try
             {
-                bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+                bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb);
                 int numbytes = bmpdata.Stride * bitmap.Height;
                 byte[] bytedata = new byte[numbytes];
                 IntPtr ptr = bmpdata.Scan0;
@@ -113,6 +113,42 @@ namespace AuroraLip.Common
             imageARescale.Dispose();
             imageBRescale.Dispose();
             return resultbytes.ToBitmap(width, height, imageA.PixelFormat);
+        }
+
+        public static bool Compare(this Bitmap bmp1, Bitmap bmp2)
+        {
+            if (bmp1 == null || bmp2 == null)
+                return false;
+            if (object.Equals(bmp1, bmp2))
+                return true;
+            if (!bmp1.Size.Equals(bmp2.Size) || !bmp1.PixelFormat.Equals(bmp2.PixelFormat))
+                return false;
+
+            int bytes = bmp1.Width * bmp1.Height * (Image.GetPixelFormatSize(bmp1.PixelFormat) / 8);
+
+            bool result = true;
+            byte[] b1bytes = new byte[bytes];
+            byte[] b2bytes = new byte[bytes];
+
+            BitmapData bitmapData1 = bmp1.LockBits(new Rectangle(0, 0, bmp1.Width, bmp1.Height), ImageLockMode.ReadOnly, bmp1.PixelFormat);
+            BitmapData bitmapData2 = bmp2.LockBits(new Rectangle(0, 0, bmp2.Width, bmp2.Height), ImageLockMode.ReadOnly, bmp2.PixelFormat);
+
+            Marshal.Copy(bitmapData1.Scan0, b1bytes, 0, bytes);
+            Marshal.Copy(bitmapData2.Scan0, b2bytes, 0, bytes);
+
+            for (int n = 0; n <= bytes - 1; n++)
+            {
+                if (b1bytes[n] != b2bytes[n])
+                {
+                    result = false;
+                    break;
+                }
+            }
+
+            bmp1.UnlockBits(bitmapData1);
+            bmp2.UnlockBits(bitmapData2);
+
+            return result;
         }
     }
 }

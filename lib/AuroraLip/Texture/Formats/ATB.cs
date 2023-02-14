@@ -85,7 +85,7 @@ namespace AuroraLip.Texture.Formats
                 GXImageFormat GXFormat = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), entries[i].Format.ToString());
 
                 byte[] PaletteData = null;
-                if (JUtility.IsPaletteFormat(GXFormat))
+                if (GXFormat.IsPaletteFormat())
                 {
                     stream.Seek(entries[i].PaletteOffset, SeekOrigin.Begin);
                     PaletteData = stream.Read(entries[i].PaletteSize * 2);

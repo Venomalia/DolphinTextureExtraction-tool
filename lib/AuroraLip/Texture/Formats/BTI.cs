@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
+using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -25,19 +27,6 @@ namespace AuroraLip.Texture.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => extension.ToLower() == Extension;
 
-        public GXImageFormat Format => base[0].Format;
-        public GXPaletteFormat PaletteFormat => base[0].PaletteFormat;
-        public GXWrapMode WrapS => base[0].WrapS;
-        public GXWrapMode WrapT => base[0].WrapT;
-        public GXFilterMode MagnificationFilter => base[0].MagnificationFilter;
-        public GXFilterMode MinificationFilter => base[0].MinificationFilter;
-        public float MinLOD => base[0].MinLOD;
-        public float MaxLOD => base[0].MaxLOD;
-        public float LODBias => base[0].LODBias;
-        public bool EnableEdgeLoD => base[0].EnableEdgeLOD;
-
-        public Size LargestSize => base[0].LargestImageSize;
-        public Size SmallestSize => base[0].SmallestImageSize;
         public JUTTransparency AlphaSetting { get; set; }
         public bool ClampLODBias { get; set; } = true;
         public byte MaxAnisotropy { get; set; } = 0;
@@ -45,33 +34,6 @@ namespace AuroraLip.Texture.Formats
         public BTI() { }
 
         public BTI(Stream stream) => Read(stream);
-
-        public new Bitmap this[int index]
-        {
-            get => base[0][index];
-            set => base[0][index] = value;
-        }
-        public new int Count => base[0].Count;
-
-        /// <summary>
-        /// Creates a BTI from a bitmap[]
-        /// </summary>
-        /// <param name="Source"></param>
-        public BTI(Bitmap[] Source, GXImageFormat format, GXPaletteFormat palette = GXPaletteFormat.IA8, JUTTransparency Alpha = JUTTransparency.OPAQUE, GXWrapMode S = GXWrapMode.CLAMP, GXWrapMode T = GXWrapMode.CLAMP, GXFilterMode MagFilter = GXFilterMode.Nearest, GXFilterMode MinFilter = GXFilterMode.Nearest)
-        {
-            AlphaSetting = Alpha;
-            TexEntry entry = new TexEntry()
-            {
-                Format = format,
-                PaletteFormat = palette,
-                WrapS = S,
-                WrapT = T,
-                MagnificationFilter = MagFilter,
-                MinificationFilter = MinFilter
-            };
-            entry.AddRange(Source);
-            Add(entry);
-        }
 
         public override void Save(Stream stream)
         {
@@ -142,70 +104,46 @@ namespace AuroraLip.Texture.Formats
         protected override void Write(Stream stream) { throw new NotSupportedException("DO NOT CALL THIS"); }
         protected void Write(Stream stream, ref long DataOffset)
         {
-            List<byte> ImageData = new List<byte>();
-            List<byte> PaletteData = new List<byte>();
-            GetImageAndPaletteData(ref ImageData, ref PaletteData, base[0], Format, PaletteFormat);
             long HeaderStart = stream.Position;
-            int ImageDataStart = (int)((DataOffset + PaletteData.Count) - HeaderStart), PaletteDataStart = (int)(DataOffset - HeaderStart);
-            stream.WriteByte((byte)this.Format);
+            int ImageDataStart = (int)((DataOffset + this[0].Palettes.Sum(p => p.Size)) - HeaderStart), PaletteDataStart = (int)(DataOffset - HeaderStart);
+            stream.WriteByte((byte)this[0].Format);
             stream.WriteByte((byte)AlphaSetting);
-            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Width), 2);
-            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].Height), 2);
-            stream.WriteByte((byte)WrapS);
-            stream.WriteByte((byte)WrapT);
-            if (Format.IsPaletteFormat())
+            stream.WriteBigEndian(BitConverter.GetBytes(this[0].ImageWidth), 2);
+            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].ImageHeight), 2);
+            stream.WriteByte((byte)this[0].WrapS);
+            stream.WriteByte((byte)this[0].WrapT);
+            if (this[0].Format.IsPaletteFormat())
             {
                 stream.WriteByte(0x01);
-                stream.WriteByte((byte)PaletteFormat);
-                stream.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
+                stream.WriteByte((byte)this[0].PaletteFormat);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)(this[0].Palettes[0].Size / 2)), 2);
                 stream.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
             }
             else
                 stream.Write(new byte[8], 0, 8);
 
             stream.WriteByte((byte)(Count > 1 ? 0x01 : 0x00));
-            stream.WriteByte((byte)(this.EnableEdgeLoD ? 0x01 : 0x00));
+            stream.WriteByte((byte)(this[0].EnableEdgeLOD ? 0x01 : 0x00));
             stream.WriteByte((byte)(ClampLODBias ? 0x01 : 0x00));
             stream.WriteByte(MaxAnisotropy);
-            stream.WriteByte((byte)MinificationFilter);
-            stream.WriteByte((byte)MagnificationFilter);
-            stream.WriteByte((byte)(MinLOD * 8));
-            stream.WriteByte((byte)(MaxLOD * 8));
+            stream.WriteByte((byte)this[0].MinificationFilter);
+            stream.WriteByte((byte)this[0].MagnificationFilter);
+            stream.WriteByte((byte)(this[0].MinLOD * 8));
+            stream.WriteByte((byte)(this[0].MaxLOD * 8));
             stream.WriteByte((byte)Count);
             stream.WriteByte(0x00);
-            stream.WriteBigEndian(BitConverter.GetBytes((short)(LODBias * 100)), 2);
+            stream.WriteBigEndian(BitConverter.GetBytes((short)(this[0].LODBias * 100)), 2);
             stream.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 4);
 
             long Pauseposition = stream.Position;
             stream.Position = DataOffset;
 
-            stream.Write(PaletteData.ToArray(), 0, PaletteData.Count);
-            stream.Write(ImageData.ToArray(), 0, ImageData.Count);
+            foreach (var bytes in this[0].Palettes)
+                stream.Write(bytes.GetBytes());
+            foreach (var bytes in this[0].ImageData)
+                stream.Write(bytes);
             DataOffset = stream.Position;
             stream.Position = Pauseposition;
         }
-
-        /// <summary>
-        /// Cast a Bitmap to a BTI
-        /// </summary>
-        /// <param name="Source"></param>
-        public static explicit operator BTI(Bitmap Source)
-        {
-            BTI NewImage = new BTI { new TexEntry() { Source } };
-            return NewImage;
-        }
-        /// <summary>
-        /// Cast Bitmaps to a BTI
-        /// </summary>
-        /// <param name="Source"></param>
-        public static explicit operator BTI(Bitmap[] Source)
-        {
-            TexEntry entry = new TexEntry() { MaxLOD = Source.Length - 1 };
-            entry.AddRange(Source);
-            BTI NewImage = new BTI { entry };
-            return NewImage;
-        }
-
-        //=====================================================================
     }
 }

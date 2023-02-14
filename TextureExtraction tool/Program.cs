@@ -1,6 +1,8 @@
 ﻿using AuroraLip.Common;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
@@ -186,6 +188,22 @@ namespace DolphinTextureExtraction_tool
                     Console.WriteLine("Are the settings correct? \t(Yes) or No");
                     if (!ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
 
+                    /*
+                    var main = new DirectoryInfo(InputPath);
+                    foreach (var item in main.GetFiles())
+                    {
+                        Bitmap bitmap = new Bitmap(item.FullName);
+                        var data = new List<byte>();
+                        var pall = new List<byte>();
+                        GetImageAndPaletteData(ref data, ref pall, bitmap, GXImageFormat.I4, GXPaletteFormat.RGB5A3);
+                        //EncodeImage(ref data, bitmap, GXImageFormat.C14X2, new Dictionary<Color, int>());
+                        Bitmap newmap = DecodeImage(data.ToArray(), pall.ToArray(), GXImageFormat.I4, GXPaletteFormat.RGB5A3, pall.Count / 2, bitmap.Width, bitmap.Height);
+                        bitmap.Dispose();
+                        newmap.Save(item.FullName, ImageFormat.Png);
+                        newmap.Dispose();
+                    }
+                    */
+
                     //Start
                     Console.CursorVisible = false;
                     switch (Mode)
@@ -353,7 +371,7 @@ namespace DolphinTextureExtraction_tool
                                             Environment.Exit(-2);
                                             break;
                                         }
-                                        switch (args[i-1].ToLower())
+                                        switch (args[i - 1].ToLower())
                                         {
                                             case "-groups":
                                             case "-g":
@@ -363,7 +381,8 @@ namespace DolphinTextureExtraction_tool
                                             case "-t":
                                                 options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
                                                 break;
-                                        }break;
+                                        }
+                                        break;
                                 }
                             }
                         }

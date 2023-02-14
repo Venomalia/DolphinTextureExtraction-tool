@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Texture;
 using System;
 using System.IO;
 using static AuroraLip.Texture.J3D.JUtility;

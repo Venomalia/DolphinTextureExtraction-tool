@@ -1,8 +1,6 @@
-﻿using AuroraLip.Texture.J3D;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture
 {
@@ -127,7 +125,7 @@ namespace AuroraLip.Texture
                 // Hash
                 + Hash + '_'
                 // Tlut Hash
-                + (JUtility.IsPaletteFormat(Format)
+                + (Format.IsPaletteFormat()
                     ? TlutHash : string.Empty)
                 // Format
                 + (int)Format
@@ -172,7 +170,7 @@ namespace AuroraLip.Texture
                     Hash = match.Groups["H"].Value;
                 }
 
-                if (JUtility.IsPaletteFormat(Format) != match.Groups["H"].Value.Contains('_'))
+                if (Format.IsPaletteFormat() != match.Groups["H"].Value.Contains('_'))
                     IsValid = false;
             }
             else

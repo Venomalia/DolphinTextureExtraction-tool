@@ -60,7 +60,7 @@ namespace AuroraLip.Texture.Formats
             uint Unknown2 = stream.ReadUInt32(Endian.Big);
 
 
-            if (PaletteData == null && JUtility.IsPaletteFormat(Format))
+            if (PaletteData == null && Format.IsPaletteFormat())
             {
                 if (stream is ArchiveFile.ArchiveFileStream substream)
                 {

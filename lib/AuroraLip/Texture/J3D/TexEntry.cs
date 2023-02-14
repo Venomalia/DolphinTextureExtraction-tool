@@ -1,9 +1,11 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Palette;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
+using System.Text;
+using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture.J3D
 {
@@ -21,7 +23,7 @@ namespace AuroraLip.Texture.J3D
             /// <summary>
             /// A JUTTexture Entry. Contains Mipmaps
             /// </summary>
-            public class TexEntry : List<Bitmap>, IDisposable
+            public class TexEntry : IDisposable
             {
                 /// <summary>
                 /// specifies how the data within the image is encoded.
@@ -32,37 +34,32 @@ namespace AuroraLip.Texture.J3D
                 /// specifies how the data within the palette is stored.
                 /// Only C4, C8, and C14X2 use palettes. For all other formats the type is zero.
                 /// </summary>
-                public GXPaletteFormat PaletteFormat { get; set; }
+                public GXPaletteFormat PaletteFormat => Palettes.Count == 0 ? GXPaletteFormat.IA8 : Palettes[0].Format;
 
                 /// <summary>
                 /// Specifies how textures outside the vertical range [0..1] are treated for text coordinates.
                 /// </summary>
-                public GXWrapMode WrapS { get; set; }
+                public GXWrapMode WrapS { get; set; } = 0;
 
                 /// <summary>
                 /// Specifies how textures outside the horizontal range [0..1] are treated for text coordinates.
                 /// </summary>
-                public GXWrapMode WrapT { get; set; }
+                public GXWrapMode WrapT { get; set; } = 0;
 
                 /// <summary>
                 /// specifies what type of filtering the file should use as magnification filter.
                 /// </summary>
-                public GXFilterMode MagnificationFilter { get; set; }
+                public GXFilterMode MagnificationFilter { get; set; } = 0;
 
                 /// <summary>
                 /// specifies what type of filtering the file should use as minification filter.
                 /// </summary>
-                public GXFilterMode MinificationFilter { get; set; }
+                public GXFilterMode MinificationFilter { get; set; } = 0;
 
                 /// <summary>
                 /// the calculated 64-bit xxHash of the base texture.
                 /// </summary>
                 public ulong Hash { get; internal set; } = 0;
-
-                /// <summary>
-                /// the calculated 64-bit xxHash of the Tlut
-                /// </summary>
-                public ulong TlutHash { get; internal set; } = 0; //not match with dolphin!
 
                 /// <summary>
                 /// "Min Level of Detail" 
@@ -91,85 +88,102 @@ namespace AuroraLip.Texture.J3D
                 /// <summary>
                 /// Pallets raw data
                 /// </summary>
-                List<byte[]> Palettes { get; set; }
+                public List<JUTPalette> Palettes { get; set; } = new List<JUTPalette>();
 
                 /// <summary>
                 /// Gets the image width, in pixels.
                 /// </summary>
-                public int ImageWidth => this[0].Width;
+                public int ImageWidth;
 
                 /// <summary>
                 /// Gets the image height, in pixels.
                 /// </summary>
-                public int ImageHeight => this[0].Height;
+                public int ImageHeight;
 
-                public Size LargestImageSize => new Size(this[0].Width, this[0].Height);
-                public Size SmallestImageSize => new Size(this[Count - 1].Width, this[Count - 1].Height);
+                /// <summary>
+                /// Number of images
+                /// </summary>
+                public int Count => ImageData.Count;
+
+                public readonly List<byte[]> ImageData = new List<byte[]>();
 
                 public TexEntry() { }
 
-                public TexEntry(Stream Stream, in byte[] PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
+                public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
                 {
                     this.Format = Format;
-                    this.PaletteFormat = PaletteFormat;
+                    this.ImageHeight = ImageHeight;
+                    this.ImageWidth = ImageWidth;
 
-                    byte[] RowDate = Stream.Read(GetCalculatedDataSize(Format, ImageWidth, ImageHeight));
-                    Hash = HashDepot.XXHash.Hash64(RowDate);
+                    //reads all row image data.
+                    for (int i = 0; i <= Mipmap; i++)
+                    {
+                        ImageData.Add(Stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight, i)));
+                    }
+                    Hash = HashDepot.XXHash.Hash64(ImageData[0]);
 
-                    if (IsPaletteFormat(Format) && PaletteCount > 0)
+                    //Splits the pallete data if there are more than one
+                    if (Format.IsPaletteFormat() && PaletteCount > 0)
                     {
                         int PalettesNumber = PaletteData.Length / (PaletteCount * 2);
-                        Palettes = new List<byte[]>(PalettesNumber);
-                        if (PalettesNumber <= 1) Palettes.Add(PaletteData);
+                        if (PalettesNumber <= 1)
+                            Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteCount));
                         else
                         {
                             int PaletteSize = PaletteData.Length / PalettesNumber;
 
                             for (int i = 0; i < PalettesNumber; i++)
-                                Palettes.Add(PaletteData.Skip(i * PaletteSize).Take(PaletteSize).ToArray());
+                                Palettes.Add(new JUTPalette(PaletteFormat, PaletteData.Slice(i * PaletteSize, PaletteSize), PaletteSize / 2));
                         }
-                        TlutHash = HashDepot.XXHash.Hash64(Palettes[0]);
-                    }
-
-                    if (JUtility.IsPaletteFormat(Format) && PaletteData == null || PaletteData?.Length == 0)
-                    {
-                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"The Image Hash:{Hash} Format:{Format} has no palette data, it will be rendered in grayscale!");
-
-                        switch (Format)
-                        {
-                            case GXImageFormat.C4:
-                                Format = GXImageFormat.I4;
-                                break;
-                            case GXImageFormat.C8:
-                                Format = GXImageFormat.I8;
-                                break;
-                            case GXImageFormat.C14X2:
-                                Format = GXImageFormat.IA4;
-                                break;
-                        }
-                    }
-                    this.Add(DecodeImage(RowDate, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight));
-
-                    for (int i = 1; i <= Mipmap; i++)
-                    {
-                        this.Add(DecodeImage(Stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, i));
                     }
                 }
 
-                public TexEntry(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8, GXWrapMode WrapS = 0, GXWrapMode WrapT = 0, GXFilterMode MagFilter = 0, GXFilterMode MinFilter = 0, float Bias = 0.0f, bool EdgeLoD = false)
+                public TexEntry(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
                 {
-                    Add(Image);
-                    Format = ImageFormat;
-                    this.PaletteFormat = PaletteFormat;
-                    this.WrapS = WrapS;
-                    this.WrapT = WrapT;
-                    MagnificationFilter = MagFilter;
-                    MinificationFilter = MinFilter;
-                    LODBias = Bias;
-                    EnableEdgeLOD = EdgeLoD;
+                    this.Format = Format;
+                    this.ImageHeight = Image.Height;
+                    this.ImageWidth = Image.Width;
+
+                    List<byte> ImageData = new List<byte>();
+                    GetImageAndPaletteData(ref ImageData, out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
+                    if (ImageFormat.IsPaletteFormat())
+                        Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteData.Length / 2));
+                    this.ImageData.Add(ImageData.ToArray());
                 }
 
-                public string GetDolphinTextureHash(int mipmap = 0, bool UseTlut = false, bool DolphinMipDetection = true)
+                public Bitmap AsBitmap(int Mipmap = 0, int Palette = 0)
+                    => AsBitmap(Mipmap, Palettes.Count == 0 ? null : Palettes[Palette]);
+
+                public Bitmap AsBitmap(int Mipmap, JUTPalette Palette)
+                    => DecodeImage(ImageData[Mipmap], Palette?.ToArray(), Format, ImageWidth >> Mipmap, ImageHeight >> Mipmap);
+
+                /// <summary>
+                /// calculated the 64-bit xxHash of the Tlut
+                /// </summary>
+                /// <param name="Palette"></param>
+                /// <returns></returns>
+                public ulong GetTlutHash(int Palette = 0)
+                    => GetTlutHash(Palettes.Count == 0 ? null : Palettes[Palette]);
+
+                /// <summary>
+                /// calculated the 64-bit xxHash of the Tlut
+                /// </summary>
+                /// <param name="Palette"></param>
+                /// <returns></returns>
+                public ulong GetTlutHash(JUTPalette Palette)
+                {
+                    if (!Format.IsPaletteFormat()) return 0;
+
+                    (int start, int length) = Format.GetTlutRange(ImageData[0].AsSpan());
+                    if (Palette.Size < length)
+                    {
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Tlut out of range({start}-{length})Tlut_Length:{Palette.Size}");
+                        return 0;
+                    }
+                    return HashDepot.XXHash.Hash64(Palette.GetBytes().AsSpan().Slice(start, length));
+                }
+
+                public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true)
                 {
                     bool HasMips = this.Count != 1;
                     //dolphin seems to use the MaxLOD value to decide if it is a mipmap Texture.
@@ -177,15 +191,15 @@ namespace AuroraLip.Texture.J3D
                     if (!HasMips && DolphinMipDetection)
                         HasMips = MaxLOD != 0;
 
-                    return "tex1_" + this[0].Width + 'x' + this[0].Height + '_'
+                    return "tex1_" + this.ImageWidth + 'x' + this.ImageHeight + '_'
                         //Has mipmaps
                         + (HasMips
                             ? "m_" : string.Empty)
                         // Hash
                         + Hash.ToString("x").PadLeft(16, '0') + '_'
                         // Tlut Hash
-                        + (JUtility.IsPaletteFormat(Format)
-                            ? (!UseTlut || TlutHash == 0
+                        + (Format.IsPaletteFormat()
+                            ? (TlutHash == 0
                                 ? "$" : TlutHash.ToString("x").PadLeft(16, '0')) + '_' : string.Empty)
                         // Format
                         + (int)Format
@@ -194,7 +208,6 @@ namespace AuroraLip.Texture.J3D
                             ? "_mip" + mipmap : string.Empty);
                 }
 
-                public bool ImageEquals(TexEntry entry) => ListEx.Equals(this, entry, J3D.JUtility.CompareBitmap);
                 public override bool Equals(object obj)
                 {
                     return obj is TexEntry entry &&
@@ -207,8 +220,7 @@ namespace AuroraLip.Texture.J3D
                            MinLOD == entry.MinLOD &&
                            MaxLOD == entry.MaxLOD &&
                            LODBias == entry.LODBias &&
-                           EnableEdgeLOD == entry.EnableEdgeLOD &&
-                           ListEx.Equals(this, entry, J3D.JUtility.CompareBitmap);
+                           EnableEdgeLOD == entry.EnableEdgeLOD;
                 }
 
                 public static bool operator ==(TexEntry entry1, TexEntry entry2) => entry1.Equals(entry2);
@@ -228,14 +240,12 @@ namespace AuroraLip.Texture.J3D
                     hashCode = hashCode * -1521134295 + MaxLOD.GetHashCode();
                     hashCode = hashCode * -1521134295 + LODBias.GetHashCode();
                     hashCode = hashCode * -1521134295 + EnableEdgeLOD.GetHashCode();
-                    hashCode = hashCode * -1521134295 + ListEx.GetHashCode(this);
                     return hashCode;
                 }
 
                 public void CopyTo(TexEntry destination)
                 {
                     destination.Format = Format;
-                    destination.PaletteFormat = PaletteFormat;
                     destination.WrapS = WrapS;
                     destination.WrapT = WrapT;
                     destination.MagnificationFilter = MagnificationFilter;
@@ -243,9 +253,10 @@ namespace AuroraLip.Texture.J3D
                     destination.MinLOD = MinLOD;
                     destination.MaxLOD = MaxLOD;
                     destination.EnableEdgeLOD = EnableEdgeLOD;
-                    for (int i = 0; i < Count; i++)
-                        destination.Add((Bitmap)this[i].Clone());
                 }
+
+                public override string ToString()
+                    => GetDolphinTextureHash();
 
                 #region Dispose
                 private bool disposedValue;
@@ -255,10 +266,7 @@ namespace AuroraLip.Texture.J3D
                     {
                         if (disposing)
                         {
-                            foreach (var item in this)
-                            {
-                                item.Dispose();
-                            }
+                            //foreach (var item in this) item.Dispose();
                         }
                         disposedValue = true;
                     }
@@ -272,6 +280,7 @@ namespace AuroraLip.Texture.J3D
                     Dispose(disposing: true);
                     GC.SuppressFinalize(this);
                 }
+
                 #endregion
             }
         }

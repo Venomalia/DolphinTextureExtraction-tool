@@ -36,10 +36,10 @@ namespace AuroraLip.Texture.Formats
             uint unknown = stream.ReadUInt32(Endian.Big); //202
 
             // we calculate the mips
-            int mips = JUtility.GetMipmapsFromSize(Format, (int)(stream.Length - ImgOffset), Width, Height);
+            int mips = Format.GetMipmapsFromSize( (int)(stream.Length - ImgOffset), Width, Height);
 
             // Palette are not supported?
-            if (JUtility.IsPaletteFormat(Format))
+            if (Format.IsPaletteFormat())
             {
                 throw new PaletteException($"{nameof(GCT0)} does not support palette formats.");
             }

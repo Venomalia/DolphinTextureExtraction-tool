@@ -478,7 +478,7 @@ namespace DolphinTextureExtraction_tool
         }
 
         protected string GetFullSaveDirectory(in string directory)
-            => Path.Combine(SaveDirectory, directory);
+            => Path.Combine(SaveDirectory, directory).TrimEnd();
 
         #endregion
 

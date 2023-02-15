@@ -117,7 +117,9 @@ namespace AuroraLip.Texture.Formats
                 PaletteData = stream.Read((int)PaletteSize);
             }
             stream.Position = ImageAddress;
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, images -1)
+
+            int mips = images <= 0? 0 : images -1;
+            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, mips)
             {
                 LODBias = LODBias,
                 MagnificationFilter = (GXFilterMode)MaxFilter,

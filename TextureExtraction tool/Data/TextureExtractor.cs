@@ -288,14 +288,15 @@ namespace DolphinTextureExtraction_tool
                             string path = GetFullSaveDirectory(subdirectory);
                             Directory.CreateDirectory(path);
                             var bitmap = tex.AsBitmap(i, tlut);
-                            bitmap.Save(Path.Combine(path, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
-
+                            path = Path.Combine(path, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection) + ".png");
+                            bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                            tex.Dispose();
                             //skip mips?
                             if (!((ExtractorOptions)Option).Mips) break;
                         }
                     }
 
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash()) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
                     ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
                 }
             }

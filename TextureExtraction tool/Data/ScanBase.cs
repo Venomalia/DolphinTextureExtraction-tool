@@ -264,7 +264,7 @@ namespace DolphinTextureExtraction_tool
                 if (file.FileData.CanRead)
                 {
                     double Length = file.FileData.Length;
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath).AsSpan(), deep));
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim('`','|')).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;

@@ -109,7 +109,7 @@ namespace AuroraLip.Texture.J3D
 
                 public TexEntry() { }
 
-                public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
+                public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmap = 0)
                 {
                     this.Format = Format;
                     this.ImageHeight = ImageHeight;
@@ -121,7 +121,10 @@ namespace AuroraLip.Texture.J3D
                         ImageData.Add(Stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight, i)));
                     }
                     Hash = HashDepot.XXHash.Hash64(ImageData[0]);
+                }
 
+                public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0) : this(Stream,Format,ImageWidth,ImageHeight,Mipmap)
+                {
                     //Splits the pallete data if there are more than one
                     if (Format.IsPaletteFormat() && PaletteCount > 0)
                     {

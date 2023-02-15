@@ -1,10 +1,7 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture;
-using SevenZipExtractor;
+﻿using AuroraLip.Texture;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using static AuroraLip.Texture.J3D.JUtility.JUTTexture;
 using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Palette
@@ -14,7 +11,7 @@ namespace AuroraLip.Palette
         /// <summary>
         /// specifies how the data within the palette is stored.
         /// </summary>
-        public GXPaletteFormat Format;
+        public GXPaletteFormat Format { get; set; }
 
         /// <summary>
         /// The size in bits.

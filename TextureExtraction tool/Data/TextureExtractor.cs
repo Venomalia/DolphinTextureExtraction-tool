@@ -287,7 +287,8 @@ namespace DolphinTextureExtraction_tool
                         {
                             string path = GetFullSaveDirectory(subdirectory);
                             Directory.CreateDirectory(path);
-                            tex.AsBitmap(i, tlut).Save(Path.Combine(path, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
+                            var bitmap = tex.AsBitmap(i, tlut);
+                            bitmap.Save(Path.Combine(path, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
 
                             //skip mips?
                             if (!((ExtractorOptions)Option).Mips) break;

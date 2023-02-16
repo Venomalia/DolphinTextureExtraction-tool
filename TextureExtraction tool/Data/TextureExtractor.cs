@@ -1,10 +1,12 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Texture;
 using AuroraLip.Texture.Formats;
 using Hack.io;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -74,7 +76,7 @@ namespace DolphinTextureExtraction_tool
             /// <summary>
             /// List of hash values of the extracted textures
             /// </summary>
-            public List<ulong> Hash = new List<ulong>();
+            public List<int> Hash = new List<int>();
 
             public List<FormatInfo> UnsupportedFormatType = new List<FormatInfo>();
 
@@ -257,33 +259,46 @@ namespace DolphinTextureExtraction_tool
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
-                lock (Result.Hash)
+                int tluts = tex.Palettes.Count == 0 ? 1 : tex.Palettes.Count;
+                for (int tlut = 0; tlut < tluts; tlut++)
                 {
-                    //Skip duplicate textures
-                    if (Result.Hash.Contains(tex.Hash))
+                    ulong TlutHash = tex.GetTlutHash(tlut);
+
+                    lock (Result.Hash)
                     {
-                        continue;
-                    }
-                    Result.Hash.Add(tex.Hash);
-                }
+                        int hash = tex.Hash.GetHashCode();
 
-                // Don't extract anything if performing a dry run
-                if (!Option.DryRun)
-                {
-                    //Extract the main texture and mips
-                    for (int i = 0; i < tex.Count; i++)
+                        if (tex.Format.IsPaletteFormat() && TlutHash != 0)
+                            hash = hash * -1521134295 + TlutHash.GetHashCode();
+
+                        //Skip duplicate textures
+                        if (Result.Hash.Contains(hash))
+                        {
+                            continue;
+                        }
+                        Result.Hash.Add(hash);
+                    }
+
+                    // Don't extract anything if performing a dry run
+                    if (!Option.DryRun)
                     {
-                        string path = GetFullSaveDirectory(subdirectory);
-                        Directory.CreateDirectory(path);
-                        tex[i].Save(Path.Combine(path, tex.GetDolphinTextureHash(i, false, ((ExtractorOptions)Option).DolphinMipDetection) + ".png"), System.Drawing.Imaging.ImageFormat.Png);
-
-                        //skip mips?
-                        if (!((ExtractorOptions)Option).Mips) break;
+                        //Extract the main texture and mips
+                        for (int i = 0; i < tex.Count; i++)
+                        {
+                            string path = GetFullSaveDirectory(subdirectory);
+                            Directory.CreateDirectory(path);
+                            var bitmap = tex.AsBitmap(i, tlut);
+                            path = Path.Combine(path, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection) + ".png");
+                            bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                            tex.Dispose();
+                            //skip mips?
+                            if (!((ExtractorOptions)Option).Mips) break;
+                        }
                     }
-                }
 
-                Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash()) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
-                ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
+                    ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
+                }
             }
         }
 

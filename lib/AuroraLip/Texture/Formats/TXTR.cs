@@ -34,7 +34,7 @@ namespace AuroraLip.Texture.Formats
             byte[] palettedata = null;
             int ColorsCount = 0;
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
-            if (JUtility.IsPaletteFormat(Format))
+            if (Format.IsPaletteFormat())
             {
                 PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
                 int CWidth = stream.ReadUInt16(Endian.Big);

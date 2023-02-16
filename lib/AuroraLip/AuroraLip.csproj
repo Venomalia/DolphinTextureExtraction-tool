@@ -131,7 +131,9 @@
     <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Archives\DiscImage\GameID_MakerCodes.cs" />
     <Compile Include="Palette\Formats\PLT0.cs" />
+    <Compile Include="Palette\JUTTlut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Texture\J3DColorConverter .cs" />
     <Compile Include="Texture\DolphinTextureHash.cs" />
     <Compile Include="Texture\Formats\ATB.cs" />
     <Compile Include="Texture\Formats\BTI.cs" />
@@ -156,16 +158,19 @@
     <Compile Include="Texture\Formats\TPL.cs" />
     <Compile Include="Texture\Formats\TXE.cs" />
     <Compile Include="Texture\Formats\WTMD.cs" />
-    <Compile Include="Texture\J3D\Enums\GXFilterMode.cs" />
-    <Compile Include="Texture\J3D\Enums\GXImageFormat.cs" />
-    <Compile Include="Texture\J3D\Enums\GXPaletteFormat.cs" />
-    <Compile Include="Texture\J3D\Enums\JUTTransparency.cs" />
-    <Compile Include="Texture\J3D\Enums\WrapMode.cs" />
+    <Compile Include="Texture\Enums\GXFilterMode.cs" />
+    <Compile Include="Texture\Enums\GXImageFormat.cs" />
+    <Compile Include="Texture\Enums\GXPaletteFormat.cs" />
+    <Compile Include="Texture\Enums\JUTTransparency.cs" />
+    <Compile Include="Texture\Enums\WrapMode.cs" />
     <Compile Include="Texture\J3D\J3DGraph.cs" />
-    <Compile Include="Texture\J3D\J3DTexture.cs" />
+    <Compile Include="Texture\J3DTextureConverter.cs" />
     <Compile Include="Texture\J3D\JUTTexture.cs" />
+    <Compile Include="Texture\J3D\Enums\LoopMode.cs" />
     <Compile Include="Texture\J3D\NameTableIO.cs" />
+    <Compile Include="Texture\J3D\Enums\TangentMode.cs" />
     <Compile Include="Texture\J3D\TexEntry.cs" />
+    <Compile Include="Texture\JUTFormatInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HashDepot">

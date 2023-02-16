@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
+using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -125,13 +127,14 @@ namespace AuroraLip.Texture.Formats
             {
                 bool IsPalette = this[i].Format.IsPaletteFormat();
                 int PaletteHeader = !IsPalette ? 0 : (int)(stream.Position - HeaderStart);
-                List<byte> ImageData = new List<byte>();
-                List<byte> PaletteData = new List<byte>();
-                List<Bitmap> mips = this[i];
-                GetImageAndPaletteData(ref ImageData, ref PaletteData, mips, this[i].Format, this[i].PaletteFormat);
+
+                //List<byte> ImageData = new List<byte>();
+                //List<Bitmap> mips = this[i];
+                //GetImageAndPaletteData(ref ImageData, out byte[] PaletteData, mips, this[i].Format, this[i].PaletteFormat);
+
                 if (IsPalette)
                 {
-                    stream.WriteBigEndian(BitConverter.GetBytes((ushort)(PaletteData.Count / 2)), 2);
+                    stream.WriteBigEndian(BitConverter.GetBytes((ushort)(this[i].Palettes.Sum(p => p.Size) / 2)), 2);
                     stream.WriteByte(0x00);
                     stream.WriteByte(0x00);
                     stream.WriteBigEndian(BitConverter.GetBytes((int)this[i].PaletteFormat), 4);
@@ -142,14 +145,15 @@ namespace AuroraLip.Texture.Formats
                     stream.Position = temp;
                     stream.WriteBigEndian(BitConverter.GetBytes((int)(temp2 - HeaderStart) + 0), 4);
                     stream.Position = temp2;
-                    stream.Write(PaletteData.ToArray(), 0, PaletteData.Count);
+                    foreach (var Palette in this[i].Palettes)
+                        stream.Write(Palette.GetBytes());
                     stream.PadTo(32);
                 }
 
                 int ImageHeader = ImageHeader = (int)(stream.Position - HeaderStart);
 
-                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Height), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i][0].Width), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i].ImageHeight), 2);
+                stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[i].ImageWidth), 2);
                 stream.WriteBigEndian(BitConverter.GetBytes((uint)this[i].Format), 4);
                 long comebackhere = stream.Position;
                 stream.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
@@ -160,7 +164,7 @@ namespace AuroraLip.Texture.Formats
                 stream.WriteBigEndian(BitConverter.GetBytes(this[i].LODBias), 4);
                 stream.WriteByte((byte)(this[i].EnableEdgeLOD ? 0x01 : 0x00));
                 stream.WriteByte(0x00);
-                stream.WriteByte((byte)(mips.Count - 1));
+                stream.WriteByte((byte)(this[i].Count - 1));
                 //Unpacked - Rii told me to leave this one as 0 :)
                 stream.WriteByte(0x00);
                 stream.PadTo(32);
@@ -168,7 +172,10 @@ namespace AuroraLip.Texture.Formats
                 stream.Position = comebackhere;
                 stream.WriteBigEndian(BitConverter.GetBytes((int)(PausePosition - HeaderStart)), 4);
                 stream.Position = PausePosition;
-                stream.Write(ImageData.ToArray(), 0, ImageData.Count);
+                foreach (var bytes in this[0].ImageData)
+                {
+                    stream.Write(bytes);
+                }
                 stream.PadTo(32);
 
                 ImageHeaderOffset.Add(new KeyValuePair<int, int>(ImageHeader, PaletteHeader));
@@ -194,11 +201,11 @@ namespace AuroraLip.Texture.Formats
         /// <param name="Bias"></param>
         /// <param name="EdgeLoD"></param>
         /// <returns></returns>
-        public static TPL Create(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8, GXWrapMode WrapS = GXWrapMode.CLAMP, GXWrapMode WrapT = GXWrapMode.CLAMP, GXFilterMode MagFilter = GXFilterMode.Linear, GXFilterMode MinFilter = GXFilterMode.Linear, float Bias = 0.0f, bool EdgeLoD = false)
+        public static TPL Create(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
         {
             TPL NewTPL = new TPL
             {
-                new TexEntry((Bitmap)Image.Clone(), ImageFormat, PaletteFormat, WrapS, WrapT, MagFilter, MinFilter, Bias, EdgeLoD)
+                new TexEntry((Bitmap)Image.Clone(), ImageFormat, PaletteFormat)
             };
             return NewTPL;
         }
@@ -208,45 +215,12 @@ namespace AuroraLip.Texture.Formats
         /// <param name="Images"></param>
         /// <param name="ImageFormat"></param>
         /// <param name="PaletteFormat"></param>
-        /// <param name="WrapS"></param>
-        /// <param name="WrapT"></param>
-        /// <param name="MagFilter"></param>
-        /// <param name="MinFilter"></param>
-        /// <param name="Bias"></param>
-        /// <param name="EdgeLoD"></param>
         /// <returns></returns>
-        public static TPL Create(Bitmap[] Images, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8, GXWrapMode WrapS = GXWrapMode.CLAMP, GXWrapMode WrapT = GXWrapMode.CLAMP, GXFilterMode MagFilter = GXFilterMode.Linear, GXFilterMode MinFilter = GXFilterMode.Linear, float Bias = 0.0f, bool EdgeLoD = false)
+        public static TPL Create(Bitmap[] Images, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
         {
             TPL NewTPL = new TPL();
             for (int i = 0; i < Images.Length; i++)
-                NewTPL.Add(new TexEntry((Bitmap)Images[i].Clone(), ImageFormat, PaletteFormat, WrapS, WrapT, MagFilter, MinFilter, Bias, EdgeLoD));
-            return NewTPL;
-        }
-        /// <summary>
-        /// Creates a TPL using Arrays of Bitmap Arrays (Multiple Textures, Mipmap support)
-        /// </summary>
-        /// <param name="Images"></param>
-        /// <param name="ImageFormat"></param>
-        /// <param name="PaletteFormat"></param>
-        /// <param name="WrapS"></param>
-        /// <param name="WrapT"></param>
-        /// <param name="MagFilter"></param>
-        /// <param name="MinFilter"></param>
-        /// <param name="Bias"></param>
-        /// <param name="EdgeLoD"></param>
-        /// <returns></returns>
-        public static TPL Create(Bitmap[][] Images, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8, GXWrapMode WrapS = GXWrapMode.CLAMP, GXWrapMode WrapT = GXWrapMode.CLAMP, GXFilterMode MagFilter = GXFilterMode.Linear, GXFilterMode MinFilter = GXFilterMode.Linear, float Bias = 0.0f, bool EdgeLoD = false)
-        {
-            TPL NewTPL = new TPL();
-
-            for (int i = 0; i < Images.Length; i++)
-            {
-                TexEntry temp = new TexEntry() { Format = ImageFormat, PaletteFormat = PaletteFormat, WrapS = WrapS, WrapT = WrapT, MagnificationFilter = MagFilter, MinificationFilter = MinFilter, LODBias = Bias, EnableEdgeLOD = EdgeLoD };
-                for (int x = 0; x < Images[i].Length; x++)
-                    temp.Add((Bitmap)Images[i][x].Clone());
-                NewTPL.Add(temp);
-            }
-
+                NewTPL.Add(new TexEntry((Bitmap)Images[i].Clone(), ImageFormat, PaletteFormat));
             return NewTPL;
         }
 

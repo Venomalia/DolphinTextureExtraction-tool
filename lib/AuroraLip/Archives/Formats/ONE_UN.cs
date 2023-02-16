@@ -18,7 +18,7 @@ namespace AuroraLip.Archives.Formats
         private const string magic = "one.";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.MatchString(magic) && stream.At(4,S => stream.ReadUInt32()) <= 1024*4 ;
 
         protected override void Read(Stream stream)
         {

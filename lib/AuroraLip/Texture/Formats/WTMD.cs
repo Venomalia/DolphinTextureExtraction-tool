@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
 using System;
 using System.IO;
 using static AuroraLip.Texture.J3D.JUtility;
@@ -53,7 +52,7 @@ namespace AuroraLip.Texture.Formats
             byte[] PaletteData = null;
             int PaletteCount = 0;
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
-            if (JUtility.IsPaletteFormat(Format))
+            if (Format.IsPaletteFormat())
             {
                 PaletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), Palette.ToString());
                 stream.Position = PalettePosition;
@@ -76,9 +75,10 @@ namespace AuroraLip.Texture.Formats
             };
             while (stream.Position != stream.Length)
             {
-                int i = (int)Math.Pow(2,current.Count);
+                int i = (int)Math.Pow(2, current.Count);
                 if (ImageWidth / i < 1 || ImageHeight / i < 1) break;
-                 current.Add(DecodeImage(stream, PaletteData, Format, GXPaletteFormat.IA8, PaletteCount, ImageWidth/ i, ImageHeight / i));
+                current.ImageData.Add(stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight)));
+                //current.Add(DecodeImage(stream, PaletteData, Format, GXPaletteFormat.IA8, PaletteCount, ImageWidth/ i, ImageHeight / i));
             }
             Add(current);
 

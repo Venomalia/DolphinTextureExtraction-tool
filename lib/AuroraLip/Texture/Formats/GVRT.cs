@@ -39,7 +39,7 @@ namespace AuroraLip.Texture.Formats
 
             byte[] PaletteData = null;
             int Colors = 16;
-            if (JUtility.IsPaletteFormat(PixelFormat))
+            if (PixelFormat.IsPaletteFormat())
             {
                 if (Flags.HasFlag(DataFlags.InternalPalette))
                 {

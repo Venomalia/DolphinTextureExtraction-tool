@@ -10,7 +10,7 @@ namespace AuroraLip.Texture.J3D
     * https://github.com/SuperHackio/Hack.io
     */
 
-    public static class J3DGraph
+    public static partial class J3DGraph
     {
         /// <summary>
         /// Find the start of a sequence in the AllList, if the sequence exists, returns -1
@@ -140,48 +140,6 @@ namespace AuroraLip.Texture.J3D
             public static bool operator ==(J3DKeyFrame frame1, J3DKeyFrame frame2) => EqualityComparer<J3DKeyFrame>.Default.Equals(frame1, frame2);
 
             public static bool operator !=(J3DKeyFrame frame1, J3DKeyFrame frame2) => !(frame1 == frame2);
-        }
-
-        /// <summary>
-        /// J3D Looping Modes
-        /// </summary>
-        public enum LoopMode : byte
-        {
-            /// <summary>
-            /// Play Once then Stop.
-            /// </summary>
-            ONCE = 0x00,
-            /// <summary>
-            /// Play Once then Stop and reset to the first frame.
-            /// </summary>
-            ONCERESET = 0x01,
-            /// <summary>
-            /// Constantly play the animation.
-            /// </summary>
-            REPEAT = 0x02,
-            /// <summary>
-            /// Play the animation to the end. then reverse the animation and play to the start, then Stop.
-            /// </summary>
-            ONCEANDMIRROR = 0x03,
-            /// <summary>
-            /// Play the animation to the end. then reverse the animation and play to the start, repeat.
-            /// </summary>
-            REPEATANDMIRROR = 0x04
-        }
-
-        /// <summary>
-        /// J3D Tangent Modes
-        /// </summary>
-        public enum TangentMode : short
-        {
-            /// <summary>
-            /// One tangent value is stored, used for both the incoming and outgoing tangents
-            /// </summary>
-            SYNC = 0x00,
-            /// <summary>
-            /// Two tangent values are stored, the incoming and outgoing tangents, respectively
-            /// </summary>
-            DESYNC = 0x01
         }
     }
 }

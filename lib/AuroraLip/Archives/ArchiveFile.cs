@@ -21,7 +21,7 @@ namespace AuroraLip.Archives
         /// <summary>
         /// The extension of this file
         /// </summary>
-        public string Extension => Path.GetExtension(Name);
+        public string Extension => Path.GetExtension(Name.Trim(Path.GetInvalidFileNameChars()));
 
         /// <summary>
         /// The Actual Data for the file

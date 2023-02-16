@@ -1,27 +1,26 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Texture;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static AuroraLip.Texture.J3D.JUtility;
+using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Palette.Formats
 {
-    public class PLT0: IMagicIdentify
+    public class PLT0 : JUTPalette, IMagicIdentify
     {
         public string Magic => magic;
 
         private const string magic = "PLT0";
 
-        public GXPaletteFormat PaletteFormat { get; set; }
-
-        public byte[] PaletteData { get; set; }
-
-        public PLT0() {}
-
         public PLT0(Stream stream) => Read(stream);
+
+        public PLT0(GXPaletteFormat format = GXPaletteFormat.IA8) : base(format) { }
+
+        public PLT0(GXPaletteFormat format, IEnumerable<Color> collection) : base(format, collection) { }
+
+        public PLT0(GXPaletteFormat format, ReadOnlySpan<byte> PaletteData, int colors) : base(format, PaletteData, colors) { }
 
         protected void Read(Stream stream)
         {
@@ -33,13 +32,14 @@ namespace AuroraLip.Palette.Formats
 
             uint SectionOffsets = stream.ReadUInt32(Endian.Big);
             uint StringOffset = stream.ReadUInt32(Endian.Big);
-            PaletteFormat = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
+            Format = (GXPaletteFormat)stream.ReadUInt32(Endian.Big);
             short colors = stream.ReadInt16(Endian.Big);
             ushort pad = stream.ReadUInt16(Endian.Big);
             uint PathOffset = stream.ReadUInt32(Endian.Big);
             uint DataOffset = stream.ReadUInt32(Endian.Big);
-            stream.Seek(SectionOffsets,SeekOrigin.Begin);
-            PaletteData = stream.Read(colors*2);
+            stream.Seek(SectionOffsets, SeekOrigin.Begin);
+            byte[] PaletteData = stream.Read(colors * 2);
+            this.AddRange(DecodePalette(PaletteData, Format, colors));
         }
     }
 }

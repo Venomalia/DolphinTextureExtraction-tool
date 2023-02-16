@@ -1,9 +1,8 @@
 ﻿using AuroraLip.Archives;
-using AuroraLip.Archives.Formats;
 using AuroraLip.Common;
 using AuroraLip.Palette.Formats;
-using AuroraLip.Texture.J3D;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using static AuroraLip.Texture.J3D.JUtility;
 
@@ -60,7 +59,7 @@ namespace AuroraLip.Texture.Formats
             uint Unknown2 = stream.ReadUInt32(Endian.Big);
 
 
-            if (PaletteData == null && JUtility.IsPaletteFormat(Format))
+            if (PaletteData == null && Format.IsPaletteFormat())
             {
                 if (stream is ArchiveFile.ArchiveFileStream substream)
                 {
@@ -73,36 +72,42 @@ namespace AuroraLip.Texture.Formats
                     Archive ParentBres = substream.Parent.OwnerArchive;
                     if (ParentBres.ItemExists("Palettes(NW4R)"))
                     {
-                        var Pallets = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
-                        if (Pallets.Count == 1)
-                        {
-                            ArchiveFile PFile = (ArchiveFile)ParentBres[Pallets[0]];
-                            lock (PFile.FileData)
-                            {
-                                PFile.FileData.Seek(0, SeekOrigin.Begin);
-                                var Pallet = new PLT0(PFile.FileData);
-                                PaletteFormat = Pallet.PaletteFormat;
-                                PaletteData = Pallet.PaletteData;
-                                PaletteCount = Pallet.PaletteData.Length / 2;
-                            }
-                        }
-                        else if (Pallets.Count > 1)
+                        var PalletNames = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
+
+                        if (PalletNames.Count == 0)
                         {
 #if DEBUG
                             return;
 #else
-                            throw new PaletteException($"multiple palettes ({Pallets.Count}) are not supported");
+                            throw new PaletteException("No palette data could be found");
 #endif
                         }
+
+                        stream.Position = SectionOffsets;
+                        var tex = new TexEntry(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
+                        {
+                            LODBias = 0,
+                            MagnificationFilter = GXFilterMode.Nearest,
+                            MinificationFilter = GXFilterMode.Nearest,
+                            WrapS = GXWrapMode.CLAMP,
+                            WrapT = GXWrapMode.CLAMP,
+                            EnableEdgeLOD = false,
+                            MinLOD = MinLOD,
+                            MaxLOD = MaxLOD
+                        };
+
+                        foreach (var PalletName in PalletNames)
+                        {
+                            ArchiveFile PFile = (ArchiveFile)ParentBres[PalletName];
+                            lock (PFile.FileData)
+                            {
+                                PFile.FileData.Seek(0, SeekOrigin.Begin);
+                                tex.Palettes.Add(new PLT0(PFile.FileData));
+                            }
+                        }
+                        Add(tex);
+                        return;
                     }
-                }
-                if (PaletteData == null)
-                {
-#if DEBUG
-                    return;
-#else
-                    throw new PaletteException("No palette data could be found");
-#endif
                 }
             }
             stream.Position = SectionOffsets;

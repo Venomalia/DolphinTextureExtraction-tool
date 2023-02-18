@@ -88,10 +88,18 @@ namespace AuroraLip.Archives.Formats
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
                                 Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, FileSize) { Parent = Sub };
-                                if (!ParentDirectory.Items.ContainsKey(Sub.Name))
+                                if (ParentDirectory.Items.ContainsKey(Sub.Name))
                                 {
-                                    ParentDirectory.Items.Add(Sub.Name, Sub);
+                                    for (int n = 1; true; n++)
+                                    {
+                                        if (!ParentDirectory.Items.ContainsKey($"{Sub.Name}_{n}"))
+                                        {
+                                            Sub.Name = $"{Sub.Name}_{n}";
+                                            break;
+                                        }
+                                    }
                                 }
+                                ParentDirectory.Items.Add(Sub.Name, Sub);
                             }
                         }
                         else

@@ -107,6 +107,17 @@ namespace AuroraLip.Archives.Formats
                     if (FlatItems[parent] is ArchiveDirectory dir)
                     {
                         ArchiveDirectory curdir = (ArchiveDirectory)FlatItems[i];
+                        if (dir.Items.ContainsKey(curdir.Name))
+                        {
+                            for (int n = 1; true; n++)
+                            {
+                                if (!dir.Items.ContainsKey($"{curdir.Name}_{n}"))
+                                {
+                                    curdir.Name = $"{curdir.Name}_{n}";
+                                    break;
+                                }
+                            }
+                        }
                         dir.Items.Add(curdir.Name, curdir);
                         curdir.Parent = dir;
                     }

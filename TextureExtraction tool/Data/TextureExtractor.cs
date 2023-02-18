@@ -236,7 +236,7 @@ namespace DolphinTextureExtraction_tool
             catch (Exception t)
             {
                 Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
-                if (so.Deep != 0 || !Result.UnsupportedFormatType.Contains(so.Format))
+                if (!Result.UnsupportedFormatType.Contains(so.Format))
                     Result.UnsupportedFormatType.Add(so.Format);
                 Result.Unsupported++;
                 Result.UnsupportedSize += so.Stream.Length;

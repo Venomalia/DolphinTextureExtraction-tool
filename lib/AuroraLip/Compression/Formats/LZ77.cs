@@ -60,12 +60,10 @@ namespace AuroraLip.Compression.Formats
             int num1 = 0;
             while (true)
             {
-                int num2 = num;
-                num = num2 + 1;
-                byte data1 = Data[num2];
+                byte flag = Data[num++];
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((data1 & 128) != 0)
+                    if ((flag & 128) != 0)
                     {
                         byte data2 = Data[num++];
                         byte data3 = Data[num++];
@@ -112,7 +110,7 @@ namespace AuroraLip.Compression.Formats
                         }
                         return ms.ToArray();
                     }
-                    data1 = (byte)(data1 << 1);
+                    flag = (byte)(flag << 1);
                 }
             }
         }

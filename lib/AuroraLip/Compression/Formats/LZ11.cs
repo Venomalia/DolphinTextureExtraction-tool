@@ -112,46 +112,30 @@ namespace AuroraLip.Compression.Formats
             int num3 = 0;
             while (true)
             {
-                int num4 = num2;
-                num2 = num4 + 1;
-                byte data1 = Data[num4];
+                byte flag = Data[num2++];
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((data1 & 128) != 0)
+                    if ((flag & 128) != 0)
                     {
-                        int num5 = num2;
-                        num2 = num5 + 1;
-                        byte data2 = Data[num5];
+                        byte data2 = Data[num2++];
                         if (data2 >> 4 == 0)
                         {
-                            int num6 = num2;
-                            num2 = num6 + 1;
-                            byte data3 = Data[num6];
-                            int num7 = num2;
-                            num2 = num7 + 1;
-                            byte data4 = Data[num7];
+                            byte data3 = Data[num2++];
+                            byte data4 = Data[num2++];
                             num1 = ((data2 & 15) << 4 | data3 >> 4) + 17;
                             num = ((data3 & 15) << 8 | data4) + 1;
                         }
                         else if (data2 >> 4 != 1)
                         {
-                            int num8 = num2;
-                            num2 = num8 + 1;
-                            byte data5 = Data[num8];
+                            byte data5 = Data[num2++];
                             num = ((data2 & 15) << 8 | data5) + 1;
                             num1 = (data2 >> 4) + 1;
                         }
                         else
                         {
-                            int num9 = num2;
-                            num2 = num9 + 1;
-                            byte data6 = Data[num9];
-                            int num10 = num2;
-                            num2 = num10 + 1;
-                            byte data7 = Data[num10];
-                            int num11 = num2;
-                            num2 = num11 + 1;
-                            byte data8 = Data[num11];
+                            byte data6 = Data[num2++];
+                            byte data7 = Data[num2++];
+                            byte data8 = Data[num2++];
                             num1 = ((data2 & 15) << 12 | data6 << 4 | data7 >> 4) + 273;
                             num = ((data7 & 15) << 8 | data8) + 1;
                         }
@@ -163,34 +147,30 @@ namespace AuroraLip.Compression.Formats
                     }
                     else
                     {
-                        int num12 = num3;
-                        num3 = num12 + 1;
-                        int num13 = num2;
-                        num2 = num13 + 1;
-                        numArray[num12] = Data[num13];
+                        numArray[num3++] = Data[num2++];
                     }
                     if (num3 >= data)
                     {
 
                         //has chunks?
-                        if (Data.Length > num3)
+                        if (Data.Length > num2)
                         {
                             //Padding
-                            while (Data.Length - 1 > num3 && Data[num3] == 0)
-                                num3++;
+                            while (Data.Length - 1 > num2 && Data[num2] == 0)
+                                num2++;
 
                             //new chunk?
-                            if (Data[num3++] == 17)
+                            if (Data[num2++] == 17)
                             {
                                 Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{typeof(LZ11)} has chunks!");
                             }
 
-                            if (Data.Length > num3)
-                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ11)} file steam contains {Data.Length - num3} unread bytes, starting at position {num3}.");
+                            if (Data.Length > num2)
+                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ11)} file steam contains {Data.Length - num2} unread bytes, starting at position {num2}.");
                         }
                         return numArray;
                     }
-                    data1 = (byte)(data1 << 1);
+                    flag = (byte)(flag << 1);
                 }
             }
         }

@@ -107,10 +107,18 @@ namespace AuroraLip.Archives.Formats
                             stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             ArchiveDirectory Sub = new ArchiveDirectory(this, ParentDirectory) { Name = Name };
                             ReadIndex(stream, EndOfRoot, Sub);
-                            if (!ParentDirectory.Items.ContainsKey(Sub.Name))
+                            if (ParentDirectory.Items.ContainsKey(Sub.Name))
                             {
-                                ParentDirectory.Items.Add(Sub.Name, Sub);
+                                for (int n = 1; true; n++)
+                                {
+                                    if (!ParentDirectory.Items.ContainsKey($"{Sub.Name}_{n}"))
+                                    {
+                                        Sub.Name = $"{Sub.Name}_{n}";
+                                        break;
+                                    }
+                                }
                             }
+                            ParentDirectory.Items.Add(Sub.Name, Sub);
                         }
                     }
                 }

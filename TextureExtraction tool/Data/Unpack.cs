@@ -22,10 +22,8 @@ namespace DolphinTextureExtraction_tool
 
         protected override void Scan(ScanObjekt so)
         {
-#if !DEBUG
             try
             {
-#endif
 
             switch (so.Format.Typ)
                 {
@@ -50,7 +48,6 @@ namespace DolphinTextureExtraction_tool
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
                 }
-#if !DEBUG
             }
             catch (Exception t)
             {
@@ -58,7 +55,6 @@ namespace DolphinTextureExtraction_tool
                 if (so.Deep != 0)
                     Save(so.Stream, so.SubPath.ToString(), so.Format);
             }
-#endif
         }
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)

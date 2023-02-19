@@ -26,13 +26,11 @@ namespace DolphinTextureExtraction_tool
         }
         protected override void Scan(ScanObjekt so)
         {
-#if !DEBUG
             if (so.Deep != 0)
                 Save(so.Stream, so.SubPath.ToString(), so.Format);
 
             try
             {
-#endif
                 Archive archive;
                 if (Pattern == null)
                     archive = new DataCutter(so.Stream);
@@ -47,13 +45,11 @@ namespace DolphinTextureExtraction_tool
                     else
                         Scan(archive, so.SubPath, so.Deep + 1);
                 }
-#if !DEBUG
             }
             catch (Exception t)
             {
                 Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
             }
-#endif
         }
     }
 }

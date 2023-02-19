@@ -76,11 +76,7 @@ namespace AuroraLip.Texture.Formats
 
                         if (PalletNames.Count == 0)
                         {
-#if DEBUG
-                            return;
-#else
                             throw new PaletteException("No palette data could be found");
-#endif
                         }
 
                         stream.Position = SectionOffsets;

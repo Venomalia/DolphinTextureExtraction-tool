@@ -1,8 +1,6 @@
 ﻿using AuroraLip.Common;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using static AuroraLip.Texture.J3D.JUtility;
@@ -76,7 +74,8 @@ namespace DolphinTextureExtraction_tool
                 Console.WriteLine();
                 do
                 {
-                    switch (Console.ReadKey().Key)
+                    var key = Console.ReadKey().Key;
+                    switch (key)
                     {
                         case ConsoleKey.D1:
                         case ConsoleKey.NumPad1:
@@ -141,17 +140,17 @@ namespace DolphinTextureExtraction_tool
 
 
 
-                    switch (Mode)
-                    {
-                        case Modes.Extract:
-                            //Options
-                            Console.WriteLine();
-                            PrintOptions(options);
+                    //Options
+                    Console.WriteLine();
+                    PrintOptions(options);
 
-                            Console.WriteLine();
-                            Console.WriteLine("Adjust settings? Yes or (No)");
-                            if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
-                            {
+                    Console.WriteLine();
+                    Console.WriteLine("Adjust settings? Yes or (No)");
+                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
+                    {
+                        switch (Mode)
+                        {
+                            case Modes.Extract:
                                 Console.WriteLine($"Extract mipmaps. \t(True) or False");
                                 options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                                 Console.WriteLine($"Extracts raw image files. \tTrue or (False)");
@@ -167,22 +166,27 @@ namespace DolphinTextureExtraction_tool
                                     Console.WriteLine($"CleanUp, minimum files per folder. \t(3)");
                                     cleanOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
                                 }
-                                Console.WriteLine($"Perform a Dry Run. \tTrue or (False)");
-                                options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
-                                options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
-                            }
-                            break;
-                        case Modes.Unpacks:
-                            break;
+                                break;
+                            case Modes.Unpacks:
+
+                                Console.WriteLine($"Tries to extract unknown file formats, may cause errors. \tTrue or (False)");
+                                options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+
+                                break;
+                        }
+
+                        Console.WriteLine($"Perform a Dry Run. (Test) \tTrue or (False)");
+                        options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
+                        options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
+
                     }
 
                     //Inputs correct?
                     Console.WriteLine();
                     Console.WriteLine($"Input Path: \"{InputPath}\"");
                     Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                    if (Mode == Modes.Extract)
-                        PrintOptions(options);
+                    PrintOptions(options);
 
                     Console.WriteLine();
                     Console.WriteLine("Are the settings correct? \t(Yes) or No");
@@ -530,22 +534,29 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintOptions(TextureExtractor.ExtractorOptions options)
         {
-            Console.Write($"Extracts Mipmaps: ");
-            ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Extracts raw image files: ");
-            ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Force extract textures from unknown formats: ");
+            Console.Write($"Force extract unknown formats: ");
             ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Imitate dolphin mipmap detection: ");
-            ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"Clean up type: ");
-            if (cleanOptions.CleanupType == Cleanup.Type.None)
-                ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
-            else
+            switch (Mode)
             {
-                ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
-                Console.Write($"Clean minimum files per foldere: ");
-                ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
+                case Modes.Extract:
+                    Console.Write($"Extracts Mipmaps: ");
+                    ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
+                    Console.Write($"Extracts raw image files: ");
+                    ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
+                    Console.Write($"Imitate dolphin mipmap detection: ");
+                    ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
+                    Console.Write($"Clean up type: ");
+                    if (cleanOptions.CleanupType == Cleanup.Type.None)
+                        ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
+                    else
+                    {
+                        ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
+                        Console.Write($"Clean minimum files per foldere: ");
+                        ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
+                    }
+                    break;
+                case Modes.Unpacks:
+                    break;
             }
             Console.Write($"Perform a dry run: ");
             ConsoleEx.WriteBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);

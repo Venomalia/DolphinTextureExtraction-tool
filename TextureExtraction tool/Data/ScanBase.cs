@@ -185,6 +185,7 @@ namespace DolphinTextureExtraction_tool
                 Scan(file);
                 Result.Progress++;
                 Result.ProgressLength += file.Length;
+                Option.ProgressUpdate(Result);
             }
             else
             {
@@ -264,7 +265,7 @@ namespace DolphinTextureExtraction_tool
                 if (file.FileData.CanRead)
                 {
                     double Length = file.FileData.Length;
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim('`','|')).AsSpan(), deep));
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim(Path.GetInvalidPathChars()).Trim('`')).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;
@@ -336,6 +337,7 @@ namespace DolphinTextureExtraction_tool
                     case ".bti":
                     case ".onz":
                     case ".lz":
+                    case ".lh":
                     case ".brres":
                     case ".breff":
                     case ".zlib":

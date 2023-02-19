@@ -29,7 +29,7 @@ namespace AuroraLip.Compression.Formats
                 return true;
             
             stream.Seek(0, SeekOrigin.Begin);
-            return stream.Length > 16 && stream.ReadByte() == 16 && 0 < (stream.ReadByte() | stream.ReadByte() << 8 | stream.ReadByte() << 16);
+            return stream.Length > 16 && stream.ReadByte() == 16 && stream.Length < (int)stream.ReadUInt24();
         }
 
         public byte[] Compress(in byte[] Data)

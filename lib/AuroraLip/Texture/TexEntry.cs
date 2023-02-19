@@ -10,15 +10,13 @@ namespace AuroraLip.Texture
 {
 
     /*
-    * Super Hackio Incorporated
-    * "Copyright © Super Hackio Incorporated 2020-2021"
-    * https://github.com/SuperHackio/Hack.io
+    * Base on https://github.com/SuperHackio/Hack.io
     */
 
     public abstract partial class JUTTexture
     {
         /// <summary>
-        /// A JUTTexture Entry. Contains Mipmaps
+        /// A JUTTexture Entry. ccan contains Mipmaps ant Palettes
         /// </summary>
         public class TexEntry : IDisposable
         {
@@ -62,7 +60,7 @@ namespace AuroraLip.Texture
             /// "Min Level of Detail" 
             /// Exclude textures below a certain LOD level from being used.
             /// </summary>
-            public float MinLOD { get; set; }
+            public float MinLOD { get; set; } = 0;
 
             /// <summary>
             /// "Max Level of Detail" 
@@ -100,12 +98,23 @@ namespace AuroraLip.Texture
             /// <summary>
             /// Number of images
             /// </summary>
-            public int Count => ImageData.Count;
+            public int Count => RawImages.Count;
 
-            public readonly List<byte[]> ImageData = new List<byte[]>();
+            /// <summary>
+            /// Raw image and mips
+            /// </summary>
+            public readonly List<byte[]> RawImages = new List<byte[]>();
 
+            #region Constructor
+
+            /// <summary>
+            /// Creates an empty TexEntry
+            /// </summary>
             public TexEntry() { }
 
+            /// <summary>
+            /// Creates an TexEntry from a Stream
+            /// </summary>
             public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmap = 0)
             {
                 this.Format = Format;
@@ -115,11 +124,14 @@ namespace AuroraLip.Texture
                 //reads all row image data.
                 for (int i = 0; i <= Mipmap; i++)
                 {
-                    ImageData.Add(Stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight, i)));
+                    RawImages.Add(Stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight, i)));
                 }
-                Hash = HashDepot.XXHash.Hash64(ImageData[0]);
+                Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }
 
+            /// <summary>
+            /// Creates an TexEntry with Pallets data from a Stream
+            /// </summary>
             public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0) : this(Stream, Format, ImageWidth, ImageHeight, Mipmap)
             {
                 //Splits the pallete data if there are more than one
@@ -138,24 +150,45 @@ namespace AuroraLip.Texture
                 }
             }
 
+            /// <summary>
+            /// Creates an TexEntry from a Bitmap
+            /// </summary>
             public TexEntry(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
             {
                 this.Format = Format;
                 this.ImageHeight = Image.Height;
                 this.ImageWidth = Image.Width;
 
-                List<byte> ImageData = new List<byte>();
-                GetImageAndPaletteData(ref ImageData, out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
+                var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
                 if (ImageFormat.IsPaletteFormat())
                     Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteData.Length / 2));
-                this.ImageData.Add(ImageData.ToArray());
+                this.RawImages.Add(ImageData);
             }
+
+            /// <summary>
+            /// Creates an TexEntry with mips from a Bitmap
+            /// </summary>
+            public TexEntry(List<Bitmap> Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
+            {
+                this.Format = Format;
+                this.ImageHeight = Image[0].Height;
+                this.ImageWidth = Image[0].Width;
+
+                var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
+                if (ImageFormat.IsPaletteFormat())
+                    Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteData.Length / 2));
+
+                foreach (var raw in ImageData)
+                    this.RawImages.Add(raw);
+            }
+
+            #endregion
 
             public Bitmap AsBitmap(int Mipmap = 0, int Palette = 0)
                 => AsBitmap(Mipmap, Palettes.Count == 0 ? null : Palettes[Palette]);
 
             public Bitmap AsBitmap(int Mipmap, JUTPalette Palette)
-                => DecodeImage(ImageData[Mipmap], Palette?.ToArray(), Format, ImageWidth >> Mipmap, ImageHeight >> Mipmap);
+                => DecodeImage(RawImages[Mipmap], Palette?.ToArray(), Format, ImageWidth >> Mipmap, ImageHeight >> Mipmap);
 
             /// <summary>
             /// calculated the 64-bit xxHash of the Tlut
@@ -174,7 +207,7 @@ namespace AuroraLip.Texture
             {
                 if (!Format.IsPaletteFormat()) return 0;
 
-                (int start, int length) = Format.GetTlutRange(ImageData[0].AsSpan());
+                (int start, int length) = Format.GetTlutRange(RawImages[0].AsSpan());
                 if (Palette.Size < length)
                 {
                     Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Tlut out of range({start}-{length})Tlut_Length:{Palette.Size}");

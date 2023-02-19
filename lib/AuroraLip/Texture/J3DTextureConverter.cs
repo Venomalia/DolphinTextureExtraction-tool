@@ -230,12 +230,14 @@ namespace AuroraLip.Texture
         /// <param name="Format"></param>
         /// <param name="PaletteFormat"></param>
         /// <param name="AlphaMode"></param>
-        public static void GetImageAndPaletteData(ref List<byte> ImageData, out byte[] PaletteData, List<Bitmap> Images, GXImageFormat Format, GXPaletteFormat PaletteFormat)
+        public static List<byte[]> GetImageAndPaletteData(out byte[] PaletteData, List<Bitmap> Images, GXImageFormat Format, GXPaletteFormat PaletteFormat)
         {
+            List<byte[]> ImageData = new List<byte[]>();
             Tuple<Dictionary<Color, int>, ushort[]> Palette = CreatePalette(Images, Format, PaletteFormat);
             PaletteData = EncodePalette(Palette.Item2, Format);
             for (int i = 0; i < Images.Count; i++)
-                EncodeImage(ref ImageData, Images[i], Format, Palette.Item1);
+                ImageData.Add(EncodeImage( Images[i], Format, Palette.Item1));
+            return ImageData;
         }
         /// <summary>
         /// Use in the context of no mipmaps
@@ -245,15 +247,16 @@ namespace AuroraLip.Texture
         /// <param name="Image"></param>
         /// <param name="Format"></param>
         /// <param name="PaletteFormat"></param>
-        public static void GetImageAndPaletteData(ref List<byte> ImageData, out byte[] PaletteData, Bitmap Image, GXImageFormat Format, GXPaletteFormat PaletteFormat)
+        public static byte[] GetImageAndPaletteData(out byte[] PaletteData, Bitmap Image, GXImageFormat Format, GXPaletteFormat PaletteFormat)
         {
             Tuple<Dictionary<Color, int>, ushort[]> Palette = Format.IsPaletteFormat() ? CreatePalette(Image, Format, PaletteFormat) : new Tuple<Dictionary<Color, int>, ushort[]>(new Dictionary<Color, int>(), null);
             PaletteData = EncodePalette(Palette.Item2, Format);
-            EncodeImage(ref ImageData, Image, Format, Palette.Item1);
+            return EncodeImage(Image, Format, Palette.Item1);
         }
 
-        public static void EncodeImage(ref List<byte> ImageData, Bitmap Image, GXImageFormat Format, Dictionary<Color, int> ColourIndicies)
+        public static byte[] EncodeImage(Bitmap Image, GXImageFormat Format, Dictionary<Color, int> ColourIndicies)
         {
+            List<byte> ImageData = new List<byte>();
             var (BlockWidth, BlockHeight) = Format.GetBlockSize();
             int block_x = 0, block_y = 0;
             byte[] Pixels = Image.ToByteArray();
@@ -271,6 +274,7 @@ namespace AuroraLip.Texture
                     block_y += BlockHeight;
                 }
             }
+            return ImageData.ToArray();
         }
 
         public static Tuple<Dictionary<Color, int>, ushort[]> CreatePalette(in List<Bitmap> Images, GXImageFormat Format, GXPaletteFormat PaletteFormat)

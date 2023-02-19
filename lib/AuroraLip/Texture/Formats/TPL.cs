@@ -171,7 +171,7 @@ namespace AuroraLip.Texture.Formats
                 stream.Position = comebackhere;
                 stream.WriteBigEndian(BitConverter.GetBytes((int)(PausePosition - HeaderStart)), 4);
                 stream.Position = PausePosition;
-                foreach (var bytes in this[0].ImageData)
+                foreach (var bytes in this[0].RawImages)
                 {
                     stream.Write(bytes);
                 }

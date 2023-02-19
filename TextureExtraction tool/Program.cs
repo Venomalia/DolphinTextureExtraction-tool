@@ -192,22 +192,6 @@ namespace DolphinTextureExtraction_tool
                     Console.WriteLine("Are the settings correct? \t(Yes) or No");
                     if (!ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
 
-                    /*
-                    var main = new DirectoryInfo(InputPath);
-                    foreach (var item in main.GetFiles())
-                    {
-                        Bitmap bitmap = new Bitmap(item.FullName);
-                        var data = new List<byte>();
-                        var pall = new List<byte>();
-                        GetImageAndPaletteData(ref data, ref pall, bitmap, GXImageFormat.I4, GXPaletteFormat.RGB5A3);
-                        //EncodeImage(ref data, bitmap, GXImageFormat.C14X2, new Dictionary<Color, int>());
-                        Bitmap newmap = DecodeImage(data.ToArray(), pall.ToArray(), GXImageFormat.I4, GXPaletteFormat.RGB5A3, pall.Count / 2, bitmap.Width, bitmap.Height);
-                        bitmap.Dispose();
-                        newmap.Save(item.FullName, ImageFormat.Png);
-                        newmap.Dispose();
-                    }
-                    */
-
                     //Start
                     Console.CursorVisible = false;
                     switch (Mode)

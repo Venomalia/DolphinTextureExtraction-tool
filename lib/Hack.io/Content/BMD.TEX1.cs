@@ -63,7 +63,7 @@ namespace Hack.io
 
                     foreach (BTI tex in Textures)
                     {
-                        if (tex.FileName.Equals(TextureName))
+                        if (tex.Name.Equals(TextureName))
                             return tex;
                     }
 
@@ -81,7 +81,7 @@ namespace Hack.io
 
                     for (int i = 0; i < Textures.Count; i++)
                     {
-                        if (Textures[i].FileName.Equals(TextureName))
+                        if (Textures[i].Name.Equals(TextureName))
                         {
                             if (value is null)
                                 Textures.RemoveAt(i);
@@ -138,7 +138,7 @@ namespace Hack.io
                 {
                     stream.Seek((ChunkStart + 0x20 + (0x20 * i)), SeekOrigin.Begin);
 
-                    BTI img = new BTI(stream) { FileName = names[i] };
+                    BTI img = new BTI(stream) { Name = names[i] };
                     Textures.Add(img);
                 }
             }
@@ -178,7 +178,7 @@ namespace Hack.io
                     }
                     else
                         Textures[i].Save(stream, ref x);
-                    names.Add(Textures[i].FileName);
+                    names.Add(Textures[i].Name);
                 }
 
                 stream.Position = stream.Length;

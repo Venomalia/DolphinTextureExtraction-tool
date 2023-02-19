@@ -139,7 +139,7 @@ namespace AuroraLip.Texture.Formats
 
             foreach (var bytes in this[0].Palettes)
                 stream.Write(bytes.GetBytes());
-            foreach (var bytes in this[0].ImageData)
+            foreach (var bytes in this[0].RawImages)
                 stream.Write(bytes);
             DataOffset = stream.Position;
             stream.Position = Pauseposition;

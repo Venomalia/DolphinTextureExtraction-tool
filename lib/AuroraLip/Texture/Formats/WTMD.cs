@@ -76,7 +76,7 @@ namespace AuroraLip.Texture.Formats
             {
                 int i = (int)Math.Pow(2, current.Count);
                 if (ImageWidth / i < 1 || ImageHeight / i < 1) break;
-                current.ImageData.Add(stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight)));
+                current.RawImages.Add(stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight)));
                 //current.Add(DecodeImage(stream, PaletteData, Format, GXPaletteFormat.IA8, PaletteCount, ImageWidth/ i, ImageHeight / i));
             }
             Add(current);

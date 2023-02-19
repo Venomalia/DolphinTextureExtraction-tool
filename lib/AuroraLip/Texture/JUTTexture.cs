@@ -7,23 +7,19 @@ namespace AuroraLip.Texture
 {
 
     /*
-    * Super Hackio Incorporated
-    * "Copyright © Super Hackio Incorporated 2020-2021"
-    * https://github.com/SuperHackio/Hack.io
+    * base on https://github.com/SuperHackio/Hack.io
     */
 
     /// <summary>
-    /// The Base class of BTI and TPL
+    /// The base class of all textures.
     /// </summary>
-    public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable
+    public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable, IName
     {
-
-        private bool disposedValue;
 
         /// <summary>
         /// The full path of this file.
         /// </summary>
-        public string FileName { get; set; } = null;
+        public string Name { get; set; } = null;
 
         public JUTTexture() { }
 
@@ -34,7 +30,7 @@ namespace AuroraLip.Texture
             FileStream fs = new FileStream(filepath, FileMode.Open);
             Read(fs);
             fs.Close();
-            FileName = filepath;
+            Name = filepath;
         }
 
         public virtual void Save(string filepath)
@@ -42,7 +38,7 @@ namespace AuroraLip.Texture
             FileStream fs = new FileStream(filepath, FileMode.Create);
             Write(fs);
             fs.Close();
-            FileName = filepath;
+            Name = filepath;
         }
         public virtual void Save(Stream stream) => Write(stream);
         public virtual void Open(Stream stream) => Read(stream);
@@ -52,15 +48,17 @@ namespace AuroraLip.Texture
 
         public bool ImageEquals(JUTTexture entry) => ListEx.Equals(this, entry);
 
-        public override bool Equals(object obj) => obj is JUTTexture tex && tex.FileName.Equals(FileName) && ImageEquals(tex);
+        public override bool Equals(object obj) => obj is JUTTexture tex && tex.Name.Equals(Name) && ImageEquals(tex);
 
         public static bool operator ==(JUTTexture texture1, JUTTexture texture2) => texture1.Equals(texture2);
 
         public static bool operator !=(JUTTexture texture1, JUTTexture texture2) => !(texture1 == texture2);
 
-        public override int GetHashCode() => 901043656 + FileName.GetHashCode() + ListEx.GetHashCode(this);
+        public override int GetHashCode() => 901043656 + Name.GetHashCode() + ListEx.GetHashCode(this);
 
         #region Dispose
+
+        private bool disposedValue;
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

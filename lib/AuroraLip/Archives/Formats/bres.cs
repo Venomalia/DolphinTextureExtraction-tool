@@ -88,6 +88,17 @@ namespace AuroraLip.Archives.Formats
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
                                 Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, FileSize) { Parent = Sub };
+                                if (ParentDirectory.Items.ContainsKey(Sub.Name))
+                                {
+                                    for (int n = 1; true; n++)
+                                    {
+                                        if (!ParentDirectory.Items.ContainsKey($"{Sub.Name}_{n}"))
+                                        {
+                                            Sub.Name = $"{Sub.Name}_{n}";
+                                            break;
+                                        }
+                                    }
+                                }
                                 ParentDirectory.Items.Add(Sub.Name, Sub);
                             }
                         }
@@ -96,6 +107,17 @@ namespace AuroraLip.Archives.Formats
                             stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             ArchiveDirectory Sub = new ArchiveDirectory(this, ParentDirectory) { Name = Name };
                             ReadIndex(stream, EndOfRoot, Sub);
+                            if (ParentDirectory.Items.ContainsKey(Sub.Name))
+                            {
+                                for (int n = 1; true; n++)
+                                {
+                                    if (!ParentDirectory.Items.ContainsKey($"{Sub.Name}_{n}"))
+                                    {
+                                        Sub.Name = $"{Sub.Name}_{n}";
+                                        break;
+                                    }
+                                }
+                            }
                             ParentDirectory.Items.Add(Sub.Name, Sub);
                         }
                     }

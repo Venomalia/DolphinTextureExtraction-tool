@@ -385,7 +385,7 @@ namespace DolphinTextureExtraction_tool
                             return true;
 
                         //Reduces problems with multithreading
-                        so.Stream.Seek(size < so.Stream.Length ? so.Stream.Length : size, SeekOrigin.Begin);
+                        so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
 
                         //checks if hidden files are present.
                         if (archive is IMagicIdentify identify)

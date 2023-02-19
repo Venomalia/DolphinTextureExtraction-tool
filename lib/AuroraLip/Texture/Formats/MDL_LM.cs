@@ -1,7 +1,6 @@
 ﻿using AuroraLip.Common;
 using System;
 using System.IO;
-using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {

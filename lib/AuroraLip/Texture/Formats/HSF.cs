@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using static AuroraLip.Texture.J3D.JUtility;
 
 namespace AuroraLip.Texture.Formats
 {

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using static AuroraLip.Texture.J3D.JUtility;
 using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture.Formats

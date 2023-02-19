@@ -166,11 +166,11 @@
     <Compile Include="Texture\Enums\WrapMode.cs" />
     <Compile Include="Texture\J3D\J3DGraph.cs" />
     <Compile Include="Texture\J3DTextureConverter.cs" />
-    <Compile Include="Texture\J3D\JUTTexture.cs" />
+    <Compile Include="Texture\JUTTexture.cs" />
     <Compile Include="Texture\J3D\Enums\LoopMode.cs" />
     <Compile Include="Texture\J3D\NameTableIO.cs" />
     <Compile Include="Texture\J3D\Enums\TangentMode.cs" />
-    <Compile Include="Texture\J3D\TexEntry.cs" />
+    <Compile Include="Texture\TexEntry.cs" />
     <Compile Include="Texture\JUTFormatInfo.cs" />
   </ItemGroup>
   <ItemGroup>

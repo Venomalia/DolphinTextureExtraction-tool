@@ -21,6 +21,13 @@ namespace AuroraLip.Common.Extensions
             return path;
         }
 
+        public static ReadOnlySpan<char> GetExtension(in ReadOnlySpan<char> path)
+        {
+            if (path.LastIndexOf(ExtensionSeparatorChar) > path.LastIndexOf(Path.DirectorySeparatorChar))
+                return path.Slice(path.LastIndexOf(ExtensionSeparatorChar));
+            return string.Empty.AsSpan();
+        }
+
         public static bool CheckInvalidPathChars(in ReadOnlySpan<char> path)
             => path.IndexOfAny(Path.GetInvalidPathChars()) == 0;
 

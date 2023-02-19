@@ -265,7 +265,7 @@ namespace DolphinTextureExtraction_tool
                 if (file.FileData.CanRead)
                 {
                     double Length = file.FileData.Length;
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim(Path.GetInvalidPathChars()).Trim('`')).AsSpan(), deep));
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim(Path.GetInvalidPathChars()).Trim('`', '|')).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;
@@ -353,7 +353,7 @@ namespace DolphinTextureExtraction_tool
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                         {
-                            Scan(new ScanObjekt(test, so.SubPath, so.Deep, so.Extension));
+                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, PathEX.GetExtension(PathEX.WithoutExtension(so.SubPath)).ToString()));
                             return true;
                         }
                         break;

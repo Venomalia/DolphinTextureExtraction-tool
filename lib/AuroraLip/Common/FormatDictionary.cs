@@ -35,7 +35,7 @@ namespace AuroraLip.Common
         /// <returns></returns>
         public static FormatInfo Identify(this Stream stream, string extension = "")
         {
-            foreach (var item in Master)
+            foreach (var item in Formats)
             {
                 if (item.IsMatch.Invoke(stream, extension))
                 {
@@ -50,6 +50,8 @@ namespace AuroraLip.Common
 
         static FormatDictionary()
         {
+            List<FormatInfo> Exten = new List<FormatInfo>();
+
             foreach (FormatInfo file in Master)
             {
                 if (file.Header != null)
@@ -63,9 +65,18 @@ namespace AuroraLip.Common
                     if (file.Header.Magic.Length > 1)
                         Header.Add(file.Header.Magic, file);
 
+                    Formats.Add(file);
+                }
+                else
+                {
+                    Exten.Add(file);
                 }
             }
+            Formats.AddRange(Exten);
         }
+
+
+        private static List<FormatInfo> Formats = new List<FormatInfo>();
 
         public static readonly Dictionary<string, FormatInfo> Header = new Dictionary<string, FormatInfo>();
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace AuroraLip.Common
                 info = Master.First(x => x.Extension == key);
                 return true;
             }
-            catch (System.Exception) { }
+            catch (Exception) { }
 
             return false;
         }
@@ -37,12 +38,22 @@ namespace AuroraLip.Common
         {
             foreach (var item in Formats)
             {
-                if (item.IsMatch.Invoke(stream, extension))
+                try
+                {
+                    if (item.IsMatch.Invoke(stream, extension))
+                    {
+                        stream.Seek(0, SeekOrigin.Begin);
+                        return item;
+                    }
+                }
+                catch (Exception t)
+                {
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Match error in {item.Class?.Name}, {t}");
+                }
+                finally
                 {
                     stream.Seek(0, SeekOrigin.Begin);
-                    return item;
                 }
-                stream.Seek(0, SeekOrigin.Begin);
             }
 
             return new FormatInfo(stream, extension);
@@ -61,7 +72,7 @@ namespace AuroraLip.Common
                         file.Class = Reflection.FileAccess.GetMagic(file.Header.Magic);
                         file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
                     }
-                    catch (System.Exception) { }
+                    catch (Exception) { }
                     if (file.Header.Magic.Length > 1)
                         Header.Add(file.Header.Magic, file);
 

@@ -22,6 +22,9 @@ namespace AuroraLip.Texture.Formats
 
         public ushort ByteOrder { get; set; }
 
+        public ushort FormatVersion { get; set; }
+
+
         public REFT() {}
 
         public REFT(Stream stream) : base(stream) {}
@@ -40,7 +43,7 @@ namespace AuroraLip.Texture.Formats
             {
                 throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
             }
-            ushort FormatVersion = stream.ReadUInt16(Endian.Big);
+            FormatVersion = stream.ReadUInt16(Endian.Big); // SSB 7 NSMB 11
             uint TotalSize = stream.ReadUInt32(Endian.Big);
             ushort Offset = stream.ReadUInt16(Endian.Big);
             ushort sections = stream.ReadUInt16(Endian.Big);
@@ -107,6 +110,22 @@ namespace AuroraLip.Texture.Formats
             byte Unknown2 = (byte)stream.ReadByte();
             float LODBias = stream.ReadSingle(Endian.Big);
             uint Unknown3 = stream.ReadUInt32(Endian.Big);
+
+
+            if (FormatVersion >= 11)
+            {
+                byte[] Unknown4 = stream.Read(32);
+#if DEBUG
+                foreach (byte bit in Unknown4)
+                {
+                    if (bit != 0)
+                    {
+                        Console.WriteLine($"Indos, {Unknown4}--{bit}");
+                    }
+                }
+#endif
+            }
+
             long ImageAddress = stream.Position;
 
             byte[] PaletteData = null;

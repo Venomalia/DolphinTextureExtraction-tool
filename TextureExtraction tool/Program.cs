@@ -204,7 +204,7 @@ namespace DolphinTextureExtraction_tool
                             Console.WriteLine();
                             PrintResult(result);
 
-                            if (cleanOptions.CleanupType != Cleanup.Type.None)
+                            if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
                             {
                                 Console.WriteLine("Start Cleanup...");
                                 if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))

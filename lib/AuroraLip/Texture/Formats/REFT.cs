@@ -43,7 +43,7 @@ namespace AuroraLip.Texture.Formats
             {
                 throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
             }
-            FormatVersion = stream.ReadUInt16(Endian.Big); // SSB 7 NSMB 11
+            FormatVersion = stream.ReadUInt16(Endian.Big); // SSBB 7 MKart 9  NSMB 11
             uint TotalSize = stream.ReadUInt32(Endian.Big);
             ushort Offset = stream.ReadUInt16(Endian.Big);
             ushort sections = stream.ReadUInt16(Endian.Big);

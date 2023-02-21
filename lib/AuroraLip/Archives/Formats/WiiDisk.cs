@@ -21,17 +21,7 @@ namespace AuroraLip.Archives.Formats
 
         private const uint MagicWord = 1562156707;
 
-        public static byte[] CKey = new byte[] { 176, 123, 5, 203, 217, 74, 35, 21, 134, 80, 232, 7, 220, 219, 48, 86 };
-
-        public static byte[] KKey = new byte[] { 108, 141, 91, 182, 36, 20, 57, 157, 189, 2, 191, 156, 37, 193, 106, 141 };
-
         public HeaderBin Header;
-
-        static WiiDisk()
-        {
-            CKey = MiscEX.AESDecrypt(WiiDisk.CKey, MiscEX.RKey(42, 16), MiscEX.RKey(13, 16));
-            KKey = MiscEX.AESDecrypt(WiiDisk.KKey, MiscEX.RKey(42, 16), MiscEX.RKey(13, 16));
-        }
 
         public WiiDisk() { }
 

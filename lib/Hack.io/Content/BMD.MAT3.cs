@@ -813,7 +813,7 @@ namespace Hack.io
                 for (int i = 0; i < m_RemapIndices.Count; i++)
                     writer.WriteBigEndian(BitConverter.GetBytes((short)m_RemapIndices[i]), 0, 2);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -821,7 +821,7 @@ namespace Hack.io
                 Offsets[1] = (int)(curOffset - start);
 
                 writer.WriteStringTable(names);
-                writer.AddPadding(8, Padding);
+                writer.WritePadding(8, Padding);
 
                 curOffset = writer.Position;
 
@@ -863,7 +863,7 @@ namespace Hack.io
                 foreach (byte chanNum in NumColorChannelsBlock)
                     writer.WriteByte(chanNum);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -874,7 +874,7 @@ namespace Hack.io
                 foreach (Material.ChannelControl chan in m_ChannelControlBlock)
                     chan.Write(writer);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -915,7 +915,7 @@ namespace Hack.io
                 foreach (byte texGenCnt in NumTexGensBlock)
                     writer.WriteByte(texGenCnt);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -970,7 +970,7 @@ namespace Hack.io
                 foreach (int inte in m_TexRemapBlock)
                     writer.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -1017,7 +1017,7 @@ namespace Hack.io
                 foreach (byte bt in NumTevStagesBlock)
                     writer.WriteByte(bt);
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -1090,7 +1090,7 @@ namespace Hack.io
                 foreach (bool bol in m_zCompLocBlock)
                     writer.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                writer.AddPadding(4, Padding);
+                writer.WritePadding(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -1103,7 +1103,7 @@ namespace Hack.io
                     foreach (bool bol in m_ditherBlock)
                         writer.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                    writer.AddPadding(4, Padding);
+                    writer.WritePadding(4, Padding);
                 }
 
                 curOffset = writer.Position;
@@ -1115,7 +1115,7 @@ namespace Hack.io
                 foreach (Material.NBTScaleHolder scale in m_NBTScaleBlock)
                     scale.Write(writer);
 
-                writer.AddPadding(32, Padding);
+                writer.WritePadding(32, Padding);
 
                 writer.Position = start + 4;
                 writer.WriteBigEndian(BitConverter.GetBytes((int)(writer.Length - start)), 0, 4);

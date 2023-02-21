@@ -139,14 +139,14 @@ namespace AuroraLip.Texture.Formats
                     stream.WriteBigEndian(BitConverter.GetBytes((int)this[i].PaletteFormat), 4);
                     long temp = stream.Position;
                     stream.WriteBigEndian(BitConverter.GetBytes(-572662307), 4);
-                    stream.PadTo(32);
+                    stream.WritePadding(32);
                     long temp2 = stream.Position;
                     stream.Position = temp;
                     stream.WriteBigEndian(BitConverter.GetBytes((int)(temp2 - HeaderStart) + 0), 4);
                     stream.Position = temp2;
                     foreach (var Palette in this[i].Palettes)
                         stream.Write(Palette.GetBytes());
-                    stream.PadTo(32);
+                    stream.WritePadding(32);
                 }
 
                 int ImageHeader = ImageHeader = (int)(stream.Position - HeaderStart);
@@ -166,7 +166,7 @@ namespace AuroraLip.Texture.Formats
                 stream.WriteByte((byte)(this[i].Count - 1));
                 //Unpacked - Rii told me to leave this one as 0 :)
                 stream.WriteByte(0x00);
-                stream.PadTo(32);
+                stream.WritePadding(32);
                 long PausePosition = stream.Position;
                 stream.Position = comebackhere;
                 stream.WriteBigEndian(BitConverter.GetBytes((int)(PausePosition - HeaderStart)), 4);
@@ -175,7 +175,7 @@ namespace AuroraLip.Texture.Formats
                 {
                     stream.Write(bytes);
                 }
-                stream.PadTo(32);
+                stream.WritePadding(32);
 
                 ImageHeaderOffset.Add(new KeyValuePair<int, int>(ImageHeader, PaletteHeader));
             }

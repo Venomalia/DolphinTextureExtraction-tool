@@ -208,18 +208,18 @@ namespace Hack.io
 
                 stream.Write(RemapTableData.ToArray(), 0, RemapTableData.Count);
 
-                stream.AddPadding(36, Padding);
+                stream.WritePadding(36, Padding);
 
                 AttributeTableOffset = (int)stream.Position;
                 List<Tuple<ShapeVertexDescriptor, int>> descriptorOffsets = WriteShapeAttributeDescriptors(stream);
 
                 DRW1IndexTableOffset = (int)stream.Position;
                 List<Tuple<Packet, int>> packetMatrixOffsets = WritePacketMatrixIndices(stream);
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 PrimitiveDataOffset = (int)stream.Position;
                 List<Tuple<int, int>> PrimitiveOffsets = WritePrimitives(stream);
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 MatrixDataOffset = (int)stream.Position;
                 WriteMatrixData(stream, packetMatrixOffsets);
@@ -230,7 +230,7 @@ namespace Hack.io
                     stream.WriteBigEndian(BitConverter.GetBytes(tup.Item1), 0, 4);
                     stream.WriteBigEndian(BitConverter.GetBytes(tup.Item2), 0, 4);
                 }
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 stream.Position = start + 0x2C;
                 foreach (Shape shape in Shapes)
@@ -320,7 +320,7 @@ namespace Hack.io
                             prim.Write(writer, shape.Descriptor);
                         }
 
-                        writer.PadTo(32);
+                        writer.WritePadding(32);
 
                         outList.Add(new Tuple<int, int>((int)((writer.Position - start) - offset), offset));
                     }

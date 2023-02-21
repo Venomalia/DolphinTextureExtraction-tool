@@ -85,7 +85,7 @@ namespace AuroraLip.Archives.Formats
                     stream.Write(CountryCode, Endian.Big);
                     stream.Write(Unknown_1, Endian.Big);
                     stream.Write(Unknown_2, Endian.Big);
-                    stream.AddPadding(7068);
+                    stream.WriteX(7068);
                     return stream.ToArray();
                 }
             }
@@ -133,14 +133,14 @@ namespace AuroraLip.Archives.Formats
                     stream.WriteByte(Version);
                     stream.WriteByte(streaming);
                     stream.WriteByte(StreamBufSize);
-                    stream.AddPadding(14);
+                    stream.WriteX(14);
                     stream.Write(WiiMagicWord, Endian.Big);
                     stream.Write(GCMagicWord, Endian.Big);
                     stream.WriteString(GameName);
-                    stream.AddPadding(0x03e0 - GameName.Length);
+                    stream.WriteX(0x03e0 - GameName.Length);
                     stream.Write(debugMonitorOffset, Endian.Big);
                     stream.Write(debugMonitorAddress, Endian.Big);
-                    stream.AddPadding(24);
+                    stream.WriteX(24);
                     stream.Write(DolOffset, Endian.Big);
                     stream.Write(FSTableOffset, Endian.Big);
                     stream.Write(FSTableSize, Endian.Big);
@@ -148,7 +148,7 @@ namespace AuroraLip.Archives.Formats
                     stream.Write(userPosition, Endian.Big);
                     stream.Write(userLength, Endian.Big);
                     stream.Write(unknown, Endian.Big);
-                    stream.AddPadding(4);
+                    stream.WriteX(4);
                     return stream.ToArray();
                 }
             }

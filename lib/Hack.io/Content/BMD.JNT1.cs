@@ -110,7 +110,7 @@ namespace Hack.io
                 for (int i = 0; i < FlatSkeleton.Count; i++)
                     stream.WriteBigEndian(BitConverter.GetBytes((short)i), 0, 2);
 
-                stream.AddPadding(4, Padding);
+                stream.WritePadding(4, Padding);
 
                 curOffset = stream.Position;
 
@@ -120,7 +120,7 @@ namespace Hack.io
 
                 stream.WriteStringTable(names);
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;

@@ -479,7 +479,7 @@ namespace Hack.io
 
                 WriteAttributeHeaders(stream);
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 WriteAttributeData(stream, (int)start);
 
@@ -684,7 +684,7 @@ namespace Hack.io
                             }
                             break;
                     }
-                    stream.AddPadding(32, Padding);
+                    stream.WritePadding(32, Padding);
                 }
             }
 

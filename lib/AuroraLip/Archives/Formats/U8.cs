@@ -216,7 +216,7 @@ namespace AuroraLip.Archives.Formats
 
             //Write the strings
             stream.Write(StringBytes.ToArray(), 0, StringBytes.Count);
-            stream.PadTo(0x20, 0);
+            stream.WritePadding(0x20, 0);
 
             //Write the File Data
             stream.Write(DataBytes.ToArray(), 0, DataBytes.Count);

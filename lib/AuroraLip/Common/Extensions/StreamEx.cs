@@ -27,9 +27,12 @@ namespace AuroraLip.Common
         /// <exception cref="IOException">An I/O error occurred.</exception>
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static byte[] Read(this Stream stream, int Count, Endian order = Endian.Little, int Offset = 0)
         {
+            if (stream.Position + Count > stream.Length)
+                throw new ArgumentOutOfRangeException($"{stream}");
+
             byte[] Final = new byte[Count];
             stream.Read(Final, Offset, Count);
             switch (order)
@@ -210,18 +213,6 @@ namespace AuroraLip.Common
             => FS.Write(Array, Count, Endian.Big, Offset);
 
         /// <summary>
-        /// Adds Padding to the Current Position in the provided Stream
-        /// </summary>
-        /// <param name="FS">The Stream to add padding to</param>
-        /// <param name="Multiple">The byte multiple to pad to</param>
-        /// <param name="Padding">The byte multiple to pad to</param>
-        [DebuggerStepThrough]
-        public static void PadTo(this Stream FS, int Multiple, byte Padding = 0x00)
-        {
-            while (FS.Position % Multiple != 0)
-                FS.WriteByte(Padding);
-        }
-        /// <summary>
         /// Peek the next byte
         /// </summary>
         /// <param name="FS">this</param>
@@ -264,33 +255,6 @@ namespace AuroraLip.Common
             return stream.ReadString(magic.Length) == magic;
         }
 
-        /// <summary>
-        /// sets the position within the current stream to the nearest possible boundary.
-        /// </summary>
-        /// <param name="stream">the current stream</param>
-        /// <param name="offset">A byte offset relative to the origin parameter.</param>
-        /// <param name="origin">A value of type System.IO.SeekOrigin indicating the reference point used to obtain the new position.</param>
-        /// <param name="boundary"></param>
-        /// <returns></returns>
-        public static long Seek(this Stream stream, long offset, SeekOrigin origin, int boundary)
-        {
-            if (boundary <= 1)
-                throw new ArgumentException($"{nameof(boundary)}: Must be 2 or more");
-
-            switch (origin)
-            {
-                case SeekOrigin.Begin:
-                    break;
-                case SeekOrigin.Current:
-                    offset += stream.Position;
-                    break;
-                case SeekOrigin.End:
-                    offset = stream.Length + offset;
-                    break;
-            }
-            offset = (long)Math.Ceiling((double)offset / boundary) * boundary;
-            return stream.Seek(offset, SeekOrigin.Begin);
-        }
         /// <summary>
         /// searches for a specific pattern in a stream and moves its position until the pattern is found.
         /// </summary>
@@ -365,11 +329,78 @@ namespace AuroraLip.Common
         }
 
         /// <summary>
+        /// Writes a bit for the specified length
+        /// (redundant?)
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="length"></param>
+        /// <param name="Byte">The bit that gets write to the stream</param>
+        [DebuggerStepThrough]
+        public static void WriteX(this Stream stream, int length, byte Byte = 0x00)
+        {
+            for (int i = 0; i < length; i++)
+                stream.WriteByte(Byte);
+        }
+
+        /// <summary>
+        /// sets the position within the current stream to the nearest possible boundary.
+        /// </summary>
+        /// <param name="stream">the current stream</param>
+        /// <param name="offset">A byte offset relative to the origin parameter.</param>
+        /// <param name="origin">A value of type System.IO.SeekOrigin indicating the reference point used to obtain the new position.</param>
+        /// <param name="boundary">The byte boundary to Seek to</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static long Seek(this Stream stream, long offset, SeekOrigin origin, int boundary)
+        {
+            if (boundary <= 1)
+                throw new ArgumentException($"{nameof(boundary)}: Must be 2 or more");
+
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    break;
+                case SeekOrigin.Current:
+                    offset += stream.Position;
+                    break;
+                case SeekOrigin.End:
+                    offset = stream.Length + offset;
+                    break;
+            }
+            offset = (long)Math.Ceiling((double)offset / boundary) * boundary;
+            return stream.Seek(offset, SeekOrigin.Begin);
+        }
+
+        /// <summary>
+        /// sets the position within the current stream to the nearest possible boundary.
+        /// </summary>
+        /// <param name="stream">the current stream</param>
+        /// <param name="origin">A value of type System.IO.SeekOrigin indicating the reference point used to obtain the new position.</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static long Seek(this Stream stream, int boundary = 32)
+            => stream.Seek(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
+
+        /// <summary>
         /// Adds Padding to the Current Position in the provided Stream
+        /// </summary>
+        /// <param name="FS">The Stream to add padding to</param>
+        /// <param name="Multiple">The byte multiple to pad to</param>
+        /// <param name="Padding">The bit that gets write to the stream</param>
+        [DebuggerStepThrough]
+        public static void WritePadding(this Stream FS, int Multiple, byte Padding = 0x00)
+        {
+            while (FS.Position % Multiple != 0)
+                FS.WriteByte(Padding);
+        }
+
+        /// <summary>
+        /// Adds Padding to the Current Position in the provided Stream use a String
         /// </summary>
         /// <param name="stream">The Stream to add padding to</param>
         /// <param name="multiple">The byte multiple to pad to</param>
-        public static void AddPadding(this Stream stream, int multiple, in string Padding)
+        [DebuggerStepThrough]
+        public static void WritePadding(this Stream stream, int multiple, in string Padding)
         {
             int PadCount = 0;
             while (stream.Position % multiple != 0)
@@ -379,10 +410,19 @@ namespace AuroraLip.Common
             }
         }
 
-        public static void AddPadding(this Stream stream, int length, byte Padding = 0)
+        /// <summary>
+        /// get the first position in the nearest possible boundary.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="boundary">The byte boundary to pad to</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static long CalculatePadding(long position, int boundary)
         {
-            for (int i = 0; i < length; i++)
-                stream.WriteByte(Padding);
+            if (position % boundary != 0)
+                position += (boundary - (position % boundary));
+
+            return position;
         }
     }
 }

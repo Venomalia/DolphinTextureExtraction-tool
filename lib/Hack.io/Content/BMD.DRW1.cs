@@ -61,13 +61,13 @@ namespace Hack.io
                 foreach (bool bol in IsPartialWeight)
                     stream.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                stream.AddPadding(2, Padding);
+                stream.WritePadding(2, Padding);
 
                 uint IndOffs = (uint)(stream.Position - start);
                 foreach (int inte in TransformIndexTable)
                     stream.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;

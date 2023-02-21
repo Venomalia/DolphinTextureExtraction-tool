@@ -78,7 +78,7 @@ namespace Hack.io
                 stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
                 stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 long end = stream.Position;
                 stream.Position = start + 4;

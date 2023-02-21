@@ -154,7 +154,7 @@ namespace Hack.io
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4); // Offset to the start of the texture data. Always 32
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for string table offset
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 List<string> names = new List<string>();
                 Dictionary<BTI, long> WrittenImages = new Dictionary<BTI, long>();
@@ -186,7 +186,7 @@ namespace Hack.io
                 int NameTableOffset = (int)(stream.Position - start);
 
                 stream.WriteStringTable(names);
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
                 // Write TEX1 size
                 stream.Position = start + 4;
                 stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - start)), 0, 4);

@@ -144,7 +144,7 @@ namespace Hack.io
                     stream.Position = start + 4;
                     stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4);
                     stream.Seek(0, SeekOrigin.End);
-                    stream.AddPadding(8, Padding);
+                    stream.WritePadding(8, Padding);
                     return;
                 }
 
@@ -162,7 +162,7 @@ namespace Hack.io
                         stream.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
                 }
 
-                stream.AddPadding(4, Padding);
+                stream.WritePadding(4, Padding);
 
                 long curOffset = stream.Position;
 
@@ -204,7 +204,7 @@ namespace Hack.io
                     stream.WriteBigEndian(BitConverter.GetBytes(Row3.W), 0, 4);
                 }
 
-                stream.AddPadding(32, Padding);
+                stream.WritePadding(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;

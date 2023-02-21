@@ -107,7 +107,7 @@ namespace AuroraLip.Archives.DiscImage
                 ContentId = stream.ReadUInt32(Endian.Big);
                 Index = stream.ReadUInt16(Endian.Big);
                 Type = (ContentType)stream.ReadUInt16(Endian.Big);
-                Size = stream.ReadUInt16(Endian.Big);
+                Size = stream.ReadUInt64(Endian.Big);
                 Hash = stream.Read(20);
             }
 

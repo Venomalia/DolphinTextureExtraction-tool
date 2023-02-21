@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace AuroraLip.Common
 {
-    internal static class MiscEX
+    public static class MiscEX
     {
 
         public static byte[] RKey(int value, int length)
@@ -23,6 +23,17 @@ namespace AuroraLip.Common
             aes.Key = Key;
             aes.IV = IV;
             return aes.CreateDecryptor().Decrypt(cipherData);
+        }
+
+        public static byte[] AESEncrypt(byte[] cipherData, byte[] Key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
+        {
+            Rijndael aes = Rijndael.Create();
+            aes.KeySize = Key.Length * 8;
+            aes.Mode = cipherMode;
+            aes.Padding = paddingMode;
+            aes.Key = Key;
+            aes.IV = IV;
+            return aes.CreateEncryptor().Decrypt(cipherData);
         }
 
         public static byte[] Decrypt(this ICryptoTransform algorithm, byte[] cipherData)

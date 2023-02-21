@@ -1,17 +1,15 @@
-﻿using AuroraLip.Archives.Formats;
-using AuroraLip.Common;
+﻿using AuroraLip.Common;
 using System;
 using System.IO;
-using static AuroraLip.Archives.Formats.WiiDisk.PartitionInfo;
 
 namespace AuroraLip.Archives.DiscImage
 {
-    public struct V0Ticket
+    public struct V0Ticket : ISignedBlobHeader
     {
         //Signed blob header
-        public uint SignatureType; //Signature type (always 65537 for RSA-2048)
-        public byte[] Certificate;
-        public byte[] Padding64;
+        public SigTyp SignatureType { get; } //Signature type (always 65537 for RSA-2048)
+        public byte[] Certificate { get; }
+        public byte[] SigPad { get; }
         //v0 ticket
         public byte[] Issuer;
         public byte[] ECDH;
@@ -38,9 +36,9 @@ namespace AuroraLip.Archives.DiscImage
 
         public V0Ticket(Stream stream)
         {
-            SignatureType = stream.ReadUInt32(Endian.Big);
+            SignatureType = (SigTyp)stream.ReadUInt32(Endian.Big);
             Certificate = stream.Read(256);
-            Padding64 = stream.Read(60);
+            SigPad = stream.Read(60);
             Issuer = stream.Read(64);
             ECDH = stream.Read(60);
             FormatVersion = stream.ReadUInt8();
@@ -84,13 +82,14 @@ namespace AuroraLip.Archives.DiscImage
             switch (CommonKeyID)
             {
                 case KeyID.CommonKey:
-                    Key = WiiDisk.CKey;
+                    Key = WiiKey.CKey;
                     break;
                 case KeyID.KoreanKey:
-                    Key = WiiDisk.KKey;
+                    Key = WiiKey.KKey;
                     break;
                 case KeyID.vWiiKey:
-                    throw new NotImplementedException();
+                    Key = WiiKey.VKey;
+                    break;
             }
             return MiscEX.AESDecrypt(TitleKey, Key, GetTitleIV());
         }

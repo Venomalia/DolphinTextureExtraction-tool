@@ -44,6 +44,8 @@
     <Compile Include="Archives\ArchiveBase.cs" />
     <Compile Include="Archives\ArchiveDirectory.cs" />
     <Compile Include="Archives\ArchiveFile.cs" />
+    <Compile Include="Archives\DiscImage\ISignedBlobHeader.cs" />
+    <Compile Include="Archives\DiscImage\TMD.cs" />
     <Compile Include="Archives\DiscImage\WiiKey.cs" />
     <Compile Include="Archives\Extensions\ArchiveEX.cs" />
     <Compile Include="Archives\DiscImage\RegionCode.cs" />

@@ -258,6 +258,7 @@ namespace AuroraLip.Archives.Formats
                 public uint TICKETsize { get => _TICKETsize; }
                 public const uint _TICKETsize = 676;
                 public V0Ticket Ticket;
+                public TMD TMD;
                 public long TICKEToffse;
                 public uint TMDsize;
                 public long TMDoffse { get => (tmdffse << 2) + TICKEToffse; set => tmdffse = (uint)((value - TICKEToffse) >> 2); }
@@ -287,6 +288,7 @@ namespace AuroraLip.Archives.Formats
                     h3offse = stream.ReadUInt32(Endian.Big);
                     dataoffse = stream.ReadUInt32(Endian.Big);
                     datasize = stream.ReadUInt32(Endian.Big);
+                    TMD = new TMD(stream);
                 }
             }
 

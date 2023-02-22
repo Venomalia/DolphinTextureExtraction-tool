@@ -34,6 +34,8 @@ namespace AuroraLip.Archives.DiscImage
         public uint MaximumUsage;
         public byte[] ccLimitStructs;
 
+        public TMD.TitleFlags TitleFlag => (TMD.TitleFlags)BitConverter.ToUInt32(TitleID, 0).Swap();
+
         public V0Ticket(Stream stream)
         {
             SignatureType = (SigTyp)stream.ReadUInt32(Endian.Big);

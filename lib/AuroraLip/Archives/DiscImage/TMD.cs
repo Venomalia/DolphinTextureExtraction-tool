@@ -24,7 +24,7 @@ namespace AuroraLip.Archives.DiscImage
         public bool IsVWii{ get => vWii != 0; set => vWii = (byte)(value ? 1 : 0); }
         private byte vWii;
         public ulong IOS;
-        public byte[] TicketId;
+        public byte[] TitleID;
         public TitleTypes TitleType;
         public ushort GroupID;
         private ushort pad1;
@@ -38,6 +38,8 @@ namespace AuroraLip.Archives.DiscImage
         public ushort MinorVersion;
         public List<CMD> CMDs;
 
+        public TitleFlags TitleFlag => (TitleFlags)BitConverter.ToUInt32(TitleID, 0).Swap();
+
         public TMD(Stream stream)
         {
             SignatureType = (SigTyp)stream.ReadUInt32(Endian.Big);
@@ -49,7 +51,7 @@ namespace AuroraLip.Archives.DiscImage
             Signer_CRL_Version = stream.ReadUInt8();
             vWii = stream.ReadUInt8();
             IOS = stream.ReadUInt64(Endian.Big);
-            TicketId = stream.Read(8);
+            TitleID = stream.Read(8);
             TitleType = (TitleTypes)stream.ReadUInt32(Endian.Big);
             GroupID = stream.ReadUInt16(Endian.Big);
             pad1 = stream.ReadUInt16();
@@ -67,7 +69,6 @@ namespace AuroraLip.Archives.DiscImage
             {
                 CMDs.Add(new CMD(stream));
             }
-
 
         }
 
@@ -93,6 +94,16 @@ namespace AuroraLip.Archives.DiscImage
             Unknown_CT = 0x40,
         }
 
+        public enum TitleFlags : uint
+        {
+            SystemTitles = 0x00000001,
+            Game = 0x00010000,
+            Channel = 0x00010001,
+            SystemChannels = 0x00010002,
+            GameChannel = 0x00010004,
+            DLC = 0x00010005,
+            HiddenChannels = 0x00010008,
+        }
 
         public struct CMD
         {

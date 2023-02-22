@@ -125,5 +125,48 @@ namespace AuroraLip.Common
             if (encoder == Encoding.ASCII) return AllValidBytes_ASKI;
             else return AllValidBytes;
         }
+
+        /// <summary>
+        /// Flip the ByteOrder of the 16-bit unsigned integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static ushort Swap(this ushort value)
+            => (ushort)(((value & 0xFF) << 8) | ((value >> 8) & 0xFF));
+
+        /// <summary>
+        /// Flip the ByteOrder of the 16-bit signed integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static short Swap(this short value)
+            => (short)Swap((ushort)value);
+
+        /// <summary>
+        /// Flip the ByteOrder of the 32-bit unsigned integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static uint Swap(this uint value)
+            => ((value & 0x000000ff) << 24) | ((value & 0x0000ff00) << 8) | ((value & 0x00ff0000) >> 8) | ((value & 0xff000000) >> 24);
+
+        /// <summary>
+        /// Flip the ByteOrder of the 32-bit signed integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static int Swap(this int value)
+            => (int)Swap((uint)value);
+
+        /// <summary>
+        /// Flip the ByteOrder of the 64-bit unsigned integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static ulong Swap(this ulong value)
+            => ((0x00000000000000FF) & (value >> 56) | (0x000000000000FF00) & (value >> 40) | (0x0000000000FF0000) & (value >> 24) | (0x00000000FF000000) & (value >> 8) |
+            (0x000000FF00000000) & (value << 8) | (0x0000FF0000000000) & (value << 24) | (0x00FF000000000000) & (value << 40) | (0xFF00000000000000) & (value << 56));
+
+        /// <summary>
+        /// Flip the ByteOrder of the 64-bit signed integer.
+        /// </summary>
+        [DebuggerStepThrough]
+        public static long Swap(this long value)
+            => (long)Swap((ulong)value);
     }
 }

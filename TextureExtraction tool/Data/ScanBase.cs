@@ -10,6 +10,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -264,6 +265,9 @@ namespace DolphinTextureExtraction_tool
                 Result.ProgressLength -= ArchLength;
         }
 
+
+        internal static readonly Regex illegalChars = new Regex(@"^(.*(//|\\))?(?'X'PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*| )((//|\\).*)?$|[\x00-\x1f?*:""<>|]", RegexOptions.CultureInvariant);
+
         private double Scan(string subPath, int deep, List<ArchiveFile> fileInfos)
         {
             double ArchLength = 0;
@@ -272,7 +276,22 @@ namespace DolphinTextureExtraction_tool
                 if (file.FileData.CanRead)
                 {
                     double Length = file.FileData.Length;
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, file.FullPath.Trim(Path.GetInvalidPathChars()).Trim('`', '|')).AsSpan(), deep));
+
+                    //Checks all possible illegal characters and converts them to hex
+                    string path = file.FullPath;
+                    Match match = illegalChars.Match(path);
+                    while (match.Success)
+                    {
+                        int index = match.Index;
+                        if (match.Groups["X"].Success)
+                            index = match.Groups["X"].Index;
+                        char llegalChar = path[index];
+                        path = path.Remove(index, 1);
+                        path = path.Insert(index, $"{(byte)llegalChar:X2}");
+                        match = illegalChars.Match(path);
+                    }
+
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, path.TrimEnd(' ','\\','/')).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;

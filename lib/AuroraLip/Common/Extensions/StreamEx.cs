@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AuroraLip.Archives.DiscImage;
+using AuroraLip.Archives.Formats;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,11 +29,14 @@ namespace AuroraLip.Common
         /// <exception cref="IOException">An I/O error occurred.</exception>
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static byte[] Read(this Stream stream, int Count, Endian order = Endian.Little, int Offset = 0)
         {
+
+#if DEBUG
             if (stream.Position + Count > stream.Length)
-                throw new ArgumentOutOfRangeException($"{stream}");
+                Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
+#endif
 
             byte[] Final = new byte[Count];
             stream.Read(Final, Offset, Count);

@@ -93,6 +93,10 @@ namespace AuroraLip.Archives.DiscImage
                 case KeyID.vWiiKey:
                     Key = WiiKey.VKey;
                     break;
+                default:
+                    Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(V0Ticket)} Common Key ID'{CommonKeyID}' does not exist!");
+                    Key = WiiKey.CKey;
+                    break;
             }
             return MiscEX.AESDecrypt(TitleKey, Key, GetTitleIV());
         }

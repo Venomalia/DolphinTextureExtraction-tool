@@ -115,6 +115,7 @@ namespace AuroraLip.Common
             new FormatInfo(".brvia", FormatType.Animation, "Wii Visibility Sequence", Nin_),
             new FormatInfo(".tbl", FormatType.Parameter, "JMap data", Nin_),
             new FormatInfo(".bcam", FormatType.Parameter, "JMap camera data", Nin_),
+            new FormatInfo(".canm","ANDO", FormatType.Parameter, "JCameraAnimation", Nin_),
             //new FormatInfo(".brmdl", FormatType.Model, "Wii Model Display Lists", Nin_),
             #endregion
 
@@ -201,7 +202,7 @@ namespace AuroraLip.Common
             new FormatInfo(".nes", new byte[]{78,69,83,26,1,1},0 , FormatType.Rom, "Rom", Nin_),
             new FormatInfo(".rvz", new byte[]{82,86,90,1,1},0 , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
             new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad", new byte[]{32,73,115},3, FormatType.Rom, "Wii",Nin_),
+            new FormatInfo(".wad", FormatType.Rom, "Wii WAD",Nin_){ Class = typeof(WAD), IsMatch = WAD.Matcher},
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
             new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_){ Class = typeof(GCDisk), IsMatch = GCDisk.Matcher},
             new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_){ Class = typeof(WiiDisk), IsMatch = WiiDisk.Matcher},

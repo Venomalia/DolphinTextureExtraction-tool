@@ -129,6 +129,15 @@ namespace AuroraLip.Archives.DiscImage
                 DLC = 0x4001,
                 Shared = 0x8001,
             }
+
+            public byte[] GetContentIV()
+            {
+                byte[] iv_bits = BitConverter.GetBytes(Index);
+                byte[] iv = new byte[16];
+                iv[0] = iv_bits[1];
+                iv[1] = iv_bits[0];
+                return iv;
+            }
         }
     }
 }

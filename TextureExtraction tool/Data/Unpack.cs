@@ -24,8 +24,13 @@ namespace DolphinTextureExtraction_tool
         {
             try
             {
+                if (Option.Deep != 0 && so.Deep >= Option.Deep)
+                {
+                    Save(so.Stream, so.SubPath.ToString(), so.Format);
+                    return;
+                }
 
-            switch (so.Format.Typ)
+                switch (so.Format.Typ)
                 {
                     case FormatType.Unknown:
                         if (Option.Force && TryForce(so))
@@ -35,8 +40,8 @@ namespace DolphinTextureExtraction_tool
                         if (so.Deep != 0)
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
-                case FormatType.Rom:
-                case FormatType.Archive:
+                    case FormatType.Rom:
+                    case FormatType.Archive:
                         if (!TryExtract(so))
                         {
                             Log.Write(FileAction.Unsupported, so.SubPath.ToString() + so.Extension + $" ~{MathEx.SizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");

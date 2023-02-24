@@ -169,6 +169,8 @@ namespace DolphinTextureExtraction_tool
                                 break;
                             case Modes.Unpacks:
 
+                                Console.WriteLine($"Unpack recursiv. \t(True) or False");
+                                options.Deep = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
                                 Console.WriteLine($"Tries to extract unknown file formats, may cause errors. \tTrue or (False)");
                                 options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
 
@@ -540,6 +542,8 @@ namespace DolphinTextureExtraction_tool
                     }
                     break;
                 case Modes.Unpacks:
+                    Console.Write($"Unpack recursiv: ");
+                    ConsoleEx.WriteBoolPrint(options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
                     break;
             }
             Console.Write($"Perform a dry run: ");

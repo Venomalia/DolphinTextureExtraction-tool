@@ -55,6 +55,7 @@ namespace DolphinTextureExtraction_tool
                 if (!UseConfig) return;
                 if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
                 if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
+                if (uint.TryParse(Config.Get("Deep"), out uint deep)) Deep = deep;
                 if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing <= 0 ? Environment.ProcessorCount : thing;
             }
 
@@ -62,6 +63,12 @@ namespace DolphinTextureExtraction_tool
             /// Don't actually extract anything.
             /// </summary>
             public bool DryRun = false;
+
+            /// <summary>
+            /// Maximum file depth to search,
+            /// "0" for max.
+            /// </summary>
+            public uint Deep = 0;
 
             /// <summary>
             /// will be executed if progress was made

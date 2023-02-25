@@ -266,7 +266,7 @@ namespace DolphinTextureExtraction_tool
         }
 
 
-        internal static readonly Regex illegalChars = new Regex(@"^(.*(//|\\))?(?'X'PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*| )((//|\\).*)?$|[\x00-\x1f?*:""<>|]", RegexOptions.CultureInvariant);
+        internal static readonly Regex illegalChars = new Regex(@"^(.*(//|\\))?(?'X'PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*| )((//|\\).*)?$|[\x00-\x1f\x7F?*:""<>|]| ((//|\\).*)?$", RegexOptions.CultureInvariant);
 
         private double Scan(string subPath, int deep, List<ArchiveFile> fileInfos)
         {

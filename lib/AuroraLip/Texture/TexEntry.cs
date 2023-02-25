@@ -205,7 +205,7 @@ namespace AuroraLip.Texture
             /// <returns></returns>
             public ulong GetTlutHash(JUTPalette Palette)
             {
-                if (!Format.IsPaletteFormat()) return 0;
+                if (!Format.IsPaletteFormat() || Palette == null) return 0;
 
                 (int start, int length) = Format.GetTlutRange(RawImages[0].AsSpan());
                 if (Palette.Size < length)

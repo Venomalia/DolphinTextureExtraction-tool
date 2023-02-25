@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -129,7 +130,7 @@ namespace AuroraLip.Archives.Formats
                     if (DirectoryStack.Peek().Items.ContainsKey((FlatItems[i]).Name))
                     {
                         string name = ((ArchiveFile)FlatItems[i]).Name;
-                        ((ArchiveFile)FlatItems[i]).Name = Path.GetFileName(name) + i + Path.GetExtension(name);
+                        ((ArchiveFile)FlatItems[i]).Name = $"{PathEX.WithoutExtension(name.AsSpan()).ToString()}_{i}{PathEX.GetExtension(name.AsSpan()).ToString()}";
                     }
 
                     FlatItems[i].Parent = DirectoryStack.Peek();

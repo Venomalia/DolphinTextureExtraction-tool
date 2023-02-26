@@ -150,6 +150,10 @@ namespace AuroraLip.Common
             //Intelligent Systems
             new FormatInfo(".pak","pack", FormatType.Archive, "Fire Emblem Archive", "Intelligent Systems"),
 
+            //Genius Sonority
+            new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon Archive","Genius Sonority"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
+            new FormatInfo(".GTX", FormatType.Texture, "Pokemon Texture","Genius Sonority"){ Class = typeof(GTX), IsMatch = GTX.Matcher },
+
             #endregion
 
             #region Common
@@ -166,6 +170,7 @@ namespace AuroraLip.Common
             new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki") { Class = typeof(SevenZip) , IsMatch = LZH_Matcher},
             new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
+            new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"){ Class = typeof(LZ77)},
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
@@ -341,7 +346,6 @@ namespace AuroraLip.Common
             new FormatInfo(".fpk", FormatType.Archive, "compressed"),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
-            new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),

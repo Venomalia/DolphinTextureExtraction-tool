@@ -138,6 +138,7 @@
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Palette\JUTTlut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Texture\Formats\GTX.cs" />
     <Compile Include="Texture\J3DColorConverter .cs" />
     <Compile Include="Texture\DolphinTextureHash.cs" />
     <Compile Include="Texture\Formats\ATB.cs" />

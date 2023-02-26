@@ -118,7 +118,7 @@ namespace AuroraLip.Texture
         /// <exception cref="FormatException"></exception>
         public static int GetMaxPaletteColours(this GXImageFormat Format)
         {
-            if (Format.IsPaletteFormat())
+            if (!Format.IsPaletteFormat())
                 throw new FormatException($"{Format} Is not a Palette format!");
             return MaxTlutColours[(int)Format-8];
         }

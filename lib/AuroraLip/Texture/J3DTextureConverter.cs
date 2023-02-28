@@ -47,7 +47,14 @@ namespace AuroraLip.Texture
 
         public static Bitmap DecodeImage(ReadOnlySpan<byte> ImageData, ReadOnlySpan<Color> PaletteColours, GXImageFormat Format, int Width, int Height)
         {
-            var (BlockWidth, BlockHeight) = Format.GetBlockSize();
+
+            if (Format.IsPaletteFormat() && PaletteColours.Length == 0)
+            {
+                Format -= 8;
+                Events.NotificationEvent?.Invoke(NotificationType.Warning, $"No Colors associate with this Palettet Texture, it will be rendered in {Format} grayscale!");
+            }
+
+                var (BlockWidth, BlockHeight) = Format.GetBlockSize();
             int BlockDataSize = Format.GetBlockDataSize(), offset = 0, BlockX = 0, BlockY = 0, XInBlock = 0, YInBlock = 0;
 
             byte[] Pixels = new byte[Width * Height * 4];

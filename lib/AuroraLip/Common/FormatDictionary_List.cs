@@ -177,6 +177,7 @@ namespace AuroraLip.Common
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
             new FormatInfo(".Comp","COMP", FormatType.Archive, "Lempel-Ziv 10"),
             new FormatInfo(".CNX","CNX", FormatType.Archive, "CNX compressed"),
+            new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, "CXLZ compressed"),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed") {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),

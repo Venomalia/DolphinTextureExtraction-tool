@@ -38,7 +38,44 @@ namespace AuroraLip.Compression.Formats
             source.Position += 1;
             int destinationLength = (int)source.ReadUInt24();
 
-            return Decompress_ALG(source, destinationLength);
+            var Decom = Decompress_ALG(source, destinationLength);
+
+            //has chunks?
+            if (source.Position != source.Length)
+            {
+                var buffer = new MemoryStream();
+                buffer.Write(Decom);
+                try
+                {
+                    while (source.Position != source.Length)
+                    {
+                        byte Test = source.ReadUInt8();
+
+                        if (Test != 0)
+                        {
+                            if (Test == 17)
+                            {
+                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ11)} new chunk found at {source.Position}.");
+                                destinationLength = (int)source.ReadUInt24();
+                                Decom = Decompress_ALG(source, destinationLength);
+                                buffer.Write(Decom);
+                            }
+                            else
+                            {
+                                Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{typeof(LZ11)} file contains {source.Length - source.Position} unread bytes, starting at position {source.Position}!");
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch (System.Exception)
+                {
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{typeof(LZ11)} chunk error at {source.Position}.");
+                }
+                return buffer.ToArray();
+            }
+
+            return Decom;
         }
 
         public static byte[] Decompress_ALG(Stream source, int decomLength)

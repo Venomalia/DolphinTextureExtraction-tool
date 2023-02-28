@@ -17,38 +17,31 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 4 && stream.ReadByte() == 17;
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] source, Stream destination)
         {
-            using (var destination = new MemoryStream())
+            // Write out the header
+            if (source.Length <= 0xFFFFFF)
             {
-                // Write out the header
-                if (Data.Length <= 0xFFFFFF)
-                {
-                    destination.Write(0x11 | (Data.Length << 8));
-                }
-                else
-                {
-                    destination.WriteByte(0x11);
-                    destination.Write(Data.Length);
-                }
-
-                Compress(Data, destination);
-                return destination.ToArray();
+                destination.Write(0x11 | (source.Length << 8));
             }
+            else
+            {
+                destination.WriteByte(0x11);
+                destination.Write(source.Length);
+            }
+
+            Compress_ALG(source, destination);
         }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
-            using (var source = new MemoryStream(Data))
-            {
-                source.Position += 1;
-                int destinationLength = (int)source.ReadUInt24();
+            source.Position += 1;
+            int destinationLength = (int)source.ReadUInt24();
 
-                return Decompress(source, destinationLength);
-            }
+            return Decompress_ALG(source, destinationLength);
         }
 
-        public static byte[] Decompress(Stream source, int decomLength)
+        public static byte[] Decompress_ALG(Stream source, int decomLength)
         {
             int matchDistance, matchLength;
             byte[] destination = new byte[decomLength];
@@ -108,7 +101,7 @@ namespace AuroraLip.Compression.Formats
          * base on Puyo Tools
          * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
          */
-        public static void Compress(in byte[] sourceArray, Stream destination)
+        public static void Compress_ALG(in byte[] sourceArray, Stream destination)
         {
             int sourceLength = sourceArray.Length,
                 sourcePointer = 0x0;

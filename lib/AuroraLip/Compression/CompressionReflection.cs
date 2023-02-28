@@ -19,20 +19,25 @@ namespace AuroraLip.Compression
         /// <returns></returns>
         public bool TryToDecompress(Stream stream, out Stream outstream, out Type type)
         {
+            var startPosition = stream.Position;
+
             foreach (var Instance in Instances)
             {
                 if (Instance.CanRead && Instance.IsMatch(stream))
                 {
                     try
                     {
-                        stream.Seek(0, SeekOrigin.Begin);
-                        outstream = Instance.Decompress(stream);
+                        stream.Seek(startPosition, SeekOrigin.Begin);
+                        outstream = new MemoryStream(Instance.Decompress(stream));
                         type = Instance.GetType();
                         return true;
                     }
-                    catch (Exception) { }
+                    catch (Exception)
+                    {
+
+                    }
                 }
-                stream.Seek(0, SeekOrigin.Begin);
+                stream.Seek(startPosition, SeekOrigin.Begin);
             }
 
             outstream = null;

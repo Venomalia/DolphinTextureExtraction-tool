@@ -172,7 +172,11 @@ namespace AuroraLip.Common
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
-            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"){ Class = typeof(LZ77)},
+            new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00"),
+            new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01"),
+            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
+            new FormatInfo(".Comp","COMP", FormatType.Archive, "Lempel-Ziv 10"),
+            new FormatInfo(".CNX","CNX", FormatType.Archive, "CNX compressed"),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
             new FormatInfo(".zlib", FormatType.Archive, "compressed") {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
@@ -315,10 +319,9 @@ namespace AuroraLip.Common
             new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
 
             //Aqualead. use in Pandora's Tower
-            new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead"),
+            new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead"), // https://zenhax.com/viewtopic.php?t=16613
             new FormatInfo(".act","ALCT", FormatType.Archive, "Container", "Aqualead"),
             new FormatInfo(".aar","ALLZ", FormatType.Archive, "AL LZSS Compressed", "Aqualead"), //https://github.com/Brolijah/Aqualead_LZSS
-            //new FormatInfo(".lz77","GCLZ", FormatType.Archive, "Lz77"){ Class = typeof(LZ77)},
             new FormatInfo(".atx","ALTX", FormatType.Texture, "Texture", "Aqualead"),
             new FormatInfo(".aig","ALIG", FormatType.Texture, "Image", "Aqualead"),
             new FormatInfo(".ams","ALMS", FormatType.Collision, "Mesh Collision", "Aqualead"),
@@ -331,6 +334,7 @@ namespace AuroraLip.Common
             new FormatInfo(".aod","ALOD", FormatType.Else, "Object Definition", "Aqualead"),
             new FormatInfo(".atb","ALTB", FormatType.Else, "Table", "Aqualead"),
             new FormatInfo(".ard","ALRD", FormatType.Else, "Record Prop", "Aqualead"),
+            new FormatInfo(".GCLz","GCLZ", FormatType.Archive, "GCLz Compressed"),
 
             //Hudson Soft
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },

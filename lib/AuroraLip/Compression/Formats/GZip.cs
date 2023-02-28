@@ -14,12 +14,18 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanRead { get; } = true;
 
-        public byte[] Compress(in byte[] Data) => Compress(Data,CompressionLevel.Optimal);
+        public void Compress(in byte[] source, Stream destination)
+        {
+            using (GZipStream gZipStream = new GZipStream(new MemoryStream(source), System.IO.Compression.CompressionLevel.Optimal))
+            {
+                gZipStream.CopyTo(destination);
+            }
+        }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
             MemoryStream memoryStream = new MemoryStream();
-            using (GZipStream gZipStream = new GZipStream(new MemoryStream(Data), CompressionMode.Decompress))
+            using (GZipStream gZipStream = new GZipStream(source, CompressionMode.Decompress))
             {
                 gZipStream.CopyTo(memoryStream);
             }

@@ -291,7 +291,7 @@ namespace DolphinTextureExtraction_tool
                         match = illegalChars.Match(path);
                     }
 
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, path.TrimEnd(' ','\\','/')).AsSpan(), deep));
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, path.TrimEnd(' ', '\\', '/')).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;
@@ -436,8 +436,8 @@ namespace DolphinTextureExtraction_tool
                 }
                 if (so.Format.Class.GetInterface(nameof(ICompression)) != null)
                 {
-                    Stream destream = ((ICompression)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream);
-                    Scan(new ScanObjekt(destream, so.SubPath, so.Deep, so.Extension));
+                    Stream destream = new MemoryStream(((ICompression)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream));
+                    Scan(new ScanObjekt(destream, so.SubPath, so.Deep + 1, so.Extension));
                     return true;
                 }
                 //External classes

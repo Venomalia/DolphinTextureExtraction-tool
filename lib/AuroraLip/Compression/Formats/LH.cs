@@ -20,12 +20,12 @@ namespace NSMBWCompression
             return stream.ReadUInt8() == 64;
         }
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] source, Stream destination)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
             throw new NotImplementedException();
         }

@@ -24,13 +24,12 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 3 && (stream.ReadByte() & 0x1) == 1 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
             int bitPos = 9;
             byte currentByte;
             int lookBehindOffset, lookBehindLength;
 
-            Stream source = new MemoryStream(Data);
             Stream destination = new MemoryStream();
 
             currentByte = source.ReadUInt8();
@@ -86,11 +85,10 @@ namespace AuroraLip.Compression.Formats
             return destination.ToArray();
         }
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] Data, Stream destination)
         {
 
             Stream source = new MemoryStream(Data);
-            Stream destination = new MemoryStream();
 
             // Get the source length
             int sourceLength = (int)(source.Length - source.Position);
@@ -167,7 +165,7 @@ namespace AuroraLip.Compression.Formats
 
             destination.WriteByte(0);
             destination.WriteByte(0);
-            return destination.ToArray();
+            return;
         }
 
         private static void Copy(int offset, int size, ref byte controlByte, ref byte bitPos, MemoryStream data, Stream destination)

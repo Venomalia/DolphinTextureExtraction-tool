@@ -190,7 +190,11 @@ namespace DolphinTextureExtraction_tool
                 Result.Worke = 1;
                 Result.WorkeLength = file.Length;
                 Option.ProgressUpdate(Result);
-                Scan(file);
+
+                Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                Scan(new ScanObjekt(stream, file.Name.AsSpan(), 0, file.Extension));
+                stream.Close();
+
                 Result.Progress++;
                 Result.ProgressLength += file.Length;
                 Option.ProgressUpdate(Result);
@@ -377,7 +381,7 @@ namespace DolphinTextureExtraction_tool
                     case ".cmp":
                     case ".cmparc":
                     case ".cmpres":
-                        if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
+                        if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
                         {
                             Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, PathEX.GetExtension(PathEX.WithoutExtension(so.SubPath)).ToString()));
                             return true;
@@ -461,7 +465,7 @@ namespace DolphinTextureExtraction_tool
             if (so.Stream.Length < 25165824) // 24 MB
                 if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                 {
-                    Scan(new ScanObjekt(test, so.SubPath, so.Deep, so.Extension));
+                    Scan(new ScanObjekt(test, so.SubPath, so.Deep +1, so.Extension));
                     return true;
                 }
             so.Stream.Seek(0, SeekOrigin.Begin);

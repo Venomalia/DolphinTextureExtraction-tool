@@ -1,14 +1,8 @@
 ﻿using AuroraLip.Common;
-using System.Collections.Generic;
 using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {
-    /*
-     * Wexos 
-     * Library for Compressing and Decompressing LZ11 files
-     * https://wiki.tockdom.com/wiki/Wexos's_Toolbox
-     */
 
     /// <summary>
     /// Nintendo LZ11 compression algorithm
@@ -25,289 +19,172 @@ namespace AuroraLip.Compression.Formats
 
         public byte[] Compress(in byte[] Data)
         {
-            int length = (int)Data.Length;
-            MemoryStream memoryStream = new MemoryStream(Data);
-            MemoryStream memoryStream1 = new MemoryStream();
-            byte[] numArray = new byte[length];
-            memoryStream.Read(numArray, 0, length);
-
-            int num = 0;
-            int length1 = 4;
-            LzWindowDictionary lzWindowDictionary = new LzWindowDictionary();
-            lzWindowDictionary.SetWindowSize(4096);
-            lzWindowDictionary.SetMaxMatchAmount(4096);
-            if (length > 16777215)
+            using (var destination = new MemoryStream())
             {
-                memoryStream1.WriteByte(17);
-                PTStream.WriteInt32(memoryStream1, length);
-                length1 += 4;
-            }
-            else
-            {
-                PTStream.WriteInt32(memoryStream1, 17 | length << 8);
-            }
-            while (num < length)
-            {
-                using (MemoryStream memoryStream2 = new MemoryStream())
+                // Write out the header
+                if (Data.Length <= 0xFFFFFF)
                 {
-                    byte num1 = 0;
-                    for (int i = 7; i >= 0; i--)
-                    {
-                        int[] numArray1 = lzWindowDictionary.Search(numArray, (uint)num, (uint)length);
-                        if (numArray1[1] <= 0)
-                        {
-                            memoryStream2.WriteByte(numArray[num]);
-                            lzWindowDictionary.AddEntry(numArray, num);
-                            lzWindowDictionary.SlideWindow(1);
-                            num++;
-                        }
-                        else
-                        {
-                            num1 = (byte)(num1 | (byte)(1 << (i & 31)));
-                            if (numArray1[1] <= 16)
-                            {
-                                memoryStream2.WriteByte((byte)((numArray1[1] - 1 & 15) << 4 | (numArray1[0] - 1 & 4095) >> 8));
-                                memoryStream2.WriteByte((byte)(numArray1[0] - 1 & 255));
-                            }
-                            else if (numArray1[1] > 272)
-                            {
-                                memoryStream2.WriteByte((byte)(16 | (numArray1[1] - 273 & 65535) >> 12));
-                                memoryStream2.WriteByte((byte)((numArray1[1] - 273 & 4095) >> 4));
-                                memoryStream2.WriteByte((byte)((numArray1[1] - 273 & 15) << 4 | (numArray1[0] - 1 & 4095) >> 8));
-                                memoryStream2.WriteByte((byte)(numArray1[0] - 1 & 255));
-                            }
-                            else
-                            {
-                                memoryStream2.WriteByte((byte)((numArray1[1] - 17 & 255) >> 4));
-                                memoryStream2.WriteByte((byte)((numArray1[1] - 17 & 15) << 4 | (numArray1[0] - 1 & 4095) >> 8));
-                                memoryStream2.WriteByte((byte)(numArray1[0] - 1 & 255));
-                            }
-                            lzWindowDictionary.AddEntryRange(numArray, num, numArray1[1]);
-                            lzWindowDictionary.SlideWindow(numArray1[1]);
-                            num += numArray1[1];
-                        }
-                        if (num >= length)
-                        {
-                            break;
-                        }
-                    }
-                    memoryStream1.WriteByte(num1);
-                    memoryStream2.Position = (long)0;
-                    while (memoryStream2.Position < memoryStream2.Length)
-                    {
-                        memoryStream1.WriteByte(PTStream.ReadByte(memoryStream2));
-                    }
-                    length1 = length1 + (int)memoryStream2.Length + 1;
+                    destination.Write(0x11 | (Data.Length << 8));
                 }
+                else
+                {
+                    destination.WriteByte(0x11);
+                    destination.Write(Data.Length);
+                }
+
+                Compress(Data, destination);
+                return destination.ToArray();
             }
-            return memoryStream1.ToArray();
         }
 
         public byte[] Decompress(in byte[] Data)
         {
-            int num, num1;
-            uint data = (uint)(Data[1] | Data[2] << 8 | Data[3] << 16);
-            byte[] numArray = new byte[data];
-            int num2 = 4;
-            int num3 = 0;
+            using (var source = new MemoryStream(Data))
+            {
+                source.Position += 1;
+                int destinationLength = (int)source.ReadUInt24();
+
+                return Decompress(source, destinationLength);
+            }
+        }
+
+        public static byte[] Decompress(Stream source, int decomLength)
+        {
+            int matchDistance, matchLength;
+            byte[] destination = new byte[decomLength];
+            int destinationPointer = 0;
+
             while (true)
             {
-                byte flag = Data[num2++];
+                byte flag = source.ReadUInt8();
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((flag & 128) != 0)
+                    if ((flag & 128) != 0) // Data is compressed
                     {
-                        byte data2 = Data[num2++];
-                        if (data2 >> 4 == 0)
+                        byte data1 = source.ReadUInt8();
+                        if (data1 >> 4 == 0) // 1+2 bytes
                         {
-                            byte data3 = Data[num2++];
-                            byte data4 = Data[num2++];
-                            num1 = ((data2 & 15) << 4 | data3 >> 4) + 17;
-                            num = ((data3 & 15) << 8 | data4) + 1;
+                            byte data2 = source.ReadUInt8();
+                            byte data3 = source.ReadUInt8();
+                            matchLength = ((data1 & 15) << 4 | data2 >> 4) + 17;
+                            matchDistance = ((data2 & 15) << 8 | data3) + 1;
                         }
-                        else if (data2 >> 4 != 1)
+                        else if (data1 >> 4 != 1) // 1+1 bytes
                         {
-                            byte data5 = Data[num2++];
-                            num = ((data2 & 15) << 8 | data5) + 1;
-                            num1 = (data2 >> 4) + 1;
+                            byte data5 = source.ReadUInt8();
+                            matchDistance = ((data1 & 15) << 8 | data5) + 1;
+                            matchLength = (data1 >> 4) + 1;
                         }
-                        else
+                        else // 1+3 bytes
                         {
-                            byte data6 = Data[num2++];
-                            byte data7 = Data[num2++];
-                            byte data8 = Data[num2++];
-                            num1 = ((data2 & 15) << 12 | data6 << 4 | data7 >> 4) + 273;
-                            num = ((data7 & 15) << 8 | data8) + 1;
+                            byte data6 = source.ReadUInt8();
+                            byte data7 = source.ReadUInt8();
+                            byte data8 = source.ReadUInt8();
+                            matchLength = ((data1 & 15) << 12 | data6 << 4 | data7 >> 4) + 273;
+                            matchDistance = ((data7 & 15) << 8 | data8) + 1;
                         }
-                        for (int j = 0; j < num1; j++)
+                        for (int j = 0; j < matchLength; j++)
                         {
-                            numArray[num3] = numArray[num3 - num];
-                            num3++;
+                            destination[destinationPointer] = destination[destinationPointer - matchDistance];
+                            destinationPointer++;
                         }
                     }
-                    else
+                    else // Not compressed
                     {
-                        numArray[num3++] = Data[num2++];
+                        destination[destinationPointer++] = source.ReadUInt8(); ;
                     }
-                    if (num3 >= data)
+
+                    // Check to see if we reached the end
+                    if (destinationPointer >= decomLength)
                     {
+                        return destination;
+                    }
+                    flag <<= 1;
+                }
+            }
+        }
 
-                        //has chunks?
-                        if (Data.Length > num2)
+        /*
+         * base on Puyo Tools
+         * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
+         */
+        public static void Compress(in byte[] sourceArray, Stream destination)
+        {
+            int sourceLength = sourceArray.Length,
+                sourcePointer = 0x0;
+
+            // Initalize the LZ dictionary
+            LzWindowDictionary dictionary = new LzWindowDictionary();
+            dictionary.SetWindowSize(0x1000);
+            dictionary.SetMaxMatchAmount(0x1000);
+
+            using (var buffer = new MemoryStream(32)) // Will never contain more than 32 bytes
+            {
+                // Write out the header
+                // Magic code & decompressed length
+                if (sourceLength <= 0xFFFFFF)
+                {
+                    destination.Write(0x11 | (sourceLength << 8));
+                }
+                else
+                {
+                    destination.WriteByte(0x11);
+                    destination.Write(sourceLength);
+                }
+
+                // Start compression
+                while (sourcePointer < sourceLength)
+                {
+                    byte flag = 0;
+
+                    for (int i = 7; i >= 0; i--)
+                    {
+                        // Search for a match
+                        int[] match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
+
+                        if (match[1] > 0) // There is a match
                         {
-                            //Padding
-                            while (Data.Length - 1 > num2 && Data[num2] == 0)
-                                num2++;
+                            flag |= (byte)(1 << i);
 
-                            //new chunk?
-                            if (Data[num2++] == 17)
+                            // How many bytes will the match take up?
+                            if (match[1] <= 0xF + 1) // 2 bytes
                             {
-                                Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{typeof(LZ11)} has chunks!");
+                                buffer.Write((ushort)((match[1] - 1) << 12 | ((match[0] - 1) & 0xFFF)), Endian.Big);
+                            }
+                            else if (match[1] <= 0xFF + 17) // 3 bytes
+                            {
+                                buffer.WriteByte((byte)(((match[1] - 17) & 0xFF) >> 4));
+                                buffer.Write((ushort)((match[1] - 17) << 12 | ((match[0] - 1) & 0xFFF)), Endian.Big);
+                            }
+                            else // 4 bytes
+                            {
+                                buffer.Write((uint)(0x10000000 | ((match[1] - 273) & 0xFFFF) << 12 | ((match[0] - 1) & 0xFFF)), Endian.Big);
                             }
 
-                            if (Data.Length > num2)
-                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ11)} file steam contains {Data.Length - num2} unread bytes, starting at position {num2}.");
+                            dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
+
+                            sourcePointer += match[1];
                         }
-                        return numArray;
-                    }
-                    flag = (byte)(flag << 1);
-                }
-            }
-        }
-
-        private class LzWindowDictionary
-        {
-            private int WindowStart, WindowLength, BlockSize;
-
-            private int WindowSize = 4096;
-
-            private int MinMatchAmount = 3;
-
-            private int MaxMatchAmount = 18;
-
-            private readonly List<int>[] OffsetList;
-
-            internal LzWindowDictionary()
-            {
-                OffsetList = new List<int>[256];
-                for (int i = 0; i < OffsetList.Length; i++)
-                {
-                    OffsetList[i] = new List<int>();
-                }
-            }
-
-            internal void AddEntry(byte[] DecompressedData, int offset)
-            {
-                OffsetList[DecompressedData[offset]].Add(offset);
-            }
-
-            internal void AddEntryRange(byte[] DecompressedData, int offset, int length)
-            {
-                for (int i = 0; i < length; i++)
-                {
-                    AddEntry(DecompressedData, offset + i);
-                }
-            }
-
-            private void RemoveOldEntries(byte index)
-            {
-                int num = 0;
-                while (num < OffsetList[index].Count && OffsetList[index][num] < WindowStart)
-                {
-                    OffsetList[index].RemoveAt(0);
-                }
-            }
-
-            internal int[] Search(byte[] DecompressedData, uint offset, uint length)
-            {
-                RemoveOldEntries(DecompressedData[offset]);
-                if (offset < MinMatchAmount || (length - offset) < MinMatchAmount)
-                {
-                    return new int[2];
-                }
-                int[] numArray = new int[2];
-                for (int i = OffsetList[DecompressedData[offset]].Count - 1; i >= 0; i--)
-                {
-                    int item = OffsetList[DecompressedData[offset]][i];
-                    int num = 1;
-                    while (num < MaxMatchAmount && num < WindowLength && (item + num) < offset && offset + num < length && DecompressedData[checked(offset + num)] == DecompressedData[item + num])
-                    {
-                        num++;
-                    }
-                    if (num >= MinMatchAmount && num > numArray[1])
-                    {
-                        numArray = new int[] { (int)(offset - item), num };
-                        if (num == MaxMatchAmount)
+                        else // There is not a match
                         {
-                            break;
+                            buffer.WriteByte(sourceArray[sourcePointer]);
+
+                            dictionary.AddEntry(sourceArray, sourcePointer);
+
+                            sourcePointer++;
                         }
+
+                        // Check to see if we reached the end of the file
+                        if (sourcePointer >= sourceLength)
+                            break;
                     }
+
+                    // Flush the buffer and write it to the destination stream
+                    destination.WriteByte(flag);
+
+                    buffer.WriteTo(destination);
+                    buffer.SetLength(0);
                 }
-                return numArray;
-            }
-
-            internal void SetBlockSize(int size)
-            {
-                BlockSize = size;
-                WindowLength = size;
-            }
-
-            internal void SetMaxMatchAmount(int amount)
-            {
-                MaxMatchAmount = amount;
-            }
-
-            internal void SetMinMatchAmount(int amount)
-            {
-                MinMatchAmount = amount;
-            }
-
-            internal void SetWindowSize(int size)
-            {
-                WindowSize = size;
-            }
-
-            internal void SlideBlock()
-            {
-                WindowStart += BlockSize;
-            }
-
-            internal void SlideWindow(int Amount)
-            {
-                if (WindowLength == WindowSize)
-                {
-                    WindowStart += Amount;
-                    return;
-                }
-                if (WindowLength + Amount <= WindowSize)
-                {
-                    WindowLength += Amount;
-                    return;
-                }
-                Amount -= (WindowSize - WindowLength);
-                WindowLength = WindowSize;
-                WindowStart += Amount;
-            }
-        }
-
-        private static class PTStream
-        {
-            public static byte ReadByte(Stream source)
-            {
-                int num = source.ReadByte();
-                if (num == -1)
-                {
-                    throw new EndOfStreamException();
-                }
-                return (byte)num;
-            }
-
-            public static void WriteInt32(Stream destination, int value)
-            {
-                destination.WriteByte((byte)(value & 255));
-                destination.WriteByte((byte)(value >> 8 & 255));
-                destination.WriteByte((byte)(value >> 16 & 255));
-                destination.WriteByte((byte)(value >> 24 & 255));
             }
         }
     }

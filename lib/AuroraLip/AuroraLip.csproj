@@ -135,6 +135,8 @@
     <Compile Include="Compression\Interfaces\ICompressionLevel.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Archives\DiscImage\GameID_MakerCodes.cs" />
+    <Compile Include="Compression\LzBufferDictionary.cs" />
+    <Compile Include="Compression\LzWindowDictionary.cs" />
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Palette\JUTTlut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

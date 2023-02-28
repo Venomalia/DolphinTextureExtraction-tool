@@ -4,116 +4,43 @@ using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {
-    /*
-     * Wexos 
-     * Library for Compressing and Decompressing LZ77 files
-     * https://wiki.tockdom.com/wiki/Wexos's_Toolbox
-     */
 
     /// <summary>
-    /// LZ77 compression algorithm
+    /// Nintendo LZ77 compression algorithm use LZ10
     /// </summary>
     public class LZ77 : ICompression, IMagicIdentify
     {
         public bool CanRead => true;
 
-        public bool CanWrite => false;
-
-        public static string magic { get; } = "LZ77";
+        public bool CanWrite => true;
 
         public string Magic => magic;
 
+        public static string magic = "LZ77";
+
         public bool IsMatch(Stream stream, in string extension = "")
+            => stream.MatchString(magic) && stream.ReadByte() == 16;
+
+        public void Compress(in byte[] source, Stream destination)
         {
-            if (stream.MatchString(magic) && stream.ReadByte() == 16)
-                return true;
-            
-            stream.Seek(0, SeekOrigin.Begin);
-            return stream.Length > 16 && stream.ReadByte() == 16 && stream.Length < (int)stream.ReadUInt24();
-        }
-
-        public byte[] Compress(in byte[] Data)
-        {
-            throw new NotImplementedException();
-        }
-
-        public byte[] Decompress(in byte[] Data)
-        {
-            if (Data[0] == 16)
-                return Decompress(Data.AsSpan());
-            else if (Data[4] == 16)
-                return Decompress(Data.AsSpan(4));
-            else
-                throw new InvalidIdentifierException(Magic);
-        }
-
-        public byte[] Decompress(ReadOnlySpan<byte> Data)
-        {
-            uint data = (uint)(Data[1] | Data[2] << 8 | Data[3] << 16);
-            byte[] numArray = new byte[data];
-
-            if (data == 0)
-                return numArray;
-
-            MemoryStream ms = new MemoryStream();
-            int num = 4;
-            int num1 = 0;
-            while (true)
+            // LZ77 compression can only handle files smaller than 16MB
+            if (source.Length > 0xFFFFFF)
             {
-                byte flag = Data[num++];
-                for (int i = 0; i < 8; i++)
-                {
-                    if ((flag & 128) != 0)
-                    {
-                        byte data2 = Data[num++];
-                        byte data3 = Data[num++];
-                        int num5 = ((data2 & 15) << 8 | data3) + 1;
-                        int num6 = (data2 >> 4) + 3;
-                        for (int j = 0; j < num6; j++)
-                        {
-                            numArray[num1] = numArray[num1 - num5];
-                            num1++;
-                        }
-                    }
-                    else
-                    {
-                        numArray[num1++] = Data[num++];
-                    }
-                    if (num1 >= data)
-                    {
-                        ms.Write(numArray);
-
-                        //has chunks?
-                        if (Data.Length > num)
-                        {
-                            //Padding
-                            while (Data.Length - 1 > num && Data[num] == 0)
-                                num++;
-
-                            //new chunk?
-                            if (Data[num++] == 16)
-                            {
-                                num1 = 0;
-                                data = (uint)(Data[num++] | Data[num++] << 8 | Data[num++] << 16);
-
-                                numArray = new byte[data];
-                                break;
-                            }
-
-                            if (Data.Length > num)
-                            {
-                                num--;
-                                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(LZ77)} file steam contains {Data.Length - num} unread bytes, starting at position {num}.");
-
-                                ms.Write(Data.Slice(num-1).ToArray());
-                            }
-                        }
-                        return ms.ToArray();
-                    }
-                    flag = (byte)(flag << 1);
-                }
+                throw new Exception($"{typeof(LZ77)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
             }
+            // Write out the header
+            destination.Write(magic.ToByte());
+            destination.Write(0x10 | (source.Length << 8));
+
+            LZ10.Compress_ALG(source, destination);
         }
 
+        public byte[] Decompress(Stream source)
+        {
+            source.Position += 5;
+            int destinationLength = (int)source.ReadUInt24();
+
+            return LZ10.Decompress_ALG(source, destinationLength);
+        }
     }
 }

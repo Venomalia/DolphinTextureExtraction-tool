@@ -124,6 +124,7 @@
     <Compile Include="Compression\Formats\FCMP.cs" />
     <Compile Include="Compression\Formats\CRILAYLA.cs" />
     <Compile Include="Compression\Formats\LZ00.cs" />
+    <Compile Include="Compression\Formats\LZ01.cs" />
     <Compile Include="Compression\Formats\LZ10.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />

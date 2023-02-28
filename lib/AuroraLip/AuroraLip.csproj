@@ -119,7 +119,15 @@
     <Compile Include="Compression\CompressionReflection.cs" />
     <Compile Include="Compression\Enums\CompressionLevel.cs" />
     <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Compression\Formats\CNX.cs" />
+    <Compile Include="Compression\Formats\COMP.cs" />
+    <Compile Include="Compression\Formats\GCLZ.cs" />
+    <Compile Include="Compression\Formats\CXLZ.cs" />
+    <Compile Include="Compression\Formats\FCMP.cs" />
     <Compile Include="Compression\Formats\CRILAYLA.cs" />
+    <Compile Include="Compression\Formats\LZ00.cs" />
+    <Compile Include="Compression\Formats\LZ01.cs" />
+    <Compile Include="Compression\Formats\LZ10.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />
     <Compile Include="Compression\Formats\LH.cs" />
@@ -135,6 +143,8 @@
     <Compile Include="Compression\Interfaces\ICompressionLevel.cs" />
     <Compile Include="Compression\Interfaces\ICompression.cs" />
     <Compile Include="Archives\DiscImage\GameID_MakerCodes.cs" />
+    <Compile Include="Compression\LzBufferDictionary.cs" />
+    <Compile Include="Compression\LzWindowDictionary.cs" />
     <Compile Include="Palette\Formats\PLT0.cs" />
     <Compile Include="Palette\JUTTlut.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

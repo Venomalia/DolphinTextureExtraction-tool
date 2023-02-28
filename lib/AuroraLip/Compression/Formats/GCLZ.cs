@@ -4,11 +4,7 @@ using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {
-
-    /// <summary>
-    /// Nintendo LZ77 compression algorithm use LZ10
-    /// </summary>
-    public class LZ77 : ICompression, IMagicIdentify
+    public class GCLZ : ICompression, IMagicIdentify
     {
         public bool CanRead => true;
 
@@ -16,17 +12,17 @@ namespace AuroraLip.Compression.Formats
 
         public string Magic => magic;
 
-        public static string magic = "LZ77";
+        public static string magic = "GCLZ";
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic) && stream.ReadByte() == 16;
 
         public void Compress(in byte[] source, Stream destination)
         {
-            // LZ77 compression can only handle files smaller than 16MB
+            // GCLZ compression can only handle files smaller than 16MB
             if (source.Length > 0xFFFFFF)
             {
-                throw new Exception($"{typeof(LZ77)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
+                throw new Exception($"{typeof(GCLZ)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
             }
             // Write out the header
             destination.Write(magic.ToByte());

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using AuroraLip.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using AuroraLip.Common;
 
 namespace AuroraLip.Compression.Formats
 {
@@ -27,12 +27,18 @@ namespace AuroraLip.Compression.Formats
 
         public bool CanRead { get; } = true;
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] source, Stream destination)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(in byte[] Data)
+
+        public byte[] Decompress(Stream source)
+        {
+            return Decompress(source.ToArray());
+        }
+
+        private byte[] Decompress(in byte[] Data)
         {
             uint decompressedSize;
 
@@ -104,7 +110,7 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
         {
             if (stream.Length < 16 && stream.MatchString(Magic))
-{
+            {
                 stream.Position = 12;
                 // compressed size match?
                 uint compressedSize = BitConverter.ToUInt32(stream.Read(4), 0);

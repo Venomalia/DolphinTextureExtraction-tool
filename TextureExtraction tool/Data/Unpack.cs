@@ -33,8 +33,17 @@ namespace DolphinTextureExtraction_tool
                 switch (so.Format.Typ)
                 {
                     case FormatType.Unknown:
-                        if (Option.Force && TryForce(so))
-                            break;
+                        if (Option.Force)
+                        {
+                            if (TryForce(so))
+                                break;
+                        }
+                        else
+                        {
+                            if (TryExtract(so))
+                                break;
+                        }
+
 
                         AddResultUnknown(so.Stream, so.Format, so.SubPath.ToString() + so.Extension);
                         if (so.Deep != 0)

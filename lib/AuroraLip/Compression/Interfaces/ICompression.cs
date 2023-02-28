@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using System.IO;
 
 namespace AuroraLip.Compression
 {
@@ -10,14 +11,14 @@ namespace AuroraLip.Compression
         /// </summary>
         /// <param name="Data">Decompress data</param>
         /// <returns>Compressed data</returns>
-        byte[] Compress(in byte[] Data);
+        void Compress(in byte[] source, Stream destination);
 
         /// <summary>
         /// Data decompression
         /// </summary>
         /// <param name="Data">Compressed data</param>
         /// <returns>Decompress data</returns>
-        byte[] Decompress(in byte[] Data);
+        byte[] Decompress(Stream source);
 
     }
 }

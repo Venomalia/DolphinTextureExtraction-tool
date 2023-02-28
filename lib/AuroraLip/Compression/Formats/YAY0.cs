@@ -29,6 +29,11 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 4 && stream.MatchString(Magic);
 
+        public void Compress(in byte[] source, Stream destination)
+        {
+            destination.Write(Compress(source));
+        }
+
         //Based on https://github.com/Daniel-McCarthy/Mr-Peeps-Compressor/blob/master/PeepsCompress/PeepsCompress/Algorithm%20Classes/YAY0.cs
         public byte[] Compress(in byte[] data)
         {
@@ -96,16 +101,15 @@ namespace AuroraLip.Compression.Formats
         }
 
         //Based on https://github.com/LordNed/WArchive-Tools/blob/master/ArchiveToolsLib/Compression/Yay0Decoder.cs
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
-            MemoryStream YAY0 = new MemoryStream(Data);
-            if (YAY0.ReadString(4) != Magic)
-                throw new Exception($"{typeof(YAY0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
+            if (source.ReadString(4) != Magic)
+                throw new Exception($"{typeof(YAY0)}:Invalid Identifier");
 
             
-            uint uncompressedSize = YAY0.ReadUInt32(Endian.Big),
-                linkTableOffset = YAY0.ReadUInt32(Endian.Big),
-                byteChunkAndCountModifiersOffset = YAY0.ReadUInt32(Endian.Big);
+            uint uncompressedSize = source.ReadUInt32(Endian.Big),
+                linkTableOffset = source.ReadUInt32(Endian.Big),
+                byteChunkAndCountModifiersOffset = source.ReadUInt32(Endian.Big);
 
             int maskBitCounter = 0, currentOffsetInDestBuffer = 0, currentMask = 0;
 
@@ -116,7 +120,7 @@ namespace AuroraLip.Compression.Formats
                 // If we're out of bits, get the next mask.
                 if (maskBitCounter == 0)
                 {
-                    currentMask = YAY0.ReadInt32(Endian.Big);
+                    currentMask = source.ReadInt32(Endian.Big);
                     maskBitCounter = 32;
                 }
 
@@ -124,19 +128,19 @@ namespace AuroraLip.Compression.Formats
                 // Do a copy otherwise.
                 if (((uint)currentMask & (uint)0x80000000) == 0x80000000)
                 {
-                    long pauseposition = YAY0.Position;
-                    YAY0.Position = byteChunkAndCountModifiersOffset++;
-                    uncompressedData[currentOffsetInDestBuffer++] = (byte)YAY0.ReadByte();
-                    YAY0.Position = pauseposition;
+                    long pauseposition = source.Position;
+                    source.Position = byteChunkAndCountModifiersOffset++;
+                    uncompressedData[currentOffsetInDestBuffer++] = (byte)source.ReadByte();
+                    source.Position = pauseposition;
                 }
                 else
                 {
                     // Read 16-bit from the link table
-                    long pauseposition = YAY0.Position;
-                    YAY0.Position = linkTableOffset;
-                    ushort link = YAY0.ReadUInt16(Endian.Big);
+                    long pauseposition = source.Position;
+                    source.Position = linkTableOffset;
+                    ushort link = source.ReadUInt16(Endian.Big);
                     linkTableOffset += 2;
-                    YAY0.Position = pauseposition;
+                    source.Position = pauseposition;
 
                     // Calculate the offset
                     int offset = currentOffsetInDestBuffer - (link & 0xfff);
@@ -146,10 +150,10 @@ namespace AuroraLip.Compression.Formats
 
                     if (count == 0)
                     {
-                        pauseposition = YAY0.Position;
-                        YAY0.Position = byteChunkAndCountModifiersOffset++;
-                        byte countModifier = (byte)YAY0.ReadByte();
-                        YAY0.Position = pauseposition;
+                        pauseposition = source.Position;
+                        source.Position = byteChunkAndCountModifiersOffset++;
+                        byte countModifier = (byte)source.ReadByte();
+                        source.Position = pauseposition;
                         count = countModifier + 18;
                     }
                     else
@@ -166,13 +170,6 @@ namespace AuroraLip.Compression.Formats
                 currentMask <<= 1;
                 maskBitCounter--;
             }
-
-            //Padding
-            while (YAY0.ReadByte() == 0)
-            { }
-
-            if (YAY0.Length > YAY0.Position)
-                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(YAY0)} file steam contains {YAY0.Length - YAY0.Position + 1} unread bytes, starting at position {YAY0.Position}.");
             return uncompressedData;
         }
 

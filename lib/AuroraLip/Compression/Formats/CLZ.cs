@@ -24,19 +24,18 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 16 && stream.ReadByte() == 67 && stream.ReadByte() == 76 && stream.ReadByte() == 90;
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] source, Stream destination)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
             using (MemoryStream outfile = new MemoryStream())
-            using (MemoryStream infile = new MemoryStream(Data))
             {
-                Unpack(infile, outfile);
-                if (infile.Length > infile.Position)
-                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(CLZ)} file steam contains {infile.Length - infile.Position} unread bytes, starting at position {infile.Position}.");
+                Unpack(source, outfile);
+                if (source.Length > source.Position)
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(CLZ)} file steam contains {source.Length - source.Position} unread bytes, starting at position {source.Position}.");
                 return outfile.ToArray();
             }
         }

@@ -37,22 +37,20 @@ namespace AuroraLip.Compression.Formats
             EI = eI; EJ = eJ; P = p;
         }
 
-        public byte[] Compress(in byte[] Data)
+        public void Compress(in byte[] source, Stream destination)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
-            MemoryStream stream = new MemoryStream(Data);
-
-            if (!IsMatch(stream))
+            if (!IsMatch(source))
                 throw new InvalidIdentifierException(Magic);
-            uint decompressedSize = stream.ReadUInt32(Endian.Big);
-            uint compressedSize = stream.ReadUInt32(Endian.Big);
-            uint unk = stream.ReadUInt32(Endian.Big);
+            uint decompressedSize = source.ReadUInt32(Endian.Big);
+            uint compressedSize = source.ReadUInt32(Endian.Big);
+            uint unk = source.ReadUInt32(Endian.Big);
 
-            return Decompress(stream, (int)compressedSize).ToArray();
+            return Decompress(source, (int)compressedSize).ToArray();
         }
 
         public MemoryStream Decompress(Stream inputStream, int compressedSize)

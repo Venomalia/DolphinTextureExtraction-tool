@@ -29,6 +29,11 @@ namespace AuroraLip.Compression.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 4 && stream.MatchString(Magic);
 
+
+        public void Compress(in byte[] source, Stream destination)
+        {
+            destination.Write(Compress(source));
+        }
         public byte[] Compress(in byte[] data)
         {
             ByteCountA = 0;
@@ -126,150 +131,39 @@ namespace AuroraLip.Compression.Formats
             return OutputFile.ToArray();
         }
 
-        public byte[] Decompress(in byte[] Data)
+        public byte[] Decompress(Stream source)
         {
-            MemoryStream stream = new MemoryStream(Data);
-            if (stream.ReadString(4) != Magic)
-                throw new Exception($"{typeof(YAZ0)}:Invalid Identifier. Expected ({string.Join(",", Data, 0, 4)})");
+            if (source.ReadString(4) != Magic)
+                throw new Exception($"{typeof(YAZ0)}:Invalid Identifier");
             
-            uint DecompressedSize = stream.ReadUInt32(Endian.Big),
-                CompressedDataOffset = stream.ReadUInt32(Endian.Big),
-                UncompressedDataOffset = stream.ReadUInt32(Endian.Big);
+            uint DecompressedSize = source.ReadUInt32(Endian.Big),
+                CompressedDataOffset = source.ReadUInt32(Endian.Big),
+                UncompressedDataOffset = source.ReadUInt32(Endian.Big);
 
             List<byte> Decoding = new List<byte>();
             while (Decoding.Count < DecompressedSize)
             {
-                byte FlagByte = (byte)stream.ReadByte();
+                byte FlagByte = (byte)source.ReadByte();
                 BitArray FlagSet = new BitArray(new byte[1] { FlagByte });
 
                 for (int i = 7; i > -1 && (Decoding.Count < DecompressedSize); i--)
                 {
                     if (FlagSet[i] == true)
-                        Decoding.Add((byte)stream.ReadByte());
+                        Decoding.Add((byte)source.ReadByte());
                     else
                     {
-                        byte Tmp = (byte)stream.ReadByte();
-                        int Offset = (((byte)(Tmp & 0x0F) << 8) | (byte)stream.ReadByte()) + 1,
-                            Length = (Tmp & 0xF0) == 0 ? stream.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
+                        byte Tmp = (byte)source.ReadByte();
+                        int Offset = (((byte)(Tmp & 0x0F) << 8) | (byte)source.ReadByte()) + 1,
+                            Length = (Tmp & 0xF0) == 0 ? source.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
 
                         for (int j = 0; j < Length; j++)
                             Decoding.Add(Decoding[Decoding.Count - Offset]);
                     }
                 }
             }
-
-            //Padding
-            while (stream.ReadByte() == 0)
-            { }
-
-            if (stream.Length > stream.Position)
-                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(YAZ0)} file steam contains {stream.Length - stream.Position} unread bytes, starting at position {stream.Position}.");
             return Decoding.ToArray();
         }
 
-        /*
-        //From https://github.com/Gericom/EveryFileExplorer/blob/master/CommonCompressors/YAZ0.cs
-        private static unsafe byte[] QuickCompress(byte[] data)
-        {
-
-            byte* dataptr = (byte*)Marshal.UnsafeAddrOfPinnedArrayElement(data, 0);
-
-            byte[] result = new byte[data.Length + data.Length / 8 + 0x10];
-            byte* resultptr = (byte*)Marshal.UnsafeAddrOfPinnedArrayElement(result, 0);
-            *resultptr++ = (byte)'Y';
-            *resultptr++ = (byte)'a';
-            *resultptr++ = (byte)'z';
-            *resultptr++ = (byte)'0';
-            *resultptr++ = (byte)((data.Length >> 24) & 0xFF);
-            *resultptr++ = (byte)((data.Length >> 16) & 0xFF);
-            *resultptr++ = (byte)((data.Length >> 8) & 0xFF);
-            *resultptr++ = (byte)((data.Length >> 0) & 0xFF);
-            for (int i = 0; i < 8; i++) *resultptr++ = 0;
-            int length = data.Length;
-            int dstoffs = 16;
-            int Offs = 0;
-            while (true)
-            {
-                int headeroffs = dstoffs++;
-                resultptr++;
-                byte header = 0;
-                for (int i = 0; i < 8; i++)
-                {
-                    int comp = 0;
-                    int back = 1;
-                    int nr = 2;
-                    {
-                        byte* ptr = dataptr - 1;
-                        int maxnum = 0x111;
-                        if (length - Offs < maxnum) maxnum = length - Offs;
-                        //Use a smaller amount of bytes back to decrease time
-                        int maxback = 0x400;//0x1000;
-                        if (Offs < maxback) maxback = Offs;
-                        maxback = (int)dataptr - maxback;
-                        int tmpnr;
-                        while (maxback <= (int)ptr)
-                        {
-                            if (*(ushort*)ptr == *(ushort*)dataptr && ptr[2] == dataptr[2])
-                            {
-                                tmpnr = 3;
-                                while (tmpnr < maxnum && ptr[tmpnr] == dataptr[tmpnr]) tmpnr++;
-                                if (tmpnr > nr)
-                                {
-                                    if (Offs + tmpnr > length)
-                                    {
-                                        nr = length - Offs;
-                                        back = (int)(dataptr - ptr);
-                                        break;
-                                    }
-                                    nr = tmpnr;
-                                    back = (int)(dataptr - ptr);
-                                    if (nr == maxnum) break;
-                                }
-                            }
-                            --ptr;
-                        }
-                    }
-                    if (nr > 2)
-                    {
-                        Offs += nr;
-                        dataptr += nr;
-                        if (nr >= 0x12)
-                        {
-                            *resultptr++ = (byte)(((back - 1) >> 8) & 0xF);
-                            *resultptr++ = (byte)((back - 1) & 0xFF);
-                            *resultptr++ = (byte)((nr - 0x12) & 0xFF);
-                            dstoffs += 3;
-                        }
-                        else
-                        {
-                            *resultptr++ = (byte)((((back - 1) >> 8) & 0xF) | (((nr - 2) & 0xF) << 4));
-                            *resultptr++ = (byte)((back - 1) & 0xFF);
-                            dstoffs += 2;
-                        }
-                        comp = 1;
-                    }
-                    else
-                    {
-                        *resultptr++ = *dataptr++;
-                        dstoffs++;
-                        Offs++;
-                    }
-                    header = (byte)((header << 1) | ((comp == 1) ? 0 : 1));
-                    if (Offs >= length)
-                    {
-                        header = (byte)(header << (7 - i));
-                        break;
-                    }
-                }
-                result[headeroffs] = header;
-                if (Offs >= length) break;
-            }
-            while ((dstoffs % 4) != 0) dstoffs++;
-            byte[] realresult = new byte[dstoffs];
-            Array.Copy(result, realresult, dstoffs);
-            return realresult;
-        }
-        */
 
         #region Helper
 
@@ -356,7 +250,6 @@ namespace AuroraLip.Compression.Formats
             }
             return numBytes;
         }
-
         #endregion
 
     }

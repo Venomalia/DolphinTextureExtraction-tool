@@ -122,6 +122,7 @@
     <Compile Include="Compression\Formats\CNX.cs" />
     <Compile Include="Compression\Formats\COMP.cs" />
     <Compile Include="Compression\Formats\CRILAYLA.cs" />
+    <Compile Include="Compression\Formats\LZ00.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />
     <Compile Include="Archives\Formats\SevenZip.cs" />
     <Compile Include="Compression\Formats\LH.cs" />

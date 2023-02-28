@@ -121,6 +121,7 @@
     <Compile Include="Common\Exceptions.cs" />
     <Compile Include="Compression\Formats\CNX.cs" />
     <Compile Include="Compression\Formats\COMP.cs" />
+    <Compile Include="Compression\Formats\FCMP.cs" />
     <Compile Include="Compression\Formats\CRILAYLA.cs" />
     <Compile Include="Compression\Formats\LZ00.cs" />
     <Compile Include="Compression\Formats\LZ77.cs" />

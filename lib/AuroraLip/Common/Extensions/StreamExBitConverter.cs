@@ -178,6 +178,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, Int24 value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverterEx.GetBytes(value), 3, order, Offset);
 
@@ -188,6 +189,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, uint value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
 
@@ -198,6 +200,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, int value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
 
@@ -208,6 +211,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, ulong value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
 
@@ -218,6 +222,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, long value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
         /// <summary>
@@ -227,6 +232,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, float value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
         /// <summary>
@@ -236,6 +242,7 @@ namespace AuroraLip.Common
         /// <param name="value">The number to convert.</param>
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
+        [DebuggerStepThrough]
         public static void Write(this Stream stream, double value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
         #endregion

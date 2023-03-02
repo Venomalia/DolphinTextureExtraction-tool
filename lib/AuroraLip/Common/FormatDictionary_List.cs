@@ -9,15 +9,17 @@ namespace AuroraLip.Common
     {
         private const string Nin_ = "Nintendo";
         private const string Retro_ = "Retro Studios";
+        private const string comp_ = "compressed Archive";
 
         public static readonly FormatInfo[] Master =
         {
             #region Nintendo
             //Nintendo Archive
-            new FormatInfo(".arc", "RARC", FormatType.Archive,"Resources Archive", Nin_),
+            new FormatInfo(".arc", "RARC", FormatType.Archive,comp_, Nin_),
             new FormatInfo(".arc", "Uª8-", FormatType.Archive, "U8 Archive", Nin_),
-            new FormatInfo(".szs", "Yaz0", FormatType.Archive, "compressed Archive", Nin_),
-            new FormatInfo(".szp", "Yay0", FormatType.Archive, "compressed Archive", Nin_),
+            new FormatInfo(".szs", "Yaz0", FormatType.Archive, comp_, Nin_),
+            new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_),
+            new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_),
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_),
             new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_){ Class = typeof(MOD), IsMatch = MOD.Matcher },
             new FormatInfo(".mdl", new byte[]{4, 180, 0,0}, 0, FormatType.Texture, "Luigi's mansion Model", Nin_){ Class = typeof(MDL_LM), IsMatch = MDL_LM.Matcher },
@@ -172,15 +174,15 @@ namespace AuroraLip.Common
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski"),
             new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
-            new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00"),
-            new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01"),
+            new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00 "+comp_),
+            new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01 "+comp_),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
-            new FormatInfo(".Comp","COMP", FormatType.Archive, "Lempel-Ziv 10"),
-            new FormatInfo(".CNX","CNX", FormatType.Archive, "CNX compressed"),
-            new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, "CXLZ compressed"),
-            new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv compressed"),
-            new FormatInfo(".zlib", FormatType.Archive, "compressed") {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
-            new FormatInfo(".ZLB","ZLB", FormatType.Archive, "compressed"),
+            new FormatInfo(".Comp","COMP", FormatType.Archive, comp_),
+            new FormatInfo(".CNX","CNX", FormatType.Archive, comp_),
+            new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_),
+            new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv " + comp_),
+            new FormatInfo(".zlib", FormatType.Archive, comp_) {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
+            new FormatInfo(".ZLB","ZLB", FormatType.Archive, comp_),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
 
             //Common Textures
@@ -290,10 +292,10 @@ namespace AuroraLip.Common
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
 
             //Tri-Crescendo
-            new FormatInfo(".csl", "CSL ", FormatType.Archive, "Fragile Dreams compressed Archive", "Tri-Crescendo"),
+            new FormatInfo(".csl", "CSL ", FormatType.Archive, "Fragile Dreams "+comp_, "Tri-Crescendo"),
 
             //Vanillaware
-            new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa compressed Archive","Vanillaware"),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
+            new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa "+comp_,"Vanillaware"),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
             new FormatInfo(".ftx", "FTEX", FormatType.Texture, "Muramasa Texture","Vanillaware"),
             new FormatInfo(".mbs", "FMBS", FormatType.Model, "Muramasa Model","Vanillaware"),
             new FormatInfo(".nms", "NMSB", FormatType.Text, "Muramasa Text","Vanillaware"),
@@ -314,7 +316,7 @@ namespace AuroraLip.Common
             new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing"),  // also pcha
 
             //Victor Interactive
-            new FormatInfo(".clz", "CLZ", FormatType.Archive, "Harvest Moon compressed", "Victor Interactive"),
+            new FormatInfo(".clz", "CLZ", FormatType.Archive, comp_, "Victor Interactive"),
 
             //Ganbarion
             new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
@@ -335,7 +337,7 @@ namespace AuroraLip.Common
             new FormatInfo(".aod","ALOD", FormatType.Else, "Object Definition", "Aqualead"),
             new FormatInfo(".atb","ALTB", FormatType.Else, "Table", "Aqualead"),
             new FormatInfo(".ard","ALRD", FormatType.Else, "Record Prop", "Aqualead"),
-            new FormatInfo(".GCLz","GCLZ", FormatType.Archive, "GCLz Compressed"),
+            new FormatInfo(".GCLz","GCLZ", FormatType.Archive, comp_),
 
             //Hudson Soft
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },
@@ -347,8 +349,8 @@ namespace AuroraLip.Common
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
-            new FormatInfo(".ash","ASH0", FormatType.Archive, "ASH compressed Data"), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
-            new FormatInfo(".fpk", FormatType.Archive, "compressed"),
+            new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
+            new FormatInfo(".fpk", FormatType.Archive, comp_),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),

@@ -69,7 +69,7 @@ namespace AuroraLip.Common
                 {
                     try
                     {
-                        file.Class = Reflection.FileAccess.GetMagic(file.Header.Magic);
+                        file.Class = Reflection.FileAccess.GetByMagic(file.Header.Magic);
                         file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
                     }
                     catch (Exception) { }

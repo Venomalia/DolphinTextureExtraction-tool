@@ -13,7 +13,7 @@ namespace AuroraLip.Common
         /// <typeparam name="T"></typeparam>
         /// <param name="Left">Our first contestant</param>
         /// <param name="Right">Our second contestant</param>
-        public static void SwapValues<T>(ref T Left, ref T Right)
+        public static void SwapValues<T>(ref this T Left, ref T Right) where T : struct
             => (Right, Left) = (Left, Right);
 
         /// <summary>

@@ -89,15 +89,15 @@ namespace AuroraLip.Compression.Formats
                 byte flag = source.ReadUInt8();
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((flag & 128) != 0) // Data is compressed
+                    if ((flag & 0x80) != 0) // Data is compressed
                     {
                         byte data1 = source.ReadUInt8();
                         if (data1 >> 4 == 0) // 1+2 bytes
                         {
                             byte data2 = source.ReadUInt8();
                             byte data3 = source.ReadUInt8();
-                            matchLength = ((data1 & 15) << 4 | data2 >> 4) + 17;
-                            matchDistance = ((data2 & 15) << 8 | data3) + 1;
+                            matchLength = ((data1 & 0xf) << 4 | data2 >> 4) + 17;
+                            matchDistance = ((data2 & 0xf) << 8 | data3) + 1;
                         }
                         else if (data1 >> 4 != 1) // 1+1 bytes
                         {
@@ -110,8 +110,8 @@ namespace AuroraLip.Compression.Formats
                             byte data6 = source.ReadUInt8();
                             byte data7 = source.ReadUInt8();
                             byte data8 = source.ReadUInt8();
-                            matchLength = ((data1 & 15) << 12 | data6 << 4 | data7 >> 4) + 273;
-                            matchDistance = ((data7 & 15) << 8 | data8) + 1;
+                            matchLength = ((data1 & 0xf) << 12 | data6 << 4 | data7 >> 4) + 273;
+                            matchDistance = ((data7 & 0xf) << 8 | data8) + 1;
                         }
                         for (int j = 0; j < matchLength; j++)
                         {

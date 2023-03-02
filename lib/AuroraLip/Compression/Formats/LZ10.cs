@@ -84,11 +84,11 @@ namespace AuroraLip.Compression.Formats
                 byte flag = source.ReadUInt8();
                 for (int i = 0; i < 8; i++)
                 {
-                    if ((flag & 128) != 0) // Compressed
+                    if ((flag & 0x80) != 0) // Compressed
                     {
                         byte data1 = source.ReadUInt8();
                         byte data2 = source.ReadUInt8();
-                        int matchDistance = ((data1 & 15) << 8 | data2) + 1;
+                        int matchDistance = ((data1 & 0xf) << 8 | data2) + 1;
                         int matchLength = (data1 >> 4) + 3;
                         for (int j = 0; j < matchLength; j++)
                         {

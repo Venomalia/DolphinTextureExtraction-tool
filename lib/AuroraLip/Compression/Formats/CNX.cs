@@ -32,7 +32,7 @@ namespace AuroraLip.Compression.Formats
 
             //var fileExtension = source is FileStream fs ? Path.GetExtension(fs.Name) : string.Empty;
             string fileExtension = "DEC";
-            destination.WriteString(fileExtension);
+            destination.Write(fileExtension);
 
             destination.WriteByte(0x10);
             destination.Write(0, Endian.Big); // Compressed length (will be filled in later)

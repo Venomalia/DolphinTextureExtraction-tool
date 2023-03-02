@@ -777,7 +777,7 @@ namespace Hack.io
                         m_Materials[i].LightChannelCount = 2;
                 }
 
-                writer.WriteString(Magic);
+                writer.Write(Magic);
                 writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
                 writer.WriteBigEndian(BitConverter.GetBytes((short)m_RemapIndices.Count), 0, 2);
                 writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);

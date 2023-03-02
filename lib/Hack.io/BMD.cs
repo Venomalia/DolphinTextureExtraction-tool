@@ -92,7 +92,7 @@ namespace Hack.io
 
         protected virtual void Write(Stream BMD)
         {
-            BMD.WriteString(magic);
+            BMD.Write(magic);
             bool IsBDL = false;
             BMD.Write(new byte[8] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, (byte)(IsBDL ? 0x09 : 0x08) }, 0, 8);
             BMD.Write(new byte[16], 0, 16);

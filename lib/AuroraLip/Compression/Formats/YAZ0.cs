@@ -35,7 +35,7 @@ namespace AuroraLip.Compression.Formats
         public void Compress(in byte[] source, Stream destination)
         {
             // Write out the header
-            destination.WriteString(magic);
+            destination.Write(magic);
             destination.Write(source.Length);
             destination.Write(0);
             destination.Write(0);

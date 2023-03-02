@@ -205,7 +205,7 @@ namespace AuroraLip.Archives.Formats
             }
 
             //Write the Header
-            stream.WriteString(Magic);
+            stream.Write(Magic);
             stream.WriteBigEndian(BitConverter.GetBytes(0x20), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(Nodes.Count * 0x0C + StringBytes.Count), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);

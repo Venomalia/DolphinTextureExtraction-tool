@@ -437,7 +437,7 @@ namespace AuroraLip.Archives.Formats
             byte[] StringDataBuffer = GetStringTableBytes(FlatFileList, Root.Name, ref StringLocations).ToArray();
 
             #region File Writing
-            stream.WriteString(Magic);
+            stream.Write(Magic);
             stream.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
             stream.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(ARAMSize), 4);
@@ -457,7 +457,7 @@ namespace AuroraLip.Archives.Formats
             #region Directory Nodes
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
-                stream.WriteString(FlatDirectoryList[i].Type);
+                stream.Write(FlatDirectoryList[i].Type);
                 stream.WriteBigEndian(BitConverter.GetBytes(StringLocations[FlatDirectoryList[i].Name]), 4);
                 stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].NameHash), 2);
                 stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FileCount), 2);

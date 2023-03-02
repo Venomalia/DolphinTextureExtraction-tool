@@ -128,7 +128,7 @@ namespace AuroraLip.Archives.Formats
                 get
                 {
                     MemoryStream stream = new MemoryStream();
-                    stream.WriteString((string)GameID);
+                    stream.Write((string)GameID);
                     stream.WriteByte(DiskID);
                     stream.WriteByte(Version);
                     stream.WriteByte(streaming);
@@ -136,7 +136,7 @@ namespace AuroraLip.Archives.Formats
                     stream.WriteX(14);
                     stream.Write(WiiMagicWord, Endian.Big);
                     stream.Write(GCMagicWord, Endian.Big);
-                    stream.WriteString(GameName);
+                    stream.Write(GameName);
                     stream.WriteX(0x03e0 - GameName.Length);
                     stream.Write(debugMonitorOffset, Endian.Big);
                     stream.Write(debugMonitorAddress, Endian.Big);

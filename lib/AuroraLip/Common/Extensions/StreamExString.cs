@@ -55,30 +55,76 @@ namespace AuroraLip.Common
             return bytes.ToValidString();
         }
 
+        [DebuggerStepThrough]
+        public static void Write(this Stream FS, string String)
+            => FS.Write(String, Encoding.GetEncoding(932));
+
         /// <summary>
         /// Writes a string. String won't be null terminated
         /// </summary>
         /// <param name="FS"></param>
         /// <param name="String">String to write to the file</param>
+        /// <param name="Encoding">Encoding to use when getting the string</param>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String)
+        public static void Write(this Stream FS, string String, Encoding Encoding)
         {
-            byte[] Write = Encoding.GetEncoding(932).GetBytes(String);
+            byte[] Write = Encoding.GetBytes(String);
             FS.Write(Write, 0, Write.Length);
         }
 
         /// <summary>
-        /// Writes a string. String will be null terminated with the <paramref name="Terminator"/>
+        /// Writes a string with a fixed length. remaining byts are filled with the <paramref name="padding"/> byte
+        /// </summary>
+        /// <param name="FS"></param>
+        /// <param name="String">String to write to the file</param>
+        /// <param name="padding">The Terminator of the string. Usually 0x00</param>
+        /// <param name="length"></param>
+        [DebuggerStepThrough]
+        public static void WriteString(this Stream FS, string String, byte padding, int length)
+            => FS.WriteString(String, padding, length, Encoding.GetEncoding(932));
+
+        /// <summary>
+        /// Writes a string with a fixed length. remaining byts are filled with the <paramref name="padding"/> byte
+        /// </summary>
+        /// <param name="FS"></param>
+        /// <param name="String">String to write to the file</param>
+        /// <param name="padding">The padding byte. Usually 0x00</param>
+        /// <param name="length"></param>
+        /// <param name="encoding">Encoding to use when getting the string</param>
+        [DebuggerStepThrough]
+        public static void WriteString(this Stream FS, string String, byte padding, int length, Encoding encoding)
+        {
+            byte[] Write = encoding.GetBytes(String);
+            Array.Resize(ref Write, length);
+            for (int i = String.Length; i < length; i++)
+            {
+                Write[i] = padding;
+            }
+            FS.Write(Write, 0, Write.Length);
+        }
+
+        /// <summary>
+        /// Writes a string. String will be terminated with the <paramref name="Terminator"/>
         /// </summary>
         /// <param name="FS"></param>
         /// <param name="String">String to write to the file</param>
         /// <param name="Terminator">The Terminator of the string. Usually 0x00</param>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, byte Terminator)
+        public static void WriteString(this Stream FS, string String, byte Terminator = 0x0)
+            => FS.WriteString(String, Terminator, Encoding.GetEncoding(932));
+
+        /// <summary>
+        /// Writes a string. String will be terminated with the <paramref name="terminator"/>
+        /// </summary>
+        /// <param name="FS"></param>
+        /// <param name="String">String to write to the file</param>
+        /// <param name="terminator">The Terminator of the string. Usually 0x00</param>
+        /// <param name="encoding">Encoding to use when getting the string</param>
+        [DebuggerStepThrough]
+        public static void WriteString(this Stream FS, string String, byte terminator, Encoding encoding)
         {
-            byte[] Write = Encoding.GetEncoding(932).GetBytes(String);
-            FS.Write(Write, 0, Write.Length);
-            FS.WriteByte(Terminator);
+            FS.Write(String, encoding);
+            FS.WriteByte(terminator);
         }
 
     }

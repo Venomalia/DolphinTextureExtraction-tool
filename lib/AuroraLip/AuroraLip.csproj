@@ -133,6 +133,7 @@
     <Compile Include="Compression\Formats\LH.cs" />
     <Compile Include="Compression\Formats\LZSS.cs" />
     <Compile Include="Compression\Formats\PRS.cs" />
+    <Compile Include="Compression\Formats\YAZ1.cs" />
     <Compile Include="Compression\Formats\ZLib.cs" />
     <Compile Include="Compression\Formats\LZS.cs" />
     <Compile Include="Compression\Formats\GZip.cs" />

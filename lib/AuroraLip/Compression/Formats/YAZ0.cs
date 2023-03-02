@@ -1,4 +1,5 @@
 ﻿using AuroraLip.Common;
+using AuroraLip.Common.Extensions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,28 +21,75 @@ namespace AuroraLip.Compression.Formats
     public class YAZ0 : ICompression, IMagicIdentify
     {
 
-        public string Magic { get; } = "Yaz0";
-
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
+        public virtual string Magic => magic;
+
+        public const string magic = "Yaz0";
+
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.Length > 4 && stream.MatchString(Magic);
 
-
         public void Compress(in byte[] source, Stream destination)
         {
-            destination.Write(Compress(source));
+            // Write out the header
+            destination.WriteString(magic);
+            destination.Write(source.Length);
+            destination.Write(0);
+            destination.Write(0);
+
+            Compress_ALG(source, destination);
         }
-        public byte[] Compress(in byte[] data)
+
+        public byte[] Decompress(Stream source)
+        {
+            source.Position += 4;
+            uint DecompressedSize = source.ReadUInt32(Endian.Big),
+                CompressedDataOffset = source.ReadUInt32(Endian.Big),
+                UncompressedDataOffset = source.ReadUInt32(Endian.Big);
+
+            return Decompress_ALG(source, DecompressedSize);
+        }
+
+        public static byte[] Decompress_ALG(Stream source, uint decomLength)
+        {
+            byte[] destination = new byte[decomLength];
+            int destinationPointer = 0;
+
+
+            while (destinationPointer < decomLength)
+            {
+                byte FlagByte = source.ReadUInt8();
+
+                for (int i = 7; i > -1 && (destinationPointer < decomLength); i--)
+                {
+                    if (FlagByte.GetBit(i) == true)
+                        destination[destinationPointer++] = source.ReadUInt8();
+                    else
+                    {
+                        byte Tmp = source.ReadUInt8();
+                        int Offset = (((byte)(Tmp & 0x0F) << 8) | source.ReadUInt8()) + 1,
+                            Length = (Tmp & 0xF0) == 0 ? source.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
+
+                        for (int j = 0; j < Length; j++)
+                        {
+                            destination[destinationPointer] = destination[destinationPointer - Offset];
+                            destinationPointer++;
+                        }
+                    }
+                }
+            }
+            return destination;
+        }
+
+        public static void Compress_ALG(in byte[] source, Stream destination)
         {
             ByteCountA = 0;
             MatchPos = 0;
             PrevFlag = 0;
-            List<byte> OutputFile = new List<byte>() { 0x59, 0x61, 0x7A, 0x30 };
-            OutputFile.AddRange(BitConverter.GetBytes(data.Length).Reverse());
-            OutputFile.AddRange(new byte[8]);
+            List<byte> OutputFile = new List<byte>();
             Ret r = new Ret() { srcPos = 0, dstPos = 0 };
             byte[] dst = new byte[24];
             int dstSize = 0;
@@ -50,19 +98,17 @@ namespace AuroraLip.Compression.Formats
             uint validBitCount = 0;
             byte currCodeByte = 0;
 
-            while (r.srcPos < data.Length)
+            while (r.srcPos < source.Length)
             {
                 uint numBytes;
                 uint matchPos = 0;
                 uint srcPosBak;
 
-                numBytes = EncodeAdvanced(data, data.Length, r.srcPos, ref matchPos);
+                numBytes = EncodeAdvanced(source, source.Length, r.srcPos, ref matchPos);
                 if (numBytes < 3)
                 {
                     //straight copy
-                    dst[r.dstPos] = data[r.srcPos];
-                    r.dstPos++;
-                    r.srcPos++;
+                    dst[r.dstPos++] = source[r.srcPos++];
                     //set flag for straight copy
                     currCodeByte |= (byte)(0x80 >> (int)validBitCount);
                 }
@@ -111,10 +157,6 @@ namespace AuroraLip.Compression.Formats
                     validBitCount = 0;
                     r.dstPos = 0;
                 }
-                //if ((r.srcPos + 1) * 100 / srcSize != percent)
-                //{
-                //    percent = (r.srcPos + 1) * 100 / srcSize;
-                //}
             }
             if (validBitCount > 0)
             {
@@ -127,44 +169,8 @@ namespace AuroraLip.Compression.Formats
                 validBitCount = 0;
                 r.dstPos = 0;
             }
-
-            return OutputFile.ToArray();
+            destination.Write(OutputFile.ToArray());
         }
-
-        public byte[] Decompress(Stream source)
-        {
-            if (source.ReadString(4) != Magic)
-                throw new Exception($"{typeof(YAZ0)}:Invalid Identifier");
-            
-            uint DecompressedSize = source.ReadUInt32(Endian.Big),
-                CompressedDataOffset = source.ReadUInt32(Endian.Big),
-                UncompressedDataOffset = source.ReadUInt32(Endian.Big);
-
-            List<byte> Decoding = new List<byte>();
-            while (Decoding.Count < DecompressedSize)
-            {
-                byte FlagByte = (byte)source.ReadByte();
-                BitArray FlagSet = new BitArray(new byte[1] { FlagByte });
-
-                for (int i = 7; i > -1 && (Decoding.Count < DecompressedSize); i--)
-                {
-                    if (FlagSet[i] == true)
-                        Decoding.Add((byte)source.ReadByte());
-                    else
-                    {
-                        byte Tmp = (byte)source.ReadByte();
-                        int Offset = (((byte)(Tmp & 0x0F) << 8) | (byte)source.ReadByte()) + 1,
-                            Length = (Tmp & 0xF0) == 0 ? source.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
-
-                        for (int j = 0; j < Length; j++)
-                            Decoding.Add(Decoding[Decoding.Count - Offset]);
-                    }
-                }
-            }
-            return Decoding.ToArray();
-        }
-
-
         #region Helper
 
         struct Ret
@@ -206,15 +212,6 @@ namespace AuroraLip.Compression.Formats
                 }
             }
             return numBytes;
-        }
-
-        private static uint ToDword(uint d)
-        {
-            byte w1 = (byte)(d & 0xFF);
-            byte w2 = (byte)((d >> 8) & 0xFF);
-            byte w3 = (byte)((d >> 16) & 0xFF);
-            byte w4 = (byte)(d >> 24);
-            return (uint)((w1 << 24) | (w2 << 16) | (w3 << 8) | w4);
         }
 
         private static uint EncodeSimple(byte[] src, int size, int pos, ref uint pMatchPos)

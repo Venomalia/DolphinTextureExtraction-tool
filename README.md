@@ -42,19 +42,21 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 
 ## Supported formats
 ### ROM images
-- GCDisk (ISO), WiiDisk (ISO)
+- GCDisk (ISO), WiiDisk (ISO), WAD
 ### Archives
-- ALAR, RARC, NARC, U8, CPK, bres, BIN_MP, AFS, ARC0, RKV2, ONE_SB, ONE_UN, FBC, GVMH, FBTI, NLCM, PCKG, RTDP, TXAG, PAK_FE, PAK_Retro, PAK_RetroWii, RMHG, POD5, pBin, FSYS, POSD, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
+- AFS, ALAR, ARC0, BIN_MP, CPK, FBC, FBTI, FSYS, GVMH, NARC, NLCM, ONE_SB, ONE_UN, PAK_FE, PAK_Retro, PAK_RetroWii, PCKG, POD5, POSD, RARC, RKV2, RMHG, RTDP, TXAG, U8, bres, pBin, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
 ### Compressing
-- YAZ, YAY, CLZ, PRS, GZIP, LZ11, LZ77, LZS, LZSS, ZLib, CRILAYLA
+-  CNX, CLZ, COMP, CRILAYLA, CXLZ, FCMP, GCLZ, GZIP, LH, LZ00, LZ01, LZ10, LZ11, LZ77, LZS, LZSS, PRS, YAY0, YAZ0, YAZ1, ZLib
 ### Textures
-- ATB, BTI, TPL, TPL_0, NUTC, REFT, TEX_KS, TEX_RFS, TEX, TEX1, TEX0, TXE, TXTR, PTLG, HXTB, WTMD, GCT0, GBIX, GCIX, GVRT, FIPAFTEX.
+-  BTI, FIPAFTEX, GBIX, GCIX, GCT0, GTX, GVRT, HXTB, NUTC, PTLG, REFT, TEX, TEX0, TEX1, TEX_KS, TEX_RFS, TPL, TPL_0, TXE, TXTR, WTMD, ATB
 ### Model archives
 - MOD, BMD3, BDL4, MDL_LM, HSF
 
 ## Credits
  
 - [Hack.io](https://github.com/SuperHackio/Hack.io) to read RARC, U8, YAZ, YAY, BTI, TPL, TEX1, BMD and BDL Format
+
+- [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT, Format and to read PRS, CNX, Lz00, lz01 Lz10, Lz11 Compressing.
 
 - [HashDepot](https://github.com/ssg/HashDepot) used for xxHash generation
 
@@ -68,8 +70,6 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 	
 - [CLZ-Compression](https://github.com/sukharah/CLZ-Compression) Code reference for CLZ Compressing
 
-- [Wexos's_Toolbox](https://wiki.tockdom.com/wiki/Wexos's_Toolbox) Code reference for LZ11, LZ77 Compressing
-	
 - [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs) Code reference for PTLG Format
 	
 - [Rune Factory Frontier Tools](https://github.com/master801/Rune-Factory-Frontier-Tools) Code reference for NLCM Archives
@@ -82,6 +82,4 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 	
 - [mpatbtools](https://github.com/gamemasterplc/mpatbtools) reference for ATB Format.
 
-- [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT Format and to read PRS Compressing.
-	
 - [BrawlCrate](https://github.com/soopercool101/BrawlCrate) reference for ARC0 Format.

@@ -81,6 +81,7 @@
     <Compile Include="Archives\DiscImage\V0Ticket.cs" />
     <Compile Include="Archives\Formats\WAD.cs" />
     <Compile Include="Archives\Formats\WiiDisk.cs" />
+    <Compile Include="Common\BitReader.cs" />
     <Compile Include="Common\Extensions\MiscEX.cs" />
     <Compile Include="Common\Extensions\PathEX.cs" />
     <Compile Include="Common\Extensions\StringEx.cs" />

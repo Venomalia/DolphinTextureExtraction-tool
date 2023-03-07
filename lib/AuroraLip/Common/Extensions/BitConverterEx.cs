@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -86,10 +87,8 @@ namespace AuroraLip.Common
         /// Flip the ByteOrder of the 8-bit unsigned integer.
         /// </summary>
         [DebuggerStepThrough]
-        public static byte Swap(byte b)
-        {
-            return (byte)((b * 0x0202020202ul & 0x010884422010ul) % 1023);
-        }
+        public static byte Swap(this byte b)
+            => (byte)((b * 0x0202020202ul & 0x010884422010ul) % 1023);
 
         /// <summary>
         /// Flip the ByteOrder of the 16-bit unsigned integer.
@@ -276,7 +275,7 @@ namespace AuroraLip.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static int GetBits(this byte b, int index, int length)
-            => (b & ((byte.MaxValue >> (8 - length)) << index)) >> index;
+            => b >> index - length & (1 << length) - 1;
 
         /// <summary>
         /// Get a <paramref name="length"/>-bit signed integer from a 16-bit signed integer.
@@ -288,7 +287,7 @@ namespace AuroraLip.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static int GetBits(this short b, int index, int length)
-            => (b & ((short.MaxValue >> (16 - length)) << index)) >> index;
+            => b >> index - length & (1 << length) - 1;
 
         /// <summary>
         /// Get a <paramref name="length"/>-bit signed integer from a 32-bit signed integer.
@@ -300,7 +299,7 @@ namespace AuroraLip.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static int GetBits(this int b, int index, int length)
-            => (b & ((int.MaxValue >> (32 - length)) << index)) >> index;
+            => b >> index - length & (1 << length) - 1;
 
         /// <summary>
         /// Get a <paramref name="length"/>-bit signed integer from a 64-bit signed integer.
@@ -312,7 +311,28 @@ namespace AuroraLip.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
         public static long GetBits(this long b, int index, int length)
-            => (b & ((long.MaxValue >> (64 - length)) << index)) >> index;
+            => b >> index - length & (1 << length) - 1;
+
+        /// <summary>
+        /// Read single bits as steam of bools
+        /// </summary>
+        /// <param name="b"></param>
+        /// <param name="byteorder">Byte order, in which bytes are read</param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        public static IEnumerable<bool> GetBits(this byte b, Endian byteorder = Endian.Little)
+        {
+            if (byteorder == Endian.Little)
+            {
+                for (int i = 0; i < 8; i++)
+                    yield return b.GetBit(i);
+            }
+            else
+            {
+                for (int i = 7; i >= 0; i--)
+                    yield return b.GetBit(i);
+            }
+        }
         #endregion
 
         /// <summary>
@@ -362,6 +382,5 @@ namespace AuroraLip.Common
             }
             return data;
         }
-
     }
 }

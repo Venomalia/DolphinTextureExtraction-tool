@@ -31,18 +31,21 @@ namespace AuroraLip.Texture.Formats
                 GXPalette = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), header.PaletteFormat.ToString()); ;
                 stream.Seek(header.PalletOffset, SeekOrigin.Begin);
                 PaletteCount = GXFormat.GetMaxPaletteColours();
-                PaletteData = stream.Read(PaletteCount*2);
+                PaletteData = stream.Read(PaletteCount * 2);
             }
 
 #if DEBUG
-            if (header.Version != 1 || header.unk3 != 0 | header.unk5 != 0 | header.unk6 != 0 | header.unk7 != 0 | header.unk8 != 0 | header.unk10 != 0 | header.unk11 != 0 | header.unk12 != 0)
+            if (header.unk1 != 0 | header.unk2 != 0 | header.unk3 != 0 | header.unk4 != 0 | header.unk5 != 0 | header.unk6 != 0 | header.unk7 != 0)
             {
-                Events.NotificationEvent.Invoke(NotificationType.Info, $"{nameof(GTX)}:{header.Version}_{header.unk3}_{header.unk5}_{header.unk6}_{header.unk7}_{header.unk8}_{header.unk10}_{header.unk11}_{header.unk12}");
-                header.Version = 1;
+                Events.NotificationEvent.Invoke(NotificationType.Info, $"{nameof(GTX)}:{header.unk1}_{header.unk2}_{header.unk3}_{header.unk4}_{header.unk5}_{header.unk6}_{header.unk7}");
             }
 #endif
             stream.Seek(header.Offset, SeekOrigin.Begin);
-            Add(new TexEntry(stream, PaletteData, GXFormat, GXPalette, PaletteCount, header.Width, header.Height, 0));
+            Add(new TexEntry(stream, PaletteData, GXFormat, GXPalette, PaletteCount, header.Width, header.Height, 0)
+            {
+                WrapS = (GXWrapMode)header.WrapS,
+                WrapT = (GXWrapMode)header.WrapT,
+            });
         }
 
         protected override void Write(Stream stream)
@@ -55,23 +58,26 @@ namespace AuroraLip.Texture.Formats
             //h0
             public ushort Width;
             public ushort Height;
-            public byte Bpp; // Bpp?
-            public byte Version; // 1 Version?
-            public ushort unk3; //0
+            public byte Bpp;
+            public byte Entries;
+            public ushort unk1; //0
             public GTXFormat Format;
             public GTXPaletteFormat PaletteFormat;
             //h10
+            public uint WrapS;
+            public uint WrapT;
+            public uint unk2; //0
+            public uint MagFilter;
+            //h20
+            public uint MinFilter;
+            public uint unk3; //0
+            public uint Offset;
+            public uint unk4; //0
+            //h30
             public long unk5; //0
             public long unk6; //0
-            //h20
-            public long unk7; //0
-            public uint Offset;
-            public uint unk8; //0
-            //h30
-            public long unk10; //0
-            public long unk11; //0
             //h40
-            public long unk12; //0
+            public long unk7; //0
             public uint PalletOffset;
         }
 
@@ -80,13 +86,13 @@ namespace AuroraLip.Texture.Formats
             I4 = 0x40,
             I8 = 0x41,
             IA4 = 0x42,
-            IA8 = 0x43,
+            IA8 = 0x43 | 0xa0 | 0xa1 | 0xa2 | 0xa3,
             RGB565 = 0x44,
             RGBA32 = 0x45,
             RGB5A3 = 0x90,
             C4 = 0x00,
             C8 = 0x01,
-            C14X2 = 0x02,//?
+            C14X2 = 0x30,
             CMPR = 0xB0,
         }
 

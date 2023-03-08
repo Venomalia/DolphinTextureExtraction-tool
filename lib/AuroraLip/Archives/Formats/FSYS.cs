@@ -105,15 +105,15 @@ namespace AuroraLip.Archives.Formats
             public byte pad0;
             public uint FileStartPointer;
             public uint DecompressedSize;
-            public uint unk1;//2147483648
+            public uint flags;//0x80000000 == Compressed
 
-            public uint pad1;
+            public uint flags2;
             public uint CompressedSize;
             public uint pad2;
-            public uint FileDetailsFullFilename;
+            public uint FullFilenameOffse;
 
             private uint fileFormatIndex;
-            public uint FileDetailsFilename;
+            public uint FilenameOffse;
 
 
             public FileFormat FileFormat

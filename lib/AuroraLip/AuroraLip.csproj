@@ -52,6 +52,7 @@
     <Compile Include="Archives\DiscImage\GameID.cs" />
     <Compile Include="Archives\DiscImage\SystemCode.cs" />
     <Compile Include="Archives\Formats\ALAR.cs" />
+    <Compile Include="Archives\Formats\AFS.cs" />
     <Compile Include="Archives\Formats\BIN_MP.cs" />
     <Compile Include="Archives\Formats\bres.cs" />
     <Compile Include="Archives\Formats\ARC0.cs" />
@@ -205,6 +206,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AFSLib\AFSLib.csproj">
+      <Project>{09c23352-8261-447b-9bb5-4c82daf3cffd}</Project>
+      <Name>AFSLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\LibCPK\LibCPK.csproj">
       <Project>{ba3a00e4-4f51-4ab4-a8fb-f4b64a874449}</Project>
       <Name>LibCPK</Name>

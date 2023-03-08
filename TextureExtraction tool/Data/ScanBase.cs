@@ -1,5 +1,4 @@
-﻿using AFSLib;
-using AuroraLip.Archives;
+﻿using AuroraLip.Archives;
 using AuroraLip.Common;
 using AuroraLip.Common.Extensions;
 using AuroraLip.Compression;
@@ -443,18 +442,6 @@ namespace DolphinTextureExtraction_tool
                     Stream destream = new MemoryStream(((ICompression)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream));
                     Scan(new ScanObjekt(destream, so.SubPath, so.Deep + 1, so.Extension));
                     return true;
-                }
-                //External classes
-                switch (so.Format.Class.Name)
-                {
-                    case "AFS":
-                        using (AFS afs = new AFS(so.Stream))
-                        {
-                            foreach (Entry item in afs.Entries)
-                                if (item is StreamEntry Streamitem)
-                                    Scan(new ScanObjekt(Streamitem.GetSubStream(), Path.Combine(so.SubPath.ToString(), Streamitem.SanitizedName).AsSpan(), so.Deep + 1, Path.GetExtension(Streamitem.SanitizedName)));
-                        }
-                        break;
                 }
             }
             return false;

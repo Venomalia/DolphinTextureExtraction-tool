@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,7 +20,7 @@ namespace AuroraLip.Common
         /// <param name="bytes"></param>
         /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, Predicate<byte> validbytes = null)
             => bytes.ToValidString(DefaultEncoding, validbytes);
 
@@ -30,7 +31,7 @@ namespace AuroraLip.Common
         /// <param name="Encoding">Encoding to use when getting the string</param>
         /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, Encoding Encoding, Predicate<byte> validbytes = null)
         {
             if (validbytes == null) validbytes = GetValidbytesPredicate(Encoding);
@@ -75,7 +76,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="String"></param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static byte[] ToByte(this string String)
             => DefaultEncoding.GetBytes(String);
         /// <summary>
@@ -92,7 +93,7 @@ namespace AuroraLip.Common
         /// </summary>
         /// <param name="Byte"></param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static char ToChar(this byte Byte)
             => DefaultEncoding.GetChars(new byte[] { Byte })[0];
         /// <summary>
@@ -101,7 +102,7 @@ namespace AuroraLip.Common
         /// <param name="Byte"></param>
         /// <param name="Encoding">Encoding to use when getting the char</param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static char ToChar(this byte Byte, Encoding Encoding)
             => Encoding.GetChars(new byte[] { Byte })[0];
         /// <summary>
@@ -119,7 +120,7 @@ namespace AuroraLip.Common
         /// <param name="Char"></param>
         /// <param name="Encoding">Encoding to use when getting the byte</param>
         /// <returns></returns>
-        //[DebuggerStepThrough]
+        [DebuggerStepThrough]
         public static byte ToByte(this char Char, Encoding Encoding)
             => Encoding.GetBytes(Char.ToString())[0];
 

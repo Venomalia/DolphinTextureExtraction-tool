@@ -1,6 +1,5 @@
 ﻿using AuroraLip.Common;
 using LibCPK;
-using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {

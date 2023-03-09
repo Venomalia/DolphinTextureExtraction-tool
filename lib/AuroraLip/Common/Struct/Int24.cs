@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLip.Common
 {
     /// <summary>
     /// Represents a 3-byte, 24-bit signed integer.

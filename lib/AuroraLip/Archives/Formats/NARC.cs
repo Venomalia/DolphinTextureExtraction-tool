@@ -1,7 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {
@@ -17,9 +14,9 @@ namespace AuroraLip.Archives.Formats
 
         public NARC() { }
 
-        public NARC(string filename) : base(filename){}
+        public NARC(string filename) : base(filename) { }
 
-        public NARC(Stream RARCFile, string filename = null) : base(RARCFile, filename){}
+        public NARC(Stream RARCFile, string filename = null) : base(RARCFile, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

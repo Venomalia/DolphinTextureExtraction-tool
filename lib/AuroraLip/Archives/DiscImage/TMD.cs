@@ -1,12 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.Formats;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static AuroraLip.Archives.DiscImage.V0Ticket;
 
 namespace AuroraLip.Archives.DiscImage
 {
@@ -21,7 +13,7 @@ namespace AuroraLip.Archives.DiscImage
         public byte FormatVersion;
         public byte CA_CRL_Version;
         public byte Signer_CRL_Version;
-        public bool IsVWii{ get => vWii != 0; set => vWii = (byte)(value ? 1 : 0); }
+        public bool IsVWii { get => vWii != 0; set => vWii = (byte)(value ? 1 : 0); }
         private byte vWii;
         public ulong IOS;
         public byte[] TitleID;
@@ -39,7 +31,7 @@ namespace AuroraLip.Archives.DiscImage
         public List<CMD> CMDs;
 
         public TitleFlags TitleFlag => (TitleFlags)BitConverter.ToUInt32(TitleID, 0).Swap();
-        public string TitleString => TitleID.ToValidString(4,4);
+        public string TitleString => TitleID.ToValidString(4, 4);
 
         public TMD(Stream stream)
         {
@@ -73,7 +65,7 @@ namespace AuroraLip.Archives.DiscImage
 
         }
 
-        public enum RegionTyps: short
+        public enum RegionTyps : short
         {
             Japan = 0,
             USA = 1,

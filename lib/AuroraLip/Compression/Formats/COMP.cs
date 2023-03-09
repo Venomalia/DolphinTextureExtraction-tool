@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {

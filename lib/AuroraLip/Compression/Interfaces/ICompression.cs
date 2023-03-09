@@ -1,9 +1,8 @@
 ﻿using AuroraLip.Common;
-using System.IO;
 
 namespace AuroraLip.Compression
 {
-    public interface ICompression: IFileAccess
+    public interface ICompression : IFileAccess
     {
 
         /// <summary>

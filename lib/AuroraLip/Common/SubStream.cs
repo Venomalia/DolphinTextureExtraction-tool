@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLip.Common
 {
     /// <summary>
     /// a partial stream of an underlying stream.

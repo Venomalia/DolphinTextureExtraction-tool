@@ -1,10 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -25,11 +19,11 @@ namespace AuroraLip.Texture.Formats
         public ushort FormatVersion { get; set; }
 
 
-        public REFT() {}
+        public REFT() { }
 
-        public REFT(Stream stream) : base(stream) {}
+        public REFT(Stream stream) : base(stream) { }
 
-        public REFT(string filepath) : base(filepath) {}
+        public REFT(string filepath) : base(filepath) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -56,7 +50,7 @@ namespace AuroraLip.Texture.Formats
             if (!stream.MatchString(magic))
                 throw new InvalidIdentifierException(Magic);
             uint RootSize = stream.ReadUInt32(Endian.Big);
-            long SubfilePosition = stream.ReadUInt32(Endian.Big) + stream.Position-4;
+            long SubfilePosition = stream.ReadUInt32(Endian.Big) + stream.Position - 4;
             uint Unknown = stream.ReadUInt32(Endian.Big);
             uint Unknown2 = stream.ReadUInt32(Endian.Big);
             ushort NameLength = stream.ReadUInt16(Endian.Big);
@@ -136,7 +130,7 @@ namespace AuroraLip.Texture.Formats
             }
             stream.Position = ImageAddress;
 
-            int mips = images <= 0? 0 : images -1;
+            int mips = images <= 0 ? 0 : images - 1;
             TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, mips)
             {
                 LODBias = LODBias,

@@ -1,14 +1,10 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace AuroraLip.Compression
 {
     public class CompressionReflection : FileAccessReflection<ICompression>
     {
-        public CompressionReflection() : base() {}
+        public CompressionReflection() : base() { }
 
         /// <summary>
         /// Trying to decompress the data

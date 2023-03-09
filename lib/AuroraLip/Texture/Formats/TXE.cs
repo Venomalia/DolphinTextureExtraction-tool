@@ -1,6 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.IO;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -61,7 +59,7 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(16, SeekOrigin.Current);
                 DataSize = stream.ReadInt32(Endian.Big);
             }
-            int Mipmaps = Format.GetMipmapsFromSize(DataSize,ImageWidth, ImageHeight);
+            int Mipmaps = Format.GetMipmapsFromSize(DataSize, ImageWidth, ImageHeight);
 
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, Mipmaps)
             {

@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Runtime.InteropServices;
 
 namespace AuroraLip.Common
 {
@@ -37,7 +35,7 @@ namespace AuroraLip.Common
             string insert = Environment.NewLine.PadRight(offset, ' ');
             StringBuilder output = new StringBuilder();
             StringReader reader = new StringReader(text);
-            while(true)
+            while (true)
             {
                 string read = reader.ReadLine();
                 if (read == null) break;

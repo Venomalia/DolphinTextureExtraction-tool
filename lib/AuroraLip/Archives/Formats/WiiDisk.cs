@@ -1,8 +1,5 @@
 ﻿using AuroraLip.Archives.DiscImage;
 using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Security.Cryptography;
 using static AuroraLip.Archives.Formats.GCDisk;
 using static AuroraLip.Archives.Formats.WiiDisk.PartitionInfo;
@@ -117,7 +114,7 @@ namespace AuroraLip.Archives.Formats
 
             private int BufferedBlock = -1;
 
-            private readonly Rijndael AES;
+            private readonly Aes AES;
 
             public override bool CanWrite => false;
 
@@ -145,7 +142,7 @@ namespace AuroraLip.Archives.Formats
 
             public WiiStream(Stream stream, long length, long offset, byte[] key) : base(stream, length, offset, true)
             {
-                AES = Rijndael.Create();
+                AES = Aes.Create();
                 AES.KeySize = key.Length * 8;
                 AES.Mode = CipherMode.CBC;
                 AES.Padding = PaddingMode.Zeros;

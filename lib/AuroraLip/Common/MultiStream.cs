@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLip.Common
 {
     /// <summary>
     /// a virtual stream consists of several streams.

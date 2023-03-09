@@ -1,7 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
-using System;
-using System.IO;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -35,7 +32,7 @@ namespace AuroraLip.Texture.Formats
             uint unknown = stream.ReadUInt32(Endian.Big); //202
 
             // we calculate the mips
-            int mips = Format.GetMipmapsFromSize( (int)(stream.Length - ImgOffset), Width, Height);
+            int mips = Format.GetMipmapsFromSize((int)(stream.Length - ImgOffset), Width, Height);
 
             // Palette are not supported?
             if (Format.IsPaletteFormat())

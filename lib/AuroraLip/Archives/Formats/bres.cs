@@ -1,6 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.IO;
 
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
 namespace AuroraLip.Archives.Formats
@@ -80,7 +78,7 @@ namespace AuroraLip.Archives.Formats
                     {
                         if (StartOfGroup + DataPointer >= EndOfRoot)
                         {
-                            ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory, OwnerArchive=this};
+                            ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory, OwnerArchive = this };
                             stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
                             string Magic = stream.ReadString(4);
                             uint FileSize = stream.ReadUInt32(Endian.Big);

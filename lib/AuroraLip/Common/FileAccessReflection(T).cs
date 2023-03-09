@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLip.Common
 {
     public class FileAccessReflection<T> where T : IFileAccess
     {

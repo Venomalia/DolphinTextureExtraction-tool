@@ -1,6 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {
@@ -47,7 +45,7 @@ namespace AuroraLip.Archives.Formats
 
                 Root.AddArchiveFile(stream, size, $"{type}_{i}.pcs");
 
-                stream.Seek(size, SeekOrigin.Current,32);
+                stream.Seek(size, SeekOrigin.Current, 32);
             }
         }
 

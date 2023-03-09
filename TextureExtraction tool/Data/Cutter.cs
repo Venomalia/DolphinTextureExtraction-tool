@@ -1,7 +1,4 @@
 ﻿using AuroraLip.Archives;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
 {

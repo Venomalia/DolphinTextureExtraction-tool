@@ -1,7 +1,5 @@
 ﻿using AuroraLip.Archives.DiscImage;
 using AuroraLip.Common;
-using System;
-using System.IO;
 using System.Security.Cryptography;
 
 namespace AuroraLip.Archives.Formats

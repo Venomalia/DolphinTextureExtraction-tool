@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics;
 
 namespace LibCPK
 {
@@ -92,7 +86,7 @@ namespace LibCPK
                             }
                         }
 
-                        
+
                         Debug.Print("Got File:" + currentName.ToString());
 
                         if (!batch_file_list.Keys.Contains(currentName.ToString()))

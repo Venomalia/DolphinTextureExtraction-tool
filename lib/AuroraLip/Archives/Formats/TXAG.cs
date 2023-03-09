@@ -1,11 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AuroraLip.Archives.Formats
 {
@@ -40,7 +33,7 @@ namespace AuroraLip.Archives.Formats
                 if (string.IsNullOrWhiteSpace(fileName))
                     fileName = $"entry{i}.GVR";
 
-                Root.AddArchiveFile(stream,length, offset, fileName);
+                Root.AddArchiveFile(stream, length, offset, fileName);
             }
         }
 

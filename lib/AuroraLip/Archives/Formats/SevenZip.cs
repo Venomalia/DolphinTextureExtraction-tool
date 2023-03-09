@@ -1,7 +1,5 @@
 ﻿using AuroraLip.Common;
 using SevenZipExtractor;
-using System;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {

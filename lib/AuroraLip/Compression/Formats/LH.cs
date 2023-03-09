@@ -1,7 +1,5 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Compression;
-using System;
-using System.IO;
 
 namespace NSMBWCompression
 {

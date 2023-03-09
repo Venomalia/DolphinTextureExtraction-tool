@@ -1,7 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace AuroraLip.Texture.J3D
 {
@@ -26,7 +23,7 @@ namespace AuroraLip.Texture.J3D
             for (int i = 0; i < stringCount; i++)
             {
                 stream.Position += 0x02;
-                short nameOffset =  stream.ReadInt16(Endian.Big);
+                short nameOffset = stream.ReadInt16(Endian.Big);
                 long saveReaderPos = stream.Position;
                 stream.Position = offset + nameOffset;
 

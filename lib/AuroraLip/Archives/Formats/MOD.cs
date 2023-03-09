@@ -1,7 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.Formats;
-using System;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {

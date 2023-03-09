@@ -1,9 +1,6 @@
 ﻿using AuroraLip.Archives;
 using AuroraLip.Common;
 using AuroraLip.Palette.Formats;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace AuroraLip.Texture.Formats
 {

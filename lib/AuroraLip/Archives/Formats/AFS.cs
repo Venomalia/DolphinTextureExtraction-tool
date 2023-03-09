@@ -1,7 +1,5 @@
 ﻿using AFSLib;
 using AuroraLip.Common;
-using System;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {

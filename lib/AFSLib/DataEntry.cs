@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AFSLib
+﻿namespace AFSLib
 {
     /// <summary>
     /// Abstract class that represents an entry with data.

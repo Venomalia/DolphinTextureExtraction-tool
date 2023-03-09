@@ -1,5 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
 
 namespace AuroraLip.Archives.DiscImage
 {

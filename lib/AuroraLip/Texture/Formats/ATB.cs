@@ -1,8 +1,4 @@
 ﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace AuroraLip.Texture.Formats
 {

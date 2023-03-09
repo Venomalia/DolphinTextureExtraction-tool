@@ -1,10 +1,5 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -27,7 +22,7 @@ namespace AuroraLip.Texture.Formats
 
         public static bool Matcher(Stream stream, in string extension = "")
             => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
-        
+
         public TPL() : base() { }
         public TPL(string filepath) : base(filepath) { }
         public TPL(Stream stream) => Read(stream);

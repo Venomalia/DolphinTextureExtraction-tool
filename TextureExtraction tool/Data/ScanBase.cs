@@ -6,8 +6,6 @@ using System.Collections.Specialized;
 using System.Configuration;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction_tool
 {
@@ -448,7 +446,7 @@ namespace DolphinTextureExtraction_tool
             if (so.Stream.Length < 25165824) // 24 MB
                 if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                 {
-                    Scan(new ScanObjekt(test, so.SubPath, so.Deep +1, so.Extension));
+                    Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, so.Extension));
                     return true;
                 }
             so.Stream.Seek(0, SeekOrigin.Begin);

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLip.Common
 {
     /// <summary>
     /// Events that make it possible to influence the behavior of the library.

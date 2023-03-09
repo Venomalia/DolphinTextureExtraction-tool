@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace AuroraLip.Compression
+﻿namespace AuroraLip.Compression
 {
 
     /*

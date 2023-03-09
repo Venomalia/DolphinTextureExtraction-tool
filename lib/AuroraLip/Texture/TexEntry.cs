@@ -1,9 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Palette;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using static AuroraLip.Texture.J3DTextureConverter;
 
 namespace AuroraLip.Texture

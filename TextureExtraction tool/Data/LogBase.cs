@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction_tool
 {
     public class LogBase : StreamWriter
     {

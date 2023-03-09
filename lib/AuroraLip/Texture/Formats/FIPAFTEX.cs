@@ -1,9 +1,4 @@
-﻿using AuroraLip.Archives.Formats;
-using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using static AuroraLip.Texture.Formats.TXE;
+﻿using AuroraLip.Common;
 
 
 namespace AuroraLip.Texture.Formats

@@ -1,6 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.IO;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -86,7 +84,7 @@ namespace AuroraLip.Texture.Formats
                         WrapT = GXWrapMode.CLAMP,
                         EnableEdgeLOD = false,
                         MinLOD = 0,
-                        MaxLOD = TotalImageCount-1
+                        MaxLOD = TotalImageCount - 1
                     };
                     Add(current);
                 }

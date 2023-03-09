@@ -1,6 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.IO;
 using System.Text;
 
 namespace AuroraLip.Archives.Formats

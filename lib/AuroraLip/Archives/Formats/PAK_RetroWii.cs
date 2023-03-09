@@ -1,9 +1,6 @@
 ﻿using AuroraLip.Common;
 using AuroraLip.Compression;
 using AuroraLip.Compression.Formats;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace AuroraLip.Archives.Formats
 {

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AuroraLip.Compression
+﻿namespace AuroraLip.Compression
 {
     /// <summary>
     /// Universal class with methods for compressing and decompressing.

@@ -1,8 +1,4 @@
 ﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace AuroraLip.Archives.Formats
@@ -302,7 +298,7 @@ namespace AuroraLip.Archives.Formats
         {
             #region Header
             if (!IsMatch(stream))
-                    throw new InvalidIdentifierException(Magic);
+                throw new InvalidIdentifierException(Magic);
             uint FileSize = stream.ReadUInt32(Endian.Big),
                 DataHeaderOffset = stream.ReadUInt32(Endian.Big),
                 DataOffset = stream.ReadUInt32(Endian.Big) + 0x20,

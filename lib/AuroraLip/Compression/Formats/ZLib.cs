@@ -1,7 +1,5 @@
 ﻿using AuroraLip.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
-using System;
-using System.IO;
 
 namespace AuroraLip.Compression.Formats
 {

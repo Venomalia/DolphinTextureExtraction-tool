@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     /// <summary>
     /// a virtual stream consists of several streams.

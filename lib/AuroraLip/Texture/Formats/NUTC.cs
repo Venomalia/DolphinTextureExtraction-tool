@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     //https://github.com/marco-calautti/Rainbow/wiki/NUT-File-Format
     public class NUTC : JUTTexture, IMagicIdentify, IFileAccess

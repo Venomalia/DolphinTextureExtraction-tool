@@ -1,4 +1,4 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using System.Collections;
 
 //Heavily based on the SuperBMD Library.

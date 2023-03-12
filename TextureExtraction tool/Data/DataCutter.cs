@@ -1,7 +1,7 @@
-﻿using AuroraLip.Archives;
-using AuroraLip.Common;
+﻿using AuroraLib.Archives;
+using AuroraLib.Common;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     internal class DataCutter : Archive
     {

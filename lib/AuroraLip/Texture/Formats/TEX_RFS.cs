@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // From: https://forum.xentax.com/viewtopic.php?f=18&t=17220
     // Thanks to Acewell

@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class GCT0 : JUTTexture, IMagicIdentify, IFileAccess
     {

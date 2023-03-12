@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Reads bits from a stream.

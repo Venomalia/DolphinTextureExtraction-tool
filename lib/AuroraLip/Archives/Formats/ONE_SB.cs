@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Archive use in the Sonic Storybook Series

@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression
+namespace AuroraLib.Compression
 {
     public class CompressionReflection : FileAccessReflection<ICompression>
     {

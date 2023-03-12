@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     /// <summary>
     /// Class full of odds and ends that don't belong to a certain group

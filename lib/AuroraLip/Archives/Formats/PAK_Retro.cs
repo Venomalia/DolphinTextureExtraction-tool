@@ -1,8 +1,8 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Compression;
-using AuroraLip.Compression.Formats;
+﻿using AuroraLib.Common;
+using AuroraLib.Compression;
+using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// The .pak format used in Metroid Prime and Metroid Prime 2

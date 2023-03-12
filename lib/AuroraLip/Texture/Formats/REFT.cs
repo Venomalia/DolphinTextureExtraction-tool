@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // https://wiki.tockdom.com/wiki/BREFF_and_BREFT_(File_Format)
     public class REFT : JUTTexture, IMagicIdentify, IFileAccess

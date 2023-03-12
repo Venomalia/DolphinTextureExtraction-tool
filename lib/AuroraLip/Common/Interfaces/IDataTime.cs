@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     /// <summary>
     /// Provides typical data time properties.

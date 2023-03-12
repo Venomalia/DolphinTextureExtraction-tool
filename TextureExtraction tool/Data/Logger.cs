@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public enum FileAction
     {

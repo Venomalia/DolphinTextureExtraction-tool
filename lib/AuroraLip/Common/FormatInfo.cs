@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     public class FormatInfo : IEquatable<FormatInfo>, IEquatable<Stream>
     {

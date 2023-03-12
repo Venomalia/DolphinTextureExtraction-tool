@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     // ref https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Archives/Formats/GvmArchive.cs
     public class GVMH : Archive, IMagicIdentify, IFileAccess

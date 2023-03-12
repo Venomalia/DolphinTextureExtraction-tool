@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
 
     /// <summary>

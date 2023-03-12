@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common.Extensions
+﻿namespace AuroraLib.Common.Extensions
 {
     public static class PathEX
     {

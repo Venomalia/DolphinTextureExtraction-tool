@@ -1,10 +1,10 @@
-﻿using AuroraLip.Archives.DiscImage;
-using AuroraLip.Common;
+﻿using AuroraLib.Archives.DiscImage;
+using AuroraLib.Common;
 using System.Security.Cryptography;
-using static AuroraLip.Archives.Formats.GCDisk;
-using static AuroraLip.Archives.Formats.WiiDisk.PartitionInfo;
+using static AuroraLib.Archives.Formats.GCDisk;
+using static AuroraLib.Archives.Formats.WiiDisk.PartitionInfo;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Wii Disc Image

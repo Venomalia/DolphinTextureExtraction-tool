@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     // Rune Factory (Frontier) archive format
     // Cross-referenced with https://github.com/master801/Rune-Factory-Frontier-Tools

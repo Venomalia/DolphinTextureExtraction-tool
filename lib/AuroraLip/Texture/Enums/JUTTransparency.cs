@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     public enum JUTTransparency : byte
     {

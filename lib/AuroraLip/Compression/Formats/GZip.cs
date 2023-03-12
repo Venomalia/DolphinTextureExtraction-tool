@@ -1,6 +1,6 @@
 ﻿using System.IO.Compression;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
 
     /// <summary>

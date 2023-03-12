@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static class MiscEX
     {

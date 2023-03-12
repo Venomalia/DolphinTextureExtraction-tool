@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
 
     /*

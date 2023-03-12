@@ -1,4 +1,4 @@
-﻿namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction
 {
     /// <summary>
     /// Sorts and removes unnecessary folders.

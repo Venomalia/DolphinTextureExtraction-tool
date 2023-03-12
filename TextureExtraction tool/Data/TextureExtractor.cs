@@ -1,10 +1,10 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture;
-using AuroraLip.Texture.Formats;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture;
+using AuroraLib.Texture.Formats;
 using Hack.io;
 using System.Text;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public class TextureExtractor : ScanBase
     {

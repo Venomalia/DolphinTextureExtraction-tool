@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.DiscImage
+namespace AuroraLib.Archives.DiscImage
 {
     public struct TMD : ISignedBlobHeader
     {

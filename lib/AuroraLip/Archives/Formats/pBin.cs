@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     // Used in Harvest Moon: Animal Parade
     public class pBin : Archive, IMagicIdentify, IFileAccess

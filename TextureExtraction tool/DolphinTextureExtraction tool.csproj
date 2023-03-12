@@ -11,10 +11,18 @@
     <FileVersion>1.1.2.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <AssemblyName>$(AssemblyTitle)</AssemblyName>
-    <RootNamespace>DolphinTextureExtraction_tool</RootNamespace>
+    <RootNamespace>DolphinTextureExtraction</RootNamespace>
     <SignAssembly>False</SignAssembly>
-    <StartupObject>DolphinTextureExtraction_tool.Program</StartupObject>
+    <StartupObject>DolphinTextureExtraction.Program</StartupObject>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CheckForOverflowUnderflow>False</CheckForOverflowUnderflow>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
@@ -29,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\lib\AuroraLip\AuroraLip.csproj" />
+    <ProjectReference Include="..\lib\AuroraLip\AuroraLib.csproj" />
     <ProjectReference Include="..\lib\Hack.io\Hack.io.csproj" />
   </ItemGroup>
 

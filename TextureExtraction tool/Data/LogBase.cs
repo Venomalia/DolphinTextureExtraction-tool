@@ -1,4 +1,4 @@
-﻿namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction
 {
     public class LogBase : StreamWriter
     {

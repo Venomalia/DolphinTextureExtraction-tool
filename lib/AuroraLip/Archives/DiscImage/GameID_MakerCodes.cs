@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 
-namespace AuroraLip.Archives.DiscImage
+namespace AuroraLib.Archives.DiscImage
 {
     public partial struct GameID
     {

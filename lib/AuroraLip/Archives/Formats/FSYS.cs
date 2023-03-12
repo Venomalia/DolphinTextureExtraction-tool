@@ -1,7 +1,7 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Compression.Formats;
+﻿using AuroraLib.Common;
+using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     //base https://github.com/PekanMmd/Pokemon-XD-Code/
     public class FSYS : Archive, IMagicIdentify, IFileAccess

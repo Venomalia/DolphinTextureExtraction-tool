@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     public class YAZ1 : YAZ0
     {

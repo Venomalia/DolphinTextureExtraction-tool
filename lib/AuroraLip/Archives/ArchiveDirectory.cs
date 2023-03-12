@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace AuroraLip.Archives
+namespace AuroraLib.Archives
 {
     /*
     * Super Hackio Incorporated

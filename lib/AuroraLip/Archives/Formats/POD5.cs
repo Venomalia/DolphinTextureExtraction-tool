@@ -1,7 +1,7 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Compression.Formats;
+﻿using AuroraLib.Common;
+using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     // From https://zenhax.com/viewtopic.php?f=9&t=7288
     // Thanks to Acewell, aluigi, AlphaTwentyThree, Chrrox
@@ -59,7 +59,7 @@ namespace AuroraLip.Archives.Formats
                 if (SizeForFile == CompressedSizeForFile)
                     Sub.FileData = new SubStream(stream, SizeForFile);
                 else
-                    Sub.FileData = new MemoryStream(AuroraLip.Compression.Compression<ZLib>.Decompress(stream.Read((int)SizeForFile)));
+                    Sub.FileData = new MemoryStream(AuroraLib.Compression.Compression<ZLib>.Decompress(stream.Read((int)SizeForFile)));
                 Root.Items.Add(Sub.Name, Sub);
 
                 // Read the file, move on to the next one

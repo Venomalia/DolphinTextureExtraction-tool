@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Extra <see cref="string"/> functions

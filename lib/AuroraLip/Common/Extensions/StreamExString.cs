@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static partial class StreamEx
     {

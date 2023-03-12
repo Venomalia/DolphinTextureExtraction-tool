@@ -1,8 +1,8 @@
-﻿using AuroraLip.Archives;
-using AuroraLip.Common;
-using AuroraLip.Palette.Formats;
+﻿using AuroraLib.Archives;
+using AuroraLib.Common;
+using AuroraLib.Palette.Formats;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class TEX0 : JUTTexture, IMagicIdentify, IFileAccess
     {

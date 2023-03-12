@@ -1,5 +1,5 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Compression;
+﻿using AuroraLib.Common;
+using AuroraLib.Compression;
 
 namespace NSMBWCompression
 {

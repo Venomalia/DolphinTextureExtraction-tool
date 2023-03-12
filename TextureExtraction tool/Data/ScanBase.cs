@@ -1,13 +1,13 @@
-﻿using AuroraLip.Archives;
-using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
-using AuroraLip.Compression;
+﻿using AuroraLib.Archives;
+using AuroraLib.Common;
+using AuroraLib.Common.Extensions;
+using AuroraLib.Compression;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public abstract class ScanBase
     {

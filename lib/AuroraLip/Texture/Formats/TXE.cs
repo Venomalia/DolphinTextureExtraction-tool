@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // https://pikmintkb.com/wiki/TXE_file
     public class TXE : JUTTexture, IFileAccess

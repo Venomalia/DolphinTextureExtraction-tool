@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     /// <summary>
     /// ImageFormat specifies how the data within the image is encoded.

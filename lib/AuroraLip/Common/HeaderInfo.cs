@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public class HeaderInfo : IEquatable<HeaderInfo>, IEquatable<Stream>
     {

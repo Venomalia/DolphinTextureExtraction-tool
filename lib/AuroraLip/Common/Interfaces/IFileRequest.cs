@@ -1,6 +1,6 @@
-﻿using static AuroraLip.Common.Events;
+﻿using static AuroraLib.Common.Events;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Interface to request additional files if necessary.

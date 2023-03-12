@@ -1,7 +1,7 @@
 ﻿using AFSLib;
-using AuroraLip.Common;
+using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class AFS : Archive, IMagicIdentify, IFileAccess
     {

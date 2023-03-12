@@ -1,6 +1,6 @@
-﻿using AuroraLip.Compression;
+﻿using AuroraLib.Compression;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static class Reflection
     {

@@ -1,7 +1,7 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using System.Drawing;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     /*
     * Super Hackio Incorporated

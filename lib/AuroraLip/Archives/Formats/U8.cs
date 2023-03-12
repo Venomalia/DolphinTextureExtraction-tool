@@ -1,8 +1,8 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
+﻿using AuroraLib.Common;
+using AuroraLib.Common.Extensions;
 using System.Text;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
 
     /*

@@ -1,6 +1,6 @@
-﻿using AuroraLip.Archives;
+﻿using AuroraLib.Archives;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public class Cutter : ScanBase
     {

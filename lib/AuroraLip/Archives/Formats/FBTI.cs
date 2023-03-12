@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     // Rune Factory (Frontier) archive format
     public class FBTI : Archive, IMagicIdentify, IFileAccess

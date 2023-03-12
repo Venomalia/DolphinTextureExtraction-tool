@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     public class CXLZ : ICompression, IMagicIdentify
     {

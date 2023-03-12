@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     public class FileAccessReflection<T> where T : IFileAccess
     {

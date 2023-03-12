@@ -1,5 +1,5 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture.J3D;
 using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.

@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Extensions
+namespace AuroraLib.Archives.Extensions
 {
     public static class ArchiveEX
     {

@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DolphinTextureExtraction tool", "TextureExtraction tool\DolphinTextureExtraction tool.csproj", "{89776DB8-07A1-4B36-BE77-7AB5E4237E3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DolphinTextureExtraction tool", "TextureExtraction tool\DolphinTextureExtraction tool.csproj", "{89776DB8-07A1-4B36-BE77-7AB5E4237E3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibCPK", "lib\LibCPK\LibCPK.csproj", "{BA3A00E4-4F51-4AB4-A8FB-F4B64A874449}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibCPK", "lib\LibCPK\LibCPK.csproj", "{BA3A00E4-4F51-4AB4-A8FB-F4B64A874449}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{B407F63E-453B-4A21-8A29-D662F50A5B82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hack.io", "lib\Hack.io\Hack.io.csproj", "{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hack.io", "lib\Hack.io\Hack.io.csproj", "{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuroraLip", "lib\AuroraLip\AuroraLip.csproj", "{CE629181-0090-46D0-81BC-16682E497573}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuroraLib", "lib\AuroraLip\AuroraLib.csproj", "{CE629181-0090-46D0-81BC-16682E497573}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AFSLib", "lib\AFSLib\AFSLib.csproj", "{09C23352-8261-447B-9BB5-4C82DAF3CFFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AFSLib", "lib\AFSLib\AFSLib.csproj", "{09C23352-8261-447B-9BB5-4C82DAF3CFFD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configure Solution", "Configure Solution", "{7975F61B-A37D-4B44-A3ED-B4F19099BB90}"
 	ProjectSection(SolutionItems) = preProject

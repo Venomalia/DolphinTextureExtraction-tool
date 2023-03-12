@@ -1,7 +1,7 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class bres : Archive, IMagicIdentify, IFileAccess
     {

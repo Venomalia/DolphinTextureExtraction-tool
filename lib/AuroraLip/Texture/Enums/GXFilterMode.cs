@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     /// <summary>
     /// FilterMode specifies what type of filtering the file should use for min/mag.

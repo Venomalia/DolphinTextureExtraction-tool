@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     /// <summary>
     /// Defines how textures handle going out of [0..1] range for texcoords.

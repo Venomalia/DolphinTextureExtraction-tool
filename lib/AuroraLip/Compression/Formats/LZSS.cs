@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// LZSS Lempel–Ziv–Storer–Szymanski algorithm, a derivative of LZ77.

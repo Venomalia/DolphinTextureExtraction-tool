@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     /// <summary>
     /// PaletteFormat specifies how the data within the palette is stored.

@@ -1,6 +1,6 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives
+namespace AuroraLib.Archives
 {
     /*
     * Super Hackio Incorporated

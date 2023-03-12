@@ -1,5 +1,5 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture;
 using OpenTK.Graphics.OpenGL;
 
 //Heavily based on the SuperBMD Library.

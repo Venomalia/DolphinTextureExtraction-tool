@@ -1,8 +1,8 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using System.Drawing;
-using static AuroraLip.Texture.J3DColorConverter;
+using static AuroraLib.Texture.J3DColorConverter;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
 
     /*

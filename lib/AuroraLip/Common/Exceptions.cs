@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public class InvalidIdentifierException : Exception
     {

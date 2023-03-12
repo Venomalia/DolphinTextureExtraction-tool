@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Compression
+﻿namespace AuroraLib.Compression
 {
     public enum CompressionLevel
     {

@@ -41,4 +41,10 @@
     <ProjectReference Include="..\lib\Hack.io\Hack.io.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="LICENSE.TXT">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

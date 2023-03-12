@@ -29,22 +29,37 @@ namespace AuroraLip.Texture.Formats
             if (GXFormat.IsPaletteFormat())
             {
                 GXPalette = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), header.PaletteFormat.ToString()); ;
-                stream.Seek(header.PalletOffset, SeekOrigin.Begin);
+                stream.Seek(header.PaletteOffset, SeekOrigin.Begin);
                 PaletteCount = GXFormat.GetMaxPaletteColours();
                 PaletteData = stream.Read(PaletteCount * 2);
             }
 
-#if DEBUG
-            if (header.unk1 != 0 | header.unk2 != 0 | header.unk3 != 0 | header.unk4 != 0 | header.unk5 != 0 | header.unk6 != 0 | header.unk7 != 0)
+            GXFilterMode MagFilter = header.MagFilter == GTXFilterMode.Linear ? GXFilterMode.Linear : GXFilterMode.Nearest;
+            GXFilterMode MinFilter = GXFilterMode.Nearest;
+            if (header.MipmapFilter == GTXFilterMode.None)
             {
-                Events.NotificationEvent.Invoke(NotificationType.Info, $"{nameof(GTX)}:{header.unk1}_{header.unk2}_{header.unk3}_{header.unk4}_{header.unk5}_{header.unk6}_{header.unk7}");
+                MinFilter = header.MinFilter == GTXFilterMode.Linear ? GXFilterMode.Linear : GXFilterMode.Nearest;
             }
-#endif
+            else if (header.MipmapFilter == GTXFilterMode.Nearest)
+            {
+                MinFilter = header.MinFilter == GTXFilterMode.Linear ? GXFilterMode.LinearMipmapNearest : GXFilterMode.NearestMipmapNearest;
+            }
+            else if (header.MipmapFilter == GTXFilterMode.Linear)
+            {
+                MinFilter = header.MinFilter == GTXFilterMode.Linear ? GXFilterMode.LinearMipmapLinear : GXFilterMode.NearestMipmapLinear;
+            }
+
             stream.Seek(header.Offset, SeekOrigin.Begin);
-            Add(new TexEntry(stream, PaletteData, GXFormat, GXPalette, PaletteCount, header.Width, header.Height, 0)
+            Add(new TexEntry(stream, PaletteData, GXFormat, GXPalette, PaletteCount, header.Width, header.Height, header.NumEntries - 1)
             {
                 WrapS = (GXWrapMode)header.WrapS,
                 WrapT = (GXWrapMode)header.WrapT,
+                MinificationFilter = MinFilter,
+                MagnificationFilter = MagFilter,
+                MinLOD = 0.0f,
+                // MaxLOD = , // TODO: Something with NumEntries-1 is going on here
+                LODBias = 0.0f,
+                EnableEdgeLOD = false,
             });
         }
 
@@ -59,40 +74,87 @@ namespace AuroraLip.Texture.Formats
             public ushort Width;
             public ushort Height;
             public byte Bpp;
-            public byte Entries;
-            public ushort unk1; //0
+            /// <summary>
+            /// Base image + mipmaps, so minimum 1, maximum 8.
+            /// </summary>
+            public byte NumEntries;
+            /// <summary>
+            /// Mainly used for pool allocator, set to true while loading from file.
+            /// </summary>
+            public byte Used;
+            /// <summary>
+            /// Mainly set to 1 after GX calls, so overwritten during loading anyway.
+            /// </summary>
+            public byte InitedGX;
+            /// <summary>
+            /// Format of the texture.
+            /// </summary>
             public GTXFormat Format;
+            /// <summary>
+            /// Format of the palette. Should be filled out when the texture uses palette.
+            /// </summary>
             public GTXPaletteFormat PaletteFormat;
             //h10
             public uint WrapS;
             public uint WrapT;
-            public uint unk2; //0
-            public uint MagFilter;
+            public GTXFilterMode MinFilter;
+            public GTXFilterMode MagFilter;
             //h20
-            public uint MinFilter;
-            public uint unk3; //0
+            public GTXFilterMode MipmapFilter;
+            /// <summary>
+            /// Used for runtime-allocated textures to free() the image data, 0 in files.
+            /// </summary>
+            public uint AllocatedOffset;
+            /// <summary>
+            /// Pointer to the texture with mipmaps stored sequentially like the GPU expects.
+            /// </summary>
             public uint Offset;
-            public uint unk4; //0
+            public uint Offset1; // Mipmap
             //h30
-            public long unk5; //0
-            public long unk6; //0
+            public uint Offset2; // Mipmap
+            public uint Offset3; // Mipmap
+            public uint Offset4; // Mipmap
+            public uint Offset5; // Mipmap
             //h40
-            public long unk7; //0
-            public uint PalletOffset;
+            public uint Offset6; // Mipmap
+            public uint Offset7; // Mipmap
+            /// <summary>
+            /// Pointer to palette data, size is the maximum the texture format can address.
+            /// </summary>
+            public uint PaletteOffset;
+            /// <summary>
+            /// Size of the texture with mipmaps in bytes.
+            /// </summary>
+            public uint Size;
+            //h50
+            /// <summary>
+            /// Appears to be some sort of reference-like count, but doesn't free() when unreffing.
+            /// Not relevant for extracting textures.
+            /// </summary>
+            public ushort UsageCount;
+            /// <summary>
+            /// Seemingly unused, only set to 0 when allocating from the pool, but ignored afterwards.
+            /// </summary>
+            public ushort Unknown54;
+            // Space for GXTexObj and GXTlutObj follows, filled at runtime
         }
 
         public enum GTXFormat : uint
         {
-            I4 = 0x40,
-            I8 = 0x41,
-            IA4 = 0x42,
-            IA8 = 0x43 | 0xa0 | 0xa1 | 0xa2 | 0xa3,
-            RGB565 = 0x44,
-            RGBA32 = 0x45,
-            RGB5A3 = 0x90,
             C4 = 0x00,
             C8 = 0x01,
             C14X2 = 0x30,
+            I4 = 0x40,
+            IA4 = 0x41,
+            // There is a GX to GTX texture format conversion function (GXXP01 @ 0x8010471C)
+            // which maps GX 0x27-0x2a (all unknown) to GTX 0xa0-0xa3, but not the other way around.
+            // But there is also a GTX to something texture format conversion function (GXXP01 @ 0x801030c0)
+            // that also maps each to a different value if a passed bool is unset.
+            I8 = 0x42 | 0xa0 | 0xa1 | 0xa2 | 0xa3,
+            IA8 = 0x43,
+            RGB565 = 0x44,
+            RGBA32 = 0x45,
+            RGB5A3 = 0x90,
             CMPR = 0xB0,
         }
 
@@ -102,6 +164,13 @@ namespace AuroraLip.Texture.Formats
             IA8 = 0x01,
             RGB565 = 0x02,
             RGB5A3 = 0x03
+        }
+
+        public enum GTXFilterMode : uint
+        {
+            None = 0x00,
+            Nearest = 0x01,
+            Linear = 0x02
         }
 
     }

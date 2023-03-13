@@ -13,9 +13,5 @@
         /// stores the most significant byte at the smallest address
         /// </summary>
         Big,
-        /// <summary>
-        /// switch between big endian and little endian ordering
-        /// </summary>
-        Middle
     }
 }

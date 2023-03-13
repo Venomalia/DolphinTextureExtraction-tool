@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Common
 {
@@ -12,6 +13,7 @@ namespace AuroraLib.Common
         /// <param name="stream"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte ReadUInt8(this Stream stream)
             => (byte)stream.ReadByte();
 
@@ -21,6 +23,7 @@ namespace AuroraLib.Common
         /// <param name="stream"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sbyte ReadInt8(this Stream stream)
             => (sbyte)stream.ReadByte();
 
@@ -32,8 +35,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 16-bit unsigned integer formed by two bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static ushort ReadUInt16(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToUInt16(stream.Read(2, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ReadUInt16(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<ushort>(order);
 
         /// <summary>
         /// Returns a 16-bit signed integer converted from two bytes at a specified position.
@@ -43,8 +47,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 16-bit signed integer formed by two bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static short ReadInt16(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToInt16(stream.Read(2, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short ReadInt16(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<short>(order);
 
         /// <summary>
         /// Returns a 24-bit unsigned integer converted from three bytes at a specified position.
@@ -54,8 +59,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 24-bit unsigned integer formed by three bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static UInt24 ReadUInt24(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverterEx.ToUInt24(stream.Read(3, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UInt24 ReadUInt24(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<UInt24>(order);
 
         /// <summary>
         /// Returns a 24-bit signed integer converted from three bytes at a specified position.
@@ -65,8 +71,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 24-bit signed integer formed by three bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static Int24 ReadInt24(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverterEx.ToInt24(stream.Read(3, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Int24 ReadInt24(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<Int24>(order);
 
         /// <summary>
         /// Returns a 32-bit unsigned integer converted from four bytes at a specified position.
@@ -76,8 +83,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 32-bit unsigned integer formed by four bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static uint ReadUInt32(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToUInt32(stream.Read(4, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static uint ReadUInt32(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<uint>(order);
 
         /// <summary>
         /// Returns a 32-bit signed integer converted from four bytes at a specified position.
@@ -87,8 +95,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 32-bit signed integer formed by four bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static int ReadInt32(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToInt32(stream.Read(4, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int ReadInt32(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<int>(order);
 
         /// <summary>
         /// Returns a 64-bit unsigned integer converted from eight bytes at a specified position.
@@ -98,8 +107,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 64-bit unsigned integer formed by eight bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static ulong ReadUInt64(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToUInt64(stream.Read(8, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ulong ReadUInt64(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<ulong>(order);
 
         /// <summary>
         /// Returns a 64-bit signed integer converted from eight bytes at a specified position.
@@ -109,8 +119,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A 64-bit signed integer formed by eight bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static long ReadInt64(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToInt64(stream.Read(8, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long ReadInt64(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<long>(order);
 
         /// <summary>
         /// Returns a single-precision floating point number converted from four bytes at a specified position.
@@ -120,8 +131,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A single-precision floating point number formed by from bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static float ReadSingle(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToSingle(stream.Read(4, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ReadSingle(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<float>(order);
 
         /// <summary>
         /// Returns a double-precision floating point number converted from eight bytes at a specified position.
@@ -131,8 +143,9 @@ namespace AuroraLib.Common
         /// <param name="Offset">The byte offset.</param>
         /// <returns>A double-precision floating point number formed by eight bytes beginning at the Offset.</returns>
         [DebuggerStepThrough]
-        public static double ReadDouble(this Stream stream, Endian order = Endian.Little, int Offset = 0)
-            => BitConverter.ToDouble(stream.Read(8, order, Offset), 0);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double ReadDouble(this Stream stream, Endian order = Endian.Little)
+            => stream.Read<double>(order);
         #endregion
 
         #region Write

@@ -19,8 +19,8 @@ namespace AuroraLib.Common
         /// <param name="StartIndex">The starting position within value.</param>
         /// <returns>A 24-bit signed integer formed by three bytes beginning at startIndex.</returns>
         [DebuggerStepThrough]
-        public static Int24 ToInt24(byte[] value, int StartIndex)
-            => new Int24(value[StartIndex] | value[StartIndex + 1] << 8 | value[StartIndex + 2] << 16);
+        public static Int24 ToInt24(ReadOnlySpan<byte> value)
+            => new(value[0] | value[1] << 8 | value[2] << 16);
 
         /// <summary>
         /// Returns the specified 24-bit signed integer value as an array of bytes.
@@ -38,8 +38,8 @@ namespace AuroraLib.Common
         /// <param name="StartIndex">The starting position within value.</param>
         /// <returns>A 24-bit unsigned integer formed by three bytes beginning at startIndex.</returns>
         [DebuggerStepThrough]
-        public static UInt24 ToUInt24(byte[] value, int StartIndex)
-            => new UInt24((uint)(value[StartIndex] | value[StartIndex + 1] << 8 | value[StartIndex + 2] << 16));
+        public static UInt24 ToUInt24(ReadOnlySpan<byte> value)
+            => new UInt24((uint)(value[0] | value[1] << 8 | value[2] << 16));
 
         /// <summary>
         /// Returns the specified 24-bit unsigned integer value as an array of bytes.
@@ -57,16 +57,16 @@ namespace AuroraLib.Common
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="type"></param>
-        /// <param name="offset"></param>
         [DebuggerStepThrough]
-        public static void FlipByteOrder(this byte[] buffer, Type type, int offset = 0)
+        public static void FlipByteOrder(this Span<byte> buffer, Type type)
         {
             if (type.IsPrimitive || type == typeof(UInt24) || type == typeof(Int24))
             {
-                Array.Reverse(buffer, offset, Marshal.SizeOf(type));
+                buffer.Reverse();
                 return;
             }
 
+            int subOffset = 0, fieldSize;
             foreach (var field in type.GetRuntimeFields())
             {
                 if (field.IsStatic) continue;
@@ -76,8 +76,10 @@ namespace AuroraLib.Common
                 if (fieldtype.IsEnum)
                     fieldtype = Enum.GetUnderlyingType(fieldtype);
 
-                var subOffset = Marshal.OffsetOf(type, field.Name).ToInt32();
-                buffer.FlipByteOrder(fieldtype, subOffset + offset);
+                //var subOffset = Marshal.OffsetOf(type, field.Name).ToInt32();
+                fieldSize = Marshal.SizeOf(fieldtype);
+                buffer.Slice(subOffset, fieldSize).FlipByteOrder(fieldtype);
+                subOffset += fieldSize;
             }
         }
 

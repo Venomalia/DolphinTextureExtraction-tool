@@ -39,8 +39,6 @@ namespace AuroraLib.Common
                 case Endian.Big:
                     Array.Reverse(Final);
                     break;
-                case Endian.Middle:
-                    throw new NotImplementedException();
             }
             return Final;
         }
@@ -67,14 +65,12 @@ namespace AuroraLib.Common
                 case Endian.Big:
                     System.Array.Reverse(Array);
                     break;
-                case Endian.Middle:
-                    throw new NotImplementedException();
             }
             stream.Write(Array, Offset, Count);
         }
 
         /// <summary>
-        /// Reads a object of <typeparamref name="T"/> from the stream. (Requires more testing)
+        /// Reads a object of <typeparamref name="T"/> from the stream.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
@@ -86,30 +82,23 @@ namespace AuroraLib.Common
         /// <exception cref="IOException">An I/O error occurred.</exception>
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
-        public static T Read<T>(this Stream stream, Endian order = Endian.Little)
+        [DebuggerStepThrough]
+        public static unsafe T Read<T>(this Stream stream, Endian order = Endian.Little) where T : unmanaged
         {
-            byte[] buffer = new byte[Marshal.SizeOf<T>()];
-            stream.Read(buffer, 0, buffer.Length);
-            switch (order)
+#if DEBUG
+            if (stream.Position + sizeof(T) > stream.Length)
+                Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
+#endif
+            T value;
+            var buffer = new Span<byte>(&value, sizeof(T));
+            stream.Read(buffer);
+            if (buffer.Length > 1 && order == Endian.Big)
             {
-                case Endian.Big:
-                    buffer.FlipByteOrder(typeof(T));
-                    break;
-                case Endian.Middle:
-                    throw new NotImplementedException();
+                buffer.FlipByteOrder(typeof(T));
             }
-
-            GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            try
-            {
-                IntPtr rawDataPtr = handle.AddrOfPinnedObject();
-                return Marshal.PtrToStructure<T>(rawDataPtr);
-            }
-            finally
-            {
-                handle.Free();
-            }
+            return value;
         }
+
         /// <summary>
         /// Writes an <paramref name="objekt"/> of <typeparamref name="T"/> to the <paramref name="stream"/>. (Requires more testing)
         /// </summary>
@@ -136,10 +125,8 @@ namespace AuroraLib.Common
             switch (order)
             {
                 case Endian.Big:
-                    buffer.FlipByteOrder(typeof(T));
+                    buffer.AsSpan().FlipByteOrder(typeof(T));
                     break;
-                case Endian.Middle:
-                    throw new NotImplementedException();
             }
             stream.Write(buffer, 0, buffer.Length);
         }

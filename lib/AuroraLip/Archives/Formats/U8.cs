@@ -126,7 +126,7 @@ namespace AuroraLib.Archives.Formats
                     if (DirectoryStack.Peek().Items.ContainsKey((FlatItems[i]).Name))
                     {
                         string name = ((ArchiveFile)FlatItems[i]).Name;
-                        ((ArchiveFile)FlatItems[i]).Name = $"{PathEX.WithoutExtension(name.AsSpan()).ToString()}_{i}{PathEX.GetExtension(name.AsSpan()).ToString()}";
+                        ((ArchiveFile)FlatItems[i]).Name = $"{Path.GetFileNameWithoutExtension(name.AsSpan()).ToString()}_{i}{Path.GetExtension(name.AsSpan()).ToString()}";
                     }
 
                     FlatItems[i].Parent = DirectoryStack.Peek();

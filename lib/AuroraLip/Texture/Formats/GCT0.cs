@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class GCT0 : JUTTexture, IMagicIdentify, IFileAccess
     {
@@ -35,7 +32,7 @@ namespace AuroraLip.Texture.Formats
             uint unknown = stream.ReadUInt32(Endian.Big); //202
 
             // we calculate the mips
-            int mips = Format.GetMipmapsFromSize( (int)(stream.Length - ImgOffset), Width, Height);
+            int mips = Format.GetMipmapsFromSize((int)(stream.Length - ImgOffset), Width, Height);
 
             // Palette are not supported?
             if (Format.IsPaletteFormat())

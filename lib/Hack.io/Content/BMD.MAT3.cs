@@ -1,12 +1,7 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.Formats;
-using AuroraLip.Texture.J3D;
-using OpenTK;
-using OpenTK.Graphics;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture.Formats;
+using AuroraLib.Texture.J3D;
+using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io
@@ -1492,8 +1487,8 @@ namespace Hack.io
                     SwapTables = new TevSwapModeTable?[16];
                     SwapTables[0] = new TevSwapModeTable(0, 1, 2, 3);
 
-                    AlphCompare = new AlphaCompare(AlphaCompare.CompareType.Greater, 127, AlphaCompare.AlphaOp.And, AlphaCompare.CompareType.Always, 0);
-                    ZMode = new ZModeHolder(true, AlphaCompare.CompareType.LEqual, true);
+                    AlphCompare = new AlphaCompare(AlphaCompare.GxCompareType.Greater, 127, AlphaCompare.GXAlphaOp.And, AlphaCompare.GxCompareType.Always, 0);
+                    ZMode = new ZModeHolder(true, AlphaCompare.GxCompareType.LEqual, true);
                     BMode = new BlendMode(BlendMode.BlendModeID.Blend, BlendMode.BlendModeControl.SrcAlpha, BlendMode.BlendModeControl.InverseSrcAlpha, BlendMode.LogicOp.NoOp);
                     NBTScale = new NBTScaleHolder(0, Vector3.Zero);
                     FogInfo = new Fog(0, false, 0, 0, 0, 0, 0, new Color4(0, 0, 0, 0), new float[10]);
@@ -3196,17 +3191,17 @@ namespace Hack.io
                 public struct AlphaCompare
                 {
                     /// <summary> subfunction 0 </summary>
-                    public CompareType Comp0;
+                    public GxCompareType Comp0;
                     /// <summary> Reference value for subfunction 0. </summary>
                     public byte Reference0;
                     /// <summary> Alpha combine control for subfunctions 0 and 1. </summary>
-                    public AlphaOp Operation;
+                    public GXAlphaOp Operation;
                     /// <summary> subfunction 1 </summary>
-                    public CompareType Comp1;
+                    public GxCompareType Comp1;
                     /// <summary> Reference value for subfunction 1. </summary>
                     public byte Reference1;
 
-                    public AlphaCompare(CompareType comp0, byte ref0, AlphaOp operation, CompareType comp1, byte ref1)
+                    public AlphaCompare(GxCompareType comp0, byte ref0, GXAlphaOp operation, GxCompareType comp1, byte ref1)
                     {
                         Comp0 = comp0;
                         Reference0 = ref0;
@@ -3217,10 +3212,10 @@ namespace Hack.io
 
                     public AlphaCompare(Stream reader)
                     {
-                        Comp0 = (CompareType)reader.ReadByte();
+                        Comp0 = (GxCompareType)reader.ReadByte();
                         Reference0 = (byte)reader.ReadByte();
-                        Operation = (AlphaOp)reader.ReadByte();
-                        Comp1 = (CompareType)reader.ReadByte();
+                        Operation = (GXAlphaOp)reader.ReadByte();
+                        Comp1 = (GxCompareType)reader.ReadByte();
                         Reference1 = (byte)reader.ReadByte();
                         reader.Position += 0x03;
                     }
@@ -3260,7 +3255,7 @@ namespace Hack.io
                         return hashCode;
                     }
 
-                    public enum CompareType
+                    public enum GxCompareType
                     {
                         Never = 0,
                         Less = 1,
@@ -3271,7 +3266,7 @@ namespace Hack.io
                         GEqual = 6,
                         Always = 7
                     }
-                    public enum AlphaOp
+                    public enum GXAlphaOp
                     {
                         And = 0,
                         Or = 1,
@@ -3362,20 +3357,20 @@ namespace Hack.io
                     {
                         Clear = 0,
                         And = 1,
+                        RevAnd = 2,
                         Copy = 3,
+                        InvAnd = 4,
+                        NoOp = 5,
+                        XOr = 6,
+                        Or = 7,
+                        NOr = 8,
                         Equiv = 9,
                         Inv = 10,
-                        InvAnd = 4,
+                        RevOr = 11,
                         InvCopy = 12,
                         InvOr = 13,
                         NAnd = 14,
-                        NoOp = 5,
-                        NOr = 8,
-                        Or = 7,
-                        RevAnd = 2,
-                        RevOr = 11,
                         Set = 15,
-                        XOr = 6
                     }
 
                     public static bool operator ==(BlendMode mode1, BlendMode mode2) => mode1.Equals(mode2);
@@ -3390,14 +3385,14 @@ namespace Hack.io
                     /// <summary> Determines the comparison that is performed.
                     /// The newely rasterized Z value is on the left while the value from the Z buffer is on the right.
                     /// If the result of the comparison is false, the newly rasterized pixel is discarded. </summary>
-                    public AlphaCompare.CompareType Function;
+                    public AlphaCompare.GxCompareType Function;
 
                     /// <summary> If true, the Z buffer is updated with the new Z value after a comparison is performed.
                     /// Example: Disabling this would prevent a write to the Z buffer, useful for UI elements or other things
                     /// that shouldn't write to Z Buffer. See glDepthMask. </summary>
                     public bool UpdateEnable;
 
-                    public ZModeHolder(bool enable, AlphaCompare.CompareType func, bool update)
+                    public ZModeHolder(bool enable, AlphaCompare.GxCompareType func, bool update)
                     {
                         Enable = enable;
                         Function = func;
@@ -3407,7 +3402,7 @@ namespace Hack.io
                     public ZModeHolder(Stream reader)
                     {
                         Enable = reader.ReadByte() > 0;
-                        Function = (AlphaCompare.CompareType)reader.ReadByte();
+                        Function = (AlphaCompare.GxCompareType)reader.ReadByte();
                         UpdateEnable = reader.ReadByte() > 0;
                         reader.Position++;
                     }

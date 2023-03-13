@@ -1,7 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.DiscImage
+namespace AuroraLib.Archives.DiscImage
 {
     /// <summary>
     /// consist of 6 Chars(byte) and is composed of the SystemCode, GameCode, RegionCode and MakerCode.

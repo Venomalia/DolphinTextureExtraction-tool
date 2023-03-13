@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Runtime.InteropServices;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Extra <see cref="string"/> functions
@@ -11,7 +9,7 @@ namespace AuroraLip.Common
     public static class StringEx
     {
         static string exePath = null;
-        public static string ExePath => exePath = exePath ?? Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
+        public static string ExePath => exePath ??= Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
 
         public static string SimpleDate => DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
 
@@ -37,7 +35,7 @@ namespace AuroraLip.Common
             string insert = Environment.NewLine.PadRight(offset, ' ');
             StringBuilder output = new StringBuilder();
             StringReader reader = new StringReader(text);
-            while(true)
+            while (true)
             {
                 string read = reader.ReadLine();
                 if (read == null) break;

@@ -1,9 +1,7 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using SevenZipExtractor;
-using System;
-using System.IO;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class SevenZip : Archive, IFileAccess
     {

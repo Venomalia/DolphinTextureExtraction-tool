@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // Rune Factory (Frontier) texture format
     public class HXTB : JUTTexture, IMagicIdentify, IFileAccess

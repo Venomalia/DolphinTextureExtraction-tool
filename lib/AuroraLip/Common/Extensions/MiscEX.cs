@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static class MiscEX
     {
@@ -16,7 +14,7 @@ namespace AuroraLip.Common
 
         public static byte[] AESDecrypt(byte[] cipherData, byte[] Key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
         {
-            Rijndael aes = Rijndael.Create();
+            Aes aes = Aes.Create();
             aes.KeySize = Key.Length * 8;
             aes.Mode = cipherMode;
             aes.Padding = paddingMode;
@@ -27,7 +25,7 @@ namespace AuroraLip.Common
 
         public static byte[] AESEncrypt(byte[] cipherData, byte[] Key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
         {
-            Rijndael aes = Rijndael.Create();
+            Aes aes = Aes.Create();
             aes.KeySize = Key.Length * 8;
             aes.Mode = cipherMode;
             aes.Padding = paddingMode;

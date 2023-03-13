@@ -1,12 +1,8 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
+using AuroraLib.Common.Extensions;
 using System.Text;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
 
     /*
@@ -40,7 +36,7 @@ namespace AuroraLip.Archives.Formats
         protected override void Read(Stream stream)
         {
             if (!IsMatch(stream))
-                    throw new InvalidIdentifierException(Magic);
+                throw new InvalidIdentifierException(Magic);
 
             uint OffsetToNodeSection = stream.ReadUInt32(Endian.Big); //usually 0x20
             uint NodeSectionSize = stream.ReadUInt32(Endian.Big);
@@ -79,7 +75,7 @@ namespace AuroraLip.Archives.Formats
                 long PausePosition = stream.Position;
                 if (entries[i].IsDirectory)
                 {
-                    ArchiveDirectory dir = new ArchiveDirectory() { OwnerArchive = this};
+                    ArchiveDirectory dir = new ArchiveDirectory() { OwnerArchive = this };
                     stream.Position = StringTableLocation + entries[i].NameOffset;
                     dir.Name = stream.ReadString(); // x => x != 0
                     FlatItems.Add(dir);

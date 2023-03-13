@@ -1,10 +1,8 @@
-﻿using AuroraLip.Texture;
-using System;
-using System.Collections.Generic;
+﻿using AuroraLib.Texture;
 using System.Drawing;
-using static AuroraLip.Texture.J3DTextureConverter;
+using static AuroraLib.Texture.J3DTextureConverter;
 
-namespace AuroraLip.Palette
+namespace AuroraLib.Palette
 {
     public class JUTPalette : List<Color>
     {

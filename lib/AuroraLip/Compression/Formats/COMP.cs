@@ -1,7 +1,6 @@
-﻿using AuroraLip.Common;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// COMP use LZ11 algorithm.

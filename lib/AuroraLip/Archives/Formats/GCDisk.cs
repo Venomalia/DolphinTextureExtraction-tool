@@ -1,9 +1,7 @@
-﻿using AuroraLip.Archives.DiscImage;
-using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Archives.DiscImage;
+using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Nintendo Gamecube Mini Disc Image.

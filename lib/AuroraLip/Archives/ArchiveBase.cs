@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives
+namespace AuroraLib.Archives
 {
     /*
     * Super Hackio Incorporated
@@ -114,7 +111,7 @@ namespace AuroraLip.Archives
         /// Read a Archive from Stream.
         /// </summary>
         /// <param name="stream"></param>
-        public void Open(Stream stream,in string fullpath = null)
+        public void Open(Stream stream, in string fullpath = null)
         {
             FullPath = fullpath;
             Read(stream);

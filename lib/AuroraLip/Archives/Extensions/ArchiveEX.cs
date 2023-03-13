@@ -1,12 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Extensions
+namespace AuroraLib.Archives.Extensions
 {
     public static class ArchiveEX
     {
@@ -38,7 +32,7 @@ namespace AuroraLip.Archives.Extensions
         /// Export this Directory to a folder.
         /// </summary>
         /// <param name="FolderPath">Folder to Export to. Don't expect the files to appear here. Expect a Folder with this <see cref="Name"/> to appear</param>
-        public static void Export(this ArchiveDirectory directory,string FolderPath)
+        public static void Export(this ArchiveDirectory directory, string FolderPath)
         {
             Directory.CreateDirectory(FolderPath);
             foreach (KeyValuePair<string, ArchiveObject> item in directory.Items)

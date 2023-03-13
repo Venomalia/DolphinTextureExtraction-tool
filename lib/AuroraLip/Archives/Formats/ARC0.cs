@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Brawl ARC0 Archive
@@ -47,7 +45,7 @@ namespace AuroraLip.Archives.Formats
 
                 Root.AddArchiveFile(stream, size, $"{type}_{i}.pcs");
 
-                stream.Seek(size, SeekOrigin.Current,32);
+                stream.Seek(size, SeekOrigin.Current, 32);
             }
         }
 

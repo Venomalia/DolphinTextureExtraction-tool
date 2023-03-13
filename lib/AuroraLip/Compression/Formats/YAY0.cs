@@ -1,11 +1,8 @@
-﻿using AuroraLip.Common;
-using System;
+﻿using AuroraLib.Common;
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /*
      * Super Hackio Incorporated
@@ -106,7 +103,7 @@ namespace AuroraLip.Compression.Formats
             if (source.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAY0)}:Invalid Identifier");
 
-            
+
             uint uncompressedSize = source.ReadUInt32(Endian.Big),
                 linkTableOffset = source.ReadUInt32(Endian.Big),
                 byteChunkAndCountModifiersOffset = source.ReadUInt32(Endian.Big);

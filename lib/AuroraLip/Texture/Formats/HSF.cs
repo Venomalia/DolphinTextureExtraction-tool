@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     //base https://github.com/Ploaj/Metanoia/blob/master/Metanoia/Formats/GameCube/HSF.cs
     public class HSF : JUTTexture, IFileAccess, IMagicIdentify

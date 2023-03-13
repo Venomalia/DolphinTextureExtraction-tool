@@ -1,13 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class TXAG : Archive, IMagicIdentify, IFileAccess
     {
@@ -40,7 +33,7 @@ namespace AuroraLip.Archives.Formats
                 if (string.IsNullOrWhiteSpace(fileName))
                     fileName = $"entry{i}.GVR";
 
-                Root.AddArchiveFile(stream,length, offset, fileName);
+                Root.AddArchiveFile(stream, length, offset, fileName);
             }
         }
 

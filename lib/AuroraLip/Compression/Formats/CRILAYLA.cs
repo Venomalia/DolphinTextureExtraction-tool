@@ -1,8 +1,7 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using LibCPK;
-using System.IO;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     public class CRILAYLA : ICompression, IMagicIdentify
     {

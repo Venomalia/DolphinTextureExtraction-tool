@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
     /// <summary>
     /// Gives specific information about the Dolphin textures hash.

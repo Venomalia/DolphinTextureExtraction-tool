@@ -1,12 +1,8 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using static DolphinTextureExtraction_tool.ScanBase;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture;
+using static DolphinTextureExtraction.ScanBase;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     partial class Program
     {
@@ -508,7 +504,7 @@ namespace DolphinTextureExtraction_tool
 
         static void PrintFormats()
         {
-            List<string> formats = new List<string>(AuroraLip.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
+            List<string> formats = new List<string>(AuroraLib.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
             formats.Sort();
             Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(20));
         }

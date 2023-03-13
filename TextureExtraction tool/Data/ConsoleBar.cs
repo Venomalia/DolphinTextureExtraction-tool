@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction
 {
     public class ConsoleBar
     {

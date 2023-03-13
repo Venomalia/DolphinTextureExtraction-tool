@@ -1,7 +1,6 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
-namespace AuroraLip.Common.Struct
+namespace AuroraLib.Common.Struct
 {
     /// <summary>
     /// Represents a 16-byte, 128-bit unsigned integer. is mainly used for checksums.

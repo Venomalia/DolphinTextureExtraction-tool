@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class GBIX : GVRT
     {

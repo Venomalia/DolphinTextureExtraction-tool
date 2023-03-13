@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // From: https://forum.xentax.com/viewtopic.php?f=18&t=17220
     // Thanks to Acewell
@@ -35,7 +32,7 @@ namespace AuroraLip.Texture.Formats
             uint ImageWidth = stream.ReadUInt32(Endian.Little);
             uint ImageHeight = stream.ReadUInt32(Endian.Little);
             stream.Seek(0x34, SeekOrigin.Begin);
-            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && TEX_ImageFormat[Tex_Format].GetCalculatedDataSize( (int)ImageWidth, (int)ImageHeight) < stream.Length;
+            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && TEX_ImageFormat[Tex_Format].GetCalculatedDataSize((int)ImageWidth, (int)ImageHeight) < stream.Length;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")

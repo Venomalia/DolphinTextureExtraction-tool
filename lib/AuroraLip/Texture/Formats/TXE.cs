@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // https://pikmintkb.com/wiki/TXE_file
     public class TXE : JUTTexture, IFileAccess
@@ -61,7 +59,7 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(16, SeekOrigin.Current);
                 DataSize = stream.ReadInt32(Endian.Big);
             }
-            int Mipmaps = Format.GetMipmapsFromSize(DataSize,ImageWidth, ImageHeight);
+            int Mipmaps = Format.GetMipmapsFromSize(DataSize, ImageWidth, ImageHeight);
 
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, Mipmaps)
             {

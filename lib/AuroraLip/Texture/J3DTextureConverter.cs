@@ -1,12 +1,8 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
+﻿using AuroraLib.Common;
 using System.Drawing;
-using System.IO;
-using System.Linq;
-using static AuroraLip.Texture.J3DColorConverter;
+using static AuroraLib.Texture.J3DColorConverter;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
 
     /*
@@ -54,7 +50,7 @@ namespace AuroraLip.Texture
                 Events.NotificationEvent?.Invoke(NotificationType.Warning, $"No Colors associate with this Palettet Texture, it will be rendered in {Format} grayscale!");
             }
 
-                var (BlockWidth, BlockHeight) = Format.GetBlockSize();
+            var (BlockWidth, BlockHeight) = Format.GetBlockSize();
             int BlockDataSize = Format.GetBlockDataSize(), offset = 0, BlockX = 0, BlockY = 0, XInBlock = 0, YInBlock = 0;
 
             byte[] Pixels = new byte[Width * Height * 4];
@@ -243,7 +239,7 @@ namespace AuroraLip.Texture
             Tuple<Dictionary<Color, int>, ushort[]> Palette = CreatePalette(Images, Format, PaletteFormat);
             PaletteData = EncodePalette(Palette.Item2, Format);
             for (int i = 0; i < Images.Count; i++)
-                ImageData.Add(EncodeImage( Images[i], Format, Palette.Item1));
+                ImageData.Add(EncodeImage(Images[i], Format, Palette.Item1));
             return ImageData;
         }
         /// <summary>

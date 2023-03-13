@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AuroraLip.Texture
+﻿namespace AuroraLib.Texture
 {
     public static class GXImageFormat_Info
     {
         private static readonly int[] BlockWidth = { 8, 8, 8, 4, 4, 4, 4, 0, 8, 8, 4, 0, 0, 0, 8 };
         private static readonly int[] BlockHeight = { 8, 4, 4, 4, 4, 4, 4, 0, 8, 4, 4, 0, 0, 0, 8 };
         private static readonly int[] Bpp = { 4, 8, 8, 16, 16, 16, 32, 0, 4, 8, 16, 0, 0, 0, 4 };
-        private static readonly int[] MaxTlutColours = { 16, 256, 16384};
+        private static readonly int[] MaxTlutColours = { 16, 256, 16384 };
 
         /// <summary>
         /// Get block width and height
@@ -120,7 +114,7 @@ namespace AuroraLip.Texture
         {
             if (!Format.IsPaletteFormat())
                 throw new FormatException($"{Format} Is not a Palette format!");
-            return MaxTlutColours[(int)Format-8];
+            return MaxTlutColours[(int)Format - 8];
         }
 
         /// <summary>

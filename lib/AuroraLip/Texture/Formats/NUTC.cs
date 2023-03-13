@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     //https://github.com/marco-calautti/Rainbow/wiki/NUT-File-Format
     public class NUTC : JUTTexture, IMagicIdentify, IFileAccess
@@ -86,7 +84,7 @@ namespace AuroraLip.Texture.Formats
                         WrapT = GXWrapMode.CLAMP,
                         EnableEdgeLOD = false,
                         MinLOD = 0,
-                        MaxLOD = TotalImageCount-1
+                        MaxLOD = TotalImageCount - 1
                     };
                     Add(current);
                 }

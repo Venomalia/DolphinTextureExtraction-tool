@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AuroraLip.Texture.J3D
+﻿namespace AuroraLib.Texture.J3D
 {
 
     /*

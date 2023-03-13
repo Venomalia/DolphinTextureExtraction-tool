@@ -1,12 +1,7 @@
-﻿using AuroraLip.Archives.Formats;
-using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using static AuroraLip.Texture.Formats.TXE;
+﻿using AuroraLib.Common;
 
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // The actual file type is likely 'FIPA'
     // with a switch on subtypes (ex: 'FTEX')

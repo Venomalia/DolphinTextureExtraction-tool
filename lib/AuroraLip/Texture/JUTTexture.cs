@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
 
     /*

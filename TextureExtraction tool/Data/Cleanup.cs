@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
-
-namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction
 {
     /// <summary>
     /// Sorts and removes unnecessary folders.

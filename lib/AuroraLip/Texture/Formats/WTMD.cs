@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     //bas on https://forum.xentax.com/viewtopic.php?t=9256
     public class WTMD : JUTTexture, IMagicIdentify, IFileAccess

@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.Formats;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
 
     // Format references https://github.com/intns/MODConv. For now, the textures are enough for us.

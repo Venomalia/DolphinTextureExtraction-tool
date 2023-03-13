@@ -1,7 +1,6 @@
-﻿using System;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public class InvalidIdentifierException : Exception
     {

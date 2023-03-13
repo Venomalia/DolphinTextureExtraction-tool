@@ -1,9 +1,7 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 using System.Text;
 
-namespace AuroraLip.Archives
+namespace AuroraLib.Archives
 {
     public abstract class ArchiveObject : IDisposable, IFileSystemInfo
     {

@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
 
     /*

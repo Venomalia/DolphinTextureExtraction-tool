@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DolphinTextureExtraction_tool
+﻿namespace DolphinTextureExtraction
 {
     /// <summary>
     /// Extension of the console

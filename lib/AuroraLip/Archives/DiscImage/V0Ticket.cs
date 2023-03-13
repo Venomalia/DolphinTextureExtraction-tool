@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.DiscImage
+namespace AuroraLib.Archives.DiscImage
 {
     public struct V0Ticket : ISignedBlobHeader
     {

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AFSLib
+﻿namespace AFSLib
 {
     /// <summary>
     /// Class that represents an entry with data referenced from a stream.

@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace AuroraLip.Common
+﻿namespace AuroraLib.Common
 {
     public class FormatInfo : IEquatable<FormatInfo>, IEquatable<Stream>
     {
@@ -41,7 +38,7 @@ namespace AuroraLip.Common
         /// </summary>
         public MatchAction IsMatch { get; set; }
 
-        public delegate bool MatchAction(Stream stream,in string extension = "");
+        public delegate bool MatchAction(Stream stream, in string extension = "");
 
         #region Constructor
         public FormatInfo(string extension = "", FormatType typ = FormatType.Unknown, string description = "", string developer = "")
@@ -68,7 +65,7 @@ namespace AuroraLip.Common
 
         #endregion
 
-        private bool Matcher(Stream stream,in string extension = "")
+        private bool Matcher(Stream stream, in string extension = "")
         {
             if (Header != null)
             {

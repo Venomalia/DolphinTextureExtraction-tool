@@ -1,9 +1,8 @@
-﻿using AuroraLip.Common;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression
+namespace AuroraLib.Compression
 {
-    public interface ICompression: IFileAccess
+    public interface ICompression : IFileAccess
     {
 
         /// <summary>

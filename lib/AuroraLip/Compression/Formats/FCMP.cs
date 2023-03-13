@@ -1,7 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Compression;
-using AuroraLip.Compression.Formats;
-using System.IO;
+﻿using AuroraLib.Common;
+using AuroraLib.Compression;
+using AuroraLib.Compression.Formats;
 
 namespace MuramasaTDB_Encoding
 {

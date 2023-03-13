@@ -1,10 +1,8 @@
-﻿using AuroraLip.Archives.DiscImage;
-using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Archives.DiscImage;
+using AuroraLib.Common;
 using System.Security.Cryptography;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class WAD : Archive, IFileAccess
     {

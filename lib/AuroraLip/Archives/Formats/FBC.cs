@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class FBC : Archive, IFileAccess
     {
@@ -47,7 +45,7 @@ namespace AuroraLip.Archives.Formats
                     TotalSize = (uint)(stream.Position - entrystart);
                 }
 
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = $"entry_{TotalFileCount + 1}.bres"};
+                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = $"entry_{TotalFileCount + 1}.bres" };
                 Sub.FileData = new SubStream(stream, TotalSize, entrystart);
                 Root.Items.Add(Sub.Name, Sub);
 

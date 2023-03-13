@@ -1,19 +1,13 @@
-﻿using AuroraLip.Archives;
-using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
-using AuroraLip.Compression;
-using System;
-using System.Collections.Generic;
+﻿using AuroraLib.Archives;
+using AuroraLib.Common;
+using AuroraLib.Common.Extensions;
+using AuroraLib.Compression;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public abstract class ScanBase
     {
@@ -30,9 +24,9 @@ namespace DolphinTextureExtraction_tool
         public class Options
         {
             static NameValueCollection config;
-            public static NameValueCollection Config => config = config ?? ConfigurationManager.AppSettings;
+            public static NameValueCollection Config => config ??= ConfigurationManager.AppSettings;
             static bool? useConfig = null;
-            public static bool UseConfig = (bool)(useConfig = useConfig ?? Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
+            public static bool UseConfig = (bool)(useConfig ??= Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
 #if DEBUG
             public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 #else
@@ -452,7 +446,7 @@ namespace DolphinTextureExtraction_tool
             if (so.Stream.Length < 25165824) // 24 MB
                 if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
                 {
-                    Scan(new ScanObjekt(test, so.SubPath, so.Deep +1, so.Extension));
+                    Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, so.Extension));
                     return true;
                 }
             so.Stream.Seek(0, SeekOrigin.Begin);

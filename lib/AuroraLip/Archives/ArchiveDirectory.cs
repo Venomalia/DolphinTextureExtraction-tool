@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
-namespace AuroraLip.Archives
+namespace AuroraLib.Archives
 {
     /*
     * Super Hackio Incorporated
@@ -326,7 +322,7 @@ namespace AuroraLip.Archives
 
         public virtual void AddArchiveFile(Stream stream, string name)
         {
-            ArchiveFile Sub = new ArchiveFile() { Parent = this, Name = name, FileData = stream};
+            ArchiveFile Sub = new ArchiveFile() { Parent = this, Name = name, FileData = stream };
             this.Items.Add(Sub.Name, Sub);
         }
 

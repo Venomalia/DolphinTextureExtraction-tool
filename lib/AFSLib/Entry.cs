@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AFSLib
+﻿namespace AFSLib
 {
     /// <summary>
     /// Abstract class that represents an entry. All types of entries derive from Entry.

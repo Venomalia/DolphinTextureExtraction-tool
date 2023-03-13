@@ -1,12 +1,6 @@
-﻿using AuroraLip.Compression;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AuroraLib.Compression;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static class Reflection
     {

@@ -1,8 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Archive use in Sonic Unleashed
@@ -18,7 +16,7 @@ namespace AuroraLip.Archives.Formats
         private const string magic = "one.";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.At(4,S => stream.ReadUInt32()) <= 1024*4 ;
+            => stream.MatchString(magic) && stream.At(4, S => stream.ReadUInt32()) <= 1024 * 4;
 
         protected override void Read(Stream stream)
         {

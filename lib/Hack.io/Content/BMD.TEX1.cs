@@ -1,10 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.Formats;
-using AuroraLip.Texture.J3D;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture.Formats;
+using AuroraLib.Texture.J3D;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io

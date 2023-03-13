@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using AuroraLib.Common;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     public class Unpack : ScanBase
     {

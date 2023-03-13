@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AuroraLip.Compression
+﻿namespace AuroraLib.Compression
 {
     public static class CompressionEx
     {

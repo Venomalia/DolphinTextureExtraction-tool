@@ -1,9 +1,8 @@
-﻿using AuroraLip.Archives.Formats;
-using AuroraLip.Compression.Formats;
-using AuroraLip.Texture.Formats;
-using System.IO;
+﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Compression.Formats;
+using AuroraLib.Texture.Formats;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
     public static partial class FormatDictionary
     {

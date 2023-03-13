@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace AFSLib
+﻿namespace AFSLib
 {
     /// <summary>
     /// Class that represents an empty entry with no data.

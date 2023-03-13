@@ -1,9 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
-using System;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class GVRT : JUTTexture, IMagicIdentify, IFileAccess
     {

@@ -1,9 +1,7 @@
-﻿using AuroraLip.Common;
+﻿using AuroraLib.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
-using System;
-using System.IO;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// ZLib, based on the DEFLATE compression algorithm.

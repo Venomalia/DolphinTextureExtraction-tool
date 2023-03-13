@@ -1,12 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Common.Extensions;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /*
      * Super Hackio Incorporated

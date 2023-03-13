@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AFSLib
+﻿namespace AFSLib
 {
     internal struct StreamEntryInfo
     {

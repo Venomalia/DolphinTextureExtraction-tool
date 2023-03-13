@@ -1,10 +1,6 @@
-﻿using AuroraLip.Common;
-using AuroraLip.Texture.J3D;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using AuroraLib.Common;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     // base on https://github.com/gamemasterplc/mpatbtools/blob/master/atbdump.c
     public class ATB : JUTTexture, IFileAccess

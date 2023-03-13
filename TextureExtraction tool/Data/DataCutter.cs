@@ -1,10 +1,7 @@
-﻿using AuroraLip.Archives;
-using AuroraLip.Common;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using AuroraLib.Archives;
+using AuroraLib.Common;
 
-namespace DolphinTextureExtraction_tool
+namespace DolphinTextureExtraction
 {
     internal class DataCutter : Archive
     {
@@ -52,17 +49,17 @@ namespace DolphinTextureExtraction_tool
                 // if Compresst?
                 if (Root.Count <= 1 && stream.Position > 6 + format.Header.Offset)
                 {
-                    stream.Seek(-5-format.Header.Offset, SeekOrigin.Current);
+                    stream.Seek(-5 - format.Header.Offset, SeekOrigin.Current);
                     switch (stream.ReadByte())
                     {
                         case 16: //LZ77
-                        //case 17: //LZ11
+                                 //case 17: //LZ11
                             stream.Seek(-1, SeekOrigin.Current);
                             ArchiveFile ComSub = new ArchiveFile
                             {
                                 Parent = Root,
                                 Name = $"entrys.lz",
-                                FileData = new SubStream(stream,stream.Length - stream.Position, stream.Position)
+                                FileData = new SubStream(stream, stream.Length - stream.Position, stream.Position)
                             };
                             Root.Items.Add(ComSub.Name, ComSub);
                             return;

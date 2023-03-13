@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace AuroraLip.Common
+namespace AuroraLib.Common
 {
 
     /// <summary>

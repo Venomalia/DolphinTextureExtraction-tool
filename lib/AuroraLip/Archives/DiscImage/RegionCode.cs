@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Archives.DiscImage
+﻿namespace AuroraLib.Archives.DiscImage
 {
     public enum RegionCode : int
     {

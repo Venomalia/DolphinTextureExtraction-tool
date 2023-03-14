@@ -86,11 +86,11 @@ namespace AuroraLib.Texture
 
         public static Color[] DecodePalette(ReadOnlySpan<byte> PaletteData, GXPaletteFormat? PaletteFormat, int? Count)
         {
-            List<Color> Colours = new List<Color>();
+            List<Color> Colours = new();
             int offset = 0;
             for (int i = 0; i < Count; i++)
             {
-                ushort Raw = BitConverter.ToUInt16(new byte[2] { PaletteData[offset + 1], PaletteData[offset] }, 0);
+                ushort Raw = BitConverter.ToUInt16(PaletteData.Slice(offset, 2)).Swap();
                 offset += 2;
                 switch (PaletteFormat)
                 {
@@ -113,7 +113,7 @@ namespace AuroraLib.Texture
 
         public static byte[] EncodePalette(in IEnumerable<Color> colors, GXPaletteFormat PaletteFormat)
         {
-            MemoryStream bytes = new MemoryStream();
+            MemoryStream bytes = new();
 
             foreach (Color color in colors)
             {
@@ -138,7 +138,7 @@ namespace AuroraLib.Texture
         public static Color[] DecodeBlock(ReadOnlySpan<byte> ImageData, GXImageFormat Format, int Offset, ReadOnlySpan<Color> Colours)
         {
             int BlockSize = Format.GetBlockDataSize();
-            List<Color> Result = new List<Color>();
+            List<Color> Result = new();
             if (Offset >= ImageData.Length)
                 return Result.ToArray();
 
@@ -164,17 +164,17 @@ namespace AuroraLib.Texture
                 case GXImageFormat.IA8:
                     for (int i = 0; i < BlockSizeHalfed; i++)
                         if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(IA8ToColor(BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0)));
+                            Result.Add(IA8ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGB565:
                     for (int i = 0; i < BlockSizeHalfed; i++)
                         if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(RGB565ToColor(BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0)));
+                            Result.Add(RGB565ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGB5A3:
                     for (int i = 0; i < BlockSizeHalfed; i++)
                         if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(RGB5A3ToColor(BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0)));
+                            Result.Add(RGB5A3ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGBA32:
                     for (int i = 0; i < 16; i++)
@@ -195,7 +195,7 @@ namespace AuroraLib.Texture
                 case GXImageFormat.C14X2:
                     for (int i = 0; i < BlockSizeHalfed; i++)
                     {
-                        int ColourIndex = BitConverter.ToUInt16(new byte[2] { ImageData[(Offset + i * 2) + 1], ImageData[Offset + i * 2] }, 0);
+                        int ColourIndex = BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap();
                         if (ColourIndex > Colours.Length)
                             ColourIndex = 0;
                         Result.Add(Colours[ColourIndex]);
@@ -209,9 +209,9 @@ namespace AuroraLib.Texture
                         int subblock_x = (i % 2) * 4;
                         int subblock_y = ((int)Math.Floor(i / 2.0)) * 4;
 
-                        Color[] DXT1 = GetInterpolatedDXT1Colours(BitConverter.ToUInt16(new byte[2] { ImageData[subblock_offset + 1], ImageData[subblock_offset] }, 0), BitConverter.ToUInt16(new byte[2] { ImageData[subblock_offset + 3], ImageData[subblock_offset + 2] }, 0));
+                        Color[] DXT1 = GetInterpolatedDXT1Colours(BitConverter.ToUInt16(ImageData.Slice(subblock_offset, 2)).Swap(), BitConverter.ToUInt16(ImageData.Slice(subblock_offset + 2, 2)).Swap());
                         for (int j = 0; j < 16; j++)
-                            Result[subblock_x + subblock_y * 8 + ((int)Math.Floor(j / 4.0)) * 8 + (j % 4)] = DXT1[(((BitConverter.ToInt32(new byte[4] { ImageData[subblock_offset + 7], ImageData[subblock_offset + 6], ImageData[subblock_offset + 5], ImageData[subblock_offset + 4] }, 0)) >> ((15 - j) * 2)) & 3)];
+                            Result[subblock_x + subblock_y * 8 + ((int)Math.Floor(j / 4.0)) * 8 + (j % 4)] = DXT1[(BitConverter.ToInt32(ImageData.Slice(subblock_offset + 4, 4)).Swap() >> ((15 - j) * 2)) & 3];
                         subblock_offset += 8;
                     }
 
@@ -235,7 +235,7 @@ namespace AuroraLib.Texture
         /// <param name="AlphaMode"></param>
         public static List<byte[]> GetImageAndPaletteData(out byte[] PaletteData, List<Bitmap> Images, GXImageFormat Format, GXPaletteFormat PaletteFormat)
         {
-            List<byte[]> ImageData = new List<byte[]>();
+            List<byte[]> ImageData = new();
             Tuple<Dictionary<Color, int>, ushort[]> Palette = CreatePalette(Images, Format, PaletteFormat);
             PaletteData = EncodePalette(Palette.Item2, Format);
             for (int i = 0; i < Images.Count; i++)
@@ -259,7 +259,7 @@ namespace AuroraLib.Texture
 
         public static byte[] EncodeImage(Bitmap Image, GXImageFormat Format, Dictionary<Color, int> ColourIndicies)
         {
-            List<byte> ImageData = new List<byte>();
+            List<byte> ImageData = new();
             var (BlockWidth, BlockHeight) = Format.GetBlockSize();
             int block_x = 0, block_y = 0;
             byte[] Pixels = Image.ToByteArray();
@@ -268,7 +268,7 @@ namespace AuroraLib.Texture
             {
                 byte[] block_data = EncodeBlock(Format, Pixels, Image, ColourIndicies, block_x, block_y);
 
-                ImageData.AddRange(block_data);//
+                ImageData.AddRange(block_data);
 
                 block_x += BlockWidth;
                 if (block_x >= Image.Width)
@@ -285,10 +285,10 @@ namespace AuroraLib.Texture
             if (!(Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2))
                 return new Tuple<Dictionary<Color, int>, ushort[]>(null, null);
 
-            List<byte[]> ImageData = new List<byte[]>();
-            List<ushort> encoded_colors = new List<ushort>();
-            Dictionary<Color, int> colors_to_color_indexes = new Dictionary<Color, int>();
-            List<Color> colours = new List<Color>();
+            List<byte[]> ImageData = new();
+            List<ushort> encoded_colors = new();
+            Dictionary<Color, int> colors_to_color_indexes = new();
+            List<Color> colours = new();
             for (int i = 0; i < Images.Count; i++)
             {
                 ImageData.Add(Images[i].ToByteArray());
@@ -346,9 +346,9 @@ namespace AuroraLib.Texture
             if (!(Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2))
                 return new Tuple<Dictionary<Color, int>, ushort[]>(null, null);
 
-            List<byte> ImageData = new List<byte>();
-            List<ushort> encoded_colors = new List<ushort>();
-            Dictionary<Color, int> colors_to_color_indexes = new Dictionary<Color, int>();
+            List<byte> ImageData = new();
+            List<ushort> encoded_colors = new();
+            Dictionary<Color, int> colors_to_color_indexes = new();
 
             ImageData.AddRange(Image.ToByteArray());
             for (int y = 0; y < Image.Height; y++)
@@ -613,7 +613,7 @@ namespace AuroraLib.Texture
                     for (int SubBlock = 0; SubBlock < 4; SubBlock++)
                     {
                         int subblock_x = BlockX + (SubBlock % 2) * 4, subblock_y = BlockY + (int)Math.Floor(SubBlock / 2.0) * 4;
-                        List<Color> AllSubBlockColours = new List<Color>();
+                        List<Color> AllSubBlockColours = new();
                         bool NeedsAlphaColor = false;
                         for (int i = 0; i < 16; i++)
                         {
@@ -674,7 +674,7 @@ namespace AuroraLib.Texture
         public static byte[] EncodePalette(ushort[] RawColours, GXImageFormat Format)
         {
             if (!Format.IsPaletteFormat())
-                return new byte[0];
+                return Array.Empty<byte>();
 
             byte[] PaletteData = new byte[RawColours.Length * 2];
             int Offset = 0;
@@ -701,7 +701,7 @@ namespace AuroraLib.Texture
 
         public static Color[] CreateLimitedPalette(List<Bitmap> Images, int MaxColours, bool Alpha = true)
         {
-            List<byte[]> ImageData = new List<byte[]>();
+            List<byte[]> ImageData = new();
             for (int i = 0; i < Images.Count; i++)
                 ImageData.Add(Images[i].ToByteArray());
 
@@ -715,7 +715,7 @@ namespace AuroraLib.Texture
             else
                 throw new PaletteException($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
 
-            List<Color> all_pixel_colors = new List<Color>();
+            List<Color> all_pixel_colors = new();
             bool already_have_zero_alpha_color = false;
             for (int i = 0; i < Images.Count; i++)
                 for (int y = 0; y < Images[i].Height; y++)
@@ -740,7 +740,7 @@ namespace AuroraLib.Texture
 
         public static Color[] CreateLimitedPalette(Bitmap Image, int MaxColours, bool Alpha = true)
         {
-            List<byte> ImageData = new List<byte>();
+            List<byte> ImageData = new();
             ImageData.AddRange(Image.ToByteArray());
 
             int depth;
@@ -753,7 +753,7 @@ namespace AuroraLib.Texture
             else
                 throw new PaletteException($"Unsupported maximum number of colors to generate a palette for: {MaxColours}");
 
-            List<Color> all_pixel_colors = new List<Color>();
+            List<Color> all_pixel_colors = new();
             bool already_have_zero_alpha_color = false;
             for (int y = 0; y < Image.Height; y++)
             {
@@ -774,8 +774,6 @@ namespace AuroraLib.Texture
             }
             return SplitToBuckets(all_pixel_colors, depth);
         }
-
-
 
     }
 }

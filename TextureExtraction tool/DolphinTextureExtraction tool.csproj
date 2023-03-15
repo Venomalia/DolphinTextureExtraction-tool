@@ -10,11 +10,16 @@
     <AssemblyVersion>1.1.2.0</AssemblyVersion>
     <FileVersion>1.1.2.0</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <AssemblyName>$(AssemblyTitle)</AssemblyName>
+    <AssemblyName>DolphinTextureExtraction.tool</AssemblyName>
     <RootNamespace>DolphinTextureExtraction</RootNamespace>
     <SignAssembly>False</SignAssembly>
     <StartupObject>DolphinTextureExtraction.Program</StartupObject>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <Description>Dumps GC and Wii textures, compatible with the Dolphin texture hash.</Description>
+    <Copyright>Copyright © Venomalia 2022-present</Copyright>
+    <RepositoryUrl>https://github.com/Venomalia/DolphinTextureExtraction-tool</RepositoryUrl>
+    <Title>Dolphin Texture Extraction Tool</Title>
+    <Authors>Venomalia</Authors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

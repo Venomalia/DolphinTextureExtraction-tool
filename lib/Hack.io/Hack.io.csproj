@@ -10,6 +10,8 @@
     <RootNamespace>Hack.io</RootNamespace>
     <AssemblyName>$(AssemblyTitle)</AssemblyName>
     <SignAssembly>False</SignAssembly>
+    <Title>Hack.io</Title>
+    <Copyright>Copyright © 2022-present</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

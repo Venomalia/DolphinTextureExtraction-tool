@@ -14,6 +14,8 @@
     <AssemblyName>$(AssemblyTitle)</AssemblyName>
     <SignAssembly>False</SignAssembly>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Title>AuroraLip</Title>
+    <Copyright>Copyright © 2022-present</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

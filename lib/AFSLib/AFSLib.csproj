@@ -11,6 +11,10 @@
     <RootNamespace>AFSLib</RootNamespace>
     <AssemblyName>$(AssemblyTitle)</AssemblyName>
     <SignAssembly>False</SignAssembly>
+    <Description>AFSLib is a library that can extract, create and manipulate AFS files. The AFS format is used in many games from companies like Sega.</Description>
+    <Title>AFSLib</Title>
+    <Copyright>Copyright © MaikelChan 2022-present</Copyright>
+    <Authors>MaikelChan</Authors>
   </PropertyGroup>
 
 </Project>

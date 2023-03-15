@@ -12,6 +12,8 @@
     <SignAssembly>False</SignAssembly>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Copyright>Copyright © 2016-present</Copyright>
+    <Title>LibCPK</Title>
   </PropertyGroup>
 
 

@@ -24,7 +24,7 @@ namespace AuroraLib.Texture
 
         public JUTTexture(string filepath)
         {
-            FileStream fs = new FileStream(filepath, FileMode.Open);
+            FileStream fs = new(filepath, FileMode.Open);
             Read(fs);
             fs.Close();
             Name = filepath;
@@ -32,7 +32,7 @@ namespace AuroraLib.Texture
 
         public virtual void Save(string filepath)
         {
-            FileStream fs = new FileStream(filepath, FileMode.Create);
+            FileStream fs = new(filepath, FileMode.Create);
             Write(fs);
             fs.Close();
             Name = filepath;
@@ -51,7 +51,8 @@ namespace AuroraLib.Texture
 
         public static bool operator !=(JUTTexture texture1, JUTTexture texture2) => !(texture1 == texture2);
 
-        public override int GetHashCode() => 901043656 + Name.GetHashCode() + ListEx.GetHashCode(this);
+        public override int GetHashCode()
+            => HashCode.Combine(base.GetHashCode(), Name);
 
         #region Dispose
 

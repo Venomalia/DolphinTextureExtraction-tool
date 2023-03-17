@@ -25,21 +25,16 @@ namespace AuroraLib.Palette
         public JUTPalette(GXPaletteFormat format, ReadOnlySpan<byte> PaletteData, int colors) : base(DecodePalette(PaletteData, format, colors))
             => Format = format;
 
-        public byte[] GetBytes() => EncodePalette(this, this.Format);
+        public byte[] GetBytes()
+            => EncodePalette(this, this.Format);
 
-        public static explicit operator byte[](JUTPalette x) => EncodePalette(x, x.Format);
+        public static explicit operator byte[](JUTPalette x)
+            => EncodePalette(x, x.Format);
 
         public override bool Equals(object obj)
-        {
-            return obj is JUTPalette entry && Format == entry.Format && base.Equals(entry);
-        }
+            => obj is JUTPalette entry && Format == entry.Format && base.Equals(entry);
 
         public override int GetHashCode()
-        {
-            int hashCode = -1146949837;
-            hashCode = hashCode * -1521134295 + Format.GetHashCode();
-            hashCode = hashCode * -1521134295 + base.GetHashCode();
-            return hashCode;
-        }
+            => HashCode.Combine(base.GetHashCode(), Format);
     }
 }

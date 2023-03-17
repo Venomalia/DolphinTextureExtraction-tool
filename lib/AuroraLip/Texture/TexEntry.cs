@@ -80,7 +80,7 @@ namespace AuroraLib.Texture
             /// <summary>
             /// Pallets raw data
             /// </summary>
-            public List<JUTPalette> Palettes { get; set; } = new List<JUTPalette>();
+            public List<JUTPalette> Palettes { get; set; } = new();
 
             /// <summary>
             /// Gets the image width, in pixels.
@@ -100,7 +100,7 @@ namespace AuroraLib.Texture
             /// <summary>
             /// Raw image and mips
             /// </summary>
-            public readonly List<byte[]> RawImages = new List<byte[]>();
+            public readonly List<byte[]> RawImages = new();
 
             #region Constructor
 
@@ -259,30 +259,18 @@ namespace AuroraLib.Texture
 
             public override int GetHashCode()
             {
-                var hashCode = 175115414;
-                hashCode = hashCode * -1521134295 + Format.GetHashCode();
-                hashCode = hashCode * -1521134295 + PaletteFormat.GetHashCode();
-                hashCode = hashCode * -1521134295 + WrapS.GetHashCode();
-                hashCode = hashCode * -1521134295 + WrapT.GetHashCode();
-                hashCode = hashCode * -1521134295 + MagnificationFilter.GetHashCode();
-                hashCode = hashCode * -1521134295 + MinificationFilter.GetHashCode();
-                hashCode = hashCode * -1521134295 + MinLOD.GetHashCode();
-                hashCode = hashCode * -1521134295 + MaxLOD.GetHashCode();
-                hashCode = hashCode * -1521134295 + LODBias.GetHashCode();
-                hashCode = hashCode * -1521134295 + EnableEdgeLOD.GetHashCode();
-                return hashCode;
-            }
-
-            public void CopyTo(TexEntry destination)
-            {
-                destination.Format = Format;
-                destination.WrapS = WrapS;
-                destination.WrapT = WrapT;
-                destination.MagnificationFilter = MagnificationFilter;
-                destination.MinificationFilter = MinificationFilter;
-                destination.MinLOD = MinLOD;
-                destination.MaxLOD = MaxLOD;
-                destination.EnableEdgeLOD = EnableEdgeLOD;
+                HashCode hash = new();
+                hash.Add(Format);
+                hash.Add(Palettes);
+                hash.Add(WrapS);
+                hash.Add(WrapT);
+                hash.Add(MagnificationFilter);
+                hash.Add(MinificationFilter);
+                hash.Add(MinLOD);
+                hash.Add(MaxLOD);
+                hash.Add(LODBias);
+                hash.Add(EnableEdgeLOD);
+                return hash.ToHashCode();
             }
 
             public override string ToString()

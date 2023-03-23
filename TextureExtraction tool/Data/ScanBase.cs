@@ -5,7 +5,6 @@ using AuroraLib.Compression;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace DolphinTextureExtraction
 {
@@ -19,7 +18,7 @@ namespace DolphinTextureExtraction
 
         protected readonly Options Option;
 
-        protected Results Result = new Results();
+        protected Results Result = new();
 
         public class Options
         {
@@ -152,7 +151,7 @@ namespace DolphinTextureExtraction
 
             public override string ToString()
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
                 return sb.ToString();
             }
@@ -207,7 +206,7 @@ namespace DolphinTextureExtraction
 
         protected void Scan(DirectoryInfo directory)
         {
-            List<FileInfo> fileInfos = new List<FileInfo>();
+            List<FileInfo> fileInfos = new();
             ScanInitialize(directory, fileInfos);
             Result.Worke = fileInfos.Count;
             Result.WorkeLength = directory.EnumerateFiles("*.*", SearchOption.AllDirectories).Sum(fi => fi.Length);
@@ -250,8 +249,8 @@ namespace DolphinTextureExtraction
 
         protected void Scan(ArchiveDirectory archivdirectory, ReadOnlySpan<char> subPath, int deep)
         {
-            List<ArchiveFile> files = new List<ArchiveFile>();
-            List<ArchiveFile> unkFiles = new List<ArchiveFile>();
+            List<ArchiveFile> files = new();
+            List<ArchiveFile> unkFiles = new();
 
             ArchiveInitialize(archivdirectory, files, unkFiles);
 
@@ -261,9 +260,6 @@ namespace DolphinTextureExtraction
             lock (Result)
                 Result.ProgressLength -= ArchLength;
         }
-
-
-        internal static readonly Regex illegalChars = new Regex(@"^(.*(//|\\))?(?'X'PRN|AUX|CLOCK\$|NUL|CON|COM\d|LPT\d|\..*| )((//|\\).*)?$|[\x00-\x1f\x7F?*:""<>|]| ((//|\\).*)?$", RegexOptions.CultureInvariant);
 
         private double Scan(string subPath, int deep, List<ArchiveFile> fileInfos)
         {
@@ -275,20 +271,9 @@ namespace DolphinTextureExtraction
                     double Length = file.FileData.Length;
 
                     //Checks all possible illegal characters and converts them to hex
-                    string path = file.FullPath;
-                    Match match = illegalChars.Match(path);
-                    while (match.Success)
-                    {
-                        int index = match.Index;
-                        if (match.Groups["X"].Success)
-                            index = match.Groups["X"].Index;
-                        char llegalChar = path[index];
-                        path = path.Remove(index, 1);
-                        path = path.Insert(index, $"{(byte)llegalChar:X2}");
-                        match = illegalChars.Match(path);
-                    }
+                    string path = PathEX.GetValidPath(file.FullPath);
 
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, path.TrimEnd(' ', '\\', '/')).AsSpan(), deep));
+                    Scan(new ScanObjekt(file, Path.Combine(subPath, path).AsSpan(), deep));
                     lock (Result)
                     {
                         ArchLength += Length;
@@ -338,7 +323,7 @@ namespace DolphinTextureExtraction
 
             Directory.CreateDirectory(DirectoryName);
             stream.Seek(0, SeekOrigin.Begin);
-            using (FileStream file = new FileStream(destFileName, FileMode.Create, FileAccess.Write))
+            using (FileStream file = new(destFileName, FileMode.Create, FileAccess.Write))
             {
                 stream.CopyTo(file);
             }
@@ -376,7 +361,7 @@ namespace DolphinTextureExtraction
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
                         {
-                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, PathEX.GetExtension(PathEX.WithoutExtension(so.SubPath)).ToString()));
+                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(PathEX.WithoutExtension(so.SubPath)).ToString()));
                             return true;
                         }
                         break;
@@ -415,7 +400,7 @@ namespace DolphinTextureExtraction
                         {
                             if (so.Stream.Search(identify.Magic))
                             {
-                                List<byte[]> ident = new List<byte[]>
+                                List<byte[]> ident = new()
                                 {
                                     identify.Magic.ToByte()
                                 };

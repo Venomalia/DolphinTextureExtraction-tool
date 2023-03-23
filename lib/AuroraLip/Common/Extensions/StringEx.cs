@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 
 namespace AuroraLib.Common
 {
@@ -75,28 +74,6 @@ namespace AuroraLib.Common
         /// <param name="width">How long the divider should be</param>
         /// <param name="divider">What character should make up the divider</param>
         public static string Divider(int width, char divider) => string.Empty.PadRight(width, divider);
-
-        public static string Combine(in ReadOnlySpan<char> path, in ReadOnlySpan<char> path2)
-        {
-            var str = new string('\0', path.Length + path2.Length);
-            var strSpan = MemoryMarshal.AsMemory(str.AsMemory()).Span;
-            path.CopyTo(strSpan);
-            strSpan = strSpan.Slice(path.Length);
-            path2.CopyTo(strSpan);
-            return str;
-        }
-
-        public static string Combine(in ReadOnlySpan<char> path, in ReadOnlySpan<char> path2, in ReadOnlySpan<char> path3)
-        {
-            var str = new string('\0', path.Length + path2.Length + path3.Length);
-            var strSpan = MemoryMarshal.AsMemory(str.AsMemory()).Span;
-            path.CopyTo(strSpan);
-            strSpan = strSpan.Slice(path.Length);
-            path2.CopyTo(strSpan);
-            strSpan = strSpan.Slice(path2.Length);
-            path3.CopyTo(strSpan);
-            return str;
-        }
 
     }
 }

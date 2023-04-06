@@ -38,7 +38,7 @@ namespace AuroraLib.Common
         {
             using (MemoryStream ms = new MemoryStream())
             {
-                CryptoStream cs = new CryptoStream(ms, algorithm, CryptoStreamMode.Write);
+                CryptoStream cs = new(ms, algorithm, CryptoStreamMode.Write);
                 cs.Write(cipherData, 0, cipherData.Length);
                 cs.Close();
                 return ms.ToArray();

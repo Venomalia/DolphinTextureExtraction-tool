@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
+using DolphinTextureExtraction.Data;
 using static DolphinTextureExtraction.ScanBase;
 
 namespace DolphinTextureExtraction
@@ -14,11 +15,6 @@ namespace DolphinTextureExtraction
         static Cleanup.Option cleanOptions;
 
         static Modes Mode;
-        private enum Modes : byte
-        {
-            Extract = 1,
-            Unpacks = 2,
-        }
 
 #if DEBUG
         private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit *DEBUG";
@@ -62,341 +58,270 @@ namespace DolphinTextureExtraction
             {
                 PrintHeader();
 
-                Console.WriteLine();
-                Console.WriteLine("Select Extraction Mode");
-                Console.WriteLine("1.\t Extract textures.");
-                Console.WriteLine("2.\t Unpacks all files.");
-                Console.WriteLine();
-                do
-                {
-                    var key = Console.ReadKey().Key;
-                    switch (key)
-                    {
-                        case ConsoleKey.D1:
-                        case ConsoleKey.NumPad1:
-                        case ConsoleKey.E:
-                        case ConsoleKey.Enter:
-                            Mode = Modes.Extract;
-                            Console.CursorLeft = 0;
-                            Console.WriteLine("Mode: Extract textures.");
-                            break;
-                        case ConsoleKey.D2:
-                        case ConsoleKey.NumPad2:
-                        case ConsoleKey.U:
-                            Mode = Modes.Unpacks;
-                            Console.CursorLeft = 0;
-                            Console.WriteLine("Mode: Unpacks all files.");
-                            break;
-                        default:
-                            continue;
-                    }
-                    break;
-                } while (true);
-
+                #region Main loop
                 while (true)
                 {
-
-                    //Input Path
                     Console.WriteLine();
-                    Console.WriteLine("Input Path:");
-                    Console.WriteLine("Specify a directory or a file to be extracted.");
-                    do
-                    {
-                        InputPath = Console.ReadLine().Trim('"');
-
-                        if (!Directory.Exists(InputPath) && !File.Exists(InputPath))
-                        {
-                            ConsoleEx.WriteLineColoured("The directory or file could not be found!", ConsoleColor.Red);
-                        }
-                    } while (!Directory.Exists(InputPath) && !File.Exists(InputPath));
-
-                    //Output Path
+                    Console.WriteLine("Select a Mode:");
                     Console.WriteLine();
-                    Console.WriteLine("Output Path:");
-                    Console.WriteLine("Specify an output directory where the extra files will be saved.");
-                    Console.WriteLine($"Or use default \t\"{GetGenOutputPath(InputPath)}\"");
-                    do
-                    {
-                        OutputDirectory = Console.ReadLine().Trim('"');
-                        if (OutputDirectory == "")
-                        {
-                            OutputDirectory = GetGenOutputPath(InputPath);
-                        }
-                        if (!PathIsValid(OutputDirectory))
-                        {
-                            ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
-                        }
-                        if (OutputDirectory == InputPath)
-                        {
-                            ConsoleEx.WriteLineColoured("Output Directory and Input Path cannot be the same!", ConsoleColor.Red);
-                        }
-
-                    } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputPath);
-
-
-
-                    //Options
+                    ModesEX.PrintModes();
                     Console.WriteLine();
-                    PrintOptions(options);
+                    Mode = ModesEX.SelectMode();
+                    Console.WriteLine($"Mode: {Mode.GetDescription()}");
 
-                    Console.WriteLine();
-                    Console.WriteLine("Adjust settings? Yes or (No)");
-                    if (ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
-                    {
-                        switch (Mode)
-                        {
-                            case Modes.Extract:
-                                Console.WriteLine($"Extract mipmaps. \t(True) or False");
-                                options.Mips = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"Extracts raw image files. \tTrue or (False)");
-                                options.Raw = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"Tries to extract textures from unknown file formats, may cause errors. \tTrue or (False)");
-                                options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"Tries to Imitate dolphin mipmap detection. \t(True) or False");
-                                options.DolphinMipDetection = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                                Console.WriteLine($"Clean up typ. \t0={Cleanup.Type.None} (1)={Cleanup.Type.Default} 2={Cleanup.Type.Simple}");
-                                cleanOptions.CleanupType = ConsoleEx.ReadEnum<Cleanup.Type>(Cleanup.Type.Default);
-                                if (cleanOptions.CleanupType == Cleanup.Type.Default)
-                                {
-                                    Console.WriteLine($"CleanUp, minimum files per folder. \t(3)");
-                                    cleanOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
-                                }
-                                break;
-                            case Modes.Unpacks:
-
-                                Console.WriteLine($"Unpack recursiv. \t(True) or False");
-                                options.Deep = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
-                                Console.WriteLine($"Tries to extract unknown file formats, may cause errors. \tTrue or (False)");
-                                options.Force = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-
-                                break;
-                        }
-
-                        Console.WriteLine($"Perform a Dry Run. (Test) \tTrue or (False)");
-                        options.DryRun = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(false, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
-                        Console.WriteLine($"High performance mode.(Multithreading) \t(True) or False");
-                        options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
-
-                    }
-
-                    //Inputs correct?
-                    Console.WriteLine();
-                    Console.WriteLine($"Input Path: \"{InputPath}\"");
-                    Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                    PrintOptions(options);
-
-                    Console.WriteLine();
-                    Console.WriteLine("Are the settings correct? \t(Yes) or No");
-                    if (!ConsoleEx.WriteBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
-
-                    //Start
-                    Console.CursorVisible = false;
                     switch (Mode)
                     {
-                        case Modes.Extract:
-                            Console.WriteLine($"Search and extract textures from {InputPath}");
-                            Console.WriteLine("This may take a few seconds...");
-                            Console.WriteLine();
-                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
-                            Console.WriteLine();
-                            PrintResult(result);
-
-                            if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
-                            {
-                                Console.WriteLine("Start Cleanup...");
-                                if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
-                                    Console.WriteLine("Cleanup Completed");
-                                else
-                                    Console.WriteLine("Error! Cleanup failed");
-                            }
+                        case Modes.Help:
+                            PrintHelp();
                             break;
-                        case Modes.Unpacks:
-                            Console.WriteLine($"Unpacks all files from {InputPath}");
-                            Console.WriteLine("This may take a few seconds...");
+                        case Modes.Compress:
+                        case Modes.Split:
+                        case Modes.Unpack:
+                        case Modes.Extract:
+                            #region Extract
+
+                            #region User Set Input Path
                             Console.WriteLine();
-                            Unpack.StartScan(InputPath, OutputDirectory, options);
+                            Console.WriteLine("Input Path:");
+                            Console.WriteLine("Specify a directory or a file.");
+                            do
+                            {
+                                InputPath = Console.ReadLine().Trim('"');
+
+                                if (!Directory.Exists(InputPath) && !File.Exists(InputPath))
+                                {
+                                    ConsoleEx.WriteLineColoured("The directory or file could not be found!", ConsoleColor.Red);
+                                }
+                            } while (!Directory.Exists(InputPath) && !File.Exists(InputPath));
+                            #endregion
+
+                            #region User Set Output Path
+                            Console.WriteLine();
+                            Console.WriteLine("Output Path:");
+                            Console.WriteLine("Specify an output directory where the files will be saved.");
+                            Console.WriteLine($"Or use default \t\"{GetGenOutputPath(InputPath)}\"");
+                            do
+                            {
+                                OutputDirectory = Console.ReadLine().Trim('"');
+                                if (OutputDirectory == "")
+                                {
+                                    OutputDirectory = GetGenOutputPath(InputPath);
+                                }
+                                if (!PathIsValid(OutputDirectory))
+                                {
+                                    ConsoleEx.WriteLineColoured("Path is invalid!", ConsoleColor.Red);
+                                }
+                                if (OutputDirectory == InputPath)
+                                {
+                                    ConsoleEx.WriteLineColoured("Output Directory and Input Path cannot be the same!", ConsoleColor.Red);
+                                }
+
+                            } while (!PathIsValid(OutputDirectory) || OutputDirectory == InputPath);
+
+                            #endregion
+
+
+
+                            #region Split Pattern
+                            List<byte[]> pattern = new();
+
+                            if (Mode == Modes.Split)
+                            {
+                                List<string> patternstrings = pattern.Select(s => s.ToValidString()).ToList();
+                                do
+                                {
+                                    if (patternstrings.Count > 0)
+                                    {
+                                        Console.WriteLine(string.Join(", ", patternstrings));
+                                        Console.WriteLine("Edit identifiers? Yes or (No)");
+                                        if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
+                                        {
+                                            pattern = patternstrings.Select(s => s.ToByte()).ToList();
+                                            break;
+                                        }
+                                    }
+
+                                    Console.WriteLine("For which identifiers should be searched? \tdivided by \",\"");
+                                    Console.Write(string.Join(", ", patternstrings));
+                                    Console.CursorLeft = 0;
+                                    patternstrings = Console.ReadLine().Split(", ", StringSplitOptions.RemoveEmptyEntries).ToList();
+                                } while (true);
+                            }
+                            #endregion
+
+                            #region Adjust settings?
+                            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+                            PrintOptions();
+                            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+                            Console.WriteLine();
+                            Console.WriteLine("Adjust settings? Yes or (No)");
+                            if (ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
+                            {
+                                UserSetOptions();
+                            }
+                            #endregion
+
+                            #region settings correct?
+                            Console.WriteLine();
+                            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+                            Console.WriteLine($"Mode: {Mode.GetDescription()}");
+                            Console.WriteLine($"Input Path: \"{InputPath}\"");
+                            Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
+                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => s.ToValidString()))}");
+                            PrintOptions();
+                            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+
+                            Console.WriteLine();
+                            Console.WriteLine("Are the settings correct? \t(Yes) or No");
+                            if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
+                            #endregion
+
+                            #region Start
+                            Console.CursorVisible = false;
+                            switch (Mode)
+                            {
+                                case Modes.Extract:
+                                    Console.WriteLine($"Search and extract textures from {InputPath}");
+                                    Console.WriteLine("This may take a few seconds...");
+                                    Console.WriteLine();
+                                    var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
+                                    PrintResult(result);
+
+                                    if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
+                                    {
+                                        Console.WriteLine("Start Cleanup...");
+                                        if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
+                                            Console.WriteLine("Cleanup Completed");
+                                        else
+                                            Console.WriteLine("Error! Cleanup failed");
+                                    }
+                                    break;
+                                case Modes.Unpack:
+                                    Console.WriteLine($"Unpacks all files from {InputPath}");
+                                    Console.WriteLine("This may take a few seconds...");
+                                    Console.WriteLine();
+                                    Unpack.StartScan(InputPath, OutputDirectory, options);
+
+                                    break;
+                                case Modes.Split:
+                                    Console.WriteLine($"Split data from {InputPath}");
+
+                                    Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
+                                    break;
+                            }
                             Console.WriteLine();
                             Console.WriteLine("Done.");
+                            Console.CursorVisible = true;
+                            #endregion
 
+                            #endregion
                             break;
+                        case Modes.Formats:
+                            PrintFormats();
+                            break;
+                        default:
+                            throw new NotImplementedException();
                     }
-                    Console.CursorVisible = true;
                 }
+                #endregion
             }
             else
             {
                 int p;
-                switch (args[0].ToLower())
+
+                if (ModesEX.TryParse(args[0].ToLower(), out Mode))
                 {
-                    case "formats":
-                    case "format":
-                    case "f":
-                        #region formats
-                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
-                        Console.WriteLine($"Known formats: {FormatDictionary.Master.Length}.");
-                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
-                        foreach (var item in FormatDictionary.Master)
-                            Console.WriteLine($"{item.GetFullDescription()} Typ:{item.Typ}");
-                        ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
-                        #endregion
-                        break;
-                    case "cut":
-                    case "c":
-                        #region cut
-                        p = GetPahts(args);
-                        if (p <= 0)
-                            goto default;
+                    switch (Mode)
+                    {
+                        case Modes.Help:
+                            PrintHeader();
+                            PrintHelp();
+                            break;
+                        case Modes.Extract:
+                            #region extract
+                            p = GetPahts(args);
+                            if (p <= 0)
+                                goto default;
 
-                        List<byte[]> pattern = null;
-                        if (args.Length > p)
-                        {
-                            pattern = new List<byte[]>();
-                            while (args.Length > p)
+                            options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            if (args.Length > p)
                             {
-                                pattern.Add(args[p++].ToByte());
+                                ParseOptions(args.AsSpan(p));
                             }
-                        }
 
-                        Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
-                        Console.WriteLine();
-                        Console.WriteLine("completed.");
-                        #endregion
-                        break;
-                    case "unpack":
-                    case "u":
-                        #region unpack
-                        p = GetPahts(args);
-                        if (p <= 0)
-                            goto default;
+                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
 
-                        Unpack.StartScan(InputPath, OutputDirectory, options);
-                        Console.WriteLine();
-                        Console.WriteLine("completed.");
-                        //PrintResult(result);
-                        #endregion
-                        break;
-                    case "extract":
-                    case "e":
-                        #region extract
-                        p = GetPahts(args);
-                        if (p <= 0)
-                            goto default;
+                            Console.WriteLine();
 
-                        options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            if (options.TextureAction == null)
+                                PrintResult(result);
 
-                        if (args.Length > p)
-                        {
-                            for (int i = p; i < args.Length; i++)
+                            #endregion
+                            break;
+                        case Modes.Unpack:
+                            #region unpack
+                            p = GetPahts(args);
+                            if (p <= 0)
+                                goto default;
+
+                            options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            if (args.Length > p)
                             {
-                                switch (args[i].ToLower())
+                                ParseOptions(args.AsSpan(p));
+                            }
+
+                            Unpack.StartScan(InputPath, OutputDirectory, options);
+                            Console.WriteLine();
+                            Console.WriteLine("completed.");
+                            #endregion
+                            break;
+                        case Modes.Compress:
+                            p = GetPahts(args);
+                            if (p <= 0)
+                                goto default;
+
+                            Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(args[p++]), options);
+                            Console.WriteLine();
+                            Console.WriteLine("completed.");
+                            break;
+                        case Modes.Split:
+                            #region cut
+                            p = GetPahts(args);
+                            if (p <= 0)
+                                goto default;
+
+                            List<byte[]> pattern = null;
+                            if (args.Length > p)
+                            {
+                                pattern = new List<byte[]>();
+                                while (args.Length > p)
                                 {
-                                    case "-mip":
-                                    case "-m":
-                                        options.Mips = true;
-                                        break;
-                                    case "-raw":
-                                    case "-r":
-                                        options.Raw = true;
-                                        break;
-                                    case "-force":
-                                    case "-f":
-                                        options.Force = true;
-                                        break;
-                                    case "-dryrun":
-                                    case "-d":
-                                        options.DryRun = true;
-                                        break;
-                                    case "-cleanup":
-                                    case "-c":
-                                    case "-cleanup:default":
-                                    case "-c:default":
-                                    case "-c:d":
-                                        cleanOptions.CleanupType = Cleanup.Type.Default;
-                                        break;
-                                    case "-cleanup:none":
-                                    case "-c:none":
-                                    case "-c:n":
-                                        cleanOptions.CleanupType = Cleanup.Type.None;
-                                        break;
-                                    case "-cleanup:simple":
-                                    case "-c:simple":
-                                    case "-c:s":
-                                        cleanOptions.CleanupType = Cleanup.Type.Simple;
-                                        break;
-                                    case "-progress:none":
-                                    case "-p:none":
-                                    case "-p:n":
-                                        options.ProgressAction = ProgressTitleUpdate;
-                                        options.TextureAction = null;
-                                        break;
-                                    case "-progress:bar":
-                                    case "-p:bar":
-                                    case "-p:b":
-                                        options.ProgressAction = ProgressUpdate;
-                                        options.TextureAction = null;
-                                        break;
-                                    case "-progress:list":
-                                    case "-p:list":
-                                    case "-p:l":
-                                        options.ProgressAction = null;
-                                        options.TextureAction = TextureUpdate;
-                                        break;
-                                    case "-dolphinmipdetection":
-                                    case "-dm":
-                                        options.DolphinMipDetection = true;
-                                        break;
-                                    case "-groups":
-                                    case "-g":
-                                    case "-tasks":
-                                    case "-t":
-                                        if (!int.TryParse(args[++i], out int parse))
-                                        {
-                                            Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
-                                            Console.WriteLine("use h for help");
-                                            Environment.Exit(-2);
-                                            break;
-                                        }
-                                        switch (args[i - 1].ToLower())
-                                        {
-                                            case "-groups":
-                                            case "-g":
-                                                cleanOptions.MinGroupsSize = parse <= 0 ? 1 : parse;
-                                                break;
-                                            case "-tasks":
-                                            case "-t":
-                                                options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
-                                                break;
-                                        }
-                                        break;
+                                    pattern.Add(args[p++].ToByte());
                                 }
                             }
-                        }
-                        var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
 
-                        Console.WriteLine();
-
-                        if (options.TextureAction == null)
-                            PrintResult(result);
-
-                        #endregion
-                        break;
-                    case "help":
-                    case "h":
-                        PrintHelp();
-                        break;
-                    default:
-                        if (Directory.Exists(args[0]))
-                        {
-                            InputPath = args[0];
-                            OutputDirectory = GetGenOutputPath(InputPath);
-                            TextureExtractor.StartScan(InputPath, OutputDirectory);
-                        }
-                        Console.Error.WriteLine("Wrong syntax.");
-                        Console.WriteLine("use h for help");
-                        Environment.Exit(-2);
-                        break;
+                            Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
+                            Console.WriteLine();
+                            Console.WriteLine("completed.");
+                            #endregion
+                            break;
+                        case Modes.Formats:
+                            PrintFormats();
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                    Environment.Exit(0);
                 }
-                Environment.Exit(0);
+                if (Directory.Exists(args[0]))
+                {
+                    InputPath = args[0];
+                    OutputDirectory = GetGenOutputPath(InputPath);
+                    TextureExtractor.StartScan(InputPath, OutputDirectory);
+                }
+                Console.Error.WriteLine("Wrong syntax.");
+                Console.WriteLine("use h for help");
+                Environment.Exit(-2);
             }
         }
 
@@ -427,7 +352,7 @@ namespace DolphinTextureExtraction
 
         private static string GetGenOutputPath(string Input)
         {
-            DirectoryInfo InputInfo = new DirectoryInfo(Input);
+            DirectoryInfo InputInfo = new(Input);
             string Output = Path.Combine(InputInfo.Parent.FullName, '~' + InputInfo.Name);
             int i = 2;
             while (Directory.Exists(Output))
@@ -450,38 +375,104 @@ namespace DolphinTextureExtraction
             }
         }
 
+        private static void PrintFormats()
+        {
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            Console.WriteLine($"Known formats: {FormatDictionary.Master.Length}.");
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            foreach (var item in FormatDictionary.Master)
+            {
+                Console.Write($"{item.GetFullDescription()}");
+                Console.CursorLeft = 45;
+                ConsoleEx.WriteColoured("Typ:", ConsoleColor.Cyan);
+                Console.Write(item.Typ);
+                Console.CursorLeft = 60;
+                ConsoleEx.WriteColoured("supported:", ConsoleColor.Cyan);
+                ConsoleEx.WriteBoolPrint(item.Class != null, ConsoleColor.Green, ConsoleColor.Red);
+                if (item.Header != null)
+                {
+                    Console.CursorLeft = 80;
+                    ConsoleEx.WriteColoured("Identifier:", ConsoleColor.Cyan);
+                    Console.Write(item.Header.Magic);
+                }
+                Console.WriteLine();
+            }
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+        }
+
         private static void PrintHelp()
         {
-            PrintHeader();
-            Console.WriteLine();
-            Console.WriteLine("help\t| h\t: Print this list.");
-            Console.WriteLine();
-            Console.WriteLine("formats\t| f\t: Displays all known formats.");
-            Console.WriteLine("\tSyntax:\tformats");
-            Console.WriteLine();
-            Console.WriteLine("extract\t| e\t: Extracts all textures.");
-            Console.WriteLine("\tSyntax:\textract \"Input*\" \"Output*\" options");
-            Console.WriteLine("\tOption:\t -m -mip\tExtract mipmaps.");
-            Console.WriteLine("\tOption:\t -r -raw\tExtracts raw images.");
-            Console.WriteLine("\tOption:\t -f -force\tTries to extract unknown files, may cause errors.");
-            Console.WriteLine("\tOption:\t -d -dryrun\tDoesn't actually extract anything.");
-            Console.WriteLine("\tOption:\t -c -cleanup\tuses the default folder cleanup.");
-            Console.WriteLine("\tOption:\t -c:n -cleanup:none\tRetains the original folder structure.");
-            Console.WriteLine("\tOption:\t -c:s -cleanup:simple\tMove all files to a single folder.");
-            Console.WriteLine("\tOption:\t -c:s -cleanup:simple\tMove all files to a single folder.");
-            Console.WriteLine("\tOption:\t -p:n -progress:none\toutputs only important events in the console.");
-            Console.WriteLine("\tOption:\t -p:b -progress:bar\tshows the progress as a progress bar in the console.");
-            Console.WriteLine("\tOption:\t -p:l -progress:list\toutputs the extracted textures as a list in the console.");
-            Console.WriteLine("\tOption:\t -dmd -dolphinmipdetection\tTries to imitate dolphin mipmap detection.");
-            Console.WriteLine("\tOption:\t -t -tasks \"i\"\tsets the maximum number of concurrent tasks.");
-            Console.WriteLine($"\t\ti:\t integer that represents the maximum degree of parallelism. default:{options.Parallel.MaxDegreeOfParallelism}");
-            Console.WriteLine();
-            Console.WriteLine("unpack\t| u\t: Extracts all files.");
-            Console.WriteLine("\tSyntax:\tunpack \"Input\" \"Output*\"");
-            Console.WriteLine();
-            Console.WriteLine("cut\t| c\t: Splits all files into individual parts.");
-            Console.WriteLine("\tSyntax:\tcut \"Input\" \"Output*\" \"Pattern*\"");
-            Console.WriteLine("\tPattern:\t a list of patterns divided with \" \"");
+            foreach (var mode in Enum.GetValues<Modes>())
+            {
+                ConsoleEx.WriteColoured($"{mode}", ConsoleColor.Red);
+                Console.CursorLeft = 13;
+                ConsoleEx.WriteColoured($"{mode.GetAlias()}", ConsoleColor.Red);
+                Console.WriteLine($"\t{mode.GetDescription()}");
+                if (!mode.GetSyntax().IsEmpty)
+                {
+                    ConsoleEx.WriteColoured("\tSyntax: ", ConsoleColor.Cyan);
+                    Console.WriteLine(mode.GetSyntax().ToString());
+                    var options = mode.GetOptions();
+                    if (options.Length != 0)
+                    {
+                        ConsoleEx.WriteColoured("\tOptions: ", ConsoleColor.Cyan);
+                        for (int i = 0; i < options.Length; i++)
+                        {
+                            if (i != 0) Console.Write(", ");
+                            Console.Write($"{options[i]}");
+                        }
+                        Console.WriteLine();
+                    }
+                    switch (mode)
+                    {
+                        case Modes.Compress:
+                            ConsoleEx.WriteColoured("\tAlgorithm: ", ConsoleColor.Cyan);
+                            Console.WriteLine(string.Join(", ", Reflection.Compression.GetWritable().Select(s => s.Name)));
+                            break;
+                        case Modes.Split:
+                            ConsoleEx.WriteColoured("\tPatterns: ", ConsoleColor.Cyan);
+                            Console.WriteLine("A identifier or a list divided with \" \"");
+                            break;
+                    }
+                }
+                Console.WriteLine();
+            }
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            ConsoleEx.WriteLineColoured($"Options", ConsoleColor.Red);
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            foreach (var Option in Enum.GetValues<Options>())
+            {
+                ConsoleEx.WriteColoured($"-{Option}", ConsoleColor.Red);
+                Console.CursorLeft = 25;
+                ConsoleEx.WriteColoured($"-{Option.GetAlias()}", ConsoleColor.Red);
+                Console.WriteLine($"\t{Option.GetDescription()}");
+
+                if (!Option.GetSyntax().IsEmpty)
+                {
+                    ConsoleEx.WriteColoured("\tSyntax: ", ConsoleColor.Cyan);
+                    Console.WriteLine(Option.GetSyntax().ToString());
+
+                    switch (Option)
+                    {
+                        case Options.Tasks:
+                            ConsoleEx.WriteColoured("\ti: ", ConsoleColor.Cyan);
+                            Console.WriteLine("a number that determines the maximum number of tasks.");
+                            break;
+                        case Options.Progress:
+                            ConsoleEx.WriteLineColoured("\tModes: ", ConsoleColor.Cyan);
+                            Console.WriteLine("\t\tnone\toutputs only important events in the console.");
+                            Console.WriteLine("\t\tbar\tshows the progress as a progress bar in the console.");
+                            Console.WriteLine("\t\tlist\toutputs the extracted textures as a list in the console.");
+                            break;
+                        case Options.Cleanup:
+                            ConsoleEx.WriteLineColoured("\tModes: ", ConsoleColor.Cyan);
+                            Console.WriteLine("\t\tnone\tRetains the original folder structure.");
+                            Console.WriteLine("\t\tsimple\tMove all files to a single folder.");
+                            Console.WriteLine("\t\tdefault\tShortens the path by deleting unnecessary folders.");
+                            break;
+                    }
+                }
+            }
         }
 
         static void PrintHeader()
@@ -493,7 +484,10 @@ namespace DolphinTextureExtraction
 #else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}");
 #endif
-            PrintFormats();
+            List<string> formats = new(AuroraLib.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
+            formats.Sort();
+            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(20));
+
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
             Console.WriteLine(" If you use RVZ images, unpack them into a folder using Dolphin.");
@@ -502,46 +496,212 @@ namespace DolphinTextureExtraction
             Console.WriteLine();
         }
 
-        static void PrintFormats()
+        static void PrintOptions()
         {
-            List<string> formats = new List<string>(AuroraLib.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
-            formats.Sort();
-            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(20));
+            var modeoptions = Mode.GetOptions();
+            foreach (var option in modeoptions)
+            {
+                Console.Write($"{option.GetDescription()} : ");
+                switch (option)
+                {
+                    case Options.Force:
+                        ConsoleEx.WriteLineBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Dryrun:
+                        ConsoleEx.WriteLineBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Progress:
+                        Console.CursorLeft = 0;
+                        break;
+                    case Options.Tasks:
+                        Console.CursorLeft = 0;
+                        Console.Write($"High performance mode. (Multithreading) : ");
+                        ConsoleEx.WriteLineBoolPrint(options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Mip:
+                        ConsoleEx.WriteLineBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Raw:
+                        ConsoleEx.WriteLineBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Cleanup:
+                        if (cleanOptions.CleanupType == Cleanup.Type.None)
+                            ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
+                        else
+                        {
+                            ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
+                            Console.Write($"Clean minimum files per foldere: ");
+                            ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
+                        }
+                        break;
+                    case Options.Dolphinmipdetection:
+                        ConsoleEx.WriteLineBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Recursiv:
+                        ConsoleEx.WriteLineBoolPrint(options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
         }
 
-        static void PrintOptions(TextureExtractor.ExtractorOptions options)
+        private static void UserSetOptions()
         {
-            Console.Write($"Force extract unknown formats: ");
-            ConsoleEx.WriteBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
-            switch (Mode)
+            var modeoptions = Mode.GetOptions();
+            foreach (var option in modeoptions)
             {
-                case Modes.Extract:
-                    Console.Write($"Extracts Mipmaps: ");
-                    ConsoleEx.WriteBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
-                    Console.Write($"Extracts raw image files: ");
-                    ConsoleEx.WriteBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
-                    Console.Write($"Imitate dolphin mipmap detection: ");
-                    ConsoleEx.WriteBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
-                    Console.Write($"Clean up type: ");
-                    if (cleanOptions.CleanupType == Cleanup.Type.None)
-                        ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
-                    else
-                    {
-                        ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
-                        Console.Write($"Clean minimum files per foldere: ");
-                        ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
-                    }
-                    break;
-                case Modes.Unpacks:
-                    Console.Write($"Unpack recursiv: ");
-                    ConsoleEx.WriteBoolPrint(options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
-                    break;
+                Console.Write($"{option.GetDescription()} \t");
+                switch (option)
+                {
+                    case Options.Force:
+                        HelpPrintTrueFalse(options.Force);
+                        options.Force = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Force, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Dryrun:
+                        HelpPrintTrueFalse(options.DryRun);
+                        options.DryRun = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.DryRun, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Progress:
+                        Console.CursorLeft = 0;
+                        break;
+                    case Options.Tasks:
+                        Console.CursorLeft = 0;
+                        Console.Write($"High performance mode.(Multithreading) \t");
+                        HelpPrintTrueFalse(options.Parallel.MaxDegreeOfParallelism != 0);
+                        options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Parallel.MaxDegreeOfParallelism != 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
+                        break;
+                    case Options.Mip:
+                        HelpPrintTrueFalse(options.Mips);
+                        options.Mips = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Mips, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Raw:
+                        HelpPrintTrueFalse(options.Raw);
+                        options.Raw = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Raw, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Cleanup:
+                        Console.WriteLine($"0={Cleanup.Type.None} 1={Cleanup.Type.Default} 2={Cleanup.Type.Simple}");
+                        cleanOptions.CleanupType = ConsoleEx.ReadEnum<Cleanup.Type>(cleanOptions.CleanupType);
+                        if (cleanOptions.CleanupType == Cleanup.Type.Default)
+                        {
+                            Console.WriteLine($"CleanUp, minimum files per folder. \t(3)");
+                            cleanOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
+                        }
+                        break;
+                    case Options.Dolphinmipdetection:
+                        HelpPrintTrueFalse(options.DolphinMipDetection);
+                        options.DolphinMipDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.DolphinMipDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Recursiv:
+                        HelpPrintTrueFalse(options.Deep == 0);
+                        options.Deep = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Deep == 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
             }
-            Console.Write($"Perform a dry run: ");
-            ConsoleEx.WriteBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
-            Console.Write($"High performance mode (Multithreading): ");
-            ConsoleEx.WriteBoolPrint(options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
         }
+
+        private static void ParseOptions(ReadOnlySpan<string> args)
+        {
+
+            for (int i = 0; i < args.Length; i++)
+            {
+
+                int Separator = args[i].IndexOf(":");
+                if (Separator == -1) Separator = args[i].Length - 1;
+
+                ReadOnlySpan<char> arg2 = args[i].AsSpan(Separator + 1, args[i].Length - Separator - 1);
+
+                if (args[i][0] != '-' && OptionsEX.TryParse(args[i].AsSpan(1, Separator), out Options option))
+                {
+                    switch (option)
+                    {
+                        case Options.Force:
+                            options.Force = true;
+                            break;
+                        case Options.Dryrun:
+                            options.DryRun = true;
+                            break;
+                        case Options.Progress:
+                            switch (arg2.ToString())
+                            {
+
+                                case "none":
+                                case "n":
+                                    options.ProgressAction = ProgressTitleUpdate;
+                                    options.TextureAction = null;
+                                    break;
+                                case "bar":
+                                case "b":
+                                    options.ProgressAction = ProgressUpdate;
+                                    options.TextureAction = null;
+                                    break;
+                                case "list":
+                                case "l":
+                                    options.ProgressAction = null;
+                                    options.TextureAction = TextureUpdate;
+                                    break;
+                            }
+                            break;
+                        case Options.Tasks:
+                            if (!int.TryParse(args[++i], out int parse))
+                            {
+                                Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
+                                Console.WriteLine("use h for help");
+                                Environment.Exit(-2);
+                                break;
+                            }
+                            options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
+                            break;
+                        case Options.Mip:
+                            options.Mips = true;
+                            break;
+                        case Options.Raw:
+                            options.Raw = true;
+                            break;
+                        case Options.Cleanup:
+                            switch (arg2.ToString())
+                            {
+                                case "none":
+                                case "n":
+                                    cleanOptions.CleanupType = Cleanup.Type.None;
+                                    break;
+                                case "default":
+                                case "d":
+                                    cleanOptions.CleanupType = Cleanup.Type.Default;
+                                    break;
+                                case "simple":
+                                case "s":
+                                    cleanOptions.CleanupType = Cleanup.Type.Simple;
+                                    break;
+                                case "groupsize":
+                                case "gs":
+                                    if (!int.TryParse(args[++i], out int groupparse))
+                                    {
+                                        Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
+                                        Console.WriteLine("use h for help");
+                                        Environment.Exit(-2);
+                                        break;
+                                    }
+                                    cleanOptions.MinGroupsSize = groupparse <= 0 ? 1 : groupparse;
+                                    break;
+                            }
+                            break;
+                        case Options.Dolphinmipdetection:
+                            options.DolphinMipDetection = true;
+                            break;
+                        case Options.Recursiv:
+                            options.Deep = 1;
+                            break;
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+            }
+        }
+        private static void HelpPrintTrueFalse(bool value)
+            => Console.WriteLine(value ? "(True) or False" : "True or (False)");
 
         static void PrintResult(TextureExtractor.ExtractorResult result)
         {
@@ -598,4 +758,5 @@ namespace DolphinTextureExtraction
             Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
         }
     }
+
 }

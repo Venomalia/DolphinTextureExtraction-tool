@@ -5,6 +5,7 @@ namespace DolphinTextureExtraction
     public enum FileAction
     {
         Unknown = -2, Unsupported = -1, Extract
+        Unknown = -2, Unsupported = -1, Extract, Compress
     }
 
     internal class ScanLogger : LogBase

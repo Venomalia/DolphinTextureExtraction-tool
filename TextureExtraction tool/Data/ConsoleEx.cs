@@ -50,6 +50,21 @@
             switch (value)
             {
                 case true:
+                    WriteColoured(Yes, YesColour, Console.BackgroundColor);
+                    break;
+                case false:
+                    WriteColoured(No, NoColour, Console.BackgroundColor);
+                    break;
+            }
+            return value;
+        }
+        public static bool WriteLineBoolPrint(in bool value, ConsoleColor YesColour = ConsoleColor.White, ConsoleColor NoColour = ConsoleColor.White) => WriteLineBoolPrint(value, true.ToString(), false.ToString(), YesColour, NoColour);
+
+        public static bool WriteLineBoolPrint(in bool value, in string Yes, in string No, ConsoleColor YesColour = ConsoleColor.White, ConsoleColor NoColour = ConsoleColor.White)
+        {
+            switch (value)
+            {
+                case true:
                     WriteLineColoured(Yes, YesColour, Console.BackgroundColor);
                     break;
                 case false:

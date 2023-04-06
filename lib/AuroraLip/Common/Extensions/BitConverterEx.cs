@@ -67,7 +67,14 @@ namespace AuroraLib.Common
             }
 
             int subOffset = 0, fieldSize;
-            foreach (var field in type.GetRuntimeFields())
+
+            if (!TypeFields.TryGetValue(type, out FieldInfo[] fields))
+            {
+                fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                TypeFields.Add(type, fields);   
+            }
+
+            foreach (var field in fields)
             {
                 if (field.IsStatic) continue;
 
@@ -76,12 +83,12 @@ namespace AuroraLib.Common
                 if (fieldtype.IsEnum)
                     fieldtype = Enum.GetUnderlyingType(fieldtype);
 
-                //var subOffset = Marshal.OffsetOf(type, field.Name).ToInt32();
                 fieldSize = Marshal.SizeOf(fieldtype);
                 buffer.Slice(subOffset, fieldSize).FlipByteOrder(fieldtype);
                 subOffset += fieldSize;
             }
         }
+        private static readonly Dictionary<Type, FieldInfo[]> TypeFields = new ();
 
         /// <summary>
         /// Flip the ByteOrder of the 8-bit unsigned integer.

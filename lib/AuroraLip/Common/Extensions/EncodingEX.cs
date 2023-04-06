@@ -61,7 +61,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, Encoding Encoding, int start, int length, Predicate<byte> validbytes = null)
         {
-            if (validbytes == null) validbytes = GetValidbytesPredicate(Encoding);
+            validbytes ??= GetValidbytesPredicate(Encoding);
 
             List<byte> magicbytes = new List<byte>();
             for (int i = start; i < start + length; i++)

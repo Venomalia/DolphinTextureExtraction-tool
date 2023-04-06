@@ -14,6 +14,8 @@ namespace DolphinTextureExtraction
         static TextureExtractor.ExtractorOptions options;
         static Cleanup.Option cleanOptions;
 
+        static string Algorithm;
+
         static Modes Mode;
 
 #if DEBUG
@@ -120,7 +122,27 @@ namespace DolphinTextureExtraction
 
                             #endregion
 
+                            #region Algorithm
 
+                            if (Mode == Modes.Compress)
+                            {
+                                var algo = Reflection.Compression.GetWritable().Select(s => s.Name);
+
+                                Console.WriteLine();
+                                Console.WriteLine("Algorithm:");
+                                Console.WriteLine("Specify a compression algorithm to be used.");
+                                Console.Write("Algoriths: ");
+                                Console.WriteLine(string.Join(", ", algo));
+                                do
+                                {
+                                    Algorithm = Console.ReadLine();
+                                    if (!algo.Contains(Algorithm))
+                                    {
+                                        ConsoleEx.WriteLineColoured("Algorithm is invalid!", ConsoleColor.Red);
+                                    }
+                                } while (!algo.Contains(Algorithm));
+                            }
+                            #endregion
 
                             #region Split Pattern
                             List<byte[]> pattern = new();
@@ -202,6 +224,10 @@ namespace DolphinTextureExtraction
                                     Console.WriteLine();
                                     Unpack.StartScan(InputPath, OutputDirectory, options);
 
+                                    break;
+                                case Modes.Compress:
+                                    Console.WriteLine($"Compress data from {InputPath}");
+                                    Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), options);
                                     break;
                                 case Modes.Split:
                                     Console.WriteLine($"Split data from {InputPath}");

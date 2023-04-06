@@ -54,7 +54,7 @@ namespace AuroraLib.Common
 
         [DebuggerStepThrough]
         public static void Write(this Stream FS, string String)
-            => FS.Write(String, Encoding.GetEncoding(932));
+            => FS.Write(String, Encoding.GetEncoding(28591));
 
         /// <summary>
         /// Writes a string. String won't be null terminated
@@ -78,7 +78,7 @@ namespace AuroraLib.Common
         /// <param name="length"></param>
         [DebuggerStepThrough]
         public static void WriteString(this Stream FS, string String, byte padding, int length)
-            => FS.WriteString(String, padding, length, Encoding.GetEncoding(932));
+            => FS.WriteString(String, padding, length, Encoding.GetEncoding(28591));
 
         /// <summary>
         /// Writes a string with a fixed length. remaining byts are filled with the <paramref name="padding"/> byte
@@ -108,7 +108,7 @@ namespace AuroraLib.Common
         /// <param name="Terminator">The Terminator of the string. Usually 0x00</param>
         [DebuggerStepThrough]
         public static void WriteString(this Stream FS, string String, byte Terminator = 0x0)
-            => FS.WriteString(String, Terminator, Encoding.GetEncoding(932));
+            => FS.WriteString(String, Terminator, Encoding.GetEncoding(28591));
 
         /// <summary>
         /// Writes a string. String will be terminated with the <paramref name="terminator"/>

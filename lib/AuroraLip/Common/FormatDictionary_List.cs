@@ -151,17 +151,27 @@ namespace AuroraLib.Common
             //Intelligent Systems
             new FormatInfo(".pak","pack", FormatType.Archive, "Fire Emblem Archive", "Intelligent Systems"),
 
-            //Genius Sonority
-            new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon Archive","Genius Sonority"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
-            new FormatInfo(".GTX", FormatType.Texture, "Pokemon Texture","Genius Sonority"){ Class = typeof(GTX), IsMatch = GTX.Matcher },
+            // Genius Sonority
+            new FormatInfo(".fsys", "FSYS", FormatType.Archive, "Genius Sonority Archive", "Genius Sonority"),
+            new FormatInfo(".GTX", FormatType.Texture, "Genius Sonority Texture", "Genius Sonority"){ Class = typeof(GTX), IsMatch = GTX.Matcher },
             new FormatInfo(".GSscene", FormatType.Texture, "Genius Sonority Scene File (based on sysdolphin)", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority"){ Class = typeof(PKX) },
             new FormatInfo(".GSW", FormatType.Archive, "Genius Sonority W?", "Genius Sonority"){ Class = typeof(GSW) },
-            new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "GS Particle v0", "Genius Sonority"),
-            new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "GS Particle v1", "Genius Sonority"),
-            new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "GS Particle (unknown)", "Genius Sonority"),
+            new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "Genius Sonority Particle v0", "Genius Sonority"),
+            new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "Genius Sonority Particle v1", "Genius Sonority"),
+            new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "Genius Sonority Particle (unknown)", "Genius Sonority"),
+            
+            // Genius Sonority (non-textures)
+            new FormatInfo(".MSG", FormatType.Unknown, "Genius Sonority Messages", "Genius Sonority"),
+            new FormatInfo(".FNT", FormatType.Unknown, "Genius Sonority Font", "Genius Sonority"), // TODO?
+            new FormatInfo(".CCD", FormatType.Unknown, "Genius Sonority Collision", "Genius Sonority"),
+            new FormatInfo(".SCD", FormatType.Unknown, "Genius Sonority Script", "Genius Sonority"),
+            new FormatInfo(".ISH", FormatType.Unknown, "Genius Sonority Music header", "Genius Sonority"),
+            new FormatInfo(".ISD", FormatType.Unknown, "Genius Sonority Music data", "Genius Sonority"),
+            new FormatInfo(".THH", FormatType.Unknown, "THP Video header", "Genius Sonority"),
+            new FormatInfo(".THD", FormatType.Unknown, "THP Video data", "Genius Sonority"),
             #endregion
 
             #region Common

@@ -124,7 +124,7 @@
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
         public static int GetMaxPaletteSize(this GXImageFormat Format)
-            => Format.GetMaxPaletteSize() * 2;
+            => Format.GetMaxPaletteColours() * 2;
 
         //This function is from here: https://github.com/dolphin-emu/dolphin/blob/94faad0d3727876f507577655d771d1f978b2f4a/Source/Core/VideoCommon/TextureInfo.cpp#L106
         /// <summary>

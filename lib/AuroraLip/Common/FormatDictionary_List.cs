@@ -154,6 +154,9 @@ namespace AuroraLib.Common
             //Genius Sonority
             new FormatInfo(".fsys","FSYS", FormatType.Archive, "Pokemon Archive","Genius Sonority"), //https://projectpokemon.org/home/tutorials/rom/stars-pok%C3%A9mon-colosseum-and-xd-hacking-tutorial/part-1-file-decompression-and-recompression-r5/
             new FormatInfo(".GTX", FormatType.Texture, "Pokemon Texture","Genius Sonority"){ Class = typeof(GTX), IsMatch = GTX.Matcher },
+            new FormatInfo(".GSscene", FormatType.Texture, "Genius Sonority Scene File (based on sysdolphin)", "Genius Sonority"){ Class = typeof(GSScene) },
+            new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority"){ Class = typeof(GSScene) },
+            new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "GS Particle v0", "Genius Sonority"),
             new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "GS Particle v1", "Genius Sonority"),
             new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "GS Particle (unknown)", "Genius Sonority"),

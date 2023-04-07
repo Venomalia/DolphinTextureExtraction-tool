@@ -158,6 +158,7 @@ namespace AuroraLib.Common
             new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority"){ Class = typeof(PKX) },
+            new FormatInfo(".GSW", FormatType.Archive, "Genius Sonority W?", "Genius Sonority"){ Class = typeof(GSW) },
             new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "GS Particle v0", "Genius Sonority"),
             new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "GS Particle v1", "Genius Sonority"),
             new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "GS Particle (unknown)", "Genius Sonority"),

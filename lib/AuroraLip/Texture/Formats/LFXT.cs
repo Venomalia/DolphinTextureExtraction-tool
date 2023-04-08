@@ -19,15 +19,18 @@ namespace AuroraLip.Texture.Formats
 
         protected override void Read(Stream stream)
         {
+            // NOTE: non-Nintendo consoles (PS2, XBox, PC) have the TXFL magic and use Little Endian
+            // but that is out of scope for DTE
             if (!stream.MatchString(magic))
                 throw new InvalidIdentifierException(Magic);
-            string Name = stream.ReadString();
-            var Properties = stream.Read<HeaderProperties>();
+
+            var _Name = stream.ReadString();
+            var Properties = stream.Read<HeaderProperties>(Endian.Big);
 
             //To GXFormat
             var GXFormat = ToGXFormat(Properties.Format);
             var GXPalette = GXPaletteFormat.IA8;
-            int Colours = 0;
+            var Colours = 0;
             ReadOnlySpan<byte> palettedata = null;
 
             //is Palette
@@ -57,10 +60,8 @@ namespace AuroraLip.Texture.Formats
             Add(current);
         }
 
-        protected override void Write(Stream stream)
-        {
+        protected override void Write(Stream stream) =>
             throw new NotImplementedException();
-        }
 
         private struct HeaderProperties
         {
@@ -95,23 +96,24 @@ namespace AuroraLip.Texture.Formats
             SonyPalette8 = 0x0800,
         }
 
-        private static GXImageFormat ToGXFormat(LFXTFormat lFXT) => lFXT switch
+        private static GXImageFormat ToGXFormat(LFXTFormat LFXT) => LFXT switch
         {
-            LFXTFormat.DXT1 => throw new NotImplementedException(),
-            LFXTFormat.DXT3 => throw new NotImplementedException(),
-            LFXTFormat.BytePalette => throw new NotImplementedException(),
-            LFXTFormat.RGBA32 => throw new NotImplementedException(),
+            LFXTFormat.DXT1 => throw new NotImplementedException($"Unsupported {LFXTFormat.DXT1} format"),
+            LFXTFormat.DXT3 => throw new NotImplementedException($"Unsupported {LFXTFormat.DXT3} format"),
+            LFXTFormat.BytePalette => throw new NotImplementedException($"Unsupported {LFXTFormat.BytePalette} format"),
+            LFXTFormat.RGBA32 => throw new NotImplementedException($"Unsupported {LFXTFormat.RGBA32} format"),
+            // FIXME: None of these work as-is, they are just a first guess
             LFXTFormat.NintendoRGBA32 => GXImageFormat.RGBA32,
-            LFXTFormat.NintendoC4 => GXImageFormat.C4,
+            LFXTFormat.NintendoC4 => GXImageFormat.I4,
             LFXTFormat.NintendoC8 => GXImageFormat.I8,
             LFXTFormat.NintendoCMPR => GXImageFormat.CMPR,
             LFXTFormat.NintendoCMPRAlpha => GXImageFormat.CMPR,
-            LFXTFormat.TwoPalette4 => throw new NotImplementedException(),
-            LFXTFormat.TwoPalette8 => throw new NotImplementedException(),
-            LFXTFormat.SonyRGBA32 => throw new NotImplementedException(),
-            LFXTFormat.SonyPalette4 => throw new NotImplementedException(),
-            LFXTFormat.SonyPalette8 => throw new NotImplementedException(),
-            _ => throw new NotImplementedException(),
+            LFXTFormat.TwoPalette4 => GXImageFormat.C4,
+            LFXTFormat.TwoPalette8 => GXImageFormat.C8,
+            LFXTFormat.SonyRGBA32 => throw new NotImplementedException($"Unsupported {LFXTFormat.SonyRGBA32} format"),
+            LFXTFormat.SonyPalette4 => throw new NotImplementedException($"Unsupported {LFXTFormat.SonyPalette4} format"),
+            LFXTFormat.SonyPalette8 => throw new NotImplementedException($"Unsupported {LFXTFormat.SonyPalette8} format"),
+            _ => throw new ArgumentOutOfRangeException(nameof(LFXT), LFXT, "Unknown format"),
         };
 
         private enum LFXTPalette : byte

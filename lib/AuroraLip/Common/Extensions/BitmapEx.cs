@@ -82,72 +82,311 @@ namespace AuroraLib.Common
 
             return destImage;
         }
+
         /// <summary>
-        /// Generates a lerped bitmap. Useful for mipmapping
+        /// Lerp two Bitmap images together with a specified blending factor.
         /// </summary>
-        /// <param name="imageA"></param>
-        /// <param name="imageB"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="t"></param>
-        /// <param name="interpolationMode"></param>
-        /// <returns></returns>
-        public static Bitmap Lerp(Bitmap imageA, Bitmap imageB, int width, int height, float t, InterpolationMode interpolationMode = InterpolationMode.Bilinear)
+        /// <param name="imageA">The first Bitmap image to multiply.</param>
+        /// <param name="imageB">The second Bitmap image to multiply.</param>
+        /// <param name="t">The blending factor, between 0 and 1, with 0 representing imageA and 1 representing imageB.</param>
+        /// <returns>A new Bitmap image that is the result of multiplying the two input images together.</returns>
+        public static Bitmap Lerp(Bitmap imageA, Bitmap imageB, float t)
         {
-            t = t.Clamp(0, 1);
-            if (imageA.PixelFormat != imageB.PixelFormat)
-                throw new Exception("Pixel format mis-match!");
+            Func<byte, byte, byte> multiplyFunc = (a, b) => (byte)MathEx.Lerp(a, b, t.Clamp(0, 1));
+            return Blend(imageA, imageB, multiplyFunc);
+        }
 
-            Bitmap imageARescale = ResizeImage(imageA, width, height, interpolationMode);
-            Bitmap imageBRescale = ResizeImage(imageB, width, height, interpolationMode);
+        /// <summary>
+        /// Additive two Bitmap images together with a specified blending factor.
+        /// </summary>
+        /// <param name="imageA">The first Bitmap image to multiply.</param>
+        /// <param name="imageB">The second Bitmap image to multiply.</param>
+        /// <param name="t">The blending factor, between 0 and 1, with 0 representing imageA and 1 representing imageB.</param>
+        /// <returns>A new Bitmap image that is the result of multiplying the two input images together.</returns>
+        public static Bitmap Additive(Bitmap imageA, Bitmap imageB, float t)
+        {
+            Func<byte, byte, byte> multiplyFunc = (a, b) => (byte)Math.Min(255, a + t * b);
+            return Blend(imageA, imageB, multiplyFunc);
+        }
 
-            byte[] imageAbytes = imageARescale.ToByteArray();
-            byte[] imageBbytes = imageBRescale.ToByteArray();
+
+        /// <summary>
+        /// Subtraktive two Bitmap images together with a specified blending factor.
+        /// </summary>
+        /// <param name="imageA">The first Bitmap image to multiply.</param>
+        /// <param name="imageB">The second Bitmap image to multiply.</param>
+        /// <param name="t">The blending factor, between 0 and 1, with 0 representing imageA and 1 representing imageB.</param>
+        /// <returns>A new Bitmap image that is the result of multiplying the two input images together.</returns>
+        public static Bitmap Subtraktive(Bitmap imageA, Bitmap imageB, float t)
+        {
+            Func<byte, byte, byte> multiplyFunc = (a, b) => (byte)Math.Max(255, a + t * b);
+            return Blend(imageA, imageB, multiplyFunc);
+        }
+
+        /// <summary>
+        /// Multiplies two Bitmap images together with a specified blending factor.
+        /// </summary>
+        /// <param name="imageA">The first Bitmap image to multiply.</param>
+        /// <param name="imageB">The second Bitmap image to multiply.</param>
+        /// <param name="t">The blending factor, between 0 and 1, with 0 representing imageA and 1 representing imageB.</param>
+        /// <returns>A new Bitmap image that is the result of multiplying the two input images together.</returns>
+        public static Bitmap Multiply(Bitmap imageA, Bitmap imageB, float t)
+        {
+            Func<byte, byte, byte> multiplyFunc = (a, b) => (byte)(a * (1 - t) + b * t);
+            return Blend(imageA, imageB, multiplyFunc);
+        }
+
+        /// <summary>
+        /// Blends two bitmaps using a given blending function.
+        /// </summary>
+        /// <param name="bmp1">The first bitmap to blend.</param>
+        /// <param name="bmp2">The second bitmap to blend.</param>
+        /// <param name="blendFunc">The function to use to blend the two images.</param>
+        /// <returns>The blended bitmap.</returns>
+        /// <exception cref="ArgumentException">Thrown if the two bitmaps have different sizes or pixel formats.</exception>
+        public static Bitmap Blend(Bitmap bmp1, Bitmap bmp2, Func<byte, byte, byte> blendFunc)
+        {
+            if (bmp1.Size != bmp2.Size)
+                throw new ArgumentException("Bitmaps must have the same dimensions.");
+
+            if (bmp1.PixelFormat != bmp2.PixelFormat)
+                throw new ArgumentException("Bitmaps must have the same pixel format.");
+
+            byte[] imageAbytes = bmp1.ToByteArray();
+            byte[] imageBbytes = bmp2.ToByteArray();
             byte[] resultbytes = new byte[imageAbytes.Length];
 
             for (int i = 0; i < imageAbytes.Length; i++)
             {
-                resultbytes[i] = MathEx.Lerp(imageAbytes[i], imageBbytes[i], t);
+                resultbytes[i] = blendFunc(imageAbytes[i], imageBbytes[i]);
             }
-            imageARescale.Dispose();
-            imageBRescale.Dispose();
-            return resultbytes.ToBitmap(width, height, imageA.PixelFormat);
+            return resultbytes.ToBitmap(bmp1.Width, bmp1.Height, bmp1.PixelFormat);
         }
 
-        public static bool Compare(this Bitmap bmp1, Bitmap bmp2)
+        /// <summary>
+        /// Compares two Bitmap objects for equality.
+        /// </summary>
+        /// <param name="bmp1">The first Bitmap to compare.</param>
+        /// <param name="bmp2">The second Bitmap to compare.</param>
+        /// <returns>True if the Bitmaps are equal, false otherwise.</returns>
+        public static unsafe bool Equal(this Bitmap bmp1, Bitmap bmp2)
         {
-            if (bmp1 == null || bmp2 == null)
+            if (bmp1 == null || bmp2 == null || !bmp1.Size.Equals(bmp2.Size) || !bmp1.PixelFormat.Equals(bmp2.PixelFormat))
                 return false;
             if (object.Equals(bmp1, bmp2))
                 return true;
-            if (!bmp1.Size.Equals(bmp2.Size) || !bmp1.PixelFormat.Equals(bmp2.PixelFormat))
-                return false;
 
-            int bytes = bmp1.Width * bmp1.Height * (Image.GetPixelFormatSize(bmp1.PixelFormat) / 8);
+            int width = bmp1.Width;
+            int height = bmp1.Height;
+            int bytesPerPixel = Image.GetPixelFormatSize(bmp1.PixelFormat) / 8;
+            int stride = width * bytesPerPixel;
+            int size = stride * height;
 
-            bool result = true;
-            byte[] b1bytes = new byte[bytes];
-            byte[] b2bytes = new byte[bytes];
+            byte* p1 = null, p2 = null;
+            BitmapData bitmapData1 = null, bitmapData2 = null;
 
-            BitmapData bitmapData1 = bmp1.LockBits(new Rectangle(0, 0, bmp1.Width, bmp1.Height), ImageLockMode.ReadOnly, bmp1.PixelFormat);
-            BitmapData bitmapData2 = bmp2.LockBits(new Rectangle(0, 0, bmp2.Width, bmp2.Height), ImageLockMode.ReadOnly, bmp2.PixelFormat);
-
-            Marshal.Copy(bitmapData1.Scan0, b1bytes, 0, bytes);
-            Marshal.Copy(bitmapData2.Scan0, b2bytes, 0, bytes);
-
-            for (int n = 0; n <= bytes - 1; n++)
+            try
             {
-                if (b1bytes[n] != b2bytes[n])
+                bitmapData1 = bmp1.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, bmp1.PixelFormat);
+                bitmapData2 = bmp2.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, bmp2.PixelFormat);
+
+                p1 = (byte*)bitmapData1.Scan0.ToPointer();
+                p2 = (byte*)bitmapData2.Scan0.ToPointer();
+
+                for (int y = 0; y < height; y++)
                 {
-                    result = false;
-                    break;
+                    for (int x = 0; x < stride; x++)
+                    {
+                        if (p1[x] != p2[x])
+                            return false;
+                    }
+
+                    p1 += bitmapData1.Stride;
+                    p2 += bitmapData2.Stride;
                 }
+
+                return true;
+            }
+            finally
+            {
+                if (bitmapData1 != null)
+                    bmp1.UnlockBits(bitmapData1);
+                if (bitmapData2 != null)
+                    bmp2.UnlockBits(bitmapData2);
+            }
+        }
+
+        /// <summary>
+        /// Compares the pixel values of two bitmaps and returns a float value representing their difference.
+        /// </summary>
+        /// <param name="bmp1">The first bitmap to compare.</param>
+        /// <param name="bmp2">The second bitmap to compare.</param>
+        /// <returns>A float value representing the difference between the pixel values of the two bitmaps.</returns>
+        public static unsafe float Compare(this Bitmap bmp1, Bitmap bmp2)
+        {
+
+            if (bmp1 == null || bmp2 == null || bmp1.Size != bmp2.Size || bmp1.PixelFormat != bmp2.PixelFormat)
+                return float.MaxValue;
+
+            if (object.Equals(bmp1, bmp2))
+                return 0;
+
+            var data1 = bmp1.LockBits(new Rectangle(0, 0, bmp1.Width, bmp1.Height), ImageLockMode.ReadOnly, bmp1.PixelFormat);
+            var data2 = bmp2.LockBits(new Rectangle(0, 0, bmp2.Width, bmp2.Height), ImageLockMode.ReadOnly, bmp2.PixelFormat);
+            float diff = 0;
+
+            try
+            {
+                int bytesPerPixel = Image.GetPixelFormatSize(bmp1.PixelFormat) / 8;
+
+                byte* ptr1 = (byte*)data1.Scan0;
+                byte* ptr2 = (byte*)data2.Scan0;
+
+                int width = data1.Width * bytesPerPixel;
+                int height = data1.Height;
+
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x += bytesPerPixel)
+                    {
+                        byte* pixel1 = ptr1 + x;
+                        byte* pixel2 = ptr2 + x;
+
+                        for (int i = 0; i < bytesPerPixel; i++)
+                        {
+                            diff += Math.Abs(pixel1[i] - pixel2[i]);
+                        }
+                    }
+
+                    ptr1 += data1.Stride;
+                    ptr2 += data2.Stride;
+                }
+
+                diff /= (data1.Width * data1.Height * bytesPerPixel);
+            }
+            finally
+            {
+                bmp1.UnlockBits(data1);
+                bmp2.UnlockBits(data2);
             }
 
-            bmp1.UnlockBits(bitmapData1);
-            bmp2.UnlockBits(bitmapData2);
+            return diff;
+        }
+
+        /// <summary>
+        /// Generates a mipmap of the given bitmap with the specified interpolation mode.
+        /// </summary>
+        /// <param name="source">The source bitmap.</param>
+        /// <param name="interpolation">The interpolation mode to use.</param>
+        /// <returns>The generated mipmap.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="source"/> is null.</exception>
+        public static Bitmap GenerateMipMap(this Bitmap source, InterpolationMode interpolation)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            Bitmap result = new Bitmap(source.Width / 2, source.Height / 2, source.PixelFormat);
+
+            using (var g = Graphics.FromImage(result))
+            {
+                g.InterpolationMode = interpolation;
+                g.CompositingMode = CompositingMode.SourceCopy;
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.SmoothingMode = SmoothingMode.HighSpeed;
+                g.PixelOffsetMode = PixelOffsetMode.Default;
+                g.DrawImage(source, new Rectangle(0, 0, result.Width, result.Height));
+            }
 
             return result;
+        }
+
+        /// <summary>
+        /// Generates a mipmap level from the input bitmap by halving its dimensions
+        /// </summary>
+        /// <param name="source">The input bitmap</param>
+        /// <returns>The generated mipmap level</returns>
+        /// <exception cref="ArgumentNullException">Thrown when source is null</exception>
+        public static Bitmap GenerateMipMap(this Bitmap source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            int dstWidth = source.Width / 2;
+            int dstHeight = source.Height / 2;
+
+            Bitmap result = source.Resized(new Rectangle(0, 0, dstWidth, dstHeight));
+
+            return result;
+        }
+
+        /// <summary>
+        /// Resizes a Bitmap to the specified destination rectangle using the lineare interpolation algorithm.
+        /// This is fast and preserves the transperent color values.
+        /// </summary>
+        /// <param name="source">The Bitmap to resize.</param>
+        /// <param name="destination">The destination rectangle.</param>
+        /// <returns>The resized Bitmap.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the source Bitmap is null.</exception>
+        public static Bitmap Resized(this Bitmap source, Rectangle destination)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+
+            Bitmap result = new Bitmap(destination.Width, destination.Height, source.PixelFormat);
+
+            BitmapData srcData = source.LockBits(new Rectangle(0, 0, source.Width, source.Height), ImageLockMode.ReadOnly, source.PixelFormat);
+            BitmapData dstData = result.LockBits(new Rectangle(0, 0, result.Width, result.Height), ImageLockMode.WriteOnly, result.PixelFormat);
+
+            try
+            {
+                unsafe
+                {
+                    byte* srcScan = (byte*)srcData.Scan0.ToPointer();
+                    byte* dstScan = (byte*)dstData.Scan0.ToPointer();
+
+                    int srcStride = srcData.Stride;
+                    int dstStride = dstData.Stride;
+
+                    int pixelSize = Image.GetPixelFormatSize(result.PixelFormat) / 8;
+
+                    for (int y = 0; y < dstData.Height; y++)
+                    {
+                        int srcY = y * srcData.Height / dstData.Height;
+                        byte* srcRow = srcScan + (srcY * srcStride);
+
+                        byte* dstRow = dstScan + (y * dstStride);
+
+                        for (int x = 0; x < dstData.Width; x++)
+                        {
+                            int srcX = x * srcData.Width / dstData.Width;
+                            byte* srcPixel = srcRow + (srcX * pixelSize);
+
+                            byte* dstPixel = dstRow + (x * pixelSize);
+
+                            for (int i = 0; i < pixelSize; i++)
+                            {
+                                dstPixel[i] = srcPixel[i];
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                source.UnlockBits(srcData);
+                result.UnlockBits(dstData);
+            }
+
+            return result;
+        }
+
+        public static bool IsArbitraryMipmap(this Bitmap source, Bitmap mip)
+        {
+            using (Bitmap sourcemip = source.GenerateMipMap())
+            {
+                var comp = sourcemip.Compare(mip);
+                return comp >= 6;
+            }
         }
     }
 }

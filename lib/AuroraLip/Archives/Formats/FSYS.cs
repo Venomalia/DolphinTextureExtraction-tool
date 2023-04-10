@@ -259,7 +259,7 @@ namespace AuroraLib.Archives.Formats
             /// Animated Texture.
             /// Official file extension is currently unknown.
             /// </summary>
-            ATX = 0x19,
+            GSAGTX = 0x19,
 
             /// <summary>
             /// Battle trainer data (possible fights, like the trainer and their pokemon they send out).

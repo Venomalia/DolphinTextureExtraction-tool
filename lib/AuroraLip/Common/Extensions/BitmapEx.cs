@@ -1,52 +1,54 @@
 ﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 
 namespace AuroraLib.Common
 {
     public static class BitmapEx
     {
         /// <summary>
-        /// Converts a bitmap to a byte[]
+        /// Returns a span of bytes representing the pixel data of the bitmap.
         /// </summary>
-        /// <param name="bitmap"></param>
-        /// <returns></returns>
-        public static byte[] ToByteArray(this Bitmap bitmap)
+        /// <param name="bitmap">The bitmap to convert.</param>
+        /// <returns>A span of bytes representing the pixel data of the bitmap.</returns>
+        public static unsafe Span<byte> AsSpan(this Bitmap bitmap)
         {
-            BitmapData bmpdata = null;
+            BitmapData bmpData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
             try
             {
-                bmpdata = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, PixelFormat.Format32bppRgb);
-                int numbytes = bmpdata.Stride * bitmap.Height;
-                byte[] bytedata = new byte[numbytes];
-                IntPtr ptr = bmpdata.Scan0;
-
-                Marshal.Copy(ptr, bytedata, 0, numbytes);
-
-                return bytedata;
+                byte* pBytes = (byte*)bmpData.Scan0.ToPointer();
+                int size = bmpData.Stride * bmpData.Height;
+                return new Span<byte>(pBytes, size);
             }
             finally
             {
-                if (bmpdata != null)
-                    bitmap.UnlockBits(bmpdata);
+                bitmap.UnlockBits(bmpData);
             }
         }
-
         /// <summary>
-        /// Creates a bitmap from a byte[].
+        /// Converts a span of bytes to a Bitmap object with the specified width, height, and pixel format.
         /// </summary>
-        /// <param name="Buffer"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
-        /// <param name="pixelFormat"></param>
-        /// <returns></returns>
-        public static Bitmap ToBitmap(this byte[] Buffer, int Width, int Height, PixelFormat pixelFormat = PixelFormat.Format32bppArgb)
+        /// <param name="bytes">The span of bytes containing the pixel data.</param>
+        /// <param name="width">The width of the bitmap, in pixels.</param>
+        /// <param name="height">The height of the bitmap, in pixels.</param>
+        /// <param name="pixelFormat">The pixel format of the bitmap.</param>
+        /// <returns>A new Bitmap object with the pixel data from the input span.</returns>
+        public static unsafe Bitmap ToBitmap(ReadOnlySpan<byte> buffer, int width, int height, PixelFormat pixelFormat = PixelFormat.Format32bppArgb)
         {
-            Bitmap bitmap = new Bitmap(Width, Height, pixelFormat);
-            BitmapData ImgData = bitmap.LockBits(new Rectangle(0, 0, Width, Height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
-            Marshal.Copy(Buffer, 0, ImgData.Scan0, Buffer.Length);
-            bitmap.UnlockBits(ImgData);
+            Bitmap bitmap = new Bitmap(width, height, pixelFormat);
+            BitmapData imgData = bitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, bitmap.PixelFormat);
+
+            try
+            {
+                Span<byte> imgDataBytes = new(imgData.Scan0.ToPointer(), imgData.Stride * imgData.Height);
+                buffer.CopyTo(imgDataBytes);
+            }
+            finally
+            {
+                bitmap.UnlockBits(imgData);
+            }
+
             return bitmap;
         }
 
@@ -152,15 +154,15 @@ namespace AuroraLib.Common
             if (bmp1.PixelFormat != bmp2.PixelFormat)
                 throw new ArgumentException("Bitmaps must have the same pixel format.");
 
-            byte[] imageAbytes = bmp1.ToByteArray();
-            byte[] imageBbytes = bmp2.ToByteArray();
-            byte[] resultbytes = new byte[imageAbytes.Length];
+            ReadOnlySpan<byte> imageAbytes = bmp1.AsSpan();
+            ReadOnlySpan<byte> imageBbytes = bmp2.AsSpan();
+            Span<byte> resultbytes = new byte[imageAbytes.Length];
 
             for (int i = 0; i < imageAbytes.Length; i++)
             {
                 resultbytes[i] = blendFunc(imageAbytes[i], imageBbytes[i]);
             }
-            return resultbytes.ToBitmap(bmp1.Width, bmp1.Height, bmp1.PixelFormat);
+            return ToBitmap(resultbytes, bmp1.Width, bmp1.Height, bmp1.PixelFormat);
         }
 
         /// <summary>

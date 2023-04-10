@@ -81,7 +81,7 @@ namespace AuroraLib.Texture
                     BlockY += BlockHeight;
                 }
             }
-            return Pixels.ToBitmap(Width, Height);
+            return BitmapEx.ToBitmap(Pixels, Width, Height);
         }
 
         public static Color[] DecodePalette(ReadOnlySpan<byte> PaletteData, GXPaletteFormat? PaletteFormat, int? Count)
@@ -262,7 +262,7 @@ namespace AuroraLib.Texture
             List<byte> ImageData = new();
             var (BlockWidth, BlockHeight) = Format.GetBlockSize();
             int block_x = 0, block_y = 0;
-            byte[] Pixels = Image.ToByteArray();
+            ReadOnlySpan<byte> Pixels = Image.AsSpan();
 
             while (block_y < Image.Height)
             {
@@ -291,7 +291,7 @@ namespace AuroraLib.Texture
             List<Color> colours = new();
             for (int i = 0; i < Images.Count; i++)
             {
-                ImageData.Add(Images[i].ToByteArray());
+                ImageData.Add(Images[i].AsSpan().ToArray());
                 for (int y = 0; y < Images[i].Height; y++)
                 {
                     for (int x = 0; x < Images[i].Width; x++)
@@ -350,7 +350,7 @@ namespace AuroraLib.Texture
             List<ushort> encoded_colors = new();
             Dictionary<Color, int> colors_to_color_indexes = new();
 
-            ImageData.AddRange(Image.ToByteArray());
+            ImageData.AddRange(Image.AsSpan().ToArray());
             for (int y = 0; y < Image.Height; y++)
             {
                 for (int x = 0; x < Image.Width; x++)
@@ -703,7 +703,7 @@ namespace AuroraLib.Texture
         {
             List<byte[]> ImageData = new();
             for (int i = 0; i < Images.Count; i++)
-                ImageData.Add(Images[i].ToByteArray());
+                ImageData.Add(Images[i].AsSpan().ToArray());
 
             int depth;
             if (MaxColours == 16)
@@ -740,8 +740,7 @@ namespace AuroraLib.Texture
 
         public static Color[] CreateLimitedPalette(Bitmap Image, int MaxColours, bool Alpha = true)
         {
-            List<byte> ImageData = new();
-            ImageData.AddRange(Image.ToByteArray());
+            ReadOnlySpan<byte> ImageData = Image.AsSpan();
 
             int depth;
             if (MaxColours == 16)

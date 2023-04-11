@@ -15,14 +15,14 @@ namespace AuroraLib.Texture
     {
         #region Decode
 
-        public static Bitmap DecodeImage(Stream TextureFile, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat? PaletteFormat, int? PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
+        public static Bitmap DecodeImage(Stream TextureFile, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0)
         {
             ImageWidth = Math.Max(1, ImageWidth >> Mipmap);
             ImageHeight = Math.Max(1, ImageHeight >> Mipmap);
             return DecodeImage(TextureFile.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight)), PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight);
         }
 
-        public static Bitmap DecodeImage(ReadOnlySpan<byte> ImageData, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat? PaletteFormat, int? PaletteCount, int ImageWidth, int ImageHeight)
+        public static Bitmap DecodeImage(ReadOnlySpan<byte> ImageData, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight)
         {
             Color[] PaletteColours = null;
 
@@ -51,12 +51,12 @@ namespace AuroraLib.Texture
             }
 
             var (BlockWidth, BlockHeight) = Format.GetBlockSize();
-            int BlockDataSize = Format.GetBlockDataSize(), offset = 0, BlockX = 0, BlockY = 0, XInBlock = 0, YInBlock = 0;
+            int BlockDataSize = Format.GetBlockDataSize(), offset = 0, BlockX = 0, BlockY = 0, XInBlock, YInBlock;
 
             byte[] Pixels = new byte[Width * Height * 4];
             while (BlockY < Height)
             {
-                Color[] PixelData = DecodeBlock(ImageData, Format, offset, PaletteColours);
+                Color[] PixelData = DecodeBlock(ImageData[offset..], Format, PaletteColours);
 
                 for (int i = 0; i < PixelData.Length; i++)
                 {
@@ -84,31 +84,24 @@ namespace AuroraLib.Texture
             return BitmapEx.ToBitmap(Pixels, Width, Height);
         }
 
-        public static Color[] DecodePalette(ReadOnlySpan<byte> PaletteData, GXPaletteFormat? PaletteFormat, int? Count)
+        public static Color[] DecodePalette(ReadOnlySpan<byte> PaletteData, GXPaletteFormat PaletteFormat, int Count)
         {
-            List<Color> Colours = new();
+            Color[] colors = new Color[Count];
             int offset = 0;
             for (int i = 0; i < Count; i++)
             {
                 ushort Raw = BitConverter.ToUInt16(PaletteData.Slice(offset, 2)).Swap();
                 offset += 2;
-                switch (PaletteFormat)
+                colors[i] = PaletteFormat switch
                 {
-                    case GXPaletteFormat.IA8:
-                        Colours.Add(IA8ToColor(Raw));
-                        break;
-                    case GXPaletteFormat.RGB565:
-                        Colours.Add(RGB565ToColor(Raw));
-                        break;
-                    case GXPaletteFormat.RGB5A3:
-                        Colours.Add(RGB5A3ToColor(Raw));
-                        break;
-                    default:
-                        throw new FormatException($"Invalid {nameof(GXPaletteFormat)}:{PaletteFormat}");
-                }
+                    GXPaletteFormat.IA8 => IA8ToColor(Raw),
+                    GXPaletteFormat.RGB565 => RGB565ToColor(Raw),
+                    GXPaletteFormat.RGB5A3 => RGB5A3ToColor(Raw),
+                    _ => throw new FormatException($"Invalid {nameof(GXPaletteFormat)}:{PaletteFormat}"),
+                };
             }
 
-            return Colours.ToArray();
+            return colors;
         }
 
         public static byte[] EncodePalette(in IEnumerable<Color> colors, GXPaletteFormat PaletteFormat)
@@ -135,11 +128,11 @@ namespace AuroraLib.Texture
             return bytes.ToArray();
         }
 
-        public static Color[] DecodeBlock(ReadOnlySpan<byte> ImageData, GXImageFormat Format, int Offset, ReadOnlySpan<Color> Colours)
+        public static Color[] DecodeBlock(ReadOnlySpan<byte> ImageData, GXImageFormat Format, ReadOnlySpan<Color> Colours)
         {
             int BlockSize = Format.GetBlockDataSize();
             List<Color> Result = new();
-            if (Offset >= ImageData.Length)
+            if (ImageData.Length <= 0)
                 return Result.ToArray();
 
             int BlockSizeHalfed = (int)Math.Floor(BlockSize / 2.0);
@@ -148,73 +141,76 @@ namespace AuroraLib.Texture
                 case GXImageFormat.I4:
                     for (int i = 0; i < BlockSize; i++)
                         for (int nibble = 0; nibble < 2; nibble++)
-                            if (Offset + i < ImageData.Length)
-                                Result.Add(I4ToColor((byte)((ImageData[Offset + i] >> (1 - nibble) * 4) & 0xF)));
+                            if (i < ImageData.Length)
+                                Result.Add(I4ToColor((byte)((ImageData[i] >> (1 - nibble) * 4) & 0xF)));
                     break;
                 case GXImageFormat.I8:
                     for (int i = 0; i < BlockSize; i++)
-                        if (Offset + i < ImageData.Length)
-                            Result.Add(I8ToColor(ImageData[Offset + i]));
+                        if (i < ImageData.Length)
+                            Result.Add(I8ToColor(ImageData[i]));
                     break;
                 case GXImageFormat.IA4:
                     for (int i = 0; i < BlockSize; i++)
-                        if (Offset + i < ImageData.Length)
-                            Result.Add(IA4ToColor(ImageData[Offset + i]));
+                        if (i < ImageData.Length)
+                            Result.Add(IA4ToColor(ImageData[i]));
                     break;
                 case GXImageFormat.IA8:
                     for (int i = 0; i < BlockSizeHalfed; i++)
-                        if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(IA8ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
+                        if (i * 2 < ImageData.Length)
+                            Result.Add(IA8ToColor(BitConverter.ToUInt16(ImageData.Slice(i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGB565:
                     for (int i = 0; i < BlockSizeHalfed; i++)
-                        if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(RGB565ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
+                        if (i * 2 < ImageData.Length)
+                            Result.Add(RGB565ToColor(BitConverter.ToUInt16(ImageData.Slice(i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGB5A3:
                     for (int i = 0; i < BlockSizeHalfed; i++)
-                        if (Offset + i * 2 < ImageData.Length)
-                            Result.Add(RGB5A3ToColor(BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap()));
+                        if (i * 2 < ImageData.Length)
+                            Result.Add(RGB5A3ToColor(BitConverter.ToUInt16(ImageData.Slice(i * 2, 2)).Swap()));
                     break;
                 case GXImageFormat.RGBA32:
                     for (int i = 0; i < 16; i++)
-                        Result.Add(Color.FromArgb(ImageData[Offset + (i * 2)], ImageData[Offset + (i * 2) + 1], ImageData[Offset + (i * 2) + 32], ImageData[Offset + (i * 2) + 33]));
+                        Result.Add(Color.FromArgb(ImageData[(i * 2)], ImageData[(i * 2) + 1], ImageData[(i * 2) + 32], ImageData[(i * 2) + 33]));
                     break;
                 case GXImageFormat.C4:
                     for (int i = 0; i < BlockSize; i++)
                         for (int nibble = 0; nibble < 2; nibble++)
                         {
-                            int Value = (ImageData[Offset + i] >> (1 - nibble) * 4) & 0xF;
+                            int Value = (ImageData[i] >> (1 - nibble) * 4) & 0xF;
                             Result.Add(Value >= Colours.Length ? Color.Black : Colours[Value]);
                         }
                     break;
                 case GXImageFormat.C8:
                     for (int i = 0; i < BlockSize; i++)
-                        Result.Add(ImageData[Offset + i] >= Colours.Length ? Color.Black : Colours[ImageData[Offset + i]]);
+                        Result.Add(ImageData[i] >= Colours.Length ? Color.Black : Colours[ImageData[i]]);
                     break;
                 case GXImageFormat.C14X2:
                     for (int i = 0; i < BlockSizeHalfed; i++)
                     {
-                        int ColourIndex = BitConverter.ToUInt16(ImageData.Slice(Offset + i * 2, 2)).Swap();
+                        int ColourIndex = BitConverter.ToUInt16(ImageData.Slice(i * 2, 2)).Swap();
                         if (ColourIndex > Colours.Length)
                             ColourIndex = 0;
                         Result.Add(Colours[ColourIndex]);
                     }
                     break;
                 case GXImageFormat.CMPR:
+
                     Result.AddRange(new Color[64]);
-                    int subblock_offset = Offset;
+                    int subblock_offset = 0;
                     for (int i = 0; i < 4; i++)
                     {
-                        int subblock_x = (i % 2) * 4;
-                        int subblock_y = ((int)Math.Floor(i / 2.0)) * 4;
+                        int subblock_x = (i & 1) * 4;
+                        int subblock_y = (i >> 1) * 4;
 
                         Color[] DXT1 = GetInterpolatedDXT1Colours(BitConverter.ToUInt16(ImageData.Slice(subblock_offset, 2)).Swap(), BitConverter.ToUInt16(ImageData.Slice(subblock_offset + 2, 2)).Swap());
                         for (int j = 0; j < 16; j++)
-                            Result[subblock_x + subblock_y * 8 + ((int)Math.Floor(j / 4.0)) * 8 + (j % 4)] = DXT1[(BitConverter.ToInt32(ImageData.Slice(subblock_offset + 4, 4)).Swap() >> ((15 - j) * 2)) & 3];
+                        {
+                            int color_index = (BitConverter.ToInt32(ImageData.Slice(subblock_offset + 4, 4)).Swap() >> ((15 - j) * 2)) & 3;
+                            Result[subblock_x + subblock_y * 8 + (j >> 2) * 8 + (j & 3)] = DXT1[color_index];
+                        }
                         subblock_offset += 8;
                     }
-
                     break;
                 default:
                     throw new FormatException($"Invalid {nameof(GXImageFormat)}:{Format}");

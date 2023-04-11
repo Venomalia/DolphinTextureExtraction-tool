@@ -33,40 +33,29 @@ namespace AuroraLib.Texture
         }
 
         public static Color RGB565ToColor(ushort Raw)
-        {
-            int Red, Green, Blue, Value;
-            Value = ((Raw >> 11) & 0x1F);
-            Red = (Value << 3) | (Value >> 2);
-            Value = ((Raw >> 5) & 0x3F);
-            Green = (Value << 2) | (Value >> 4);
-            Value = ((Raw >> 0) & 0x1F);
-            Blue = (Value << 3) | (Value >> 2);
-            return Color.FromArgb(Red, Green, Blue);
-        }
+            => Color.FromArgb(
+                red: (Raw & 0xF800) >> 11 << 3 | (Raw & 0xF800) >> 14,
+                green: (Raw & 0x07E0) >> 5 << 2 | (Raw & 0x07E0) >> 12,
+                blue: (Raw & 0x001F) << 3 | (Raw & 0x001F) >> 2
+                );
 
         public static Color RGB5A3ToColor(ushort Raw)
         {
-            int Red, Green, Blue, Value;
+            int Red, Green, Blue;
             if ((Raw & 0x8000) == 0)
             {
-                Value = ((Raw >> 8) & 0xF);
-                Red = (Value << 4) | (Value >> 0);
-                Value = ((Raw >> 4) & 0xF);
-                Green = (Value << 4) | (Value >> 0);
-                Value = ((Raw >> 0) & 0xF);
-                Blue = (Value << 4) | (Value >> 0);
-                Value = ((Raw >> 12) & 0x7);
-                int Alpha = (Value << 5) | (Value << 2) | (Value >> 1);
+                Red = ((Raw >> 8) & 0xF) << 4;
+                Green = ((Raw >> 4) & 0xF) << 4;
+                Blue = ((Raw >> 0) & 0xF) << 4;
+                int Alpha = ((Raw >> 12) & 0x7);
+                Alpha = (Alpha & 0x7) << 5 | (Alpha & 0x7) << 2 | (Alpha & 0x7) >> 1;
                 return Color.FromArgb(Alpha, Red, Green, Blue);
             }
             else
             {
-                Value = ((Raw >> 10) & 0x1F);
-                Red = (Value << 3) | (Value >> 2);
-                Value = ((Raw >> 5) & 0x1F);
-                Green = (Value << 3) | (Value >> 2);
-                Value = ((Raw >> 0) & 0x1F);
-                Blue = (Value << 3) | (Value >> 2);
+                Red = ((Raw >> 10) & 0x1F) << 3;
+                Green = ((Raw >> 5) & 0x1F) << 3;
+                Blue = ((Raw >> 0) & 0x1F) << 3;
                 return Color.FromArgb(Red, Green, Blue);
             }
         }
@@ -78,13 +67,13 @@ namespace AuroraLib.Texture
 
             if (RawLeft > RawRight)
             {
-                InterpA = Color.FromArgb((int)Math.Floor((2 * Left.R + 1 * Right.R) / 3.0), (int)Math.Floor((2 * Left.G + 1 * Right.G) / 3.0), (int)Math.Floor((2 * Left.B + 1 * Right.B) / 3.0));
-                InterpB = Color.FromArgb((int)Math.Floor((1 * Left.R + 2 * Right.R) / 3.0), (int)Math.Floor((1 * Left.G + 2 * Right.G) / 3.0), (int)Math.Floor((1 * Left.B + 2 * Right.B) / 3.0));
+                InterpA = Color.FromArgb((2 * Left.R + Right.R) / 3, (2 * Left.G + Right.G) / 3, (2 * Left.B + Right.B) / 3);
+                InterpB = Color.FromArgb((Left.R + 2 * Right.R) / 3, (Left.G + 2 * Right.G) / 3, (Left.B + 2 * Right.B) / 3);
             }
             else
             {
-                InterpA = Color.FromArgb((int)Math.Floor(Left.R / 2.0) + (int)Math.Floor(Right.R / 2.0), (int)Math.Floor(Left.G / 2.0) + (int)Math.Floor(Right.G / 2.0), (int)Math.Floor(Left.B / 2.0) + (int)Math.Floor(Right.B / 2.0));
-                InterpB = Color.FromArgb(1, (int)Math.Floor((1 * Left.R + 2 * Right.R) / 3.0), (int)Math.Floor((1 * Left.G + 2 * Right.G) / 3.0), (int)Math.Floor((1 * Left.B + 2 * Right.B) / 3.0));
+                InterpA = Color.FromArgb((Left.R + Right.R) >> 1, (Left.G + Right.G) >> 1, (Left.B + Right.B) >> 1);
+                InterpB = Color.FromArgb(1, (Left.R + 2 * Right.R) / 3, (Left.G + 2 * Right.G) / 3, (Left.B + 2 * Right.B) / 3);
             }
 
             return new Color[4] { Left, Right, InterpA, InterpB };

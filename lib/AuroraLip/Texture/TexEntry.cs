@@ -214,7 +214,7 @@ namespace AuroraLib.Texture
                 return HashDepot.XXHash.Hash64(Palette.GetBytes().AsSpan().Slice(start, length));
             }
 
-            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = true)
+            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = false)
             {
                 bool HasMips = this.Count != 1;
                 //dolphin seems to use the MaxLOD value to decide if it is a mipmap Texture.

@@ -157,7 +157,7 @@ namespace AuroraLib.Common
             new FormatInfo(".GSscene", FormatType.Texture, "Genius Sonority Scene File (based on sysdolphin)", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority"){ Class = typeof(GSScene) },
             new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority"){ Class = typeof(GSScene) },
-            new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority"){ Class = typeof(PKX) },
+            new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority"){ Class = typeof(PKX), IsMatch = PKX.Matcher },
             new FormatInfo(".GSW", FormatType.Archive, "Genius Sonority W?", "Genius Sonority"){ Class = typeof(GSW) },
             new FormatInfo(".GSAGTX", FormatType.Archive, "Genius Sonority Animated Texture", "Genius Sonority"){ Class = typeof(GSAGTX) },
             new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "Genius Sonority Particle v0", "Genius Sonority"),

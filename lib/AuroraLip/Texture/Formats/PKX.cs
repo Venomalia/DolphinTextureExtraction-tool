@@ -17,7 +17,10 @@ namespace AuroraLib.Archives.Formats
         public PKX(Stream stream, string filename = null) : base(stream, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == ".PKX";
+            => Matcher(stream, extension);
+
+        public static bool Matcher(Stream stream, in string extension = "")
+            => extension.ToLower() == ".pkx" && stream.At(0x1A, s => s.ReadUInt16(Endian.Big) == 0x0C);
 
         protected override void Read(Stream stream)
         {

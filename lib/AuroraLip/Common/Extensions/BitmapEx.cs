@@ -1,6 +1,8 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Common
 {
@@ -382,13 +384,32 @@ namespace AuroraLib.Common
             return result;
         }
 
-        public static bool IsArbitraryMipmap(this Bitmap source, Bitmap mip)
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsArbitraryMipmap(this Bitmap source, params Bitmap[] mips)
+            => source.MipmapCompare(mips) >= 15;
+
+        public static float MipmapCompare(this Bitmap source, params Bitmap[] mips)
         {
-            using (Bitmap sourcemip = source.GenerateMipMap())
+            Bitmap sourcemip = null;
+            float diff = 0;
+
+            foreach (var mip in mips)
             {
-                var comp = sourcemip.Compare(mip);
-                return comp >= 6;
+                if (sourcemip == null)
+                    sourcemip = source.GenerateMipMap();
+                else
+                {
+                    var temp = sourcemip.GenerateMipMap();
+                    sourcemip.Dispose();
+                    sourcemip = temp;
+                }
+                diff += sourcemip.Compare(mip);
             }
+            sourcemip.Dispose();
+            diff /= mips.Length;
+
+            return diff;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace DolphinTextureExtraction
         Raw,
         Cleanup,
         Dolphinmipdetection,
+        ArbitraryMipmapDetection,
         Recursiv,
     }
 
@@ -28,6 +29,7 @@ namespace DolphinTextureExtraction
             Options.Cleanup => "Folder cleanup typ.",
             Options.Dolphinmipdetection => "Tries to imitate dolphin mipmap detection.",
             Options.Recursiv => "Extract recursiv.",
+            Options.ArbitraryMipmapDetection => "use Arbitrary Mipmap Detection",
             _ => throw new NotImplementedException(),
         };
 
@@ -42,6 +44,7 @@ namespace DolphinTextureExtraction
             Options.Cleanup => "c",
             Options.Dolphinmipdetection => "dmd",
             Options.Recursiv => "rc",
+            Options.ArbitraryMipmapDetection => "amd",
             _ => throw new NotImplementedException(),
         };
 
@@ -57,6 +60,7 @@ namespace DolphinTextureExtraction
             Options.Cleanup => $"{Options.Cleanup}:Mode",
             Options.Dolphinmipdetection => string.Empty,
             Options.Recursiv => string.Empty,
+            Options.ArbitraryMipmapDetection => string.Empty,
             _ => throw new NotImplementedException(),
         };
 

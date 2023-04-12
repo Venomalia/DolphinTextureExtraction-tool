@@ -61,7 +61,27 @@ namespace AuroraLib.Texture.Formats
                 sceneStream.Seek(model_offset, SeekOrigin.Begin);
                 ModelStruct model = sceneStream.Read<ModelStruct>(Endian.Big);
 
-                scene.ParseJObj(model.JObjOffset);
+                if (model.JObjOffset == 0)
+                {
+                    // Sometimes it valid (such as in the camera movement files), but sometimes it is not
+                    // (only example in GXXP01: wzx_carde_bg03.fsys/0CE72000_carde_bg03.wzx at 0xA0).
+                    // As such, check that the class name offset is at least still "valid" to determine whenever it is a valid JObj.
+                    sceneStream.Seek(model.JObjOffset, SeekOrigin.Begin);
+                    uint class_name_offset = sceneStream.ReadUInt32(Endian.Big);
+                    if (class_name_offset != 0)
+                    {
+                        // Do nothing.
+                        // TODO: Produce a log entry
+                    }
+                    else
+                    {
+                        scene.ParseJObj(model.JObjOffset);
+                    }
+                }
+                else
+                {
+                    scene.ParseJObj(model.JObjOffset);
+                }
 
                 model_array_offset += 4;
                 sceneStream.Seek(model_array_offset, SeekOrigin.Begin);

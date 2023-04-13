@@ -29,7 +29,7 @@ namespace AuroraLip.Texture.Formats
 
             //To GXFormat
             var GXFormat = ToGXFormat(Properties.Format);
-            var GXPalette = GXPaletteFormat.IA8;
+            var GXPalette = ToGXFormat(Properties.SubFormat);
             var Colours = 0;
             ReadOnlySpan<byte> palettedata = null;
 
@@ -38,11 +38,16 @@ namespace AuroraLip.Texture.Formats
             {
                 var startpos = stream.Position;
                 stream.Seek(GXFormat.GetCalculatedTotalDataSize(Properties.Width, Properties.Height, Properties.Mipmaps), SeekOrigin.Current);
-
                 Colours = GXFormat.GetMaxPaletteColours();
-                palettedata = stream.Read(Colours * 2);
-                GXPalette = Enum.Parse<GXPaletteFormat>(Properties.SubFormat.ToString());
-
+                // Is it a two Palette format?
+                if (Properties.Format == LFXTFormat.TwoPalette4 || Properties.Format == LFXTFormat.TwoPalette8)
+                {
+                    palettedata = stream.Read(Colours * 4);
+                }
+                else
+                {
+                    palettedata = stream.Read(Colours * 2);
+                }
                 stream.Seek(startpos, SeekOrigin.Begin);
             }
 
@@ -132,8 +137,19 @@ namespace AuroraLip.Texture.Formats
 
         private enum LFXTPalette : byte
         {
+            None = 0,
+            IA82 = 2,
             RGB5A3 = 5,
             IA8 = 6,
         }
+
+        private static GXPaletteFormat ToGXFormat(LFXTPalette LFXT) => LFXT switch
+        {
+            LFXTPalette.None => GXPaletteFormat.IA8,
+            LFXTPalette.IA82 => GXPaletteFormat.IA8,
+            LFXTPalette.RGB5A3 => GXPaletteFormat.RGB5A3,
+            LFXTPalette.IA8 => GXPaletteFormat.IA8,
+            _ => throw new ArgumentOutOfRangeException(nameof(LFXT), LFXT, "Unknown palette format"),
+        };
     }
 }

@@ -228,53 +228,16 @@ namespace AuroraLib.Common
         /// <returns>A float value representing the difference between the pixel values of the two bitmaps.</returns>
         public static unsafe float Compare(this Bitmap bmp1, Bitmap bmp2)
         {
-
             if (bmp1 == null || bmp2 == null || bmp1.Size != bmp2.Size || bmp1.PixelFormat != bmp2.PixelFormat)
+            {
                 return float.MaxValue;
+            }
 
-            if (object.Equals(bmp1, bmp2))
+            if (object.ReferenceEquals(bmp1, bmp2))
+            {
                 return 0;
-
-            var data1 = bmp1.LockBits(new Rectangle(0, 0, bmp1.Width, bmp1.Height), ImageLockMode.ReadOnly, bmp1.PixelFormat);
-            var data2 = bmp2.LockBits(new Rectangle(0, 0, bmp2.Width, bmp2.Height), ImageLockMode.ReadOnly, bmp2.PixelFormat);
-            float diff = 0;
-
-            try
-            {
-                int bytesPerPixel = Image.GetPixelFormatSize(bmp1.PixelFormat) / 8;
-
-                byte* ptr1 = (byte*)data1.Scan0;
-                byte* ptr2 = (byte*)data2.Scan0;
-
-                int width = data1.Width * bytesPerPixel;
-                int height = data1.Height;
-
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x += bytesPerPixel)
-                    {
-                        byte* pixel1 = ptr1 + x;
-                        byte* pixel2 = ptr2 + x;
-
-                        for (int i = 0; i < bytesPerPixel; i++)
-                        {
-                            diff += Math.Abs(pixel1[i] - pixel2[i]);
-                        }
-                    }
-
-                    ptr1 += data1.Stride;
-                    ptr2 += data2.Stride;
-                }
-
-                diff /= (data1.Width * data1.Height * bytesPerPixel);
             }
-            finally
-            {
-                bmp1.UnlockBits(data1);
-                bmp2.UnlockBits(data2);
-            }
-
-            return diff;
+            return GenericEx.Compare(bmp1.AsSpan(), bmp2.AsSpan());
         }
 
         /// <summary>

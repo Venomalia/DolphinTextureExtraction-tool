@@ -62,5 +62,29 @@
             }
             return -1;
         }
+
+        /// <summary>
+        /// Calculates the difference between two ReadOnlySpan<byte> instances.
+        /// </summary>
+        /// <param name="span1">The first ReadOnlySpan<byte> instance to compare.</param>
+        /// <param name="span2">The second ReadOnlySpan<byte> instance to compare.</param>
+        /// <returns>A float value representing the difference.</returns>
+        public static float Compare(this ReadOnlySpan<byte> span1, ReadOnlySpan<byte> span2)
+        {
+            if (span1.Length != span2.Length)
+            {
+                return float.MaxValue;
+            }
+
+            int diff = 0;
+
+            for (int i = 0; i < span1.Length; i++)
+            {
+                diff += Math.Abs(span1[i] - span2[i]);
+            }
+
+            return (float)diff / (float)span1.Length;
+        }
+
     }
 }

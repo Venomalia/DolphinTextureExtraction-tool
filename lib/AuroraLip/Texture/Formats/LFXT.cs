@@ -72,7 +72,6 @@ namespace AuroraLip.Texture.Formats
             private UInt24 pad { get; set; }
             public uint Flags { get; set; }
             public ushort Mipmaps { get; set; }
-            private int pad2 { get; set; }
 
             public int PixelCount => Width * Height;
             public bool HasMipmaps => (Flags & 0x20) > 0;
@@ -104,8 +103,8 @@ namespace AuroraLip.Texture.Formats
             LFXTFormat.RGBA32 => throw new NotImplementedException($"Unsupported {LFXTFormat.RGBA32} format"),
             // FIXME: None of these work as-is, they are just a first guess
             LFXTFormat.NintendoRGBA32 => GXImageFormat.RGBA32,
-            LFXTFormat.NintendoC4 => GXImageFormat.I4,
-            LFXTFormat.NintendoC8 => GXImageFormat.I8,
+            LFXTFormat.NintendoC4 => GXImageFormat.C4,
+            LFXTFormat.NintendoC8 => GXImageFormat.C8,
             LFXTFormat.NintendoCMPR => GXImageFormat.CMPR,
             LFXTFormat.NintendoCMPRAlpha => GXImageFormat.CMPR,
             LFXTFormat.TwoPalette4 => GXImageFormat.C4,

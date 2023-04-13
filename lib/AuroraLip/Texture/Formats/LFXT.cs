@@ -58,6 +58,21 @@ namespace AuroraLip.Texture.Formats
                 MaxLOD = Properties.Mipmaps
             };
             Add(current);
+            if (Properties.Format == LFXTFormat.NintendoCMPRAlpha)
+            {
+                current = new(stream, palettedata, GXFormat, GXPalette, Colours, Properties.Width, Properties.Height, Properties.Mipmaps)
+                {
+                    LODBias = 0,
+                    MagnificationFilter = GXFilterMode.Nearest,
+                    MinificationFilter = GXFilterMode.Nearest,
+                    WrapS = GXWrapMode.CLAMP,
+                    WrapT = GXWrapMode.CLAMP,
+                    EnableEdgeLOD = false,
+                    MinLOD = 0,
+                    MaxLOD = Properties.Mipmaps
+                };
+                Add(current);
+            }
         }
 
         protected override void Write(Stream stream) =>

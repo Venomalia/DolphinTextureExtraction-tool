@@ -225,7 +225,7 @@ namespace AuroraLib.Texture
 
         public static byte ToIA4(this Color Col)
         {
-            int Value = ((Col.R * 30) + (Col.G * 59) + (Col.B * 11)) >> 8;
+            int Value = (int)Math.Round(((Col.R * 30) + (Col.G * 59) + (Col.B * 11)) / 100.0);
             int Result = 0;
             Result |= ((Value >> 4) & 0xF);
             Result |= ((Col.A << 4) & 0xF0);
@@ -234,7 +234,7 @@ namespace AuroraLib.Texture
 
         public static ushort ToIA8(this Color Col)
         {
-            int Value = ((Col.R * 30) + (Col.G * 59) + (Col.B * 11)) >> 8;
+            int Value = (int)Math.Round(((Col.R * 30) + (Col.G * 59) + (Col.B * 11)) / 100.0);
             int Result = 0x0000;
             Result |= Value & 0x00FF;
             Result |= (Col.A << 8) & 0xFF00;

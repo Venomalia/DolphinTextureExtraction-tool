@@ -72,7 +72,6 @@ namespace AuroraLip.Texture.Formats
             private UInt24 pad { get; set; }
             public uint Flags { get; set; }
             public ushort Mipmaps { get; set; }
-            private int pad2 { get; set; }
 
             public int PixelCount => Width * Height;
             public bool HasMipmaps => (Flags & 0x20) > 0;

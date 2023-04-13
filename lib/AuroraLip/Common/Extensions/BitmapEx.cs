@@ -387,29 +387,33 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsArbitraryMipmap(this Bitmap source, params Bitmap[] mips)
-            => source.MipmapCompare(mips) >= 15;
+            => source.MipmapCompare(mips) >= 17;
 
         public static float MipmapCompare(this Bitmap source, params Bitmap[] mips)
         {
-            Bitmap sourcemip = null;
             float diff = 0;
-
-            foreach (var mip in mips)
+            Bitmap sourcemip = source.GenerateMipMap();
+            diff += sourcemip.Compare(mips[0]);
+            for (int i = 1; i < mips.Length; i++)
             {
-                if (sourcemip == null)
-                    sourcemip = source.GenerateMipMap();
+                if (i == 1)
+                {
+                    sourcemip.Dispose();
+                    sourcemip = mips[0].GenerateMipMap();
+                }
                 else
                 {
-                    var temp = sourcemip.GenerateMipMap();
-                    sourcemip.Dispose();
-                    sourcemip = temp;
+                    using (Bitmap hol = sourcemip)
+                    {
+                        sourcemip = hol.GenerateMipMap();
+                    }
                 }
-                diff += sourcemip.Compare(mip);
+                diff = (sourcemip.Compare(mips[i]) + diff * i) / (1 + i);
             }
             sourcemip.Dispose();
-            diff /= mips.Length;
 
             return diff;
         }
+
     }
 }

@@ -255,6 +255,7 @@ namespace DolphinTextureExtraction
             foreach (JUTTexture.TexEntry tex in texture)
             {
                 bool? IsArbitraryMipmap = tex.Count > 1 ? ((ExtractorOptions)Option).ArbitraryMipmapDetection ? null : false : false;
+                float ArbitraryMipmapValue = 0f;
                 int tluts = tex.Palettes.Count == 0 ? 1 : tex.Palettes.Count;
                 for (int tlut = 0; tlut < tluts; tlut++)
                 {
@@ -289,7 +290,7 @@ namespace DolphinTextureExtraction
                             }
 
                             //Is Arbitrary Mipmap?
-                            IsArbitraryMipmap ??= bitmaps[0].IsArbitraryMipmap(bitmaps[1..]);
+                            IsArbitraryMipmap ??= (ArbitraryMipmapValue = bitmaps[0].MipmapCompare(bitmaps[1..])) >= 17;
 
                             //Extract the main texture and mips
                             for (int i = 0; i < tex.Count; i++)
@@ -308,7 +309,7 @@ namespace DolphinTextureExtraction
                             }
                         }
                     }
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD}");
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.0}" : string.Empty)}");
                     ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
                 }
             }

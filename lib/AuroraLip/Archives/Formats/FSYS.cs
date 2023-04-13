@@ -42,12 +42,12 @@ namespace AuroraLib.Archives.Formats
                     //<- 0x10 LZSS Header
                     stream.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
                     MemoryStream DeStream = lZSS.Decompress(stream, (int)Info.DecompressedSize);
-                    Root.AddArchiveFile(DeStream, $"{Info.FileID}_{Filenames[i]}.{Info.FileFormat}");
+                    Root.AddArchiveFile(DeStream, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
 
                 }
                 else
                 {
-                    Root.AddArchiveFile(stream, Info.DecompressedSize, Info.FileStartPointer, $"{Info.FileID}_{Filenames[i]}.{Info.FileFormat}");
+                    Root.AddArchiveFile(stream, Info.DecompressedSize, Info.FileStartPointer, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
                 }
 
             }
@@ -65,7 +65,8 @@ namespace AuroraLib.Archives.Formats
             public uint Id;
             public uint Entries;
 
-            public uint unk1;//2147483648
+
+            public uint flags; // 0x01: Try loading debug/<filename> if exists; 0x40000000: (checked ingame, but unknown)
             public uint unk2;
             public uint unk3;
             public uint HeaderSize;
@@ -98,60 +99,172 @@ namespace AuroraLib.Archives.Formats
 
         private struct FileInfo
         {
-            public ushort FileID;
-            private FileFormat fileFormat;
-            public byte pad0;
+            public uint ResourceID;
             public uint FileStartPointer;
             public uint DecompressedSize;
-            public uint flags;//0x80000000 == Compressed
+            public uint flags;
 
             public uint flags2;
             public uint CompressedSize;
             public uint pad2;
-            public uint FullFilenameOffse;
+            public uint FullFilenameOffset;
 
-            private uint fileFormatIndex;
-            public uint FilenameOffse;
+            public uint FileFormatRaw;
+            public uint FilenameOffset;
 
+            // TODO: Confirm this? There is some sort of system in that value
+            public FileFormat FileFormatFromResourceID
+            {
+                get => (FileFormat)(ResourceID >> 8 & 0xFF);
+                set => ResourceID = (ResourceID & 0xFFFF00FF) & ((uint)value << 8);
+            }
+
+            public ushort FileID
+            {
+                get => (ushort)(ResourceID >> 16);
+                set => ResourceID = (ResourceID & 0x0000FFFF) & ((uint)value << 16);
+            }
 
             public FileFormat FileFormat
             {
-                get => fileFormat;
+                get => (FileFormat)FileFormatRaw;
                 set
                 {
-                    fileFormat = value;
-                    fileFormatIndex = value == 0 ? 0 : (uint)value / 2;
+                    FileFormatFromResourceID = value;;
+                    FileFormatRaw = (uint)value;
                 }
             }
-            public uint FileFormatIndex => fileFormatIndex;
-            public bool IsCompressed() => CompressedSize != DecompressedSize;
+
+            public bool IsCompressed() => (flags & 0x80000000) != 0;
         }
 
-        //copied from here so we don't need to do our own thing. https://github.com/rotobash/pokemon-ngc-rando/blob/e97451167c337b0a26595ca7702d18101e71374f/Common/Contracts/FileTypes.cs 
+        /// <summary>
+        /// File formats supported in the <tt>.fsys</tt> file format.
+        /// The game usually does post-processing after loading the file in memory
+        /// (like converting offsets to proper pointers, register the data in the proper system).
+        /// </summary>
         private enum FileFormat : byte
         {
-            None = 0x00,
-            RDAT = 0x02, // room model in hal dat format (unknown if it uses a different file extension)
-            DAT = 0x04,// character model in hal dat format
-            CCD = 0x06,// collision file
-            SAMP = 0x08, // shorter music files for fanfares etc.
-            MSG = 0x0a, // string table
-            FNT = 0x0c, // font
-            SCD = 0x0e, // script data
-            DATS = 0x10, // multiple .dat models in one archive
-            GTX = 0x12, // texture
-            GPT1 = 0x14, // particle data
-            CAM = 0x18, // camera data
-            REL = 0x1c, // relocation table
-            PKX = 0x1e, // character battle model (same as dat with additional header information)
-            WZX = 0x20, // move animation
-            ISD = 0x28, // audio file header
-            ISH = 0x2a, // audio file
-            THH = 0x2c, // thp media header
-            THD = 0x2e, // thp media data
-            GSW = 0x30, // multi texture
-            ATX = 0x32, // animated texture (official file extension is currently unknown)
-            BIN = 0x34, // binary data
+            /// <summary>
+            /// Raw data the game loads, but otherwhise doesn't process afterwards without other game code trying to make use of it.
+            /// </summary>
+            BIN = 0x00,
+
+            /// <summary>
+            /// Floor (Room) model in modified HAL DAT format.
+            /// File extension normally is <tt>.dat</tt>.
+            /// </summary>
+            FLOORDAT = 0x01,
+
+            /// <summary>
+            /// Model (like a character or an item box) in modified HAL DAT format.
+            /// File extension normally is <tt>.dat</tt>.
+            /// </summary>
+            MODELDAT = 0x02,
+
+            /// <summary>
+            /// Collision, includes triggers and such.
+            /// </summary>
+            CCD = 0x03,
+
+            /// <summary>
+            /// Shorter music files for fanfares etc.
+            /// </summary>
+            SAMP = 0x04,
+
+            /// <summary>
+            /// String table for a language.
+            /// </summary>
+            MSG = 0x05,
+
+            /// <summary>
+            /// Font.
+            /// </summary>
+            FNT = 0x06,
+
+            /// <summary>
+            /// Script data and code.
+            /// </summary>
+            SCD = 0x07,
+
+            /// <summary>
+            /// Multiple .dat models in one archive
+            /// (TODO: IS dummied out in GXXP01 and no file uses this, check the other games)
+            /// </summary>
+            DATS = 0x08,
+
+            /// <summary>
+            /// Texture. Internally known as GStexture.
+            /// File extension is <tt>.gtx</tt>.
+            /// </summary>
+            GTX = 0x09,
+
+            /// <summary>
+            /// Particle data.
+            /// </summary>
+            GPT1 = 0x0A,
+
+            /// <summary>
+            /// Relocatable code (like a DLL; usually just data that gets registered ingame),
+            /// except is persists (doesn't unlink when it is told to be removed).
+            /// </summary>
+            RELP = 0x0B,
+
+            /// <summary>
+            /// Camera data in modified HAL DAT format.
+            /// </summary>
+            CAM = 0x0C,
+
+            /// <summary>
+            /// Relocatable code (like a DLL; usually just data that gets registered ingame).
+            /// </summary>
+            REL = 0x0E,
+
+            /// <summary>
+            /// Character battle model.
+            /// </summary>
+            PKX = 0x0F,
+
+            /// <summary>
+            /// Move animation.
+            /// </summary>
+            WZX = 0x10,
+
+            /// <summary>
+            /// Music file header.
+            /// </summary>
+            ISD = 0x14,
+
+            /// <summary>
+            /// Music file data.
+            /// </summary>
+            ISH = 0x15,
+
+            /// <summary>
+            /// THP (video) header
+            /// </summary>
+            THH = 0x16,
+
+            /// <summary>
+            /// THP (video) data
+            /// </summary>
+            THD = 0x17,
+
+            /// <summary>
+            /// Multi Texture.
+            /// </summary>
+            GSW = 0x18,
+
+            /// <summary>
+            /// Animated Texture.
+            /// Official file extension is currently unknown.
+            /// </summary>
+            GSAGTX = 0x19,
+
+            /// <summary>
+            /// Battle trainer data (possible fights, like the trainer and their pokemon they send out).
+            /// </summary>
+            DECK = 0x1A,
         }
     }
 }

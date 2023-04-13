@@ -566,6 +566,9 @@ namespace DolphinTextureExtraction
                     case Options.Recursiv:
                         ConsoleEx.WriteLineBoolPrint(options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
                         break;
+                    case Options.ArbitraryMipmapDetection:
+                        ConsoleEx.WriteLineBoolPrint(options.ArbitraryMipmapDetection, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -621,6 +624,10 @@ namespace DolphinTextureExtraction
                     case Options.Recursiv:
                         HelpPrintTrueFalse(options.Deep == 0);
                         options.Deep = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Deep == 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
+                        break;
+                    case Options.ArbitraryMipmapDetection:
+                        HelpPrintTrueFalse(options.ArbitraryMipmapDetection);
+                        options.ArbitraryMipmapDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.ArbitraryMipmapDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -719,6 +726,9 @@ namespace DolphinTextureExtraction
                             break;
                         case Options.Recursiv:
                             options.Deep = 1;
+                            break;
+                        case Options.ArbitraryMipmapDetection:
+                            options.ArbitraryMipmapDetection = true;
                             break;
                         default:
                             throw new NotImplementedException();

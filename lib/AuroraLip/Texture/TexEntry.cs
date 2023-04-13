@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Palette;
+using AuroraLip.Texture;
 using System.Drawing;
 using static AuroraLib.Texture.J3DTextureConverter;
 
@@ -213,7 +214,7 @@ namespace AuroraLib.Texture
                 return HashDepot.XXHash.Hash64(Palette.GetBytes().AsSpan().Slice(start, length));
             }
 
-            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true)
+            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = false)
             {
                 bool HasMips = this.Count != 1;
                 //dolphin seems to use the MaxLOD value to decide if it is a mipmap Texture.
@@ -221,21 +222,7 @@ namespace AuroraLib.Texture
                 if (!HasMips && DolphinMipDetection)
                     HasMips = MaxLOD != 0;
 
-                return "tex1_" + this.ImageWidth + 'x' + this.ImageHeight + '_'
-                    //Has mipmaps
-                    + (HasMips
-                        ? "m_" : string.Empty)
-                    // Hash
-                    + Hash.ToString("x").PadLeft(16, '0') + '_'
-                    // Tlut Hash
-                    + (Format.IsPaletteFormat()
-                        ? (TlutHash == 0
-                            ? "$" : TlutHash.ToString("x").PadLeft(16, '0')) + '_' : string.Empty)
-                    // Format
-                    + (int)Format
-                    // mipmaps
-                    + (mipmap != 0
-                        ? "_mip" + mipmap : string.Empty);
+                return DolphinTextureHashInfo.Build(this.ImageWidth, this.ImageHeight, Hash, Format, TlutHash, mipmap, HasMips, IsArbitraryMipmap);
             }
 
             public override bool Equals(object obj)

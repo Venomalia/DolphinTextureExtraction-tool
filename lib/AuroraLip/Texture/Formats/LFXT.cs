@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
+using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace AuroraLip.Texture.Formats
@@ -32,6 +33,27 @@ namespace AuroraLip.Texture.Formats
             var GXPalette = ToGXFormat(Properties.SubFormat);
             ReadOnlySpan<byte> palettedata = null;
 
+            if (Properties.Format == LFXTFormat.BGRA32)
+            {
+                MemoryStream ms = new MemoryStream();
+                // BGRA32 to GXImageFormat.RGBA32 No idea why anyone does that XD
+                for (int i = 0; i < Properties.Mipmaps; i++)
+                {
+                    int size = GXFormat.GetCalculatedDataSize(Properties.Width, Properties.Height, i);
+                    byte[] data = stream.Read(size);
+                    //BGRA32 To RGBA32  
+                    for (int p = 0; p < data.Length; p += 4) //Swap R and B channel
+                    {
+                        (data[p], data[p + 2]) = (data[p + 2], data[p]);
+                    }
+                    //RGBA32 to GXImageFormat.RGBA32
+                    using (Bitmap bitmap = BitmapEx.ToBitmap(data, Properties.Width >> i, Properties.Height >> i))
+                    {
+                        ms.Write(J3DTextureConverter.EncodeImage(bitmap, GXImageFormat.RGBA32, null));
+                    }
+                }
+                stream = ms;
+            }
             //is Palette
             if (GXFormat.IsPaletteFormat())
             {
@@ -108,7 +130,7 @@ namespace AuroraLip.Texture.Formats
             DXT3 = 0x0890,
             BytePalette = 0x088D,
             RGBA32 = 0x208C,
-            NintendoRGBA32 = 0x0120,
+            BGRA32 = 0x0120,
             NintendoC4 = 0x8304,
             NintendoC8 = 0x8408,
             NintendoCMPR = 0x8104,
@@ -126,8 +148,7 @@ namespace AuroraLip.Texture.Formats
             LFXTFormat.DXT3 => throw new NotImplementedException($"Unsupported {LFXTFormat.DXT3} format"),
             LFXTFormat.BytePalette => throw new NotImplementedException($"Unsupported {LFXTFormat.BytePalette} format"),
             LFXTFormat.RGBA32 => throw new NotImplementedException($"Unsupported {LFXTFormat.RGBA32} format"),
-            // FIXME: None of these work as-is, but they are the GX formats Dolphin ends up using
-            LFXTFormat.NintendoRGBA32 => GXImageFormat.RGBA32,
+            LFXTFormat.BGRA32 => GXImageFormat.RGBA32,
             LFXTFormat.NintendoC4 => GXImageFormat.C4,
             LFXTFormat.NintendoC8 => GXImageFormat.C8,
             LFXTFormat.NintendoCMPR => GXImageFormat.CMPR,

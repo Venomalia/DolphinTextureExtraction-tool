@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
-using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace AuroraLip.Texture.Formats
@@ -35,22 +34,20 @@ namespace AuroraLip.Texture.Formats
 
             if (Properties.Format == LFXTFormat.BGRA32)
             {
-                MemoryStream ms = new MemoryStream();
+                var ms = new MemoryStream();
                 // BGRA32 to GXImageFormat.RGBA32 No idea why anyone does that XD
-                for (int i = 0; i < Properties.Mipmaps; i++)
+                for (var i = 0; i < Properties.Mipmaps; i++)
                 {
-                    int size = GXFormat.GetCalculatedDataSize(Properties.Width, Properties.Height, i);
-                    byte[] data = stream.Read(size);
+                    var size = GXFormat.GetCalculatedDataSize(Properties.Width, Properties.Height, i);
+                    var data = stream.Read(size);
                     //BGRA32 To RGBA32
-                    for (int p = 0; p < data.Length; p += 4) //Swap R and B channel
+                    for (var p = 0; p < data.Length; p += 4) //Swap R and B channel
                     {
                         (data[p], data[p + 2]) = (data[p + 2], data[p]);
                     }
                     //RGBA32 to GXImageFormat.RGBA32
-                    using (Bitmap bitmap = BitmapEx.ToBitmap(data, Properties.Width >> i, Properties.Height >> i))
-                    {
-                        ms.Write(J3DTextureConverter.EncodeImage(bitmap, GXImageFormat.RGBA32, null));
-                    }
+                    using var bitmap = BitmapEx.ToBitmap(data, Properties.Width >> i, Properties.Height >> i);
+                    ms.Write(J3DTextureConverter.EncodeImage(bitmap, GXImageFormat.RGBA32, null));
                 }
                 stream = ms;
             }
@@ -62,14 +59,9 @@ namespace AuroraLip.Texture.Formats
                 stream.Seek(GXFormat.GetCalculatedTotalDataSize(Properties.Width, Properties.Height, Properties.Mipmaps), SeekOrigin.Current);
 
                 // Is it a two Palette format?
-                if (Properties.Format == LFXTFormat.TwoPalette4 || Properties.Format == LFXTFormat.TwoPalette8)
-                {
-                    palettedata = stream.Read(Properties.Colours * 4);
-                }
-                else
-                {
-                    palettedata = stream.Read(Properties.Colours * 2);
-                }
+                palettedata = Properties.Format is LFXTFormat.TwoPalette4 or LFXTFormat.TwoPalette8
+                    ? (ReadOnlySpan<byte>)stream.Read(Properties.Colours * 4)
+                    : (ReadOnlySpan<byte>)stream.Read(Properties.Colours * 2);
                 stream.Seek(startpos, SeekOrigin.Begin);
             }
 
@@ -109,7 +101,7 @@ namespace AuroraLip.Texture.Formats
             [FieldOffset(6)]
             public LFXTPalette SubFormat;
             [FieldOffset(7)]
-            private byte pad;
+            private readonly byte pad;
             [FieldOffset(8)]
             public ushort Colours;
             [FieldOffset(10)]
@@ -117,7 +109,7 @@ namespace AuroraLip.Texture.Formats
             [FieldOffset(14)]
             public ushort MaxLOD;
             [FieldOffset(16)]
-            private uint pad2;
+            private readonly uint pad2;
 
             public int Mipmaps => MaxLOD != 0 ? MaxLOD - 1 : 0;
             public int PixelCount => Width * Height;

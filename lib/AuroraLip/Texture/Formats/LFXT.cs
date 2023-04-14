@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
+using System.Runtime.InteropServices;
 
 namespace AuroraLip.Texture.Formats
 {
@@ -23,58 +24,49 @@ namespace AuroraLip.Texture.Formats
             // but that is out of scope for DTE
             if (!stream.MatchString(magic))
                 throw new InvalidIdentifierException(Magic);
-
             var _Name = stream.ReadString();
             var Properties = stream.Read<HeaderProperties>(Endian.Big);
 
             //To GXFormat
             var GXFormat = ToGXFormat(Properties.Format);
             var GXPalette = ToGXFormat(Properties.SubFormat);
-            var Colours = 0;
             ReadOnlySpan<byte> palettedata = null;
 
             //is Palette
             if (GXFormat.IsPaletteFormat())
             {
                 var startpos = stream.Position;
+                //The pallete is stored at the end of the image
                 stream.Seek(GXFormat.GetCalculatedTotalDataSize(Properties.Width, Properties.Height, Properties.Mipmaps), SeekOrigin.Current);
-                Colours = GXFormat.GetMaxPaletteColours();
+
                 // Is it a two Palette format?
                 if (Properties.Format == LFXTFormat.TwoPalette4 || Properties.Format == LFXTFormat.TwoPalette8)
                 {
-                    palettedata = stream.Read(Colours * 4);
+                    palettedata = stream.Read(Properties.Colours * 4);
                 }
                 else
                 {
-                    palettedata = stream.Read(Colours * 2);
+                    palettedata = stream.Read(Properties.Colours * 2);
                 }
                 stream.Seek(startpos, SeekOrigin.Begin);
             }
 
-            TexEntry current = new(stream, palettedata, GXFormat, GXPalette, Colours, Properties.Width, Properties.Height, Properties.Mipmaps)
+            TexEntry current = new(stream, palettedata, GXFormat, GXPalette, Properties.Colours, Properties.Width, Properties.Height, Properties.Mipmaps)
             {
                 LODBias = 0,
-                MagnificationFilter = GXFilterMode.Nearest,
-                MinificationFilter = GXFilterMode.Nearest,
-                WrapS = GXWrapMode.CLAMP,
-                WrapT = GXWrapMode.CLAMP,
                 EnableEdgeLOD = false,
                 MinLOD = 0,
-                MaxLOD = Properties.Mipmaps
+                MaxLOD = Properties.MaxLOD
             };
             Add(current);
             if (Properties.Format == LFXTFormat.NintendoCMPRAlpha)
             {
-                current = new(stream, palettedata, GXFormat, GXPalette, Colours, Properties.Width, Properties.Height, Properties.Mipmaps)
+                current = new(stream, palettedata, GXFormat, GXPalette, Properties.Colours, Properties.Width, Properties.Height, Properties.Mipmaps)
                 {
                     LODBias = 0,
-                    MagnificationFilter = GXFilterMode.Nearest,
-                    MinificationFilter = GXFilterMode.Nearest,
-                    WrapS = GXWrapMode.CLAMP,
-                    WrapT = GXWrapMode.CLAMP,
                     EnableEdgeLOD = false,
                     MinLOD = 0,
-                    MaxLOD = Properties.Mipmaps
+                    MaxLOD = Properties.MaxLOD
                 };
                 Add(current);
             }
@@ -83,16 +75,29 @@ namespace AuroraLip.Texture.Formats
         protected override void Write(Stream stream) =>
             throw new NotImplementedException();
 
+        [StructLayout(LayoutKind.Explicit, Size = 20)]
         private struct HeaderProperties
         {
-            public LFXTFormat Format { get; set; }
-            public ushort Width { get; set; }
-            public ushort Height { get; set; }
-            public LFXTPalette SubFormat { get; set; }
-            private UInt24 pad { get; set; }
-            public uint Flags { get; set; }
-            public ushort Mipmaps { get; set; }
+            [FieldOffset(0)]
+            public LFXTFormat Format;
+            [FieldOffset(2)]
+            public ushort Width;
+            [FieldOffset(4)]
+            public ushort Height;
+            [FieldOffset(6)]
+            public LFXTPalette SubFormat;
+            [FieldOffset(7)]
+            private byte pad;
+            [FieldOffset(8)]
+            public ushort Colours;
+            [FieldOffset(10)]
+            public uint Flags;
+            [FieldOffset(14)]
+            public ushort MaxLOD;
+            [FieldOffset(16)]
+            private uint pad2;
 
+            public int Mipmaps => MaxLOD != 0 ? MaxLOD - 1 : 0;
             public int PixelCount => Width * Height;
             public bool HasMipmaps => (Flags & 0x20) > 0;
         }

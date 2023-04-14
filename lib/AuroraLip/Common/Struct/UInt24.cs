@@ -1,4 +1,7 @@
-﻿namespace AuroraLib.Common
+﻿using System.Drawing;
+using System.Runtime.InteropServices;
+
+namespace AuroraLib.Common
 {
 
     /// <summary>
@@ -7,6 +10,7 @@
     /// </summary>
     // base on https://github.com/SuperHackio/Hack.io
     [Serializable]
+    [StructLayout(LayoutKind.Sequential, Size = 3)]
     public struct UInt24 : IComparable, IFormattable, IConvertible, IComparable<UInt24>, IComparable<UInt32>, IEquatable<UInt24>, IEquatable<UInt32>
     {
         private readonly byte b0, b1, b2;

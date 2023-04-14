@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using System.Diagnostics;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -20,7 +21,7 @@ namespace AuroraLib.Texture.Formats
         {
             GTXHeader header = stream.Read<GTXHeader>(Endian.Big);
 
-            GXImageFormat GXFormat = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), header.Format.ToString());
+            GXImageFormat GXFormat = GTX2GXImageFormat(header.Format);
             GXPaletteFormat GXPalette = GXPaletteFormat.IA8;
             byte[] PaletteData = null;
             int PaletteCount = 0;
@@ -64,6 +65,20 @@ namespace AuroraLib.Texture.Formats
         protected override void Write(Stream stream)
         {
             throw new NotImplementedException();
+        }
+
+        protected GXImageFormat GTX2GXImageFormat(GTXFormat format)
+        {
+            switch (format)
+            {
+                case GTXFormat.I8_A0:
+                case GTXFormat.I8_A1:
+                case GTXFormat.I8_A2:
+                case GTXFormat.I8_A3:
+                    return GXImageFormat.I8;
+                default:
+                    return (GXImageFormat)Enum.Parse(typeof(GXImageFormat), format.ToString());
+            }
         }
 
         public struct GTXHeader
@@ -148,7 +163,11 @@ namespace AuroraLib.Texture.Formats
             // which maps GX 0x27-0x2a (all unknown) to GTX 0xa0-0xa3, but not the other way around.
             // But there is also a GTX to something texture format conversion function (GXXP01 @ 0x801030c0)
             // that also maps each to a different value if a passed bool is unset.
-            I8 = 0x42 | 0xa0 | 0xa1 | 0xa2 | 0xa3,
+            I8 = 0x42,
+            I8_A0 = 0xa0,
+            I8_A1 = 0xa1,
+            I8_A2 = 0xa2,
+            I8_A3 = 0xa3,
             IA8 = 0x43,
             RGB565 = 0x44,
             RGBA32 = 0x45,

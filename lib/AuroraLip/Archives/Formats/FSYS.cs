@@ -230,6 +230,8 @@ namespace AuroraLib.Archives.Formats
             /// </summary>
             WZX = 0x10,
 
+            GSFILE11 = 0x11,
+
             /// <summary>
             /// Music file header.
             /// </summary>

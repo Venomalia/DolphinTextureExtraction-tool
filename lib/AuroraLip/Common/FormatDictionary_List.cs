@@ -406,6 +406,7 @@ namespace AuroraLib.Common
             new FormatInfo(".fpc", FormatType.Model, "pac file container"),
             //else
             new FormatInfo(".t",FormatType.Text),
+            new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture"),
             new FormatInfo(".asrBE","Asura   TXTH", FormatType.Text, "Rebellion"),
             new FormatInfo(".bas", FormatType.Animation, "Sound Animation"),
             new FormatInfo(".blight", "LGHT", FormatType.Effect, "Light"),

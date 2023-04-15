@@ -70,7 +70,7 @@
             do
             {
                 var key = Console.ReadKey().KeyChar;
-                Console.CursorLeft--;
+                Console.CursorLeft = 0;
                 foreach (var mode in Enum.GetValues<Modes>())
                 {
                     if (Int32.TryParse(key.ToString(), out int v) && (int)mode == v)

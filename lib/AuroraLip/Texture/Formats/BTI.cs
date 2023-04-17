@@ -1,17 +1,13 @@
 ﻿using AuroraLib.Common;
+using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
 {
-    /*
-    * Super Hackio Incorporated
-    * "Copyright © Super Hackio Incorporated 2020-2021"
-    * https://github.com/SuperHackio/Hack.io
-    */
 
     public class BTI : JUTTexture, IFileAccess
     {
 
-        public string Extension => ".bti";
+        public const string Extension = ".bti";
 
         public bool CanRead => true;
 
@@ -20,7 +16,7 @@ namespace AuroraLib.Texture.Formats
         public bool IsMatch(Stream stream, in string extension = "")
             => extension.ToLower() == Extension;
 
-        public JUTTransparency AlphaSetting { get; set; }
+        public JUTTransparency AlphaSetting { get; set; } = JUTTransparency.OPAQUE;
         public bool ClampLODBias { get; set; } = true;
         public byte MaxAnisotropy { get; set; } = 0;
 
@@ -38,105 +34,149 @@ namespace AuroraLib.Texture.Formats
         protected override void Read(Stream stream)
         {
             long HeaderStart = stream.Position;
-            GXImageFormat Format = (GXImageFormat)stream.ReadByte();
-            AlphaSetting = (JUTTransparency)stream.ReadByte();
-            ushort ImageWidth = stream.ReadUInt16(Endian.Big);
-            ushort ImageHeight = stream.ReadUInt16(Endian.Big);
-            GXWrapMode WrapS = (GXWrapMode)stream.ReadByte();
-            GXWrapMode WrapT = (GXWrapMode)stream.ReadByte();
-            bool UsePalettes = stream.ReadByte() > 0;
-            short PaletteCount = 0;
-            uint PaletteDataAddress = 0;
-            byte[] PaletteData = null;
-            GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
-            if (UsePalettes)
+            ImageHeader ImageHeader = stream.Read<ImageHeader>(Endian.Big);
+
+            AlphaSetting = ImageHeader.AlphaSetting;
+            ClampLODBias = ImageHeader.ClampLODBias;
+            MaxAnisotropy = ImageHeader.MaxAnisotropy;
+
+            ReadOnlySpan<byte> PaletteData = null;
+            if (ImageHeader.IsPaletteFormat)
             {
-                PaletteFormat = (GXPaletteFormat)stream.ReadByte();
-                PaletteCount = stream.ReadInt16(Endian.Big);
-                PaletteDataAddress = stream.ReadUInt32(Endian.Big);
-                long PausePosition = stream.Position;
-                stream.Position = HeaderStart + PaletteDataAddress;
-                PaletteData = stream.Read(PaletteCount * 2);
-                stream.Position = PausePosition;
+                stream.Position = HeaderStart + ImageHeader.PaletteDataAddress;
+                PaletteData = stream.Read(ImageHeader.PaletteCount * 2);
             }
-            else
-                stream.Position += 7;
-            bool EnableMipmaps = stream.ReadByte() > 0;
-            bool EnableEdgeLOD = stream.ReadByte() > 0;
-            ClampLODBias = stream.ReadByte() > 0;
-            MaxAnisotropy = (byte)stream.ReadByte();
-            GXFilterMode MinificationFilter = (GXFilterMode)stream.ReadByte();
-            GXFilterMode MagnificationFilter = (GXFilterMode)stream.ReadByte();
-            float MinLOD = ((sbyte)stream.ReadByte() / 8.0f);
-            float MaxLOD = ((sbyte)stream.ReadByte() / 8.0f);
+            stream.Seek(HeaderStart + ImageHeader.ImageDataAddress, SeekOrigin.Begin);
 
-            byte TotalImageCount = (byte)stream.ReadByte();
-            if (TotalImageCount == 0)
-                TotalImageCount = (byte)MaxLOD;
-
-            stream.Position++;
-            float LODBias = stream.ReadInt16(Endian.Big) / 100.0f;
-            uint ImageDataAddress = stream.ReadUInt32(Endian.Big);
-
-            stream.Position = HeaderStart + ImageDataAddress;
-            ushort ogwidth = ImageWidth, ogheight = ImageHeight;
-
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, TotalImageCount - 1)
+            TexEntry current = new(stream, PaletteData, ImageHeader.Format, ImageHeader.PaletteFormat, ImageHeader.PaletteCount, ImageHeader.Width, ImageHeader.Height, ImageHeader.ImageCount - 1)
             {
-                LODBias = LODBias,
-                MagnificationFilter = (GXFilterMode)MagnificationFilter,
-                MinificationFilter = (GXFilterMode)MinificationFilter,
-                WrapS = (GXWrapMode)WrapS,
-                WrapT = (GXWrapMode)WrapT,
-                EnableEdgeLOD = EnableEdgeLOD,
-                MinLOD = MinLOD,
-                MaxLOD = MaxLOD
+                LODBias = ImageHeader.LODBias,
+                MagnificationFilter = ImageHeader.MagnificationFilter,
+                MinificationFilter = ImageHeader.MinificationFilter,
+                WrapS = ImageHeader.WrapS,
+                WrapT = ImageHeader.WrapT,
+                EnableEdgeLOD = ImageHeader.EnableEdgeLOD,
+                MinLOD = ImageHeader.MinLOD,
+                MaxLOD = ImageHeader.MaxLOD
             };
             Add(current);
         }
-        protected override void Write(Stream stream) { throw new NotSupportedException("DO NOT CALL THIS"); }
+
+        protected override void Write(Stream stream)
+        {
+            long DataOffset = Unsafe.SizeOf<ImageHeader>();
+            Write(stream, ref DataOffset);
+        }
+
         protected void Write(Stream stream, ref long DataOffset)
         {
             long HeaderStart = stream.Position;
-            int ImageDataStart = (int)((DataOffset + this[0].Palettes.Sum(p => p.Size)) - HeaderStart), PaletteDataStart = (int)(DataOffset - HeaderStart);
-            stream.WriteByte((byte)this[0].Format);
-            stream.WriteByte((byte)AlphaSetting);
-            stream.WriteBigEndian(BitConverter.GetBytes(this[0].ImageWidth), 2);
-            stream.WriteBigEndian(BitConverter.GetBytes((ushort)this[0].ImageHeight), 2);
-            stream.WriteByte((byte)this[0].WrapS);
-            stream.WriteByte((byte)this[0].WrapT);
-            if (this[0].Format.IsPaletteFormat())
-            {
-                stream.WriteByte(0x01);
-                stream.WriteByte((byte)this[0].PaletteFormat);
-                stream.WriteBigEndian(BitConverter.GetBytes((ushort)(this[0].Palettes[0].Size / 2)), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(PaletteDataStart), 4);
-            }
-            else
-                stream.Write(new byte[8], 0, 8);
 
-            stream.WriteByte((byte)(Count > 1 ? 0x01 : 0x00));
-            stream.WriteByte((byte)(this[0].EnableEdgeLOD ? 0x01 : 0x00));
-            stream.WriteByte((byte)(ClampLODBias ? 0x01 : 0x00));
-            stream.WriteByte(MaxAnisotropy);
-            stream.WriteByte((byte)this[0].MinificationFilter);
-            stream.WriteByte((byte)this[0].MagnificationFilter);
-            stream.WriteByte((byte)(this[0].MinLOD * 8));
-            stream.WriteByte((byte)(this[0].MaxLOD * 8));
-            stream.WriteByte((byte)Count);
-            stream.WriteByte(0x00);
-            stream.WriteBigEndian(BitConverter.GetBytes((short)(this[0].LODBias * 100)), 2);
-            stream.WriteBigEndian(BitConverter.GetBytes(ImageDataStart), 4);
+            ImageHeader ImageHeader = new()
+            {
+                Format = this[0].Format,
+                AlphaSetting = AlphaSetting,
+                Width = (ushort)this[0].Width,
+                Height = (ushort)this[0].Height,
+                WrapS = this[0].WrapS,
+                WrapT = this[0].WrapT,
+                IsPaletteFormat = this[0].Format.IsPaletteFormat(),
+                PaletteFormat = this[0].PaletteFormat,
+                PaletteCount = (ushort)this[0].Palettes.Sum(p => p.Size),
+                PaletteDataAddress = (uint)(DataOffset - HeaderStart),
+                EnableMipmaps = Count > 1,
+                EnableEdgeLOD = this[0].EnableEdgeLOD,
+                ClampLODBias = ClampLODBias,
+                MaxAnisotropy = MaxAnisotropy,
+                MagnificationFilter = this[0].MagnificationFilter,
+                MinificationFilter = this[0].MinificationFilter,
+                MinLOD = this[0].MinLOD,
+                MaxLOD = this[0].MaxLOD,
+                ImageCount = (byte)this[0].Count,
+                unknown = 0,
+                LODBias = this[0].LODBias,
+                ImageDataAddress = (uint)(DataOffset + this[0].Palettes.Sum(p => p.Size) - HeaderStart),
+            };
+            stream.WriteObjekt(ImageHeader, Endian.Big);
 
             long Pauseposition = stream.Position;
             stream.Position = DataOffset;
 
-            foreach (var bytes in this[0].Palettes)
+            foreach (Palette.JUTPalette bytes in this[0].Palettes)
                 stream.Write(bytes.GetBytes());
-            foreach (var bytes in this[0].RawImages)
+
+            foreach (byte[] bytes in this[0].RawImages)
                 stream.Write(bytes);
+
             DataOffset = stream.Position;
             stream.Position = Pauseposition;
+        }
+
+        private struct ImageHeader
+        {
+            public GXImageFormat Format;
+            public JUTTransparency AlphaSetting;
+            public ushort Width;
+            public ushort Height;
+            public GXWrapMode WrapS;
+            public GXWrapMode WrapT;
+            private byte isPaletteValue;
+            public GXPaletteFormat PaletteFormat;
+            public ushort PaletteCount;
+            public uint PaletteDataAddress;
+            private byte enableMipsValue;
+            private byte edgeLOD;
+            private byte clampLODBiasValue;
+            public byte MaxAnisotropy;
+            public GXFilterMode MagnificationFilter;
+            public GXFilterMode MinificationFilter;
+            private sbyte minLODValue;
+            private sbyte maxLODValue;
+            private byte imageCount;
+            public byte unknown;
+            private short lODBiasValue;
+            public uint ImageDataAddress;
+
+            public bool IsPaletteFormat
+            {
+                get => isPaletteValue > 0;
+                set => isPaletteValue = (byte)(value ? 1 : 0);
+            }
+            public bool EnableEdgeLOD
+            {
+                get => edgeLOD > 0;
+                set => edgeLOD = (byte)(value ? 1 : 0);
+            }
+            public bool EnableMipmaps
+            {
+                get => enableMipsValue > 0;
+                set => enableMipsValue = (byte)(value ? 1 : 0);
+            }
+            public bool ClampLODBias
+            {
+                get => clampLODBiasValue > 0;
+                set => clampLODBiasValue = (byte)(value ? 1 : 0);
+            }
+            public float MinLOD
+            {
+                get => minLODValue / 8.0f;
+                set => minLODValue = (sbyte)(value * 8.0f);
+            }
+            public float MaxLOD
+            {
+                get => maxLODValue / 8.0f;
+                set => maxLODValue = (sbyte)(value * 8.0f);
+            }
+            public byte ImageCount
+            {
+                get => imageCount != 0 ? imageCount : (byte)MaxLOD;
+                set => imageCount = value;
+            }
+            public float LODBias
+            {
+                get => lODBiasValue / 100.0f;
+                set => lODBiasValue = (short)(value * 100.0f);
+            }
         }
     }
 }

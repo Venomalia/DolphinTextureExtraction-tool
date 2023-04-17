@@ -3,7 +3,7 @@
     /// <summary>
     /// Defines how textures handle going out of [0..1] range for texcoords.
     /// </summary>
-    public enum GXWrapMode : short
+    public enum GXWrapMode : byte
     {
         /// <summary>
         /// Clamps the texture to the last pixel at the edge.

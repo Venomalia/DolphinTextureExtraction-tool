@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common;
+﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Common;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -14,7 +15,7 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "REFT";
 
-        public ushort ByteOrder { get; set; }
+        public Endian ByteOrder { get; set; }
 
         public ushort FormatVersion { get; set; }
 
@@ -30,18 +31,13 @@ namespace AuroraLib.Texture.Formats
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
+
+            Bres.Header header = new(stream);
+            if (header.Magic != magic)
                 throw new InvalidIdentifierException(Magic);
-            ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
-            if (ByteOrder != 65534)
-            {
-                throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
-            }
-            FormatVersion = stream.ReadUInt16(Endian.Big); // SSBB 7 MKart 9  NSMB 11
-            uint TotalSize = stream.ReadUInt32(Endian.Big);
-            ushort Offset = stream.ReadUInt16(Endian.Big);
-            ushort sections = stream.ReadUInt16(Endian.Big);
-            if (sections > 1)
+            ByteOrder = header.BOM;
+            FormatVersion = header.Version;
+            if (header.Sections > 1)
             {
                 Events.NotificationEvent?.Invoke(NotificationType.Warning, "REFT with more than one sections are not fully supported.");
             }
@@ -49,12 +45,12 @@ namespace AuroraLib.Texture.Formats
             //root sections
             if (!stream.MatchString(magic))
                 throw new InvalidIdentifierException(Magic);
-            uint RootSize = stream.ReadUInt32(Endian.Big);
-            long SubfilePosition = stream.ReadUInt32(Endian.Big) + stream.Position - 4;
-            uint Unknown = stream.ReadUInt32(Endian.Big);
-            uint Unknown2 = stream.ReadUInt32(Endian.Big);
-            ushort NameLength = stream.ReadUInt16(Endian.Big);
-            ushort Unknown3 = stream.ReadUInt16(Endian.Big);
+            uint RootSize = stream.ReadUInt32(ByteOrder);
+            long SubfilePosition = stream.ReadUInt32(ByteOrder) + stream.Position - 4;
+            uint Unknown = stream.ReadUInt32(ByteOrder);
+            uint Unknown2 = stream.ReadUInt32(ByteOrder);
+            ushort NameLength = stream.ReadUInt16(ByteOrder);
+            ushort Unknown3 = stream.ReadUInt16(ByteOrder);
             string Name = stream.ReadString();
             stream.Position = SubfilePosition;
 #if DEBUG
@@ -70,81 +66,83 @@ namespace AuroraLib.Texture.Formats
         private void ReadSubfile(Stream stream)
         {
             long StartOfIndex = stream.Position;
-            uint SubfileSize = stream.ReadUInt32(Endian.Big);
-            ushort subfiles = stream.ReadUInt16(Endian.Big);
-            ushort Unknown = stream.ReadUInt16(Endian.Big);
+            uint SubfileSize = stream.ReadUInt32(ByteOrder);
+            ushort subfiles = stream.ReadUInt16(ByteOrder);
+            ushort Unknown = stream.ReadUInt16(ByteOrder);
+
             for (int i = 0; i < subfiles; i++)
             {
-                ushort NameLength = stream.ReadUInt16(Endian.Big);
-                long EndNamePosition = stream.Position + NameLength;
-                string Name = stream.ReadString();
-                stream.Position = EndNamePosition;
-                uint DataOffset = stream.ReadUInt32(Endian.Big);
-                uint DataSize = stream.ReadUInt32(Endian.Big);
-                long EndOfGroup = stream.Position;
-                stream.Position = StartOfIndex + DataOffset;
-                ReadREFTfile(stream);
-                stream.Position = EndOfGroup;
+                SubfileItem Item = new(stream, ByteOrder);
+
+                stream.At(StartOfIndex + Item.DataOffset, s => ReadREFTfile(s));
             }
         }
 
         private void ReadREFTfile(Stream stream)
         {
-            uint Unknown = stream.ReadUInt32(Endian.Big);
-            int ImageWidth = stream.ReadUInt16(Endian.Big);
-            int ImageHeight = stream.ReadUInt16(Endian.Big);
-            uint totalSize = stream.ReadUInt32(Endian.Big);
-            GXImageFormat Format = (GXImageFormat)stream.ReadByte();
-            GXPaletteFormat PaletteFormat = (GXPaletteFormat)stream.ReadByte();
-            int Palettes = stream.ReadUInt16(Endian.Big);
-            uint PaletteSize = stream.ReadUInt32(Endian.Big);
-            byte images = (byte)stream.ReadByte();
-            byte MinFilter = (byte)stream.ReadByte();
-            byte MaxFilter = (byte)stream.ReadByte();
-            byte Unknown2 = (byte)stream.ReadByte();
-            float LODBias = stream.ReadSingle(Endian.Big);
-            uint Unknown3 = stream.ReadUInt32(Endian.Big);
-
+            ImageHeader Header = stream.Read<ImageHeader>(ByteOrder);
 
             if (FormatVersion >= 11)
             {
                 byte[] Unknown4 = stream.Read(32);
 #if DEBUG
-                foreach (byte bit in Unknown4)
-                {
-                    if (bit != 0)
-                    {
-                        Console.WriteLine($"Indos, {Unknown4}--{bit}");
-                    }
-                }
+                Events.NotificationEvent.Invoke(NotificationType.Info, $"{nameof(REFT)},{nameof(Unknown4)}: " + BitConverter.ToString(Unknown4));
 #endif
             }
 
-            long ImageAddress = stream.Position;
-
-            byte[] PaletteData = null;
-            if (PaletteSize > 0)
+            ReadOnlySpan<byte> PaletteData = null;
+            if (Header.Format.IsPaletteFormat())
             {
-                stream.Position += totalSize;
-                PaletteData = stream.Read((int)PaletteSize);
+                PaletteData = stream.At(Header.ImageDataSize, SeekOrigin.Current, s => s.Read((int)Header.PaletteSize));
             }
-            stream.Position = ImageAddress;
 
-            int mips = images <= 0 ? 0 : images - 1;
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, Palettes, ImageWidth, ImageHeight, mips)
+            TexEntry current = new(stream, PaletteData, Header.Format, Header.PaletteFormat, Header.Palettes, Header.Width, Header.Height, Header.Mipmaps)
             {
-                LODBias = LODBias,
-                MagnificationFilter = (GXFilterMode)MaxFilter,
-                MinificationFilter = (GXFilterMode)MinFilter,
+                LODBias = Header.LODBias,
+                MagnificationFilter = Header.MaxFilter,
+                MinificationFilter = Header.MinFilter,
                 MinLOD = 0,
-                MaxLOD = images
+                MaxLOD = Header.Images
             };
             Add(current);
         }
 
         protected override void Write(Stream stream)
+            => throw new NotImplementedException();
+
+        private struct SubfileItem
         {
-            throw new NotImplementedException();
+            public string Name;
+            public uint DataOffset;
+            public uint DataSize;
+
+            public SubfileItem(Stream stream, Endian ByteOrder)
+            {
+                ushort NameLength = stream.ReadUInt16(ByteOrder);
+                Name = stream.ReadString(NameLength); // NULL terminated
+                DataOffset = stream.ReadUInt32(ByteOrder);
+                DataSize = stream.ReadUInt32(ByteOrder);
+            }
+        }
+
+        private struct ImageHeader
+        {
+            public uint Unknown;
+            public ushort Width;
+            public ushort Height;
+            public uint ImageDataSize;
+            public GXImageFormat Format;
+            public GXPaletteFormat PaletteFormat;
+            public ushort Palettes;
+            public uint PaletteSize;
+            public byte Images;
+            public GXFilterMode MinFilter;
+            public GXFilterMode MaxFilter;
+            public byte Unknown2;
+            public float LODBias;
+            public uint Unknown3;
+
+            public int Mipmaps => Images <= 0 ? 0 : Images - 1;
         }
     }
 }

@@ -3,7 +3,7 @@
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
 namespace AuroraLib.Archives.Formats
 {
-    public class bres : Archive, IMagicIdentify, IFileAccess
+    public class Bres : Archive, IMagicIdentify, IFileAccess
     {
         public bool CanRead => true;
 
@@ -15,37 +15,30 @@ namespace AuroraLib.Archives.Formats
 
         #region Fields and Properties
 
-        public ushort ByteOrder { get; set; }
+        public Endian ByteOrder { get; set; }
 
         #endregion
 
-        public bres() { }
+        public Bres() { }
 
-        public bres(string filename) : base(filename) { }
+        public Bres(string filename) : base(filename) { }
 
-        public bres(Stream stream, string filename = null) : base(stream, filename) { }
+        public Bres(Stream stream, string filename = null) : base(stream, filename) { }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
+            Header header = new(stream);
+            if (header.Magic != magic)
                 throw new InvalidIdentifierException(Magic);
-            ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
-            if (ByteOrder != 65534)
-            {
-                throw new NotImplementedException($"ByteOrder: \"{ByteOrder}\"");
-            }
-            ushort Padding = stream.ReadUInt16(Endian.Big);
-            uint TotalSize = stream.ReadUInt32(Endian.Big);
-            ushort Offset = stream.ReadUInt16(Endian.Big);
-            ushort sections = stream.ReadUInt16(Endian.Big);
-            stream.Position = Offset;
+            ByteOrder = header.BOM;
+            stream.Seek(header.RootOffset, SeekOrigin.Begin);
             //root sections
             if (!stream.MatchString("root"))
                 throw new InvalidIdentifierException("root");
-            uint RootSize = stream.ReadUInt32(Endian.Big);
+            uint RootSize = stream.ReadUInt32(ByteOrder);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
             ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
@@ -56,32 +49,26 @@ namespace AuroraLib.Archives.Formats
         {
             //Index Group
             long StartOfGroup = stream.Position;
-            uint GroupSize = stream.ReadUInt32(Endian.Big);
-            uint Groups = stream.ReadUInt32(Endian.Big);
+            uint GroupSize = stream.ReadUInt32(ByteOrder);
+            uint Groups = stream.ReadUInt32(ByteOrder);
 
-            for (int i = 0; i < Groups + 1; i++)
+            IndexGroup[] groups = stream.For((int)Groups, s => s.Read<IndexGroup>(ByteOrder));
+
+            foreach (IndexGroup group in groups)
             {
-                ushort GroupID = stream.ReadUInt16(Endian.Big);
-                ushort Unknown = stream.ReadUInt16(Endian.Big);
-                ushort LeftIndex = stream.ReadUInt16(Endian.Big);
-                ushort RightIndex = stream.ReadUInt16(Endian.Big);
-                uint NamePointer = stream.ReadUInt32(Endian.Big);
-                uint DataPointer = stream.ReadUInt32(Endian.Big);
-                long EndOfGroup = stream.Position;
-                string Name = String.Empty;
-                if (NamePointer != 0)
+                if (group.NamePointer != 0)
                 {
-                    stream.Seek(StartOfGroup + NamePointer, SeekOrigin.Begin);
-                    Name = stream.ReadString(x => x != 0);
+                    stream.Seek(StartOfGroup + group.NamePointer, SeekOrigin.Begin);
+                    string Name = stream.ReadString(x => x != 0);
 
-                    if (DataPointer != 0)
+                    if (group.DataPointer != 0)
                     {
-                        if (StartOfGroup + DataPointer >= EndOfRoot)
+                        stream.Seek(StartOfGroup + group.DataPointer, SeekOrigin.Begin);
+                        if (StartOfGroup + group.DataPointer >= EndOfRoot)
                         {
-                            ArchiveFile Sub = new ArchiveFile() { Name = Name, Parent = ParentDirectory, OwnerArchive = this };
-                            stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
+                            ArchiveFile Sub = new() { Name = Name, Parent = ParentDirectory, OwnerArchive = this };
                             string Magic = stream.ReadString(4);
-                            uint FileSize = stream.ReadUInt32(Endian.Big);
+                            uint FileSize = stream.ReadUInt32(ByteOrder);
                             stream.Position -= 8;
                             if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
                             {
@@ -102,8 +89,7 @@ namespace AuroraLib.Archives.Formats
                         }
                         else
                         {
-                            stream.Seek(StartOfGroup + DataPointer, SeekOrigin.Begin);
-                            ArchiveDirectory Sub = new ArchiveDirectory(this, ParentDirectory) { Name = Name };
+                            ArchiveDirectory Sub = new(this, ParentDirectory) { Name = Name };
                             ReadIndex(stream, EndOfRoot, Sub);
                             if (ParentDirectory.Items.ContainsKey(Sub.Name))
                             {
@@ -120,13 +106,65 @@ namespace AuroraLib.Archives.Formats
                         }
                     }
                 }
-                stream.Position = EndOfGroup;
             }
         }
 
         protected override void Write(Stream ArchiveFile)
         {
             throw new NotImplementedException();
+        }
+
+        public unsafe struct Header
+        {
+            private fixed char magic[4];
+            public Endian BOM;
+            public ushort Version;
+            public uint Length;
+            public ushort RootOffset;
+            public ushort Sections;
+
+            public Header(Stream stream)
+            {
+                string Magic = stream.ReadString(4);
+                for (int i = 0; i < 4; i++)
+                {
+                    magic[i] = Magic[i];
+                }
+                BOM = stream.ReadBOM();
+                Version = stream.ReadUInt16(BOM);
+                Length = stream.ReadUInt32(BOM);
+                RootOffset = stream.ReadUInt16(BOM);
+                Sections = stream.ReadUInt16(BOM);
+            }
+
+            public string Magic
+            {
+                get
+                {
+                    fixed (char* magicPtr = magic)
+                    {
+                        return new string(magicPtr, 0, 4);
+                    }
+                }
+                set
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        magic[i] = value[i];
+                    }
+                }
+            }
+
+        }
+
+        public struct IndexGroup
+        {
+            public ushort GroupID;
+            public ushort Unknown;
+            public ushort LeftIndex;
+            public ushort RightIndex;
+            public uint NamePointer;
+            public uint DataPointer;
         }
     }
 }

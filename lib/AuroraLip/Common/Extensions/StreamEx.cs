@@ -90,7 +90,7 @@ namespace AuroraLib.Common
                 Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
 #endif
             T value;
-            var buffer = new Span<byte>(&value, sizeof(T));
+            Span<byte> buffer = new(&value, sizeof(T));
             stream.Read(buffer);
             if (buffer.Length > 1 && order == Endian.Big)
             {
@@ -100,35 +100,30 @@ namespace AuroraLib.Common
         }
 
         /// <summary>
-        /// Writes an <paramref name="objekt"/> of <typeparamref name="T"/> to the <paramref name="stream"/>. (Requires more testing)
+        /// Writes the specified value to the stream in the specified endianness.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="stream"></param>
-        /// <param name="objekt"></param>
-        /// <param name="order">Byte order, in which bytes are read.</param>
-        /// <exception cref="NotImplementedException"></exception>
-        public static void WriteObjekt<T>(this Stream stream, T objekt, Endian order = Endian.Little)
+        /// <typeparam name="T">The type of the value to write.</typeparam>
+        /// <param name="stream">The stream to write the value to.</param>
+        /// <param name="value">The value to write to the stream.</param>
+        /// <param name="order">Byte order, in which bytes are write.</param>
+        [DebuggerStepThrough]
+        public static unsafe void WriteObjekt<T>(this Stream stream, T value, Endian order = Endian.Little) where T : unmanaged
         {
-            byte[] buffer = new byte[Marshal.SizeOf<T>()];
+            Span<byte> buffer = new(&value, sizeof(T));
+            if (buffer.Length > 1 && order == Endian.Big)
+            {
+                buffer.FlipByteOrder(typeof(T));
+            }
+            stream.Write(buffer);
+        }
 
-            GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-            try
+        [DebuggerStepThrough]
+        public static void WriteObjekt<T>(this Stream stream, IEnumerable<T> value, Endian order = Endian.Little) where T : unmanaged
+        {
+            foreach (var item in value)
             {
-                IntPtr rawDataPtr = handle.AddrOfPinnedObject();
-                Marshal.StructureToPtr<T>(objekt, rawDataPtr, false);
+                stream.WriteObjekt(item, order);
             }
-            finally
-            {
-                handle.Free();
-            }
-
-            switch (order)
-            {
-                case Endian.Big:
-                    buffer.AsSpan().FlipByteOrder(typeof(T));
-                    break;
-            }
-            stream.Write(buffer, 0, buffer.Length);
         }
 
         /// <summary>

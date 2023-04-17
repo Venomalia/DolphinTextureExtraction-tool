@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
 
 namespace AuroraLib.Common
 {
@@ -192,10 +191,10 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static T At<T, S>(this S stream, long offset, SeekOrigin origin, Func<S, T> func) where S : Stream
         {
-            var orpos = stream.Position;
+            long orpos = stream.Position;
             stream.Seek(offset, origin);
             T value = func(stream);
-            stream.Seek(orpos, origin);
+            stream.Seek(orpos, SeekOrigin.Begin);
             return value;
         }
 
@@ -213,10 +212,10 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static void At<S>(this S stream, long offset, SeekOrigin origin, Action<S> func) where S : Stream
         {
-            var orpos = stream.Position;
+            long orpos = stream.Position;
             stream.Seek(offset, origin);
             func(stream);
-            stream.Seek(orpos, origin);
+            stream.Seek(orpos, SeekOrigin.Begin);
         }
 
         [DebuggerStepThrough]

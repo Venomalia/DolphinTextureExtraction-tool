@@ -257,5 +257,19 @@ namespace AuroraLib.Common
         public static void Write(this Stream stream, double value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
         #endregion
+
+        /// <summary>
+        /// Reads the byte order mark (BOM) and returns the endianness.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <returns>The endianness represented by the BOM</returns>
+        public static Endian ReadBOM(this Stream stream) => (Endian)stream.ReadUInt16();
+
+        /// <summary>
+        /// Writes the Byte order mark (BOM) to the Stream
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <returns>The endianness represented by the BOM</returns>
+        public static void Write(this Stream stream, Endian order) => stream.Write((uint)order);
     }
 }

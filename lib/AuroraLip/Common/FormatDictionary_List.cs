@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Texture.Formats;
+using AuroraLip.Archives.Formats;
 
 namespace AuroraLib.Common
 {
@@ -407,6 +408,8 @@ namespace AuroraLib.Common
             //else
             new FormatInfo(".t",FormatType.Text),
             new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture"),
+            new FormatInfo(".txfl","TXFL", FormatType.Texture, "Pitfall Texture"),
+            new FormatInfo(".arc", FormatType.Archive, "Pitfall Archive"){ Class = typeof(ARC_Pit), IsMatch = ARC_Pit.Matcher},
             new FormatInfo(".asrBE","Asura   TXTH", FormatType.Text, "Rebellion"),
             new FormatInfo(".bas", FormatType.Animation, "Sound Animation"),
             new FormatInfo(".blight", "LGHT", FormatType.Effect, "Light"),

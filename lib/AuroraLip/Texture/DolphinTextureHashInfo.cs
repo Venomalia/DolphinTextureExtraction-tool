@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
+using AuroraLip.Texture.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace AuroraLip.Texture
@@ -7,26 +8,18 @@ namespace AuroraLip.Texture
     /// <summary>
     /// Represents a parsed Dolphin texture hash.
     /// </summary>
-    public struct DolphinTextureHashInfo
+    public struct DolphinTextureHashInfo : IImage, IDolphinHash
     {
-        /// <summary>
-        /// Gets or sets the width of the image.
-        /// </summary>
-        public int ImageWidth { get; set; }
+        /// <inheritdoc/>
+        public int Width { get; set; }
 
-        /// <summary>
-        /// Gets or sets the height of the image.
-        /// </summary>
-        public int ImageHeight { get; set; }
+        /// <inheritdoc/>
+        public int Height { get; set; }
 
-        /// <summary>
-        /// Gets or sets the hash of the texture.
-        /// </summary>
+        /// <inheritdoc/>
         public ulong Hash { get; set; }
 
-        /// <summary>
-        /// The hash of the texture look-up table (TLUT), also known as texture palette.
-        /// </summary>
+        /// <inheritdoc/>
         public ulong TlutHash { get; set; }
 
         /// <summary>
@@ -51,8 +44,8 @@ namespace AuroraLip.Texture
 
         public DolphinTextureHashInfo(int imageWidth, int imageHeight, ulong hash, GXImageFormat format, ulong tlutHash = 0, int mipmap = 0, bool hasMips = false, bool isArbitraryMipmap = false)
         {
-            ImageWidth = imageWidth;
-            ImageHeight = imageHeight;
+            Width = imageWidth;
+            Height = imageHeight;
             HasMips = hasMips;
             Hash = hash;
             Format = format;
@@ -67,7 +60,7 @@ namespace AuroraLip.Texture
         /// Builds a Dolphin texture hash.
         /// </summary>
         /// <returns>The Dolphin texture hash for this <see cref="DolphinTextureHashInfo"/>.</returns>
-        public string Build() => Build(ImageWidth, ImageHeight, Hash, Format, TlutHash, Mipmap, HasMips, IsArbitraryMipmap);
+        public string Build() => Build(Width, Height, Hash, Format, TlutHash, Mipmap, HasMips, IsArbitraryMipmap);
 
         /// <summary>
         /// Builds a Dolphin texture hash.

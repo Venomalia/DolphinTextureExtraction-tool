@@ -1,53 +1,58 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Palette;
 using AuroraLip.Texture;
+using AuroraLip.Texture.Interfaces;
 using System.Drawing;
 using static AuroraLib.Texture.J3DTextureConverter;
 
 namespace AuroraLib.Texture
 {
 
-    /*
-    * Base on https://github.com/SuperHackio/Hack.io
-    */
-
     public abstract partial class JUTTexture
     {
         /// <summary>
         /// A JUTTexture Entry. ccan contains Mipmaps ant Palettes
         /// </summary>
-        public class TexEntry : IDisposable
+        public class TexEntry : IDisposable, IGXTexture
         {
-            /// <summary>
-            /// specifies how the data within the image is encoded.
-            /// </summary>
+            /// <inheritdoc/>
+            public int Width { get; set; }
+
+            /// <inheritdoc/>
+            public int Height { get; set; }
+
+            /// <inheritdoc/>
             public GXImageFormat Format { get; set; } = GXImageFormat.CMPR;
 
-            /// <summary>
-            /// specifies how the data within the palette is stored.
-            /// Only C4, C8, and C14X2 use palettes. For all other formats the type is zero.
-            /// </summary>
+            /// <inheritdoc/>
             public GXPaletteFormat PaletteFormat => Palettes.Count == 0 ? GXPaletteFormat.IA8 : Palettes[0].Format;
 
-            /// <summary>
-            /// Specifies how textures outside the vertical range [0..1] are treated for text coordinates.
-            /// </summary>
-            public GXWrapMode WrapS { get; set; } = 0;
+            /// <inheritdoc/>
+            public GXWrapMode WrapS { get; set; } = GXWrapMode.CLAMP;
 
-            /// <summary>
-            /// Specifies how textures outside the horizontal range [0..1] are treated for text coordinates.
-            /// </summary>
-            public GXWrapMode WrapT { get; set; } = 0;
+            /// <inheritdoc/>
+            public GXWrapMode WrapT { get; set; } = GXWrapMode.CLAMP;
 
-            /// <summary>
-            /// specifies what type of filtering the file should use as magnification filter.
-            /// </summary>
-            public GXFilterMode MagnificationFilter { get; set; } = 0;
+            /// <inheritdoc/>
+            public GXFilterMode MagnificationFilter { get; set; } = GXFilterMode.Nearest;
 
-            /// <summary>
-            /// specifies what type of filtering the file should use as minification filter.
-            /// </summary>
-            public GXFilterMode MinificationFilter { get; set; } = 0;
+            /// <inheritdoc/>
+            public GXFilterMode MinificationFilter { get; set; } = GXFilterMode.Nearest;
+
+            /// <inheritdoc/>
+            public float MinLOD { get; set; } = 0;
+
+            /// <inheritdoc/>
+            public float MaxLOD { get; set; } = 0;
+
+            /// <inheritdoc/>
+            public float LODBias { get; set; } = 0;
+
+            /// <inheritdoc/>
+            public bool EnableEdgeLOD { get; set; } = true;
+
+            /// <inheritdoc/>
+            public int MipMaps => RawImages.Count - 1;
 
             /// <summary>
             /// the calculated 64-bit xxHash of the base texture.
@@ -55,43 +60,9 @@ namespace AuroraLib.Texture
             public ulong Hash { get; internal set; } = 0;
 
             /// <summary>
-            /// "Min Level of Detail" 
-            /// Exclude textures below a certain LOD level from being used.
-            /// </summary>
-            public float MinLOD { get; set; } = 0;
-
-            /// <summary>
-            /// "Max Level of Detail" 
-            /// Exclude textures above a certain LOD level from being used.
-            /// A value larger than the actual textures should lead to culling.
-            /// </summary>
-            public float MaxLOD { get; set; }
-
-            /// <summary>
-            /// "Level of Detail Bias" 
-            /// A larger value leads to a larger camera distance before a lower LOD resolution is selected.
-            /// </summary>
-            public float LODBias { get; set; }
-
-            /// <summary>
-            /// ?
-            /// </summary>
-            public bool EnableEdgeLOD { get; set; }
-
-            /// <summary>
             /// Pallets raw data
             /// </summary>
             public List<JUTPalette> Palettes { get; set; } = new();
-
-            /// <summary>
-            /// Gets the image width, in pixels.
-            /// </summary>
-            public int ImageWidth;
-
-            /// <summary>
-            /// Gets the image height, in pixels.
-            /// </summary>
-            public int ImageHeight;
 
             /// <summary>
             /// Number of images
@@ -116,8 +87,8 @@ namespace AuroraLib.Texture
             public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmap = 0)
             {
                 this.Format = Format;
-                this.ImageHeight = ImageHeight;
-                this.ImageWidth = ImageWidth;
+                this.Height = ImageHeight;
+                this.Width = ImageWidth;
 
                 //reads all row image data.
                 for (int i = 0; i <= Mipmap; i++)
@@ -154,8 +125,8 @@ namespace AuroraLib.Texture
             public TexEntry(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
             {
                 this.Format = Format;
-                this.ImageHeight = Image.Height;
-                this.ImageWidth = Image.Width;
+                this.Height = Image.Height;
+                this.Width = Image.Width;
 
                 var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
                 if (ImageFormat.IsPaletteFormat())
@@ -169,8 +140,8 @@ namespace AuroraLib.Texture
             public TexEntry(List<Bitmap> Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
             {
                 this.Format = Format;
-                this.ImageHeight = Image[0].Height;
-                this.ImageWidth = Image[0].Width;
+                this.Height = Image[0].Height;
+                this.Width = Image[0].Width;
 
                 var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
                 if (ImageFormat.IsPaletteFormat())
@@ -186,7 +157,7 @@ namespace AuroraLib.Texture
                 => AsBitmap(Mipmap, Palettes.Count == 0 ? null : Palettes[Palette]);
 
             public Bitmap AsBitmap(int Mipmap, JUTPalette Palette)
-                => DecodeImage(RawImages[Mipmap], Palette?.ToArray(), Format, ImageWidth >> Mipmap, ImageHeight >> Mipmap);
+                => DecodeImage(RawImages[Mipmap], Palette?.ToArray(), Format, Width >> Mipmap, Height >> Mipmap);
 
             /// <summary>
             /// calculated the 64-bit xxHash of the Tlut
@@ -222,7 +193,7 @@ namespace AuroraLib.Texture
                 if (!HasMips && DolphinMipDetection)
                     HasMips = MaxLOD != 0;
 
-                return DolphinTextureHashInfo.Build(this.ImageWidth, this.ImageHeight, Hash, Format, TlutHash, mipmap, HasMips, IsArbitraryMipmap);
+                return DolphinTextureHashInfo.Build(this.Width, this.Height, Hash, Format, TlutHash, mipmap, HasMips, IsArbitraryMipmap);
             }
 
             public override bool Equals(object obj)

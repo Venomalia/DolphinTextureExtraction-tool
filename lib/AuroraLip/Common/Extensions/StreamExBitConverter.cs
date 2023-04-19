@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AuroraLib.Common
 {
@@ -271,5 +272,47 @@ namespace AuroraLib.Common
         /// <param name="stream">The stream to read from.</param>
         /// <returns>The endianness represented by the BOM</returns>
         public static void Write(this Stream stream, Endian order) => stream.Write((uint)order);
+
+        /// <summary>
+        /// Attempts to detect the byte order in which the stream is written, based on the provided types.
+        /// </summary>
+        /// <typeparam name="T">The types to use for checking the byte order.</typeparam>
+        /// <param name="stream">The stream to check.</param>
+        /// <returns>The detected byte order.</returns>
+        public static unsafe Endian DetectByteOrder<T>(this Stream stream) where T : unmanaged
+            => stream.At(stream.Position, s => s.DetectByteOrder(sizeof(T)) < 0 ? Endian.Little : Endian.Big);
+
+        /// <summary>
+        /// Attempts to detect the byte order in which the stream is written, based on the provided types.
+        /// </summary>
+        /// <param name="stream">The stream to check.</param>
+        /// <param name="types">The types to use for checking the byte order</param>
+        /// <returns>The detected byte order.</returns>
+        public static Endian DetectByteOrder(this Stream stream, params Type[] types)
+        {
+            long orpos = stream.Position;
+            int proBigOrder = 0;
+            foreach (var type in types)
+            {
+                proBigOrder += stream.DetectByteOrder(Marshal.SizeOf(type));
+            }
+            stream.Seek(orpos, SeekOrigin.Begin);
+            return proBigOrder < 0 ? Endian.Little : Endian.Big;
+        }
+
+        private static int DetectByteOrder(this Stream stream, int size)
+        {
+            Span<byte> buffer = stackalloc byte[size];
+            stream.Read(buffer);
+
+            int proBigOrder = 0;
+            for (int i = 0; i < size; i++)
+            {
+                int j = i < size / 2 ? i : size - i - 1;
+                proBigOrder += (buffer[j] == 0 ? (i < size / 2 ? 1 : -1) : 0);
+            }
+            return proBigOrder;
+        }
+
     }
 }

@@ -137,7 +137,7 @@ namespace AuroraLib.Texture.Formats
             private short lODBiasValue;
             public uint ImageDataAddress;
 
-            public int Mipmaps => ImageCount == 0 ? 0 : ImageCount - 1;
+            public int Mipmaps => (EnableMipmaps && ImageCount != 0) ? ImageCount - 1 : 0;
 
             public bool IsPaletteFormat
             {
@@ -166,7 +166,7 @@ namespace AuroraLib.Texture.Formats
             }
             public float MaxLOD
             {
-                get => maxLODValue / 8.0f;
+                get => EnableMipmaps ? maxLODValue / 8.0f : 0;
                 set => maxLODValue = (sbyte)(value * 8.0f);
             }
             public byte ImageCount

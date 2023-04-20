@@ -77,6 +77,15 @@ namespace AuroraLib.Common
             new FormatInfo(".bct", FormatType.Audio, "Wii Remote sound info", Nin_),
             new FormatInfo(".csw", FormatType.Audio, "Wii Remote sound effect", Nin_),
             new FormatInfo(".thp", "THP", FormatType.Video,"", Nin_),
+            new FormatInfo(".bnk","IBNK",FormatType.Audio,"Instrument Bank",Nin_),
+            new FormatInfo(".wsy","WSYS",FormatType.Audio,"Wave System Table",Nin_),
+            new FormatInfo(".arc","BARC",FormatType.Audio,"BARC archive",Nin_),
+            new FormatInfo(".sp","SPCE",FormatType.Else,"Sunshine Cutscene Event",Nin_),
+            new FormatInfo(".sp","SPCB",FormatType.Else,"Sunshine Cutscene Event",Nin_),
+            new FormatInfo(".COL",FormatType.Collision,"model collision",Nin_),
+            new FormatInfo(".bst",FormatType.Audio,"JAudio Sound Table",Nin_),
+            new FormatInfo(".aaf",FormatType.Audio,"Audio Initialization File",Nin_),
+            new FormatInfo(".asn",FormatType.Audio,"Audio Name Table",Nin_),
             
             //Text
             new FormatInfo(".bmc","MGCLbmc1", FormatType.Text, "message data", Nin_),
@@ -93,6 +102,7 @@ namespace AuroraLib.Common
             new FormatInfo(".pac", FormatType.Else, "Banner", Nin_),
 
             //Nintendo Else
+            new FormatInfo(".ymp",FormatType.Collision,"Sunshine pollution heightmaps",Nin_),
             new FormatInfo(".blo", "SCRNblo1", FormatType.Layout, "UI Layout", Nin_),
             new FormatInfo(".blo", "SCRNblo2", FormatType.Layout, "UI V2 Layout", Nin_),
             new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation", Nin_),
@@ -208,7 +218,7 @@ namespace AuroraLib.Common
             new FormatInfo(".PNG", new byte[]{137,80,78,71,13},0, FormatType.Texture, "Portable Network Graphics"),
             new FormatInfo(".Gif", "GIF89", FormatType.Texture, "Graphics Interchange Format"),
             new FormatInfo(".Jpg", new byte[]{255,216,255,224},0, FormatType.Texture, "Joint Photographic Group"),
-            new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"),
+            new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"){IsMatch = TGA_Matcher},
 
             //Microsoft
             new FormatInfo(".cab","MSCF", FormatType.Archive, "Cabinet Archive", "Microsoft") { Class = typeof(SevenZip)},
@@ -406,6 +416,12 @@ namespace AuroraLib.Common
             new FormatInfo(".MREA", FormatType.Model, "Area"),
             new FormatInfo(".fpc", FormatType.Model, "pac file container"),
             //else
+            new FormatInfo(".pdf","%PDF",FormatType.Text,"Portable Document Format","Adobe Inc."),
+            new FormatInfo(".json",FormatType.Text,"JavaScript Object Notation"),
+            new FormatInfo(".py",FormatType.Skript,"Python Skript","Python Software"),
+            new FormatInfo(".kxe","KXER",FormatType.Skript,"Kuribo Mod","riidefi"),
+            new FormatInfo(".pdb","BSJB",FormatType.Else,"PDB Symboles"),
+            new FormatInfo(".bat",FormatType.Skript,"Batch file"),
             new FormatInfo(".t",FormatType.Text),
             new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture"),
             new FormatInfo(".txfl","TXFL", FormatType.Texture, "Pitfall Texture"),
@@ -420,6 +436,7 @@ namespace AuroraLib.Common
             new FormatInfo(".pac", "NPAC", FormatType.Else, "Star Fox Assault"),
             new FormatInfo(".blmap", "LMAP", FormatType.Else, "Light Map"),
             new FormatInfo(".idb", "looc", FormatType.Else, "Debugger infos"),
+            new FormatInfo(".dummy", "dummy", FormatType.Else, "dummy"),
             new FormatInfo(".zzz", FormatType.Else, "place holder"),
             new FormatInfo(".pkb", "SB  ", FormatType.Skript, "Skript"),
             new FormatInfo(".efc", new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}, 0, FormatType.Unknown),
@@ -444,13 +461,21 @@ namespace AuroraLib.Common
         }
 
         public static bool LZH_Matcher(Stream stream, in string extension = "")
-        {
-            return stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
-        }
+            => stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
 
         public static bool BIN_LM_Matcher(Stream stream, in string extension = "")
+            => stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
+
+        public static bool TGA_Matcher(Stream stream, in string extension = "")
         {
-            return stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
+            if (extension.ToLower() == ".tga" && stream.Length > 18)
+            {
+                Span<byte> header = stackalloc byte[18];
+                stream.Read(header);
+
+                return (header[1] == 0 || header[1] == 1) && (header[2] == 0 || header[2] == 1 || header[2] == 2 || header[2] == 3 || header[2] == 9 || header[2] == 10);
+            }
+            return false;
         }
     }
 }

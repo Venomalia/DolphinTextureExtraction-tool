@@ -48,7 +48,7 @@ namespace AuroraLib.Texture.Formats
             }
             stream.Seek(HeaderStart + ImageHeader.ImageDataAddress, SeekOrigin.Begin);
 
-            TexEntry current = new(stream, PaletteData, ImageHeader.Format, ImageHeader.PaletteFormat, ImageHeader.PaletteCount, ImageHeader.Width, ImageHeader.Height, ImageHeader.ImageCount - 1)
+            TexEntry current = new(stream, PaletteData, ImageHeader.Format, ImageHeader.PaletteFormat, ImageHeader.PaletteCount, ImageHeader.Width, ImageHeader.Height, ImageHeader.Mipmaps)
             {
                 LODBias = ImageHeader.LODBias,
                 MagnificationFilter = ImageHeader.MagnificationFilter,
@@ -136,6 +136,8 @@ namespace AuroraLib.Texture.Formats
             public byte unknown;
             private short lODBiasValue;
             public uint ImageDataAddress;
+
+            public int Mipmaps => ImageCount == 0 ? 0 : ImageCount - 1;
 
             public bool IsPaletteFormat
             {

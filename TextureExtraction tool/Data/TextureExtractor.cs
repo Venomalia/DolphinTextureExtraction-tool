@@ -265,6 +265,10 @@ namespace DolphinTextureExtraction
                     {
                         int hash = tex.Hash.GetHashCode();
 
+                        //Dolphins only recognizes files with the correct mip flag
+                        hash -= (tex.MaxLOD == 0 && tex.Count == 1) ? 0 : 1;
+
+                        //If it is a palleted format add TlutHash
                         if (tex.Format.IsPaletteFormat() && TlutHash != 0)
                             hash = hash * -1521134295 + TlutHash.GetHashCode();
 

@@ -327,22 +327,27 @@ namespace DolphinTextureExtraction
         /// <returns></returns>
         private bool TryBTI(Stream stream, string subdirectory)
         {
-            if (Enum.IsDefined(typeof(GXImageFormat), (byte)stream.ReadByte()) && Enum.IsDefined(typeof(JUTTransparency), (byte)stream.ReadByte()))
+            var ImageHeader = stream.Read<BTI.ImageHeader>(Endian.Big);
+            stream.Position -= Unsafe.SizeOf<BTI.ImageHeader>();
+            if (
+                Enum.IsDefined<GXImageFormat>(ImageHeader.Format) &&
+                Enum.IsDefined<JUTTransparency>(ImageHeader.AlphaSetting) &&
+                Enum.IsDefined<GXPaletteFormat>(ImageHeader.PaletteFormat) &&
+                Enum.IsDefined<GXWrapMode>(ImageHeader.WrapS) &&
+                Enum.IsDefined<GXWrapMode>(ImageHeader.WrapT) &&
+                Enum.IsDefined<GXFilterMode>(ImageHeader.MagnificationFilter) &&
+                Enum.IsDefined<GXFilterMode>(ImageHeader.MinificationFilter) &&
+                ImageHeader.Width > 4 && ImageHeader.Width < 1024 &&
+                ImageHeader.Height > 4 && ImageHeader.Height < 1024
+                )
             {
-                ushort ImageWidth = stream.ReadUInt16(Endian.Big);
-                ushort ImageHeight = stream.ReadUInt16(Endian.Big);
-
-                if (ImageWidth > 4 && ImageHeight > 4 && ImageWidth < 1024 && ImageHeight < 1024)
+                try
                 {
-                    stream.Position -= 6;
-                    try
-                    {
-                        Save(new BTI(stream), Path.Combine("~Force", subdirectory));
-                        return true;
-                    }
-                    catch (Exception)
-                    { }
+                    Save(new BTI(stream), Path.Combine("~Force", subdirectory));
+                    return true;
                 }
+                catch (Exception)
+                { }
             }
             return false;
         }

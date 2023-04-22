@@ -112,7 +112,7 @@ namespace AuroraLib.Texture.Formats
             stream.Position = Pauseposition;
         }
 
-        private struct ImageHeader
+        public struct ImageHeader
         {
             public GXImageFormat Format;
             public JUTTransparency AlphaSetting;

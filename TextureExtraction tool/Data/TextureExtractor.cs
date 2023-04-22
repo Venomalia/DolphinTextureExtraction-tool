@@ -3,6 +3,7 @@ using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using Hack.io;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DolphinTextureExtraction
@@ -58,7 +59,7 @@ namespace DolphinTextureExtraction
 
             public int MaxExtractionRate => Extracted > 150 ? MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
 
-            public int Extracted => Hash.Count();
+            public int Extracted => Hash.Count;
 
             public int Unknown { get; internal set; } = 0;
 
@@ -75,17 +76,17 @@ namespace DolphinTextureExtraction
             /// <summary>
             /// List of hash values of the extracted textures
             /// </summary>
-            public List<int> Hash = new List<int>();
+            public List<int> Hash = new();
 
-            public List<FormatInfo> UnsupportedFormatType = new List<FormatInfo>();
+            public List<FormatInfo> UnsupportedFormatType = new();
 
-            public List<FormatInfo> UnknownFormatType = new List<FormatInfo>();
+            public List<FormatInfo> UnknownFormatType = new();
 
             public string GetExtractionSize() => MinExtractionRate + MinExtractionRate / 10 >= MaxExtractionRate ? $"{(MinExtractionRate + MaxExtractionRate) / 2}%" : $"{MinExtractionRate}% - {MaxExtractionRate}%";
 
             public override string ToString()
             {
-                StringBuilder sb = new StringBuilder();
+                StringBuilder sb = new();
                 sb.AppendLine($"Extracted textures: {Extracted}");
                 sb.AppendLine($"Unsupported files: {Unsupported}");
                 if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}");
@@ -102,9 +103,7 @@ namespace DolphinTextureExtraction
         private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new ExtractorOptions()) { }
 
         private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
-        {
-            base.Result = new ExtractorResult() { LogFullPath = base.Result.LogFullPath };
-        }
+            => base.Result = new ExtractorResult() { LogFullPath = base.Result.LogFullPath };
 
         public static ExtractorResult StartScan(string meindirectory, string savedirectory)
             => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions()).Result;
@@ -117,7 +116,7 @@ namespace DolphinTextureExtraction
 
         public static async Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
         {
-            TextureExtractor Extractor = new TextureExtractor(meindirectory, savedirectory, options);
+            TextureExtractor Extractor = new(meindirectory, savedirectory, options);
             return await Task.Run(() => Extractor.StartScan());
         }
 
@@ -167,12 +166,13 @@ namespace DolphinTextureExtraction
                         //Exclude files that are too small, for calculation purposes only half the size.
                         if (so.Deep == 0)
                         {
-                            if (so.Stream.Length > 130) Result.SkippedSize += so.Stream.Length / 2;
+                            if (so.Stream.Length > 300)
+                                Result.SkippedSize += so.Stream.Length >> 1;
                         }
                         else
                         {
-                            if (so.Stream.Length > 300)
-                                Result.SkippedSize += so.Stream.Length / 50;
+                            if (so.Stream.Length > 512)
+                                Result.SkippedSize += so.Stream.Length >> 6;
                         }
                         break;
                     case FormatType.Texture:

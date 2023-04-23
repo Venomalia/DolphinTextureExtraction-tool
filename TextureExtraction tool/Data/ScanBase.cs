@@ -25,13 +25,13 @@ namespace DolphinTextureExtraction
             static NameValueCollection config;
             public static NameValueCollection Config => config ??= ConfigurationManager.AppSettings;
             static bool? useConfig = null;
-            public static bool UseConfig = (bool)(useConfig ??= Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
+            public static bool UseConfig = (useConfig ??= Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
 #if DEBUG
-            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
+            public ParallelOptions Parallel = new() { MaxDegreeOfParallelism = 1 };
 #else
-            public ParallelOptions Parallel = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+            public ParallelOptions Parallel = new() { MaxDegreeOfParallelism = 4 };
 #endif
-            internal ParallelOptions SubParallel => new ParallelOptions()
+            internal ParallelOptions SubParallel => new()
             {
                 MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
                 CancellationToken = Parallel.CancellationToken,
@@ -69,6 +69,7 @@ namespace DolphinTextureExtraction
             public Action<Results> ProgressAction;
 
             private double LastProgressLength = 0;
+
             internal void ProgressUpdate(Results result)
             {
 
@@ -114,8 +115,27 @@ namespace DolphinTextureExtraction
                 }
 
             }
-        }
 
+            public override string ToString()
+            {
+                StringBuilder sb = new();
+                ToString(sb);
+                return sb.ToString();
+            }
+
+            protected void ToString(StringBuilder sb)
+            {
+#if DEBUG
+                sb.Append($"Debug:True, ");
+#endif
+                sb.Append($"Tasks:");
+                sb.Append(Parallel.MaxDegreeOfParallelism);
+                sb.Append(", Force:");
+                sb.Append(Force);
+                sb.Append(", DryRun:");
+                sb.Append(DryRun);
+            }
+        }
 
         public class Results
         {
@@ -163,7 +183,7 @@ namespace DolphinTextureExtraction
             ScanPath = scanDirectory;
             SaveDirectory = Option.DryRun ? StringEx.ExePath : saveDirectory;
             Directory.CreateDirectory(SaveDirectory);
-            Log = new ScanLogger(SaveDirectory);
+            Log = new ScanLogger(SaveDirectory, options);
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
         }

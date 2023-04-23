@@ -51,6 +51,21 @@ namespace DolphinTextureExtraction
                 if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
                 if (bool.TryParse(Config.Get("ArbitraryMipmapDetection"), out value)) ArbitraryMipmapDetection = value;
             }
+
+            public override string ToString()
+            {
+                StringBuilder sb = new();
+                base.ToString(sb);
+                sb.Append(", Enable Mips:");
+                sb.Append(Mips);
+                sb.Append(", Raw:");
+                sb.Append(Raw);
+                sb.Append(", DolphinMipDetection:");
+                sb.Append(DolphinMipDetection);
+                sb.Append(", ArbitraryMipmapDetection:");
+                sb.Append(ArbitraryMipmapDetection);
+                return sb.ToString();
+            }
         }
 
         public class ExtractorResult : Results
@@ -120,29 +135,9 @@ namespace DolphinTextureExtraction
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        private static readonly Dictionary<int, int> ThreadIndices = new Dictionary<int, int>();
-        /// <summary>
-        /// Convert a thread's id to a base 1 index, increasing in increments of 1 (Makes logs prettier)
-        /// </summary>
-        public static int ThreadIndex
-        {
-            get
-            {
-                int managed = Thread.CurrentThread.ManagedThreadId;
-                if (ThreadIndices.TryGetValue(managed, out int id))
-                    return id;
-                ThreadIndices.Add(managed, id = ThreadIndices.Count + 1);
-                return id;
-            }
-        }
-
         public new ExtractorResult StartScan()
         {
-            // Reset Thread Indicies, no longer guaranteed to be the same threads as before
-            ThreadIndices.Clear();
-
             base.StartScan();
-
             return Result;
         }
 

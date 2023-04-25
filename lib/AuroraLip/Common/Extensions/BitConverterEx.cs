@@ -68,10 +68,14 @@ namespace AuroraLib.Common
 
             int subOffset = 0, fieldSize;
 
-            if (!TypeFields.TryGetValue(type, out FieldInfo[] fields))
+            FieldInfo[] fields;
+            lock (TypeFields)
             {
-                fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                TypeFields.Add(type, fields);   
+                if (!TypeFields.TryGetValue(type, out fields))
+                {
+                    fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    TypeFields.Add(type, fields);
+                }
             }
 
             foreach (var field in fields)
@@ -88,7 +92,7 @@ namespace AuroraLib.Common
                 subOffset += fieldSize;
             }
         }
-        private static readonly Dictionary<Type, FieldInfo[]> TypeFields = new ();
+        private static readonly Dictionary<Type, FieldInfo[]> TypeFields = new();
 
         /// <summary>
         /// Flip the ByteOrder of the 8-bit unsigned integer.

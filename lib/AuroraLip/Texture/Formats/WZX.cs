@@ -1,7 +1,5 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
-using System.ComponentModel;
-using static AuroraLib.Texture.Formats.WZX;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -21,7 +19,9 @@ namespace AuroraLib.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+        {
+            return extension.ToLower() == Extension && stream.At(0x68, s => s.ReadInt32(Endian.Big) == 3);
+        }
 
         protected override void Read(Stream stream)
         {
@@ -252,7 +252,7 @@ namespace AuroraLib.Texture.Formats
             public uint Unknown5C;
             public uint Unknown60;
             public uint Unknown64;
-            public uint Unknown68;
+            public uint Version; // 2 = Pokemon colosseum, 3 = Pokemon XD
             public uint Unknown6C;
         }
 

@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression;
 using AuroraLib.Compression.Formats;
+using IronCompress;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -10,13 +10,13 @@ namespace AuroraLib.Archives.Formats
     // base https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
     public class PAK_Retro : Archive, IFileAccess
     {
-        public bool CanRead => true;
+        public virtual bool CanRead => true;
 
-        public bool CanWrite => false;
+        public virtual bool CanWrite => false;
 
-        public static string Extension => ".pak";
+        public const string Extension = ".pak";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public virtual bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
@@ -33,10 +33,10 @@ namespace AuroraLib.Archives.Formats
 
             //NameTabel
             uint Sections = stream.ReadUInt32(Endian.Big);
-            Dictionary<uint, NameEntry> NameTable = new Dictionary<uint, NameEntry>();
+            Dictionary<uint, NameEntry> NameTable = new();
             for (int i = 0; i < Sections; i++)
             {
-                NameEntry entry = new NameEntry(stream);
+                NameEntry entry = new(stream);
                 if (!NameTable.ContainsKey(entry.ID))
                 {
                     NameTable.Add(entry.ID, entry);
@@ -49,12 +49,7 @@ namespace AuroraLib.Archives.Formats
 
             //ResourceTable
             Sections = stream.ReadUInt32(Endian.Big);
-            List<AssetEntry> AssetTable = new List<AssetEntry>();
-            for (int i = 0; i < Sections; i++)
-            {
-                AssetEntry entry = new AssetEntry(stream);
-                AssetTable.Add(entry);
-            }
+            AssetEntry[] AssetTable = stream.For((int)Sections, s => new AssetEntry(stream));
 
             //DataTable
             Root = new ArchiveDirectory() { OwnerArchive = this };
@@ -69,28 +64,17 @@ namespace AuroraLib.Archives.Formats
                 {
                     name = $"{entry.ID}.{entry.Type}";
                 }
-                if (Root.Items.ContainsKey(name)) continue;
+                if (Root.Items.ContainsKey(name))
+                {
+                    continue;
+                }
 
                 if (entry.Compressed)
                 {
                     stream.Seek(entry.Offset, SeekOrigin.Begin);
                     uint DeSize = stream.ReadUInt32(Endian.Big);
-                    Stream es = new SubStream(stream, entry.Size - 4);
-                    //prime 1 = Zlip & prime 2 = LZO1X-999 
-                    if (Compression<ZLib>.IsMatch(es))
-                    {
-                        es.Seek(0, SeekOrigin.Begin);
-                        ZLib zLib = new ZLib();
-                        es = zLib.Decompress(es.Read((int)es.Length), (int)DeSize);
-                    }
-                    else
-                    {
-                        es.Seek(0, SeekOrigin.Begin);
-                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(PAK_Retro)},{entry.ID} LZO is not supported.");
-                        name += ".LZO";
-
-                    }
-                    ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = name, FileData = es };
+                    Stream es = Decompress(new SubStream(stream, entry.Size - 4), DeSize);
+                    ArchiveFile Sub = new() { Parent = Root, Name = name, FileData = es };
                     Root.Items.Add(Sub.Name, Sub);
                 }
                 else
@@ -100,12 +84,56 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
+        protected static MemoryStream Decompress(Stream input, uint decompressedSize)
         {
-            throw new NotImplementedException();
+            //prime 1, DKCR = Zlip
+            //prime 2,3 = LZO1X-999 
+            if (input.Read<ZLib.Header>().Validate())
+            {
+                input.Seek(0, SeekOrigin.Begin);
+                ZLib zLib = new();
+                return zLib.Decompress(input.Read((int)input.Length), (int)decompressedSize);
+            }
+            else
+            {
+                input.Seek(0, SeekOrigin.Begin);
+                return DecompressSegmentedLZO(input, decompressedSize);
+            }
         }
 
-        private class NameEntry
+        protected static MemoryStream DecompressSegmentedLZO(Stream input, uint decompressedSize)
+        {
+            const int segmentSize = 0x4000; // The decompressed size of each segment
+            int numSegments = (int)Math.Ceiling((double)decompressedSize / segmentSize); // The number of segments in the file
+            MemoryStream output = new((int)decompressedSize); // A stream to hold the decompressed data
+            Iron iron = new();
+
+            for (int i = 0; i < numSegments; i++)
+            {
+                // Calculate the size of the current segment
+                int segmentLength = Math.Min(segmentSize, (int)decompressedSize - i * segmentSize);
+
+                short blockSize = input.ReadInt16(Endian.Big);
+                //Copy Block if not compressed
+                if (blockSize < 0)
+                {
+                    blockSize -= blockSize;
+                    output.Write(input.Read(blockSize), blockSize);
+                    continue;
+                }
+
+                // Decompress the data for this segment
+                using (IronCompressResult uncompressed = iron.Decompress(Codec.LZO, input.Read(blockSize), segmentLength))
+                {
+                    output.Write(uncompressed.AsSpan());
+                }
+            }
+            return output;
+        }
+
+        protected override void Write(Stream ArchiveFile) => throw new NotImplementedException();
+
+        protected struct NameEntry
         {
             public string Type;
 
@@ -122,7 +150,7 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        private class AssetEntry
+        protected struct AssetEntry
         {
             public string Type;
 

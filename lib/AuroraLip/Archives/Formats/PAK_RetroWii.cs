@@ -1,6 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression;
-using AuroraLib.Compression.Formats;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -8,20 +6,13 @@ namespace AuroraLib.Archives.Formats
     /// The .pak format used in Metroid Prime 3 and Donkey Kong Country Returns
     /// </summary>
     // base https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime_3)#Header
-    public class PAK_RetroWii : Archive, IFileAccess
+    public class PAK_RetroWii : PAK_Retro
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => false;
-
-        public static string Extension => ".pak";
-
-        public bool IsMatch(Stream stream, in string extension = "")
+        public override bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static new bool Matcher(Stream stream, in string extension = "")
             => extension.ToLower().Equals(Extension) && stream.ReadUInt32(Endian.Big) == 2;
-
 
         protected override void Read(Stream stream)
         {
@@ -31,7 +22,6 @@ namespace AuroraLib.Archives.Formats
             byte[] MD5hash = stream.Read(16);
 
             stream.Seek(HeaderSize, SeekOrigin.Begin);
-
 
             //Table of Contents
             uint Sections = stream.ReadUInt32(Endian.Big);
@@ -59,10 +49,10 @@ namespace AuroraLib.Archives.Formats
             stream.Seek(128, SeekOrigin.Begin);
 
             Sections = stream.ReadUInt32(Endian.Big);
-            Dictionary<ulong, NameEntry> NameTable = new Dictionary<ulong, NameEntry>();
+            Dictionary<ulong, NameEntry> NameTable = new();
             for (int i = 0; i < Sections; i++)
             {
-                NameEntry entry = new NameEntry(stream);
+                NameEntry entry = new(stream);
                 if (!NameTable.ContainsKey(entry.ID))
                 {
                     NameTable.Add(entry.ID, entry);
@@ -77,12 +67,7 @@ namespace AuroraLib.Archives.Formats
             stream.Seek(128 + STRG_SectionSize, SeekOrigin.Begin);
 
             Sections = stream.ReadUInt32(Endian.Big);
-            List<AssetEntry> AssetTable = new List<AssetEntry>();
-            for (int i = 0; i < Sections; i++)
-            {
-                AssetEntry entry = new AssetEntry(stream);
-                AssetTable.Add(entry);
-            }
+            AssetEntry[] AssetTable = stream.For((int)Sections, s => new AssetEntry(stream));
 
             //DataTable
             long DATAStart = 128 + STRG_SectionSize + RSHD_SectionSize;
@@ -100,7 +85,10 @@ namespace AuroraLib.Archives.Formats
                 {
                     name = $"{entry.ID}.{entry.Type}";
                 }
-                if (Root.Items.ContainsKey(name)) continue;
+                if (Root.Items.ContainsKey(name))
+                {
+                    continue;
+                }
 
                 if (entry.Compressed)
                 {
@@ -111,39 +99,25 @@ namespace AuroraLib.Archives.Formats
                         Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(PAK_Retro)},{name} type:{Type} is not known.");
                     }
                     uint blocks = stream.ReadUInt32(Endian.Big);
-
-                    CMPDEntry[] CMPD = new CMPDEntry[blocks];
-                    for (int i = 0; i < blocks; i++)
-                    {
-                        CMPD[i] = new CMPDEntry(stream);
-                    }
+                    CMPDEntry[] CMPD = stream.For((int)blocks, s => new CMPDEntry(stream));
 
                     //DKCR = Zlip & prime 3 = LZO1X-999 
                     Stream MS = new MemoryStream();
-                    for (int i = 0; i < CMPD.Length; i++)
+                    for (int i = 0; i < blocks; i++)
                     {
+                        //Copy block if not compressed
                         if (CMPD[i].DeSize == (int)CMPD[i].CoSize)
                         {
-                            MS.Write(stream.Read(CMPD[i].DeSize), 0, (int)CMPD[i].DeSize);
+                            MS.Write(stream.Read((int)CMPD[i].DeSize), 0, (int)CMPD[i].DeSize);
                             continue;
                         }
-                        Stream es = new SubStream(stream, (int)CMPD[i].CoSize);
-                        if (Compression<ZLib>.IsMatch(es))
+                        // Decompress the data for this block
+                        using (MemoryStream memoryStream = Decompress(new SubStream(stream, (int)CMPD[i].CoSize), CMPD[i].DeSize))
                         {
-                            es.Seek(0, SeekOrigin.Begin);
-                            ZLib zLib = new ZLib();
-                            MS.Write(zLib.Decompress(es.Read((int)es.Length), (int)CMPD[i].DeSize).ToArray(), 0, (int)CMPD[i].DeSize);
-                        }
-                        else
-                        {
-                            es.Seek(0, SeekOrigin.Begin);
-                            Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(PAK_Retro)},{entry.ID} LZO is not supported.");
-                            name += ".LZO";
-                            MS = es;
-
+                            MS.Write(memoryStream.ToArray().AsSpan());
                         }
                     }
-                    ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = name, FileData = MS };
+                    ArchiveFile Sub = new() { Parent = Root, Name = name, FileData = MS };
                     Root.Items.Add(Sub.Name, Sub);
                 }
                 else
@@ -158,25 +132,24 @@ namespace AuroraLib.Archives.Formats
             throw new NotImplementedException();
         }
 
-        private class CMPDEntry
+        private struct CMPDEntry
         {
             public byte Flag;
 
             public UInt24 CoSize;
 
-            public int DeSize;
+            public uint DeSize;
 
             public CMPDEntry(Stream stream)
             {
                 Flag = (byte)stream.ReadByte();
                 CoSize = stream.ReadUInt24(Endian.Big);
-                DeSize = stream.ReadInt32(Endian.Big);
+                DeSize = stream.ReadUInt32(Endian.Big);
             }
         }
 
-        private class NameEntry
+        private new struct NameEntry
         {
-
             public string Name;
 
             public string Type;
@@ -191,18 +164,13 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        private class AssetEntry
+        private new class AssetEntry
         {
             public string Type;
-
             public ulong ID;
-
             public bool Compressed;
-
             public uint Size;
-
             public uint Offset;
-
             public AssetEntry(Stream stream)
             {
                 Compressed = stream.ReadUInt32(Endian.Big) == 1;
@@ -212,6 +180,5 @@ namespace AuroraLib.Archives.Formats
                 Offset = stream.ReadUInt32(Endian.Big);
             }
         }
-
     }
 }

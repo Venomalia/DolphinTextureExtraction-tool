@@ -100,8 +100,8 @@ namespace AuroraLib.Compression.Formats
 
         private static bool IsMatch(in byte[] Data)
         {
-            float single = Data[0] << 8 | Data[1];
-            return Data[0] % 16 == 8 && Data[0] / 16 <= 7 && single / 31f == (float)(single / 31) && Data[0] % 16 != 15;
+            Header header = new(Data[0], Data[1]);
+            return header.Validate();
         }
 
         public static bool Matcher(Stream stream, in string extension = "")
@@ -109,6 +109,44 @@ namespace AuroraLib.Compression.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
             => IsMatch(stream.Read(4)) || IsMatch(stream.Read(4));
+
+        public struct Header
+        {
+            private byte cmf;
+            private byte flg;
+
+            public Header(byte cmf, byte flg)
+            {
+                this.cmf = cmf;
+                this.flg = flg;
+            }
+
+            public enum CompressionMethod : byte
+            {
+                Deflate = 8
+            }
+
+            public CompressionMethod Method => (CompressionMethod)(cmf & 0x0F);
+
+            public byte CompressionInfo => (byte)((cmf >> 4) & 0x0F);
+
+            public ushort FletcherChecksum => (ushort)(((flg & 0xFF) << 8) | cmf);
+
+            public bool HasDictionary => ((flg >> 5) & 0x01) != 0;
+
+            public byte CompressionLevel => (byte)((flg >> 6) & 0x03);
+
+            public bool Validate()
+            {
+                ushort checksum = FletcherChecksum;
+
+                if (Method != CompressionMethod.Deflate || CompressionInfo < 7 || CompressionInfo > 15 || CompressionLevel > 9)
+                    return false;
+
+                return checksum % 31 != 0 || checksum % 255 != 0;
+            }
+        }
+
 
     }
 }

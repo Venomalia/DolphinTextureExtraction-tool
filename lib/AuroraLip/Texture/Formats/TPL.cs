@@ -148,7 +148,7 @@ namespace AuroraLib.Texture.Formats
             stream.At(OffsetLocation, s => s.WriteObjekt(ImageOffsetTable, Endian.Big));
         }
 
-        private struct ImageOffsetEntry
+        public struct ImageOffsetEntry
         {
             public uint ImageHeaderOffset;
             public uint PaletteHeaderOffset;
@@ -156,7 +156,7 @@ namespace AuroraLib.Texture.Formats
             public bool HasPaletteData => PaletteHeaderOffset != 0;
         }
 
-        private struct ImageHeader
+        public struct ImageHeader
         {
             public ushort Height;
             public ushort Width;
@@ -204,7 +204,7 @@ namespace AuroraLib.Texture.Formats
             }
         }
 
-        private struct PaletteHeader
+        public struct PaletteHeader
         {
             public ushort Count;
             public byte Unpacked;

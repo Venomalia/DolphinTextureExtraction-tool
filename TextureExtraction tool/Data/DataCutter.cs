@@ -1,5 +1,7 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Texture;
+using AuroraLib.Texture.Formats;
 
 namespace DolphinTextureExtraction
 {
@@ -126,6 +128,15 @@ namespace DolphinTextureExtraction
                             err++;
                             continue;
                         }
+                        int ImageOffsetTableOffset = stream.ReadInt32(Endian.Big);
+                        stream.Seek(entrystart + ImageOffsetTableOffset, SeekOrigin.Begin);
+                        TPL.ImageOffsetEntry[] ImageOffsetTable = stream.For((int)TotalImageCount, s => s.Read<TPL.ImageOffsetEntry>(Endian.Big));
+                        var ImageOffset = ImageOffsetTable.Last();
+                        stream.Seek(entrystart + ImageOffset.ImageHeaderOffset, SeekOrigin.Begin);
+                        TPL.ImageHeader imageHeader = stream.Read<TPL.ImageHeader>(Endian.Big);
+                        stream.Seek(entrystart + imageHeader.ImageDataAddress + imageHeader.Format.GetCalculatedTotalDataSize(imageHeader.Width, imageHeader.Height, imageHeader.MaxLOD), SeekOrigin.Begin);
+                        stream.Search(pattern, out _);
+                        TotalSize = (uint)(stream.Position - entrystart);
                         goto default;
                     case "RTDP":
                         int EOH = stream.ReadInt32(Endian.Big);

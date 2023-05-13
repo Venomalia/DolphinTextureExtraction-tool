@@ -428,28 +428,31 @@ namespace AuroraLib.Common
             => stream.Seek(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
 
         /// <summary>
-        /// Adds Padding to the Current Position in the provided Stream
+        /// Writes padding bytes to the stream until its position aligns with the specified boundary.
         /// </summary>
-        /// <param name="FS">The Stream to add padding to</param>
-        /// <param name="Multiple">The byte multiple to pad to</param>
-        /// <param name="Padding">The bit that gets write to the stream</param>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="boundary">The boundary to align the position of the stream with.</param>
+        /// <param name="Padding">The byte value to use for padding (default is 0x00).</param>
         [DebuggerStepThrough]
-        public static void WritePadding(this Stream FS, int Multiple, byte Padding = 0x00)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WritePadding(this Stream stream, int boundary, byte Padding = 0x00)
         {
-            while (FS.Position % Multiple != 0)
-                FS.WriteByte(Padding);
+            Span<byte> bytes = stackalloc byte[(int)(boundary - (stream.Position % boundary))];
+            bytes.Fill(Padding);
+            stream.Write(bytes);
         }
 
         /// <summary>
-        /// Adds Padding to the Current Position in the provided Stream use a String
+        /// Writes padding string to a stream until its position aligns with the specified boundary.
         /// </summary>
-        /// <param name="stream">The Stream to add padding to</param>
-        /// <param name="multiple">The byte multiple to pad to</param>
+        /// <param name="stream">The stream to write padding to.</param>
+        /// <param name="boundary">The boundary to align the position of the stream with.</param>
+        /// <param name="Padding">The string to repeat and write as padding bytes.</param>
         [DebuggerStepThrough]
-        public static void WritePadding(this Stream stream, int multiple, in string Padding)
+        public static void WritePadding(this Stream stream, int boundary, in string Padding)
         {
             int PadCount = 0;
-            while (stream.Position % multiple != 0)
+            for (int i = 0; i < (boundary - (stream.Position % boundary)); i++)
             {
                 stream.WriteByte((byte)Padding[PadCount++]);
                 if (Padding.Length < PadCount) PadCount = 0;
@@ -463,12 +466,8 @@ namespace AuroraLib.Common
         /// <param name="boundary">The byte boundary to pad to</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static long CalculatePadding(long position, int boundary)
-        {
-            if (position % boundary != 0)
-                position += (boundary - (position % boundary));
-
-            return position;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long CalculatePadding(long position, int boundary = 32)
+            => (long)Math.Ceiling((double)position / boundary) * boundary;
     }
 }

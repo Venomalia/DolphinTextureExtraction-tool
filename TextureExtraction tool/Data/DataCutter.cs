@@ -135,8 +135,6 @@ namespace DolphinTextureExtraction
                         stream.Seek(entrystart + ImageOffset.ImageHeaderOffset, SeekOrigin.Begin);
                         TPL.ImageHeader imageHeader = stream.Read<TPL.ImageHeader>(Endian.Big);
                         stream.Seek(entrystart + imageHeader.ImageDataAddress + imageHeader.Format.GetCalculatedTotalDataSize(imageHeader.Width, imageHeader.Height, imageHeader.MaxLOD), SeekOrigin.Begin);
-                        stream.Search(pattern, out _);
-                        TotalSize = (uint)(stream.Position - entrystart);
                         goto default;
                     case "RTDP":
                         int EOH = stream.ReadInt32(Endian.Big);

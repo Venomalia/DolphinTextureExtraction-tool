@@ -21,9 +21,11 @@ namespace AuroraLib.Common
             new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_),
             new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_),
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_),
+            new FormatInfo(".sarc","SARC", FormatType.Archive, "Archive", Nin_),
             new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_){ Class = typeof(MOD), IsMatch = MOD.Matcher },
             new FormatInfo(".mdl", new byte[]{4, 180, 0,0}, 0, FormatType.Texture, "Luigi's mansion Model", Nin_){ Class = typeof(MDL_LM), IsMatch = MDL_LM.Matcher },
             new FormatInfo(".bin", new byte[]{2}, 0, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
+            new FormatInfo(".bnfm","BNFM", FormatType.Archive, "Wiiu Model Archive", Nin_),
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),
@@ -31,6 +33,7 @@ namespace AuroraLib.Common
             new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library v0", Nin_){ Class = typeof(TPL_0), IsMatch = TPL_0.Matcher },
             new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_){ Class = typeof(TXE), IsMatch = TXE.Matcher },
             new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_){ Class = typeof(BTI) },
+            new FormatInfo(".ctpk","CTPK", FormatType.Texture, "3DS Video Texture Package", Nin_),
 
             //J3D
             new FormatInfo(".bmd","J3D2bmd2", FormatType.Archive, "J3D Binary Display Lists v2", Nin_),
@@ -69,6 +72,8 @@ namespace AuroraLib.Common
             new FormatInfo(".brsar","RSAR", FormatType.Audio, "Wii Sound Archive", Nin_),
             new FormatInfo(".brstm", "RSTM", FormatType.Audio, "Wii Stream", Nin_),
             new FormatInfo(".ast","STRM", FormatType.Audio, "Stream", Nin_),
+            new FormatInfo(".bars","BARS", FormatType.Audio, "Audio ReSource archive", Nin_),
+            new FormatInfo(".arsl","ARSL", FormatType.Audio, "Audio ReSource LIST", Nin_),
             new FormatInfo(".dsp", FormatType.Audio, "Nintendo ADPCM codec", Nin_),
             new FormatInfo(".idsp","IDSP", FormatType.Audio,"Nintendo ADPCM codec", Nin_),
             new FormatInfo(".baa", FormatType.Audio, "JAudio archive", Nin_),
@@ -86,6 +91,8 @@ namespace AuroraLib.Common
             new FormatInfo(".bst",FormatType.Audio,"JAudio Sound Table",Nin_),
             new FormatInfo(".aaf",FormatType.Audio,"Audio Initialization File",Nin_),
             new FormatInfo(".asn",FormatType.Audio,"Audio Name Table",Nin_),
+            new FormatInfo(".cwar","CWAR",FormatType.Audio,"3ds Sound Wave Archive",Nin_),
+            new FormatInfo(".bcstm","CSTM",FormatType.Audio,"3ds Sound Wave Streams",Nin_),
             
             //Text
             new FormatInfo(".bmc","MGCLbmc1", FormatType.Text, "message data", Nin_),
@@ -100,6 +107,8 @@ namespace AuroraLib.Common
             new FormatInfo(".bnr", new byte[]{66,78,82,50}, 0, FormatType.Else, "Banner", Nin_),
             new FormatInfo(".bnr", new byte[]{73,77,69,84},64, FormatType.Else, "Banner", Nin_),
             new FormatInfo(".pac", FormatType.Else, "Banner", Nin_),
+            new FormatInfo(".ico","SMDH", FormatType.Else, "3DS Video Icons", Nin_),
+            new FormatInfo(".bnr","CBMD", FormatType.Else, "3DS Video Banner", Nin_),
 
             //Nintendo Else
             new FormatInfo(".ymp",FormatType.Collision,"Sunshine pollution heightmaps",Nin_),
@@ -108,6 +117,19 @@ namespace AuroraLib.Common
             new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation", Nin_),
             new FormatInfo(".brlyt", "RLYT", FormatType.Layout, "Wii structure Layout", Nin_),
             new FormatInfo(".brfnt", "RFNT", FormatType.Font, "Wii Font", Nin_),
+            new FormatInfo(".bflyt", "FLYT", FormatType.Layout, "Binary caFe LaYouT", Nin_),
+            new FormatInfo(".bclyt", "CLYT", FormatType.Layout, "Binary caFe LaYouT", Nin_),
+            new FormatInfo(".bflim", "FLIM", FormatType.Texture, "Binary caFe Layout IMage", Nin_),
+            new FormatInfo(".fbis", "FVIS", FormatType.Animation, "caFe VISibility animation", Nin_),
+            new FormatInfo(".fska", "FSKA", FormatType.Animation, "caFe SKeletal Animation", Nin_),
+            new FormatInfo(".bfres","FRES", FormatType.Archive, "Binary CaFe RESource", Nin_),
+            new FormatInfo(".bflan","FLAN", FormatType.Animation, "Binary caFe Layout ANimation", Nin_),
+            new FormatInfo(".fshu","FSHU", FormatType.Animation, "caFe SHader parameter animation Uber", Nin_),
+            new FormatInfo(".fmdl","FMDL", FormatType.Animation, "caFe MoDeL", Nin_),
+            new FormatInfo(".zar","ZAR", FormatType.Archive, "Ocarina 3D Archive", Nin_),
+            new FormatInfo(".gar","GAR", FormatType.Archive, "Majora 3D Archive", Nin_),
+            new FormatInfo(".bcsar","CSAR", FormatType.Audio, "3DS Sound Archive", Nin_),
+            new FormatInfo(".arc","darc", FormatType.Archive, "3DS Archive", Nin_),
             new FormatInfo(".brplt", FormatType.Else, "Wii Palette", Nin_),
             new FormatInfo(".brcha", FormatType.Else, "Wii Bone", Nin_),
             new FormatInfo(".brsca", FormatType.Else, "Wii Scene Settings", Nin_),
@@ -121,6 +143,8 @@ namespace AuroraLib.Common
             new FormatInfo(".jpc", "JPAC2-11", FormatType.Effect , "JParticle container", Nin_),
             new FormatInfo(".jpa", "JEFFjpa1", FormatType.Effect , "JParticle", Nin_),
             new FormatInfo(".breff", "REFF", FormatType.Effect, "Wii Effect", Nin_),
+            new FormatInfo(".esetlist", "EFTB", FormatType.Effect , "Particle effects", Nin_),
+            new FormatInfo(".esetlist", "VFXB", FormatType.Effect , "Particle effects", Nin_),
             new FormatInfo(".branm", FormatType.Animation, "Wii Animation", Nin_),
             new FormatInfo(".brtsa", FormatType.Animation, "Wii Texture Animation", Nin_),
             new FormatInfo(".brsha", FormatType.Animation, "Wii Vertex Morph Animation", Nin_),
@@ -128,6 +152,7 @@ namespace AuroraLib.Common
             new FormatInfo(".tbl", FormatType.Parameter, "JMap data", Nin_),
             new FormatInfo(".bcam", FormatType.Parameter, "JMap camera data", Nin_),
             new FormatInfo(".canm","ANDO", FormatType.Parameter, "JCameraAnimation", Nin_),
+            new FormatInfo(".aamp","AAMP", FormatType.Parameter, "binary resource parameter archives", Nin_),
             //new FormatInfo(".brmdl", FormatType.Model, "Wii Model Display Lists", Nin_),
             #endregion
 
@@ -178,14 +203,14 @@ namespace AuroraLib.Common
             new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "Genius Sonority Particle (unknown)", "Genius Sonority"),
             
             // Genius Sonority (non-textures)
-            new FormatInfo(".MSG", FormatType.Unknown, "Genius Sonority Messages", "Genius Sonority"),
-            new FormatInfo(".FNT", FormatType.Unknown, "Genius Sonority Font", "Genius Sonority"), // TODO?
-            new FormatInfo(".CCD", FormatType.Unknown, "Genius Sonority Collision", "Genius Sonority"),
-            new FormatInfo(".SCD", FormatType.Unknown, "Genius Sonority Script", "Genius Sonority"),
-            new FormatInfo(".ISH", FormatType.Unknown, "Genius Sonority Music header", "Genius Sonority"),
-            new FormatInfo(".ISD", FormatType.Unknown, "Genius Sonority Music data", "Genius Sonority"),
-            new FormatInfo(".THH", FormatType.Unknown, "THP Video header", "Genius Sonority"),
-            new FormatInfo(".THD", FormatType.Unknown, "THP Video data", "Genius Sonority"),
+            new FormatInfo(".MSG", FormatType.Text, "Genius Sonority Messages", "Genius Sonority"),
+            new FormatInfo(".FNT", FormatType.Font, "Genius Sonority Font", "Genius Sonority"), // TODO?
+            new FormatInfo(".CCD", FormatType.Collision, "Genius Sonority Collision", "Genius Sonority"),
+            new FormatInfo(".SCD", FormatType.Skript, "Genius Sonority Script", "Genius Sonority"),
+            new FormatInfo(".ISH", FormatType.Audio, "Genius Sonority Music header", "Genius Sonority"),
+            new FormatInfo(".ISD", FormatType.Audio, "Genius Sonority Music data", "Genius Sonority"),
+            new FormatInfo(".THH", FormatType.Video, "THP Video header", "Genius Sonority"),
+            new FormatInfo(".THD", FormatType.Video, "THP Video data", "Genius Sonority"),
             #endregion
 
             #region Common
@@ -211,6 +236,7 @@ namespace AuroraLib.Common
             new FormatInfo(".CNX","CNX", FormatType.Archive, comp_),
             new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv " + comp_),
+            new FormatInfo(".ZS", FormatType.Archive, "Zstandard " + comp_),
             new FormatInfo(".zlib", FormatType.Archive, comp_) {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
             new FormatInfo(".ZLB","ZLB", FormatType.Archive, comp_),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
@@ -249,6 +275,7 @@ namespace AuroraLib.Common
             new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_){ Class = typeof(GCDisk), IsMatch = GCDisk.Matcher},
             new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_){ Class = typeof(WiiDisk), IsMatch = WiiDisk.Matcher},
             new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table"),
+            new FormatInfo(".nsp", "PFS0", FormatType.Rom, "Switch Partition",Nin_),
             new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
             new FormatInfo(".GCZ", FormatType.Rom, "GameCube Zip"),
             new FormatInfo(".wbfs", FormatType.Rom, "Wii Backup File System"),

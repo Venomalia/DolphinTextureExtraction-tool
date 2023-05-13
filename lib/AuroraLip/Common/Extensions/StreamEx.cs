@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Common
 {
@@ -218,13 +219,38 @@ namespace AuroraLib.Common
             stream.Seek(orpos, SeekOrigin.Begin);
         }
 
+        /// <summary>
+        /// Returns the result of the given function on the specified stream without changing the stream position.
+        /// </summary>
+        /// <typeparam name="T">The type of the value returned by the function.</typeparam>
+        /// <typeparam name="S">The type of the stream.</typeparam>
+        /// <param name="stream">The stream to peek at.</param>
+        /// <param name="func">The function to apply to the stream.</param>
+        /// <returns>The result of the given function.</returns>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, byte[] Array, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(Array, Array.Length, order, Offset);
+        public static T Peek<T, S>(this S stream, Func<S, T> func) where S : Stream
+        {
+            long orpos = stream.Position;
+            T value = func(stream);
+            stream.Seek(orpos, SeekOrigin.Begin);
+            return value;
+        }
 
+        /// <summary>
+        /// Reads a value of type T from the given stream without advancing its position.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to read.</typeparam>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="order">The endianness to use when reading multi-byte values.</param>
+        /// <returns>The value of type T read from the stream.</returns>
         [DebuggerStepThrough]
-        public static void WriteBigEndian(this Stream FS, byte[] Array, int Count, int Offset = 0)
-            => FS.Write(Array, Count, Endian.Big, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T Peek<T>(this Stream stream, Endian order = Endian.Little) where T : unmanaged
+        {
+            T value = stream.Read<T>(order);
+            stream.Position -= sizeof(T);
+            return value;
+        }
 
         /// <summary>
         /// Peek the next byte
@@ -232,12 +258,18 @@ namespace AuroraLib.Common
         /// <param name="FS">this</param>
         /// <returns>The next byte to be read</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static byte PeekByte(this Stream FS)
         {
             byte val = (byte)FS.ReadByte();
             FS.Position--;
             return val;
         }
+
+        [DebuggerStepThrough]
+        public static void WriteBigEndian(this Stream FS, byte[] Array, int Count, int Offset = 0)
+            => FS.Write(Array, Count, Endian.Big, Offset);
+
         /// <summary>
         /// Reads the stream and outputs it as array
         /// </summary>

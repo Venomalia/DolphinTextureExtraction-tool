@@ -282,7 +282,7 @@ namespace AuroraLib.Common
             if (stream is MemoryStream ms)
                 return ms.ToArray();
 
-            using (MemoryStream memoryStream = new MemoryStream())
+            using (MemoryStream memoryStream = new())
             {
                 stream.CopyTo(memoryStream, bufferSize);
                 return memoryStream.ToArray();
@@ -295,6 +295,7 @@ namespace AuroraLib.Common
         /// <param name="magic">Match</param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool MatchString(this Stream stream, in string magic)
         {
             if (magic.Length > stream.Length - stream.Position) return false;
@@ -308,6 +309,7 @@ namespace AuroraLib.Common
         /// <param name="pattern">the string to search for</param>
         /// <returns>"true" when the pattern is found</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Search(this Stream stream, string pattern) => stream.Search(pattern.ToByte());
 
         /// <summary>
@@ -382,6 +384,7 @@ namespace AuroraLib.Common
         /// <param name="length"></param>
         /// <param name="Byte">The bit that gets write to the stream</param>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteX(this Stream stream, int length, byte Byte = 0x00)
         {
             for (int i = 0; i < length; i++)
@@ -397,7 +400,7 @@ namespace AuroraLib.Common
         /// <param name="boundary">The byte boundary to Seek to</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static long Seek(this Stream stream, long offset, SeekOrigin origin, int boundary)
+        public static long Align(this Stream stream, long offset, SeekOrigin origin, int boundary = 32)
         {
             if (boundary <= 1)
                 throw new ArgumentException($"{nameof(boundary)}: Must be 2 or more");
@@ -410,7 +413,7 @@ namespace AuroraLib.Common
                     offset += stream.Position;
                     break;
                 case SeekOrigin.End:
-                    offset = stream.Length + offset;
+                    offset = stream.Length - offset;
                     break;
             }
             offset = (long)Math.Ceiling((double)offset / boundary) * boundary;
@@ -424,8 +427,9 @@ namespace AuroraLib.Common
         /// <param name="origin">A value of type System.IO.SeekOrigin indicating the reference point used to obtain the new position.</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static long Seek(this Stream stream, int boundary = 32)
-            => stream.Seek(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long Align(this Stream stream, int boundary = 32)
+            => stream.Align(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
 
         /// <summary>
         /// Writes padding bytes to the stream until its position aligns with the specified boundary.

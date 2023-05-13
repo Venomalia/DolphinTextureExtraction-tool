@@ -45,7 +45,7 @@ namespace AuroraLib.Archives.Formats
 
                 Root.AddArchiveFile(stream, size, $"{type}_{i}.pcs");
 
-                stream.Seek(size, SeekOrigin.Current, 32);
+                stream.Align(size, SeekOrigin.Current, 32);
             }
         }
 

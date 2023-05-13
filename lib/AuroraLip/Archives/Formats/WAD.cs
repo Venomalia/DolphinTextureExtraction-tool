@@ -37,17 +37,17 @@ namespace AuroraLib.Archives.Formats
             Header = stream.Read<WADHeader>(Endian.Big);
 
             //Cert
-            stream.Seek(64);
+            stream.Align(64);
             long CertPos = stream.Position;
             //Cert = new Cert(stream);
             stream.Seek(CertPos + Header.CertSize, SeekOrigin.Begin);
             //Ticket
-            stream.Seek(64);
+            stream.Align(64);
             long TicketPos = stream.Position;
             Ticket = new V0Ticket(stream);
             stream.Seek(TicketPos + Header.TicketSize, SeekOrigin.Begin);
             //TMD
-            stream.Seek(64);
+            stream.Align(64);
             long TMDPos = stream.Position;
             TMD = new TMD(stream);
             stream.Seek(TMDPos + Header.TMDSize, SeekOrigin.Begin);
@@ -71,7 +71,7 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < TMD.Content; i++)
             {
-                stream.Seek(64);
+                stream.Align(64);
 
                 SubStream Content = new SubStream(stream, StreamEx.CalculatePadding((long)TMD.CMDs[i].Size, 16));
 
@@ -99,7 +99,7 @@ namespace AuroraLib.Archives.Formats
             if (Header.FooterSize != 0)
             {
                 stream.Seek(ContentPos + Header.ContentSize, SeekOrigin.Begin);
-                stream.Seek(64);
+                stream.Align(64);
                 Root.AddArchiveFile(stream, Header.FooterSize, CertPos, "footer.bin");
             }
         }

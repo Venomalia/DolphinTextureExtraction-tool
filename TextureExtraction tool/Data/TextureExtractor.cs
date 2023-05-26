@@ -322,6 +322,10 @@ namespace DolphinTextureExtraction
         /// <returns></returns>
         private bool TryBTI(Stream stream, string subdirectory)
         {
+            if (stream.Length - stream.Position <= Unsafe.SizeOf<BTI.ImageHeader>())
+            {
+                return false;
+            }
             var ImageHeader = stream.Read<BTI.ImageHeader>(Endian.Big);
             stream.Position -= Unsafe.SizeOf<BTI.ImageHeader>();
             if (

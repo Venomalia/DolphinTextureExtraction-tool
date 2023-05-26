@@ -1,8 +1,9 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
+using AuroraLib.Texture;
 using Hack.io;
-using System.Drawing;
+using SixLabors.ImageSharp;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -280,35 +281,40 @@ namespace DolphinTextureExtraction
                     {
                         string SaveDirectory = GetFullSaveDirectory(subdirectory);
                         Directory.CreateDirectory(SaveDirectory);
-                        Bitmap[] bitmaps = new Bitmap[tex.Count];
+                        Image[] image = new Image[tex.Count];
                         try
                         {
                             for (int i = 0; i < tex.Count; i++)
                             {
-                                bitmaps[i] = tex.AsBitmap(i, tlut);
+                                image[i] = tex.GetImage(i, tlut);
                             }
 
                             //Is Arbitrary Mipmap?
-                            IsArbitraryMipmap ??= (ArbitraryMipmapValue = bitmaps[0].MipmapCompare(bitmaps[1..])) >= 17;
+                            IsArbitraryMipmap ??= (ArbitraryMipmapValue = image.MipmapCompare()) >= 0.18;
 
                             //Extract the main texture and mips
                             for (int i = 0; i < tex.Count; i++)
                             {
                                 string path = Path.Combine(SaveDirectory, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true) + ".png");
-                                bitmaps[i].Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                                image[i].SaveAsPng(path);
                                 //skip mips?
                                 if (IsArbitraryMipmap == false && !((ExtractorOptions)Option).Mips) break;
                             }
                         }
-                        catch (Exception)
+                        catch (Exception t)
+                        {
+                            Log.WriteEX(t, subdirectory + tex.ToString());
+                            Result.Unsupported++;
+                        }
+                        finally
                         {
                             for (int i = 0; i < tex.Count; i++)
                             {
-                                bitmaps[i].Dispose();
+                                image[i]?.Dispose();
                             }
                         }
                     }
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.0}" : string.Empty)}");
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
                     ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
                 }
             }

@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.Texture
+﻿using System.Runtime.CompilerServices;
+
+namespace AuroraLib.Texture
 {
     public static class GXImageFormat_Info
     {
@@ -7,83 +9,79 @@
         private static readonly int[] Bpp = { 4, 8, 8, 16, 16, 16, 32, 0, 4, 8, 16, 0, 0, 0, 4 };
         private static readonly int[] MaxTlutColours = { 16, 256, 16384 };
 
-        /// <summary>
-        /// Get block width and height
-        /// </summary>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static (int blockWidth, int blockHeight) GetBlockSize(this GXImageFormat format) => (BlockWidth[(int)format], BlockHeight[(int)format]);
+
         /// <summary>
         /// Get block width
         /// </summary>
         /// <param name="format"></param>
         /// <returns>Block Width</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBlockWidth(this GXImageFormat format) => BlockWidth[(int)format];
         /// <summary>
         /// Get block height
         /// </summary>
         /// <param name="format"></param>
         /// <returns>Block Height</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBlockHeight(this GXImageFormat format) => BlockHeight[(int)format];
         /// <summary>
         /// Get bits per pixel
         /// </summary>
         /// <param name="Format"></param>
         /// <returns>bits per pixel</returns>
-        public static int GetBpp(this GXImageFormat Format) { return Bpp[(int)Format]; }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetBpp(this GXImageFormat Format) => Bpp[(int)Format];
 
-        public static int GetBlockDataSize(this GXImageFormat Format) => Format == GXImageFormat.RGBA32 ? 64 : 32;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetBytePerBlock(this GXImageFormat Format) => Format == GXImageFormat.RGBA32 ? 64 : 32;
+
         /// <summary>
         /// Indicates whether it is a format with palette.
         /// </summary>
         /// <param name="Format"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPaletteFormat(this GXImageFormat Format) => Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2;
         /// <summary>
         /// Calculates the size of the image plus its mipmaps in bytes
         /// </summary>
         /// <param name="Format"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         /// <param name="Mipmap"></param>
         /// <returns></returns>
-        public static int GetCalculatedTotalDataSize(this GXImageFormat Format, int Width, int Height, int Mipmap)
-        {
-            int TotalSize = 0;
-            for (int i = 0; i <= Mipmap; i++)
-            {
-                TotalSize += GetCalculatedDataSize(Format, Width, Height, i);
-            }
-            return TotalSize;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetCalculatedTotalDataSize(this GXImageFormat Format, int width, int height, in int Mipmap)
+            => Enumerable.Range(0, Mipmap + 1).Sum(i => Format.CalculatedDataSize(width, height, i));
+
         /// <summary>
         /// Calculates the size of the mipmap in byts
         /// </summary>
         /// <param name="Format"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
-        /// <param name="Mipmap"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="mipmap"></param>
         /// <returns></returns>
-        public static int GetCalculatedDataSize(this GXImageFormat Format, int Width, int Height, int Mipmap)
-        {
-            Width = Math.Max(1, Width >> Mipmap);
-            Height = Math.Max(1, Height >> Mipmap);
-            return GetCalculatedDataSize(Format, Width, Height);
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CalculatedDataSize(this GXImageFormat Format, in int width, in int height, in int mipmap)
+            => Format.CalculatedDataSize(Math.Max(1, width >> mipmap), Math.Max(1, height >> mipmap));
 
         /// <summary>
         /// Calculates the size of the image in bytes
         /// </summary>
         /// <param name="Format"></param>
-        /// <param name="Width"></param>
-        /// <param name="Height"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         /// <returns></returns>
-        public static int GetCalculatedDataSize(this GXImageFormat Format, int Width, int Height)
-        {
-            while ((Width % BlockWidth[(int)Format]) != 0) Width++;
-            while ((Height % BlockHeight[(int)Format]) != 0) Height++;
-            return Width * Height * GetBpp(Format) / 8;
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CalculatedDataSize(this GXImageFormat Format, in int width, in int height)
+            => Format.CalculateBlockCount(width, height) * Format.GetBytePerBlock();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CalculateBlockCount(this GXImageFormat Format, in int width, in int height)
+            => (int)Math.Ceiling((double)width / BlockWidth[(int)Format]) * (int)Math.Ceiling((double)height / BlockHeight[(int)Format]);
+
+
         /// <summary>
         /// Calculates the possible number of mipmaps based on size.
         /// </summary>
@@ -97,9 +95,9 @@
             int mips = 0;
             while (Size > 0 && Width != 0 && Height != 0)
             {
-                Size -= GetCalculatedDataSize(Format, Width, Height);
-                Width /= 2;
-                Height /= 2;
+                Size -= CalculatedDataSize(Format, Width, Height);
+                Width >>= 1;
+                Height >>= 1;
                 mips++;
             }
             return mips - 1;
@@ -123,6 +121,7 @@
         /// <param name="Format"></param>
         /// <returns></returns>
         /// <exception cref="FormatException"></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetMaxPaletteSize(this GXImageFormat Format)
             => Format.GetMaxPaletteColours() * 2;
 

@@ -1,7 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     /// <summary>
     /// Extract texture from an HSD archive and scene.

@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture.Interfaces
+﻿namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Interface representing an Dolphin hash with Hash and TlutHash.

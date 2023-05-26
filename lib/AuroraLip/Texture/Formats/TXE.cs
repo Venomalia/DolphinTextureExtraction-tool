@@ -29,7 +29,7 @@ namespace AuroraLib.Texture.Formats
             if (!Enum.IsDefined(typeof(TEXTyp), stream.ReadUInt16(Endian.Big)))
                 return false;
             TEXImageFormat Tex_Format = (TEXImageFormat)stream.ReadUInt16(Endian.Big);
-            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && ((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString())).GetCalculatedDataSize(ImageWidth, ImageHeight) < stream.Length;
+            return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && ((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString())).CalculatedDataSize(ImageWidth, ImageHeight) < stream.Length;
         }
 
         public bool IsMatch(Stream stream, in string extension = "")

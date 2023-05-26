@@ -1,9 +1,9 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
-using AuroraLip.Texture.Interfaces;
+using AuroraLib.Texture.Interfaces;
 using System.Text.RegularExpressions;
 
-namespace AuroraLip.Texture
+namespace AuroraLib.Texture
 {
     /// <summary>
     /// Represents a parsed Dolphin texture hash.

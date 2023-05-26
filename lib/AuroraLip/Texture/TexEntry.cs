@@ -1,9 +1,9 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Palette;
-using AuroraLip.Texture;
-using AuroraLip.Texture.Interfaces;
+using AuroraLib.Texture;
+using AuroraLib.Texture.Interfaces;
 using System.Drawing;
-using static AuroraLib.Texture.J3DTextureConverter;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace AuroraLib.Texture
 {
@@ -25,7 +25,7 @@ namespace AuroraLib.Texture
             public GXImageFormat Format { get; set; } = GXImageFormat.CMPR;
 
             /// <inheritdoc/>
-            public GXPaletteFormat PaletteFormat => Palettes.Count == 0 ? GXPaletteFormat.IA8 : Palettes[0].Format;
+            public GXPaletteFormat PaletteFormat { get; set; } = GXPaletteFormat.IA8;
 
             /// <inheritdoc/>
             public GXWrapMode WrapS { get; set; } = GXWrapMode.CLAMP;
@@ -62,7 +62,7 @@ namespace AuroraLib.Texture
             /// <summary>
             /// Pallets raw data
             /// </summary>
-            public List<JUTPalette> Palettes { get; set; } = new();
+            public List<byte[]> Palettes { get; set; } = new();
 
             /// <summary>
             /// Number of images
@@ -93,7 +93,7 @@ namespace AuroraLib.Texture
                 //reads all row image data.
                 for (int i = 0; i <= Mipmap; i++)
                 {
-                    RawImages.Add(Stream.Read(Format.GetCalculatedDataSize(ImageWidth, ImageHeight, i)));
+                    RawImages.Add(Stream.Read(Format.CalculatedDataSize(ImageWidth, ImageHeight, i)));
                 }
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }
@@ -103,61 +103,30 @@ namespace AuroraLib.Texture
             /// </summary>
             public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0) : this(Stream, Format, ImageWidth, ImageHeight, Mipmap)
             {
+                this.PaletteFormat = PaletteFormat;
                 //Splits the pallete data if there are more than one
                 if (Format.IsPaletteFormat() && PaletteCount > 0)
                 {
                     int PalettesNumber = PaletteData.Length / (PaletteCount * 2);
                     if (PalettesNumber <= 1)
-                        Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteCount));
+                        Palettes.Add(PaletteData[..(PaletteCount * 2)].ToArray());
                     else
                     {
                         int PaletteSize = PaletteData.Length / PalettesNumber;
 
                         for (int i = 0; i < PalettesNumber; i++)
-                            Palettes.Add(new JUTPalette(PaletteFormat, PaletteData.Slice(i * PaletteSize, PaletteSize), PaletteSize / 2));
+                            Palettes.Add(PaletteData.Slice(i * PaletteSize, PaletteSize).ToArray());
                     }
                 }
             }
 
-            /// <summary>
-            /// Creates an TexEntry from a Bitmap
-            /// </summary>
-            public TexEntry(Bitmap Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
-            {
-                this.Format = Format;
-                this.Height = Image.Height;
-                this.Width = Image.Width;
-
-                var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
-                if (ImageFormat.IsPaletteFormat())
-                    Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteData.Length / 2));
-                this.RawImages.Add(ImageData);
-            }
-
-            /// <summary>
-            /// Creates an TexEntry with mips from a Bitmap
-            /// </summary>
-            public TexEntry(List<Bitmap> Image, GXImageFormat ImageFormat = GXImageFormat.CMPR, GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8)
-            {
-                this.Format = Format;
-                this.Height = Image[0].Height;
-                this.Width = Image[0].Width;
-
-                var ImageData = GetImageAndPaletteData(out byte[] PaletteData, Image, ImageFormat, PaletteFormat);
-                if (ImageFormat.IsPaletteFormat())
-                    Palettes.Add(new JUTPalette(PaletteFormat, PaletteData, PaletteData.Length / 2));
-
-                foreach (var raw in ImageData)
-                    this.RawImages.Add(raw);
-            }
-
             #endregion
 
-            public Bitmap AsBitmap(int Mipmap = 0, int Palette = 0)
-                => AsBitmap(Mipmap, Palettes.Count == 0 ? null : Palettes[Palette]);
+            public Image GetImage(int Mipmap = 0, int Palette = 0)
+                => GetImage(Mipmap, Palettes.Count == 0 ? ReadOnlySpan<byte>.Empty : Palettes[Palette]);
 
-            public Bitmap AsBitmap(int Mipmap, JUTPalette Palette)
-                => DecodeImage(RawImages[Mipmap], Palette?.ToArray(), Format, Width >> Mipmap, Height >> Mipmap);
+            public Image GetImage(int Mipmap, ReadOnlySpan<byte> Palette)
+                => Format.DecodeImage(RawImages[Mipmap], Width >> Mipmap, Height >> Mipmap, Palette, PaletteFormat);
 
             /// <summary>
             /// calculated the 64-bit xxHash of the Tlut
@@ -172,17 +141,17 @@ namespace AuroraLib.Texture
             /// </summary>
             /// <param name="Palette"></param>
             /// <returns></returns>
-            public ulong GetTlutHash(JUTPalette Palette)
+            public ulong GetTlutHash(ReadOnlySpan<byte> Palette)
             {
                 if (!Format.IsPaletteFormat() || Palette == null) return 0;
 
                 (int start, int length) = Format.GetTlutRange(RawImages[0].AsSpan());
-                if (Palette.Size < length)
+                if (Palette.Length < length)
                 {
-                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Tlut out of range({start}-{length})Tlut_Length:{Palette.Size}");
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Tlut out of range({start}-{length})Tlut_Length:{Palette.Length}");
                     return 0;
                 }
-                return HashDepot.XXHash.Hash64(Palette.GetBytes().AsSpan().Slice(start, length));
+                return HashDepot.XXHash.Hash64(Palette.Slice(start, length));
             }
 
             public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = false)

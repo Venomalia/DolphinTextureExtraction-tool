@@ -94,7 +94,7 @@ namespace AuroraLib.Texture.Formats
                             lock (PFile.FileData)
                             {
                                 PFile.FileData.Seek(0, SeekOrigin.Begin);
-                                tex.Palettes.Add(new PLT0(PFile.FileData));
+                                tex.Palettes.Add(new PLT0(PFile.FileData).Data);
                             }
                         }
                         Add(tex);

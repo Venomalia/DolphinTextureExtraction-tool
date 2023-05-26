@@ -102,7 +102,7 @@ namespace AuroraLib.Texture.Formats
                 {
                     PaletteHeader paletteHeader = new()
                     {
-                        Count = (ushort)this[i].Palettes.Sum(p => p.Count),
+                        Count = (ushort)this[i].Palettes.Sum(p => p.Length / 2),
                         Unpacked = 0x00,
                         Pad = 0x00,
                         Format = this[i].PaletteFormat,
@@ -111,7 +111,7 @@ namespace AuroraLib.Texture.Formats
                     stream.WriteObjekt(paletteHeader, Endian.Big);
                     stream.WritePadding(32);
                     foreach (var Palette in this[i].Palettes)
-                        stream.Write(Palette.GetBytes());
+                        stream.Write(Palette);
                     stream.WritePadding(32);
                 }
 

@@ -1,6 +1,6 @@
 ﻿using IronCompress;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     public class Zstd : IronCompressBase
     {

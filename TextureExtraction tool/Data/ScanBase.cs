@@ -365,6 +365,8 @@ namespace DolphinTextureExtraction
                     case ".bti":
                     case ".onz":
                     case ".lz":
+                    case ".bin":
+                    case ".zs":
                     case ".lh":
                     case ".brres":
                     case ".breff":

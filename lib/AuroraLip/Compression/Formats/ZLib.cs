@@ -18,16 +18,16 @@ namespace AuroraLib.Compression.Formats
         public int Adler { get; private set; } = 0;
 
         public byte[] Decompress(Stream source)
-        {
-            return Decompress(source.ToArray(), 4096).ToArray();
-        }
+            => Decompress(source.ToArray(), 4096).ToArray();
 
         public MemoryStream Decompress(in byte[] Data, int bufferSize = 4096, bool noHeader = false)
+            => Decompress(Data, new MemoryStream(), bufferSize, noHeader);
+
+        public MemoryStream Decompress(in byte[] Data, MemoryStream ms, int bufferSize = 4096, bool noHeader = false)
         {
-            MemoryStream ms = new MemoryStream();
             byte[] buffer = new byte[bufferSize];
 
-            Inflater inflater = new Inflater(noHeader);
+            Inflater inflater = new(noHeader);
             if (IsMatch(Data))
                 inflater.SetInput(Data);
             else
@@ -60,9 +60,7 @@ namespace AuroraLib.Compression.Formats
             => destination.Write(Compress(source, CompressionLevel.Optimal, 4096).ToArray());
 
         public byte[] Compress(byte[] Data, CompressionLevel level)
-        {
-            return Compress(Data, level, 4096).ToArray();
-        }
+            => Compress(Data, level, 4096).ToArray();
 
         public MemoryStream Compress(byte[] Data, CompressionLevel level, int bufferSize = 4096, bool noHeader = false)
         {
@@ -88,7 +86,7 @@ namespace AuroraLib.Compression.Formats
                     dlevel = 9;
                     break;
             }
-            Deflater deflater = new Deflater(dlevel, noHeader);
+            Deflater deflater = new(dlevel, noHeader);
             deflater.SetInput(Data);
 
             while (!deflater.IsFinished)
@@ -143,7 +141,7 @@ namespace AuroraLib.Compression.Formats
             {
                 ushort checksum = FletcherChecksum;
 
-                if (Method != CompressionMethod.Deflate || CompressionInfo < 7 || CompressionInfo > 15 || CompressionLevel > 9)
+                if (Method != CompressionMethod.Deflate || CompressionInfo > 7 || CompressionLevel > 3)
                     return false;
 
                 return checksum % 31 != 0 || checksum % 255 != 0;

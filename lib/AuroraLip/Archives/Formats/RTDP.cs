@@ -12,11 +12,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "RTDP";
 
-        public RTDP() { }
+        public RTDP()
+        { }
 
-        public RTDP(string filename) : base(filename) { }
+        public RTDP(string filename) : base(filename)
+        {
+        }
 
-        public RTDP(Stream RARCFile, string filename = null) : base(RARCFile, filename) { }
+        public RTDP(Stream RARCFile, string filename = null) : base(RARCFile, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

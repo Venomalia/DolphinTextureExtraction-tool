@@ -1,6 +1,4 @@
-﻿using AuroraLib.Compression;
-
-namespace AuroraLib.Compression
+﻿namespace AuroraLib.Compression
 {
     public static class CompressionHelper
     {

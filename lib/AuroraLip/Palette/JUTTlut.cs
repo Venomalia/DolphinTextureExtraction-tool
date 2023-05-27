@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Texture;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace AuroraLib.Palette
 {

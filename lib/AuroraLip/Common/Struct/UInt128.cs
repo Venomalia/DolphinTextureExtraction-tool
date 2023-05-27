@@ -40,7 +40,9 @@ namespace AuroraLib.Common.Struct
         }
 
         public override string ToString() => ToString(null, null);
+
         public string ToString(IFormatProvider provider) => ToString(null, provider);
+
         public string ToString(string format) => ToString(format, null);
 
         public string ToString(string format, IFormatProvider provider)
@@ -70,7 +72,6 @@ namespace AuroraLib.Common.Struct
                 return hash * 31 + High.GetHashCode();
             }
         }
-
 
         #region operators
 
@@ -137,16 +138,22 @@ namespace AuroraLib.Common.Struct
         }
 
         public static implicit operator UInt128(byte x) => new UInt128(0, x);
+
         public static implicit operator UInt128(ushort x) => new UInt128(0, x);
+
         public static implicit operator UInt128(UInt24 x) => new UInt128(0, (ulong)x);
+
         public static implicit operator UInt128(uint x) => new UInt128(0, x);
+
         public static implicit operator UInt128(ulong x) => new UInt128(0, x);
+
         public static explicit operator ulong(UInt128 x)
         {
             if (x.High != 0)
                 throw new OverflowException($"{x} does not fit into a Uint64");
             return x.Low;
         }
-        #endregion
+
+        #endregion operators
     }
 }

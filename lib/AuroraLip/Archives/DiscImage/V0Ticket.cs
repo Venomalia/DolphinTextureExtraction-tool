@@ -6,10 +6,13 @@ namespace AuroraLib.Archives.DiscImage
     {
         //Signed blob header
         public SigTyp SignatureType { get; } //Signature type (always 65537 for RSA-2048)
+
         public byte[] Certificate { get; }
         public byte[] SigPad { get; }
+
         //v0 ticket
         public byte[] Issuer;
+
         public byte[] ECDH;
         public byte FormatVersion;
         public ushort Reserved;
@@ -18,14 +21,14 @@ namespace AuroraLib.Archives.DiscImage
         public byte[] TicketId;
         public uint ConsoleID;
         public byte[] TitleID;
-        public ushort Unknown2;//mostly 0xFFFF 
+        public ushort Unknown2;//mostly 0xFFFF
         public ushort TitleVersion;
         public uint TitlesMask;
         public uint PermitMask;
         public bool UsePRNG { get => use_PRNG == 1; set => use_PRNG = (byte)(value ? 1 : 0); }
         private byte use_PRNG;
         public KeyID CommonKeyID;
-        public byte[] Unknown3;//Is all 0 for non-VC, for VC, all 0 except last byte is 1. 
+        public byte[] Unknown3;//Is all 0 for non-VC, for VC, all 0 except last byte is 1.
         public byte[] ContentAccessPermissions;
         public ushort Padding;
         public uint LimitType;
@@ -85,12 +88,15 @@ namespace AuroraLib.Archives.DiscImage
                 case KeyID.CommonKey:
                     Key = WiiKey.CKey;
                     break;
+
                 case KeyID.KoreanKey:
                     Key = WiiKey.KKey;
                     break;
+
                 case KeyID.vWiiKey:
                     Key = WiiKey.VKey;
                     break;
+
                 default:
                     Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(V0Ticket)} Common Key ID'{CommonKeyID}' does not exist!");
                     Key = WiiKey.CKey;

@@ -4,7 +4,9 @@ namespace AuroraLib.Compression
 {
     public class CompressionReflection : FileAccessReflection<ICompression>
     {
-        public CompressionReflection() : base() { }
+        public CompressionReflection() : base()
+        {
+        }
 
         /// <summary>
         /// Trying to decompress the data
@@ -30,7 +32,6 @@ namespace AuroraLib.Compression
                     }
                     catch (Exception)
                     {
-
                     }
                 }
                 stream.Seek(startPosition, SeekOrigin.Begin);

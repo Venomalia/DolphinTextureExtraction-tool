@@ -87,7 +87,7 @@ namespace AuroraLib.Archives.Formats
         protected static MemoryStream Decompress(Stream input, uint decompressedSize)
         {
             //prime 1, DKCR = Zlip
-            //prime 2,3 = LZO1X-999 
+            //prime 2,3 = LZO1X-999
             if (input.Read<ZLib.Header>().Validate())
             {
                 input.Seek(0, SeekOrigin.Begin);

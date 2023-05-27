@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
 {
-
     public class TPL : JUTTexture, IFileAccess
     {
         public static readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
@@ -18,8 +17,14 @@ namespace AuroraLib.Texture.Formats
         public static bool Matcher(Stream stream, in string extension = "")
             => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
 
-        public TPL() : base() { }
-        public TPL(string filepath) : base(filepath) { }
+        public TPL() : base()
+        {
+        }
+
+        public TPL(string filepath) : base(filepath)
+        {
+        }
+
         public TPL(Stream stream) => Read(stream);
 
         // Helper function to read a TPL stream
@@ -177,26 +182,31 @@ namespace AuroraLib.Texture.Formats
                 get => (GXImageFormat)format;
                 set => format = (uint)value;
             }
+
             public GXWrapMode WrapS
             {
                 get => (GXWrapMode)wrapS;
                 set => wrapS = (uint)value;
             }
+
             public GXWrapMode WrapT
             {
                 get => (GXWrapMode)wrapT;
                 set => wrapT = (uint)value;
             }
+
             public GXFilterMode MinFilter
             {
                 get => (GXFilterMode)minFilter;
                 set => minFilter = (uint)value;
             }
+
             public GXFilterMode MagFilter
             {
                 get => (GXFilterMode)maxFilter;
                 set => maxFilter = (uint)value;
             }
+
             public bool EnableEdgeLOD
             {
                 get => EdgeLOD > 0;

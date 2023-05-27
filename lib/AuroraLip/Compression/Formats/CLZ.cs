@@ -3,16 +3,16 @@
 namespace AuroraLib.Compression.Formats
 {
     /*
-     * sukharah 
+     * sukharah
      * Library for Compressing and Decompressing CLZ files
      * https://github.com/sukharah/CLZ-Compression
      */
+
     /// <summary>
     /// CLZ compression algorithm, used in Games from Victor Interactive Software.
     /// </summary>
     public class CLZ : ICompression, IMagicIdentify
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -37,7 +37,6 @@ namespace AuroraLib.Compression.Formats
                 return outfile.ToArray();
             }
         }
-
 
         //https://github.com/sukharah/CLZ-Compression/blob/master/source/CLZ.cpp
         private static void Unpack(Stream infile, Stream outfile)
@@ -90,7 +89,6 @@ namespace AuroraLib.Compression.Formats
                 }
                 if (!exit)
                 {
-
                     //The byte `00` is read into the bit stream, which identifies the next 8 bytes as raw data.
                     if (bit_count == 0)
                     {
@@ -173,6 +171,5 @@ namespace AuroraLib.Compression.Formats
                 outfile.Write(window, 0, window_ofs);
             }
         }
-
     }
 }

@@ -6,10 +6,13 @@ namespace AuroraLib.Archives.DiscImage
     {
         //Signed blob header
         public SigTyp SignatureType { get; } //Signature type (always 65537 for RSA-2048)
+
         public byte[] Certificate { get; }
         public byte[] SigPad { get; }
+
         //TMD Main header
         public byte[] Issuer;
+
         public byte FormatVersion;
         public byte CA_CRL_Version;
         public byte Signer_CRL_Version;
@@ -62,7 +65,6 @@ namespace AuroraLib.Archives.DiscImage
             {
                 CMDs.Add(new CMD(stream));
             }
-
         }
 
         public enum RegionTyps : short
@@ -78,12 +80,17 @@ namespace AuroraLib.Archives.DiscImage
         {
             // All official titles have this flag set.
             Default = 0x1,
+
             Unknown_0x4 = 0x4,
+
             // Used for DLC titles.
             Data = 0x8,
+
             Unknown_0x10 = 0x10,
+
             // Seems to be used for WFS titles.
             Maybe_WFS = 0x20,
+
             Unknown_CT = 0x40,
         }
 

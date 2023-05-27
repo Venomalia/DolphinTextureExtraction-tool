@@ -12,6 +12,7 @@ namespace AuroraLib.Common
     public static class BitConverterEx
     {
         #region Convert Int24
+
         /// <summary>
         /// Returns a 24-bit signed integer converted from three bytes at a specified position.
         /// </summary>
@@ -49,9 +50,11 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static byte[] GetBytes(UInt24 value)
             => new byte[3] { (byte)value.Value, (byte)(value.Value >> 8), (byte)(value.Value >> 16) };
-        #endregion
+
+        #endregion Convert Int24
 
         #region ByteOrder
+
         /// <summary>
         /// Flip the ByteOrder for each field of the given <paramref name="type"/>
         /// </summary>
@@ -92,6 +95,7 @@ namespace AuroraLib.Common
                 subOffset += fieldSize;
             }
         }
+
         private static readonly Dictionary<Type, FieldInfo[]> TypeFields = new();
 
         /// <summary>
@@ -143,9 +147,11 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static long Swap(this long value)
             => (long)Swap((ulong)value);
-        #endregion
+
+        #endregion ByteOrder
 
         #region Nibbles
+
         /// <summary>
         /// Get a bit from a 8-bit unsigned integer.
         /// </summary>
@@ -344,7 +350,8 @@ namespace AuroraLib.Common
                     yield return b.GetBit(i);
             }
         }
-        #endregion
+
+        #endregion Nibbles
 
         /// <summary>
         /// Converts this BitArray to an Int32
@@ -363,7 +370,7 @@ namespace AuroraLib.Common
         }
 
         /// <summary>
-        /// XOR each byte with the given key 
+        /// XOR each byte with the given key
         /// </summary>
         /// <param name="data"></param>
         /// <param name="key"></param>

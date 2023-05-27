@@ -13,11 +13,16 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "WTMD";
 
-        public WTMD() { }
+        public WTMD()
+        { }
 
-        public WTMD(Stream stream) : base(stream) { }
+        public WTMD(Stream stream) : base(stream)
+        {
+        }
 
-        public WTMD(string filepath) : base(filepath) { }
+        public WTMD(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -56,7 +61,6 @@ namespace AuroraLib.Texture.Formats
                 int PaletteSize = (int)ImagePosition - (int)PalettePosition;
                 PaletteCount = PaletteSize / 2;
                 PaletteData = stream.Read(PaletteSize);
-
             }
             stream.Position = ImagePosition;
             TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, mipmaps)
@@ -78,7 +82,6 @@ namespace AuroraLib.Texture.Formats
                 //current.Add(DecodeImage(stream, PaletteData, Format, GXPaletteFormat.IA8, PaletteCount, ImageWidth/ i, ImageHeight / i));
             }
             Add(current);
-
         }
 
         protected override void Write(Stream stream)

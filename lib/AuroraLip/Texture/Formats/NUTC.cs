@@ -15,11 +15,16 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "NUTC";
 
-        public NUTC() { }
+        public NUTC()
+        { }
 
-        public NUTC(Stream stream) : base(stream) { }
+        public NUTC(Stream stream) : base(stream)
+        {
+        }
 
-        public NUTC(string filepath) : base(filepath) { }
+        public NUTC(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -38,7 +43,6 @@ namespace AuroraLib.Texture.Formats
 
             for (int i = 0; i < texturesCount; i++)
             {
-
                 long ImageAddress = stream.Position;
                 uint totalSize = stream.ReadUInt32(Endian.Big);
                 uint paletteSize = stream.ReadUInt32(Endian.Big);
@@ -116,5 +120,3 @@ namespace AuroraLib.Texture.Formats
         }
     }
 }
-
-

@@ -49,6 +49,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static string ToValidString(this byte[] bytes, int start, int length, Predicate<byte> validbytes = null)
             => bytes.ToValidString(DefaultEncoding, start, length, validbytes);
+
         /// <summary>
         /// Decodes all the Valid bytes in the specified byte array into a string.
         /// </summary>
@@ -68,16 +69,18 @@ namespace AuroraLib.Common
                 if (validbytes.Invoke(bytes[i])) magicbytes.Add(bytes[i]);
             return Encoding.GetString(magicbytes.ToArray());
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="String"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
         public static byte[] ToByte(this string String)
             => DefaultEncoding.GetBytes(String);
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="String"></param>
         /// <param name="Encoding">Encoding to use when getting the byte[]</param>
@@ -85,16 +88,18 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static byte[] ToByte(this string String, Encoding Encoding)
             => Encoding.GetBytes(String);
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="Byte"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
         public static char ToChar(this byte Byte)
             => DefaultEncoding.GetChars(new byte[] { Byte })[0];
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="Byte"></param>
         /// <param name="Encoding">Encoding to use when getting the char</param>
@@ -102,8 +107,9 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static char ToChar(this byte Byte, Encoding Encoding)
             => Encoding.GetChars(new byte[] { Byte })[0];
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="Char"></param>
         /// <returns></returns>
@@ -112,7 +118,7 @@ namespace AuroraLib.Common
             => DefaultEncoding.GetBytes(Char.ToString())[0];
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="Char"></param>
         /// <param name="Encoding">Encoding to use when getting the byte</param>
@@ -126,6 +132,5 @@ namespace AuroraLib.Common
             if (encoder == Encoding.ASCII) return AllValidBytes_ASKI;
             else return AllValidBytes;
         }
-
     }
 }

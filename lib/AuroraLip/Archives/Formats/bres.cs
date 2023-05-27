@@ -17,13 +17,18 @@ namespace AuroraLib.Archives.Formats
 
         public Endian ByteOrder { get; set; }
 
-        #endregion
+        #endregion Fields and Properties
 
-        public Bres() { }
+        public Bres()
+        { }
 
-        public Bres(string filename) : base(filename) { }
+        public Bres(string filename) : base(filename)
+        {
+        }
 
-        public Bres(Stream stream, string filename = null) : base(stream, filename) { }
+        public Bres(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -42,7 +47,6 @@ namespace AuroraLib.Archives.Formats
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
             ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
-
         }
 
         private void ReadIndex(Stream stream, in int EndOfRoot, ArchiveDirectory ParentDirectory)
@@ -154,7 +158,6 @@ namespace AuroraLib.Archives.Formats
                     }
                 }
             }
-
         }
 
         public struct IndexGroup

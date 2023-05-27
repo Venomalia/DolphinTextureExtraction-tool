@@ -1,13 +1,9 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Palette;
-using AuroraLib.Texture;
 using AuroraLib.Texture.Interfaces;
-using System.Drawing;
 using Image = SixLabors.ImageSharp.Image;
 
 namespace AuroraLib.Texture
 {
-
     public abstract partial class JUTTexture
     {
         /// <summary>
@@ -79,7 +75,8 @@ namespace AuroraLib.Texture
             /// <summary>
             /// Creates an empty TexEntry
             /// </summary>
-            public TexEntry() { }
+            public TexEntry()
+            { }
 
             /// <summary>
             /// Creates an TexEntry from a Stream
@@ -120,7 +117,7 @@ namespace AuroraLib.Texture
                 }
             }
 
-            #endregion
+            #endregion Constructor
 
             public Image GetImage(int Mipmap = 0, int Palette = 0)
                 => GetImage(Mipmap, Palettes.Count == 0 ? ReadOnlySpan<byte>.Empty : Palettes[Palette]);
@@ -204,7 +201,9 @@ namespace AuroraLib.Texture
                 => GetDolphinTextureHash();
 
             #region Dispose
+
             private bool disposedValue;
+
             protected virtual void Dispose(bool disposing)
             {
                 if (!disposedValue)
@@ -216,17 +215,19 @@ namespace AuroraLib.Texture
                     disposedValue = true;
                 }
             }
+
             ~TexEntry()
             {
                 Dispose(disposing: false);
             }
+
             public void Dispose()
             {
                 Dispose(disposing: true);
                 GC.SuppressFinalize(this);
             }
 
-            #endregion
+            #endregion Dispose
         }
     }
 }

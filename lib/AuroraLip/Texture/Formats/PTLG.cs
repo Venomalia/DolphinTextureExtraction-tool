@@ -13,11 +13,16 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "PTLG";
 
-        public PTLG() { }
+        public PTLG()
+        { }
 
-        public PTLG(Stream stream) : base(stream) { }
+        public PTLG(Stream stream) : base(stream)
+        {
+        }
 
-        public PTLG(string filepath) : base(filepath) { }
+        public PTLG(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -86,8 +91,6 @@ namespace AuroraLib.Texture.Formats
                 Add(current);
 
                 stream.Seek(pos + Entries[i].SectionSize, SeekOrigin.Begin);
-
-
             }
         }
 

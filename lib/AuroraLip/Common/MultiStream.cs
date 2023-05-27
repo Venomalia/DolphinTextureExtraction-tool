@@ -5,7 +5,6 @@
     /// </summary>
     public class MultiStream : Stream
     {
-
         public IList<Stream> BaseStream
         {
             get
@@ -16,6 +15,7 @@
                 return basestream;
             }
         }
+
         private List<Stream> basestream;
 
         public override bool CanRead
@@ -56,6 +56,7 @@
                 position = value;
             }
         }
+
         private long position = 0;
 
         public MultiStream(List<Stream> Streams)
@@ -101,9 +102,11 @@
                 case SeekOrigin.Begin:
                     Position = offset;
                     break;
+
                 case SeekOrigin.Current:
                     Position += offset;
                     break;
+
                 case SeekOrigin.End:
                     Position = Length - offset;
                     break;
@@ -122,6 +125,7 @@
         }
 
         #region Dispose
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -135,6 +139,7 @@
                 }
             }
         }
-        #endregion
+
+        #endregion Dispose
     }
 }

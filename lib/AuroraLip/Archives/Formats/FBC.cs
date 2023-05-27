@@ -10,11 +10,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string Extension = "FBC";
 
-        public FBC() { }
+        public FBC()
+        { }
 
-        public FBC(string filename) : base(filename) { }
+        public FBC(string filename) : base(filename)
+        {
+        }
 
-        public FBC(Stream stream, string filename = null) : base(stream, filename) { }
+        public FBC(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
         {

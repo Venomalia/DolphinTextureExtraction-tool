@@ -22,10 +22,11 @@ namespace AuroraLib.Compression.Formats
         public byte EJ = 6; // length bits
         public byte P = 2; // threshold
 
-        public LZSS() { }
+        public LZSS()
+        { }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="eI">offset bits</param>
         /// <param name="eJ">length bits</param>

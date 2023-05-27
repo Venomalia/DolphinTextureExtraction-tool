@@ -9,7 +9,6 @@ namespace AuroraLib.Texture
         private static readonly int[] Bpp = { 4, 8, 8, 16, 16, 16, 32, 0, 4, 8, 16, 0, 0, 0, 4 };
         private static readonly int[] MaxTlutColours = { 16, 256, 16384 };
 
-
         /// <summary>
         /// Get block width
         /// </summary>
@@ -17,6 +16,7 @@ namespace AuroraLib.Texture
         /// <returns>Block Width</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBlockWidth(this GXImageFormat format) => BlockWidth[(int)format];
+
         /// <summary>
         /// Get block height
         /// </summary>
@@ -24,6 +24,7 @@ namespace AuroraLib.Texture
         /// <returns>Block Height</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetBlockHeight(this GXImageFormat format) => BlockHeight[(int)format];
+
         /// <summary>
         /// Get bits per pixel
         /// </summary>
@@ -42,6 +43,7 @@ namespace AuroraLib.Texture
         /// <returns></returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsPaletteFormat(this GXImageFormat Format) => Format == GXImageFormat.C4 || Format == GXImageFormat.C8 || Format == GXImageFormat.C14X2;
+
         /// <summary>
         /// Calculates the size of the image plus its mipmaps in bytes
         /// </summary>
@@ -81,7 +83,6 @@ namespace AuroraLib.Texture
         public static int CalculateBlockCount(this GXImageFormat Format, in int width, in int height)
             => (int)Math.Ceiling((double)width / BlockWidth[(int)Format]) * (int)Math.Ceiling((double)height / BlockHeight[(int)Format]);
 
-
         /// <summary>
         /// Calculates the possible number of mipmaps based on size.
         /// </summary>
@@ -102,6 +103,7 @@ namespace AuroraLib.Texture
             }
             return mips - 1;
         }
+
         /// <summary>
         /// get the maximum number of color pallets
         /// </summary>
@@ -148,6 +150,7 @@ namespace AuroraLib.Texture
                         length = Math.Max(length, Math.Max(low_nibble, high_nibble));
                     }
                     break;
+
                 case GXImageFormat.C8:
                     foreach (byte b in bytes)
                     {
@@ -156,6 +159,7 @@ namespace AuroraLib.Texture
                         length = Math.Max(length, texture_byte);
                     }
                     break;
+
                 case GXImageFormat.C14X2:
                     for (int i = 0; i < bytes.Length; i += 2)
                     {
@@ -164,6 +168,7 @@ namespace AuroraLib.Texture
                         length = Math.Max(length, texture_byte);
                     }
                     break;
+
                 default:
                     break;
             }

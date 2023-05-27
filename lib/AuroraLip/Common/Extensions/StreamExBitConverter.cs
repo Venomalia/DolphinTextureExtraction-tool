@@ -147,9 +147,11 @@ namespace AuroraLib.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double ReadDouble(this Stream stream, Endian order = Endian.Little)
             => stream.Read<double>(order);
-        #endregion
+
+        #endregion Read
 
         #region Write
+
         /// <summary>
         /// Writes the specified 16-bit unsigned integer value as an block of two bytes to the file stream.
         /// </summary>
@@ -237,6 +239,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static void Write(this Stream stream, long value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
+
         /// <summary>
         /// Writes the specified single-precision floating point number value as an block of four bytes to the file stream.
         /// </summary>
@@ -247,6 +250,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static void Write(this Stream stream, float value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
+
         /// <summary>
         /// Writes the specified double-precision floating point number value as an block of eight bytes to the file stream.
         /// </summary>
@@ -257,7 +261,8 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static void Write(this Stream stream, double value, Endian order = Endian.Little, int Offset = 0)
             => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
-        #endregion
+
+        #endregion Write
 
         /// <summary>
         /// Reads the byte order mark (BOM) and returns the endianness.
@@ -313,6 +318,5 @@ namespace AuroraLib.Common
             }
             return proBigOrder;
         }
-
     }
 }

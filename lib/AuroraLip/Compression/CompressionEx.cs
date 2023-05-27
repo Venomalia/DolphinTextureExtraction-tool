@@ -3,6 +3,7 @@
     public static class CompressionEx
     {
         #region Decompress
+
         /// <summary>
         /// Decompress a file and save it to a new file
         /// </summary>
@@ -19,9 +20,10 @@
         /// <returns>Decompressed data</returns>
         public static byte[] Decompress(this ICompression algorithm, in byte[] Data) => algorithm.Decompress(new MemoryStream(Data));
 
-        #endregion
+        #endregion Decompress
 
         #region Compress
+
         /// <summary>
         /// Compress a file and save it to a new file
         /// </summary>
@@ -50,7 +52,7 @@
                 return destination.ToArray();
             }
         }
-        #endregion
 
+        #endregion Compress
     }
 }

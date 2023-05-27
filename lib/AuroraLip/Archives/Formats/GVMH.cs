@@ -71,7 +71,8 @@ namespace AuroraLib.Archives.Formats
             public ushort Dimension { get; set; }
             public int GlobalIndex { get; set; }
 
-            public Entry() { }
+            public Entry()
+            { }
 
             public Entry(Stream stream, byte properties)
             {

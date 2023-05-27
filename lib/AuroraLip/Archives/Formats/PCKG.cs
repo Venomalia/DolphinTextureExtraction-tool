@@ -2,7 +2,7 @@
 
 namespace AuroraLib.Archives.Formats
 {
-    class PCKG : Archive, IMagicIdentify, IFileAccess
+    public class PCKG : Archive, IMagicIdentify, IFileAccess
     {
         public bool CanRead => true;
 
@@ -12,11 +12,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "PCKG";
 
-        public PCKG() { }
+        public PCKG()
+        { }
 
-        public PCKG(string filename) : base(filename) { }
+        public PCKG(string filename) : base(filename)
+        {
+        }
 
-        public PCKG(Stream stream, string filename = null) : base(stream, filename) { }
+        public PCKG(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "") => stream.MatchString(magic);
 

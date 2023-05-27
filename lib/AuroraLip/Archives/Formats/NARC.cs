@@ -12,11 +12,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "NARC";
 
-        public NARC() { }
+        public NARC()
+        { }
 
-        public NARC(string filename) : base(filename) { }
+        public NARC(string filename) : base(filename)
+        {
+        }
 
-        public NARC(Stream RARCFile, string filename = null) : base(RARCFile, filename) { }
+        public NARC(Stream RARCFile, string filename = null) : base(RARCFile, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -47,7 +52,6 @@ namespace AuroraLib.Archives.Formats
                 Sub.FileData = new SubStream(stream, entry.DataSize);
                 Root.Items.Add(Sub.Name, Sub);
             }
-
         }
 
         protected override void Write(Stream ArchiveFile)

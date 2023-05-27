@@ -11,11 +11,16 @@ namespace AuroraLib.Texture.Formats
 
         public string Extension => ".txe";
 
-        public TXE() { }
+        public TXE()
+        { }
 
-        public TXE(Stream stream) : base(stream) { }
+        public TXE(Stream stream) : base(stream)
+        {
+        }
 
-        public TXE(string filepath) : base(filepath) { }
+        public TXE(string filepath) : base(filepath)
+        {
+        }
 
         public TEXTyp Typ = TEXTyp.ModTEX;
 

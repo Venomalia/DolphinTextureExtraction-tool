@@ -1,5 +1,4 @@
-﻿
-namespace AuroraLib.Compression
+﻿namespace AuroraLib.Compression
 {
     public interface ICompressionLevel : ICompression
     {

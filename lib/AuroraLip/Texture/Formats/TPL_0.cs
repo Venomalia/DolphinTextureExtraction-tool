@@ -7,7 +7,6 @@ namespace AuroraLib.Texture.Formats
     /// </summary>
     public class TPL_0 : JUTTexture, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -64,6 +63,7 @@ namespace AuroraLib.Texture.Formats
                 get => (GXImageFormat)format;
                 set => format = (uint)value;
             }
+
             private uint format { get; set; }
             public uint ImageOffset { get; set; }
             public ushort Width { get; set; }

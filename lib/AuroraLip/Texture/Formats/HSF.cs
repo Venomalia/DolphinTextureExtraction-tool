@@ -88,9 +88,7 @@ namespace AuroraLib.Texture.Formats
                     MaxLOD = 0
                 };
                 Add(current);
-
             }
-
         }
 
         protected override void Write(Stream stream)
@@ -158,6 +156,7 @@ namespace AuroraLib.Texture.Formats
                         else
                             imageFormat = GXImageFormat.C8;
                         return;
+
                     default:
                         imageFormat = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Format.ToString());
                         paletteFormat = GXPaletteFormat.IA8;
@@ -188,6 +187,5 @@ namespace AuroraLib.Texture.Formats
             Palette2 = 0x0A,
             Palette3 = 0x0B,
         }
-
     }
 }

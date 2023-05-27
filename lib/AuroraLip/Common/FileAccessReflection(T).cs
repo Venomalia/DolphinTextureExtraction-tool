@@ -20,7 +20,7 @@
             Instances = _Instances.Where(x => x is T).Select(x => (T)x);
         }
 
-        #endregion
+        #endregion constructor
 
         /// <summary>
         /// A list of all available T Types

@@ -1,6 +1,5 @@
 ﻿namespace AuroraLib.Texture.J3D
 {
-
     /*
     * Super Hackio Incorporated
     * "Copyright © Super Hackio Incorporated 2020-2021"
@@ -58,14 +57,17 @@
             /// The Time in the timeline that this keyframe is assigned to
             /// </summary>
             public ushort Time { get; set; }
+
             /// <summary>
             /// The Value to set to
             /// </summary>
             public float Value { get; set; }
+
             /// <summary>
             /// Tangents affect the interpolation between two consecutive keyframes
             /// </summary>
             public float IngoingTangent { get; set; }
+
             /// <summary>
             /// Tangents affect the interpolation between two consecutive keyframes
             /// </summary>
@@ -78,6 +80,7 @@
                 IngoingTangent = ingoing;
                 OutgoingTangent = outgoing ?? ingoing;
             }
+
             public J3DKeyFrame(List<float> Data, int i, short Count, short Index, int Tangent)
             {
                 TangentMode TM = (TangentMode)Tangent;
@@ -96,6 +99,7 @@
                     OutgoingTangent = TM == TangentMode.DESYNC ? Data[i + 3] : IngoingTangent;
                 }
             }
+
             /// <summary>
             /// Converts the values based on a rotation multiplier
             /// </summary>
@@ -110,7 +114,7 @@
             }
 
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <returns></returns>
             public override string ToString() => string.Format("Time: {0}, Value: {1}, Ingoing: {2}, Outgoing: {3}", Time, Value, IngoingTangent, OutgoingTangent);

@@ -58,7 +58,6 @@ namespace AuroraLib.Archives.Formats
                 offsets[i] = stream.ReadUInt32(Endian.Big);
             }
 
-
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < files; i++)
             {
@@ -82,15 +81,18 @@ namespace AuroraLib.Archives.Formats
                     case CompressionType.NONE:
                         DeStream = new SubStream(stream, DeSize);
                         break;
+
                     case CompressionType.LZSS:
                         //DeStream = new MemoryStream(LZSS.Decompress(stream, (int)DeSize));
                         DeStream = lZSS.Decompress(stream, (int)DeSize);
                         break;
+
                     case CompressionType.SLIDE:
                     case CompressionType.FSLIDE_ALT:
                     case CompressionType.FSLIDE:
                         DeStream = new MemoryStream(DecompressSlide(stream, (int)DeSize));
                         break;
+
                     case CompressionType.RLE:
                         Root.AddArchiveFile(stream, compressed, $"{i}_{type}.cmpres");
                         continue;
@@ -99,6 +101,7 @@ namespace AuroraLib.Archives.Formats
                         uint compressed_size = stream.ReadUInt32(Endian.Big);
                         DeStream = new MemoryStream(Compression<ZLib>.Decompress(stream.Read((int)compressed_size)));
                         break;
+
                     default:
                         Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(CompressionType)}, unknown Compression type {type}.");
                         DeStream = new SubStream(stream, DeSize);
@@ -141,6 +144,7 @@ namespace AuroraLib.Archives.Formats
             RLE = 5,
             INFLATE = 7,
         }
+
         /// <summary>
         /// (F)SLIDE compression algorithm is similar to LZSS with a 4bit flag.
         /// </summary>
@@ -156,7 +160,6 @@ namespace AuroraLib.Archives.Formats
             int code_word_bits_left = 0;
             uint code_word = 0;
             byte[] decompress_buffer = new byte[decompressed_size];
-
 
             while (dest_offset < decompressed_size)
             {
@@ -204,9 +207,5 @@ namespace AuroraLib.Archives.Formats
             }
             return decompress_buffer;
         }
-
-
-
-
     }
 }

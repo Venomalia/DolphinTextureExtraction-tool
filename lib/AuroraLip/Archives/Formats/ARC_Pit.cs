@@ -1,5 +1,4 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+﻿using AuroraLib.Common;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -12,7 +11,7 @@ namespace AuroraLib.Archives.Formats
         public bool CanWrite => false;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => Matcher(stream,extension);
+            => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
@@ -79,7 +78,8 @@ namespace AuroraLib.Archives.Formats
                 public List<uint> FileCRCs = new();
                 public List<FileInfo> FileInfos = new();
 
-                public ArchiveInfo() { }
+                public ArchiveInfo()
+                { }
 
                 internal ArchiveInfo(Stream stream, Offset offset, Endian endian)
                 {
@@ -109,7 +109,6 @@ namespace AuroraLib.Archives.Formats
                 public uint NameOffsets;
                 public uint InfoOffsets;
             }
-
         }
     }
 }

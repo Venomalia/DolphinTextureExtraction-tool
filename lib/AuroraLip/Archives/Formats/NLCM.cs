@@ -16,11 +16,16 @@ namespace AuroraLib.Archives.Formats
 
         private Stream reference_stream;
 
-        public NLCM() { }
+        public NLCM()
+        { }
 
-        public NLCM(string filename) : base(filename) { }
+        public NLCM(string filename) : base(filename)
+        {
+        }
 
-        public NLCM(Stream stream, string filename = null) : base(stream, filename) { }
+        public NLCM(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         protected override void Dispose(bool disposing)
         {

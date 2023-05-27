@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /// <summary>
     /// gzip open-source compression algorithm.
     /// </summary>
@@ -38,10 +37,12 @@ namespace AuroraLib.Compression.Formats
                 case CompressionLevel.NoCompression:
                     gzlvel = System.IO.Compression.CompressionLevel.NoCompression;
                     break;
+
                 case CompressionLevel.SmallestSize:
                 case CompressionLevel.Optimal:
                     gzlvel = System.IO.Compression.CompressionLevel.Optimal;
                     break;
+
                 case CompressionLevel.Fastest:
                     gzlvel = System.IO.Compression.CompressionLevel.Fastest;
                     break;

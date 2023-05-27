@@ -3,10 +3,8 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
 {
-
     public class BTI : JUTTexture, IFileAccess
     {
-
         public const string Extension = ".bti";
 
         public bool CanRead => true;
@@ -20,7 +18,8 @@ namespace AuroraLib.Texture.Formats
         public bool ClampLODBias { get; set; } = true;
         public byte MaxAnisotropy { get; set; } = 0;
 
-        public BTI() { }
+        public BTI()
+        { }
 
         public BTI(Stream stream) => Read(stream);
 
@@ -29,6 +28,7 @@ namespace AuroraLib.Texture.Formats
             long BaseDataOffset = stream.Position + 0x20;
             Write(stream, ref BaseDataOffset);
         }
+
         public void Save(Stream BTIFile, ref long DataOffset) => Write(BTIFile, ref DataOffset);
 
         protected override void Read(Stream stream)
@@ -82,7 +82,7 @@ namespace AuroraLib.Texture.Formats
                 WrapT = this[0].WrapT,
                 IsPaletteFormat = this[0].Format.IsPaletteFormat(),
                 PaletteFormat = this[0].PaletteFormat,
-                PaletteCount = (ushort)this[0].Palettes.Sum(p => p.Length/2),
+                PaletteCount = (ushort)this[0].Palettes.Sum(p => p.Length / 2),
                 PaletteDataAddress = (uint)(DataOffset - HeaderStart),
                 EnableMipmaps = Count > 1,
                 EnableEdgeLOD = this[0].EnableEdgeLOD,
@@ -144,36 +144,43 @@ namespace AuroraLib.Texture.Formats
                 get => isPaletteValue > 0;
                 set => isPaletteValue = (byte)(value ? 1 : 0);
             }
+
             public bool EnableEdgeLOD
             {
                 get => edgeLOD > 0;
                 set => edgeLOD = (byte)(value ? 1 : 0);
             }
+
             public bool EnableMipmaps
             {
                 get => enableMipsValue > 0;
                 set => enableMipsValue = (byte)(value ? 1 : 0);
             }
+
             public bool ClampLODBias
             {
                 get => clampLODBiasValue > 0;
                 set => clampLODBiasValue = (byte)(value ? 1 : 0);
             }
+
             public float MinLOD
             {
                 get => minLODValue / 8.0f;
                 set => minLODValue = (sbyte)(value * 8.0f);
             }
+
             public float MaxLOD
             {
                 get => EnableMipmaps ? maxLODValue / 8.0f : 0;
                 set => maxLODValue = (sbyte)(value * 8.0f);
             }
+
             public byte ImageCount
             {
                 get => imageCount != 0 ? imageCount : (byte)MaxLOD;
                 set => imageCount = value;
             }
+
             public float LODBias
             {
                 get => lODBiasValue / 100.0f;

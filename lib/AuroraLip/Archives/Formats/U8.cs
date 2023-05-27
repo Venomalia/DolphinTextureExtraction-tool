@@ -1,10 +1,8 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Extensions;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
 {
-
     /*
     * Super Hackio Incorporated
     * "Copyright © Super Hackio Incorporated 2020-2021"
@@ -24,11 +22,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "Uª8-";
 
-        public U8() { }
+        public U8()
+        { }
 
-        public U8(string filename) : base(filename) { }
+        public U8(string filename) : base(filename)
+        {
+        }
 
-        public U8(Stream stream, string filename = null) : base(stream, filename) { }
+        public U8(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -57,7 +60,7 @@ namespace AuroraLib.Archives.Formats
             stream.Position = OffsetToNodeSection;
             U8Node RootNode = new U8Node(stream);
 
-            //Root has total number of nodes 
+            //Root has total number of nodes
             int TotalNodeCount = RootNode.Size;
             long StringTableLocation = OffsetToNodeSection + (TotalNodeCount * 0x0C);
 
@@ -235,6 +238,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         #region Internals
+
         /// <summary>
         /// Only used when Reading / Writing
         /// </summary>
@@ -245,7 +249,8 @@ namespace AuroraLib.Archives.Formats
             public int DataOffset;
             public int Size;
 
-            public U8Node() { }
+            public U8Node()
+            { }
 
             public U8Node(Stream stream)
             {
@@ -289,6 +294,7 @@ namespace AuroraLib.Archives.Formats
             }
             return FileBytes;
         }
+
         private List<byte> GetStringTableBytes(List<dynamic> FlatFileList, ref Dictionary<string, uint> Offsets)
         {
             List<byte> strings = new List<byte>();
@@ -305,6 +311,7 @@ namespace AuroraLib.Archives.Formats
             }
             return strings;
         }
-        #endregion
+
+        #endregion Internals
     }
 }

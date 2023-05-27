@@ -123,6 +123,5 @@ namespace AuroraLib.Common
             FS.Write(String, encoding);
             FS.WriteByte(terminator);
         }
-
     }
 }

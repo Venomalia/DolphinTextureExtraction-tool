@@ -55,9 +55,7 @@ namespace AuroraLib.Archives.Formats
 
                     directory.AddArchiveFile(reference_stream, file_size, file_offset, $"file_{i}");
                 }
-
             }
-
         }
 
         protected override void Write(Stream ArchiveFile)

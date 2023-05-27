@@ -11,7 +11,7 @@ namespace AuroraLib.Archives.Formats
         public override bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
-        public static new bool Matcher(Stream stream, in string extension = "")
+        public new static bool Matcher(Stream stream, in string extension = "")
             => extension.ToLower().Equals(Extension) && stream.ReadUInt32(Endian.Big) == 2;
 
         protected override void Read(Stream stream)
@@ -34,12 +34,15 @@ namespace AuroraLib.Archives.Formats
                     case "STRG":
                         STRG_SectionSize = stream.ReadUInt32(Endian.Big);
                         break;
+
                     case "RSHD":
                         RSHD_SectionSize = stream.ReadUInt32(Endian.Big);
                         break;
+
                     case "DATA":
                         DATA_SectionSize = stream.ReadUInt32(Endian.Big);
                         break;
+
                     default:
                         throw new Exception("unknown section");
                 }
@@ -101,7 +104,7 @@ namespace AuroraLib.Archives.Formats
                     uint blocks = stream.ReadUInt32(Endian.Big);
                     CMPDEntry[] CMPD = stream.For((int)blocks, s => new CMPDEntry(stream));
 
-                    //DKCR = Zlip & prime 3 = LZO1X-999 
+                    //DKCR = Zlip & prime 3 = LZO1X-999
                     Stream MS = new MemoryStream();
                     for (int i = 0; i < blocks; i++)
                     {
@@ -171,6 +174,7 @@ namespace AuroraLib.Archives.Formats
             public bool Compressed;
             public uint Size;
             public uint Offset;
+
             public AssetEntry(Stream stream)
             {
                 Compressed = stream.ReadUInt32(Endian.Big) == 1;

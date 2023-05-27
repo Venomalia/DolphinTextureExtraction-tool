@@ -12,11 +12,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "RKV2";
 
-        public RKV2() { }
+        public RKV2()
+        { }
 
-        public RKV2(string filename) : base(filename) { }
+        public RKV2(string filename) : base(filename)
+        {
+        }
 
-        public RKV2(Stream stream, string filename = null) : base(stream, filename) { }
+        public RKV2(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

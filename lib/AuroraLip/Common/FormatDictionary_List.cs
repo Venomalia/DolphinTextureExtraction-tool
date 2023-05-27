@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Texture.Formats;
-using AuroraLib.Archives.Formats;
 
 namespace AuroraLib.Common
 {
@@ -14,6 +13,7 @@ namespace AuroraLib.Common
         public static readonly FormatInfo[] Master =
         {
             #region Nintendo
+
             //Nintendo Archive
             new FormatInfo(".arc", "RARC", FormatType.Archive,comp_, Nin_),
             new FormatInfo(".arc", "Uª8-", FormatType.Archive, "U8 Archive", Nin_),
@@ -93,7 +93,7 @@ namespace AuroraLib.Common
             new FormatInfo(".asn",FormatType.Audio,"Audio Name Table",Nin_),
             new FormatInfo(".cwar","CWAR",FormatType.Audio,"3ds Sound Wave Archive",Nin_),
             new FormatInfo(".bcstm","CSTM",FormatType.Audio,"3ds Sound Wave Streams",Nin_),
-            
+
             //Text
             new FormatInfo(".bmc","MGCLbmc1", FormatType.Text, "message data", Nin_),
             new FormatInfo(".msbt","MsgStdBn", FormatType.Text, "LMS data", Nin_),
@@ -154,9 +154,11 @@ namespace AuroraLib.Common
             new FormatInfo(".canm","ANDO", FormatType.Parameter, "JCameraAnimation", Nin_),
             new FormatInfo(".aamp","AAMP", FormatType.Parameter, "binary resource parameter archives", Nin_),
             //new FormatInfo(".brmdl", FormatType.Model, "Wii Model Display Lists", Nin_),
-            #endregion
+
+            #endregion Nintendo
 
             #region Second party developer
+
             //Retro Studios
             new FormatInfo(".PAK", FormatType.Archive, "Retro Archive", Retro_){ Class = typeof(PAK_Retro), IsMatch = PAK_Retro.Matcher }, //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
             new FormatInfo(".PAK", FormatType.Archive, "Retro Wii Archive", Retro_){ Class = typeof(PAK_RetroWii), IsMatch = PAK_RetroWii.Matcher }, //Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)#Header
@@ -178,7 +180,7 @@ namespace AuroraLib.Common
             new FormatInfo(".rlt","PTLG", FormatType.Texture, "Strikers Texture","Next Level Games"),
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
-            
+
             //HAL Laboratory & Sora Ltd.
             new FormatInfo(".pac",new byte[]{65,82,67,0},0, FormatType.Archive, "Brawl Archive"){ Class = typeof(ARC0)},
             //new FormatInfo(".dat", FormatType.Archive, "HAL Archive", "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
@@ -201,7 +203,7 @@ namespace AuroraLib.Common
             new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "Genius Sonority Particle v0", "Genius Sonority"),
             new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "Genius Sonority Particle v1", "Genius Sonority"),
             new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "Genius Sonority Particle (unknown)", "Genius Sonority"),
-            
+
             // Genius Sonority (non-textures)
             new FormatInfo(".MSG", FormatType.Text, "Genius Sonority Messages", "Genius Sonority"),
             new FormatInfo(".FNT", FormatType.Font, "Genius Sonority Font", "Genius Sonority"), // TODO?
@@ -211,9 +213,11 @@ namespace AuroraLib.Common
             new FormatInfo(".ISD", FormatType.Audio, "Genius Sonority Music data", "Genius Sonority"),
             new FormatInfo(".THH", FormatType.Video, "THP Video header", "Genius Sonority"),
             new FormatInfo(".THD", FormatType.Video, "THP Video data", "Genius Sonority"),
-            #endregion
+
+            #endregion Second party developer
 
             #region Common
+
             //Common Archives
             new FormatInfo(".rar","Rar!", FormatType.Archive, "Roshal Archive","win.rar GmbH") { Class = typeof(SevenZip)},
             new FormatInfo(".zip","PK", FormatType.Archive, "zip Archive","PKWARE, Inc") { Class = typeof(SevenZip)},
@@ -286,9 +290,11 @@ namespace AuroraLib.Common
             new FormatInfo(".lua", FormatType.Skript, "Script"),
             new FormatInfo(".cpp", FormatType.Skript, "C++ Source code"),
             new FormatInfo(".h",FormatType.Text,"Header file"),
-            #endregion
-            
+
+            #endregion Common
+
             #region Mixed
+
             //CRIWARE
             new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE"),
             new FormatInfo(".CCRI", "CRILAYLA" , FormatType.Archive, "Compact Compressed", "CRIWARE"),
@@ -413,7 +419,7 @@ namespace AuroraLib.Common
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
-            
+
             //Audio
             new FormatInfo(".mul", FormatType.Audio),
             new FormatInfo(".csb","@UTF", FormatType.Audio),
@@ -468,7 +474,8 @@ namespace AuroraLib.Common
             new FormatInfo(".zzz", FormatType.Else, "place holder"),
             new FormatInfo(".pkb", "SB  ", FormatType.Skript, "Skript"),
             new FormatInfo(".efc", new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}, 0, FormatType.Unknown),
-            #endregion
+
+            #endregion Mixed
         };
 
         //Is needed to detect ADX files reliably.

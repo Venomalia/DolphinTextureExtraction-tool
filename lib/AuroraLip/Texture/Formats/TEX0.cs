@@ -6,7 +6,6 @@ namespace AuroraLib.Texture.Formats
 {
     public class TEX0 : JUTTexture, IMagicIdentify, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => true;
@@ -15,11 +14,16 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "TEX0";
 
-        public TEX0() { }
+        public TEX0()
+        { }
 
-        public TEX0(Stream stream) : base(stream) { }
+        public TEX0(Stream stream) : base(stream)
+        {
+        }
 
-        public TEX0(string filepath) : base(filepath) { }
+        public TEX0(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -53,7 +57,6 @@ namespace AuroraLib.Texture.Formats
             float MaxLOD = stream.ReadSingle(Endian.Big);
             uint Unknown1 = stream.ReadUInt32(Endian.Big);
             uint Unknown2 = stream.ReadUInt32(Endian.Big);
-
 
             if (PaletteData == null && Format.IsPaletteFormat())
             {
@@ -115,7 +118,6 @@ namespace AuroraLib.Texture.Formats
                 MaxLOD = MaxLOD
             });
         }
-
 
         protected override void Write(Stream stream)
         {

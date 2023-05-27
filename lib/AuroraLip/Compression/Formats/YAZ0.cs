@@ -14,7 +14,6 @@ namespace AuroraLib.Compression.Formats
     /// </summary>
     public class YAZ0 : ICompression, IMagicIdentify
     {
-
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
@@ -51,7 +50,6 @@ namespace AuroraLib.Compression.Formats
         {
             byte[] destination = new byte[decomLength];
             int destinationPointer = 0;
-
 
             while (destinationPointer < decomLength)
             {
@@ -165,9 +163,10 @@ namespace AuroraLib.Compression.Formats
             }
             destination.Write(OutputFile.ToArray());
         }
+
         #region Helper
 
-        struct Ret
+        private struct Ret
         {
             public int srcPos, dstPos;
         }
@@ -241,7 +240,7 @@ namespace AuroraLib.Compression.Formats
             }
             return numBytes;
         }
-        #endregion
 
+        #endregion Helper
     }
 }

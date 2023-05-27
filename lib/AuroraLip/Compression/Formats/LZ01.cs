@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /*
      * base on Puyo Tools
      * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
@@ -10,7 +9,6 @@ namespace AuroraLib.Compression.Formats
 
     public class LZ01 : ICompression, IMagicIdentify
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => true;
@@ -153,9 +151,7 @@ namespace AuroraLib.Compression.Formats
                     buffer.WriteTo(destination);
                     buffer.SetLength(0);
                 }
-
             }
         }
-
     }
 }

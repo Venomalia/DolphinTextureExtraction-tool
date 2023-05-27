@@ -18,6 +18,7 @@
         /// </summary>
         public int Value
             => (b0 | (b1 << 8) | (b2 << 16));
+
         /// <summary>
         /// Create a new Int24
         /// </summary>
@@ -83,6 +84,7 @@
         }
 
         #region operators
+
         public static Int24 operator +(Int24 a, Int24 b) => new Int24(a.Value + b.Value);
 
         public static Int24 operator -(Int24 a, Int24 b) => new Int24(a.Value - b.Value);
@@ -168,9 +170,11 @@
         public static explicit operator Int24(ulong x) => new Int24((int)x);
 
         public static explicit operator ulong(Int24 x) => (ulong)x.Value;
-        #endregion
+
+        #endregion operators
 
         #region IConvertible
+
         bool IConvertible.ToBoolean(IFormatProvider provider)
             => Convert.ToBoolean(Value, provider);
 
@@ -218,6 +222,7 @@
 
         public TypeCode GetTypeCode()
             => TypeCode.UInt32;
-        #endregion
+
+        #endregion IConvertible
     }
 }

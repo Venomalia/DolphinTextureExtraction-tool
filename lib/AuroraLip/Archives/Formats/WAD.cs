@@ -6,7 +6,6 @@ namespace AuroraLib.Archives.Formats
 {
     public class WAD : Archive, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -32,6 +31,7 @@ namespace AuroraLib.Archives.Formats
             }
             return false;
         }
+
         protected override void Read(Stream stream)
         {
             Header = stream.Read<WADHeader>(Endian.Big);
@@ -91,7 +91,6 @@ namespace AuroraLib.Archives.Formats
 
                 MemoryStream de = new MemoryStream(buffer);
                 filesDirectory.AddArchiveFile(de, $"{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app");
-
             }
             Root.Items.Add(filesDirectory.Name, filesDirectory);
 
@@ -108,7 +107,6 @@ namespace AuroraLib.Archives.Formats
         {
             throw new NotImplementedException();
         }
-
 
         public struct WADHeader
         {
@@ -133,6 +131,5 @@ namespace AuroraLib.Archives.Formats
                 FooterSize = 0;
             }
         }
-
     }
 }

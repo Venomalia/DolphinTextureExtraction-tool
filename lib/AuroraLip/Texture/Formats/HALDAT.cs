@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Texture;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -103,7 +102,6 @@ namespace AuroraLib.Texture.Formats
                 string symbol_name = stream.ReadString();
                 dict.Add(symbol_name, data_offset);
                 stream.Seek(prevPosition, SeekOrigin.Begin);
-
             }
         }
 
@@ -112,7 +110,6 @@ namespace AuroraLib.Texture.Formats
         /// </summary>
         public class HSDObjects
         {
-
             public class UnknownClassException : Exception
             {
                 public UnknownClassException()
@@ -180,7 +177,6 @@ namespace AuroraLib.Texture.Formats
 
                 return value;
             }
-
         }
 
         /// <summary>
@@ -260,6 +256,7 @@ namespace AuroraLib.Texture.Formats
                 /// Attributes of that child joint is not used, and neither is it treated as a list (next is ignored).
                 /// </summary>
                 public const uint FLAG_INSTANCE = 0x1000;
+
                 public const uint FLAG_SPLINE = 0x4000;
                 public const uint FLAG_PTCL = 0x20;
 
@@ -275,10 +272,12 @@ namespace AuroraLib.Texture.Formats
                     {
                         get => (Flags & FLAG_INSTANCE) != 0;
                     }
+
                     public bool IsSpline
                     {
                         get => (Flags & FLAG_SPLINE) != 0;
                     }
+
                     public bool IsPTCL
                     {
                         get => (Flags & FLAG_PTCL) != 0;
@@ -578,6 +577,7 @@ namespace AuroraLib.Texture.Formats
                 GetClassFromStream<TObjClass>(offset, "tobj").Parse(this, offset + 4);
             }
         }
+
         protected override void Write(Stream stream)
         {
             throw new NotImplementedException();

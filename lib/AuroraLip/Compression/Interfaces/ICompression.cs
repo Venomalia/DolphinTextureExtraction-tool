@@ -4,7 +4,6 @@ namespace AuroraLib.Compression
 {
     public interface ICompression : IFileAccess
     {
-
         /// <summary>
         /// Data Compress
         /// </summary>
@@ -18,6 +17,5 @@ namespace AuroraLib.Compression
         /// <param name="Data">Compressed data</param>
         /// <returns>Decompress data</returns>
         byte[] Decompress(Stream source);
-
     }
 }

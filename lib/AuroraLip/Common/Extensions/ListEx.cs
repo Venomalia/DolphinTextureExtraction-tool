@@ -1,6 +1,5 @@
 ﻿namespace AuroraLib.Common
 {
-
     /*
     * Super Hackio Incorporated
     * "Copyright © Super Hackio Incorporated 2020-2021"
@@ -26,6 +25,7 @@
             var yee = Enumerable.Range(0, sequence.Count - subsequence.Count + 1).Any(n => sequence.Skip(n).Take(subsequence.Count).SequenceEqual(subsequence));
             return yee;
         }
+
         /// <summary>
         /// Finds a list inside a list
         /// </summary>
@@ -46,6 +46,7 @@
             }
             return -1;
         }
+
         /// <summary>
         /// Moves an item X distance in a list
         /// </summary>
@@ -60,6 +61,7 @@
             list.RemoveAt(OldIndex);
             list.Insert(NewIndex, item);
         }
+
         /// <summary>
         /// Sort a list of items based on an array of items
         /// </summary>
@@ -77,6 +79,7 @@
 
             return FinalList;
         }
+
         /// <summary>
         /// Compares the contents of two lists to see if they match
         /// </summary>
@@ -94,6 +97,7 @@
                     return false;
             return true;
         }
+
         /// <summary>
         /// Compares the contents of the two lists using a custom function
         /// </summary>
@@ -112,6 +116,7 @@
                     return false;
             return true;
         }
+
         /// <summary>
         /// Gets a hash code from a List
         /// </summary>

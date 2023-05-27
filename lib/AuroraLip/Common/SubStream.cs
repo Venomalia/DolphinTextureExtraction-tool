@@ -18,6 +18,7 @@
                 return basestream;
             }
         }
+
         private Stream basestream;
 
         /// <summary>
@@ -47,6 +48,7 @@
                 position = value;
             }
         }
+
         protected long position = 0;
 
         /// <summary>
@@ -68,8 +70,9 @@
             ProtectBaseStream = protectBaseStream;
         }
 
-        public SubStream(Stream stream, long length, bool protectBaseStream = true) : this(stream, length, stream.Position, protectBaseStream) { }
-
+        public SubStream(Stream stream, long length, bool protectBaseStream = true) : this(stream, length, stream.Position, protectBaseStream)
+        {
+        }
 
         public override void Flush()
             => BaseStream.Flush();
@@ -96,9 +99,11 @@
                 case SeekOrigin.Begin:
                     Position = offset;
                     break;
+
                 case SeekOrigin.Current:
                     Position += offset;
                     break;
+
                 case SeekOrigin.End:
                     Position = Length - offset;
                     break;
@@ -123,6 +128,7 @@
         public override string ToString() => $"[0x{Offset:X8}] [0x{Length:X8}]";
 
         #region Dispose
+
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -136,6 +142,7 @@
                 }
             }
         }
-        #endregion
+
+        #endregion Dispose
     }
 }

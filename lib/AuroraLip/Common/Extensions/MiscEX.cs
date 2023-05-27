@@ -4,7 +4,6 @@ namespace AuroraLib.Common
 {
     public static class MiscEX
     {
-
         public static byte[] RKey(int value, int length)
         {
             byte[] data = new byte[length];

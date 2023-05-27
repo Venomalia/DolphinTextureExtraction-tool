@@ -1,10 +1,8 @@
-﻿
-using AuroraLib.Archives;
+﻿using AuroraLib.Archives;
 using AuroraLib.Common;
 
 namespace AuroraLib.Texture.Formats
 {
-
     /// <summary>
     /// Genius Sonority "0x11" file format.
     /// Real file extension is unknown, number is from FSYS filetype field
@@ -18,11 +16,16 @@ namespace AuroraLib.Texture.Formats
 
         public string Magic => "\x7b\x1e\xe3\xf2";
 
-        public GSFILE11() { }
+        public GSFILE11()
+        { }
 
-        public GSFILE11(string filename) : base(filename) { }
+        public GSFILE11(string filename) : base(filename)
+        {
+        }
 
-        public GSFILE11(Stream stream, string filename = null) : base(stream, filename) { }
+        public GSFILE11(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);

@@ -10,11 +10,16 @@ namespace AuroraLib.Texture.Formats
 
         public string Extension => ".txtr";
 
-        public TXTR() { }
+        public TXTR()
+        { }
 
-        public TXTR(Stream stream) : base(stream) { }
+        public TXTR(Stream stream) : base(stream)
+        {
+        }
 
-        public TXTR(string filepath) : base(filepath) { }
+        public TXTR(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => extension.ToLower() == Extension;
@@ -72,6 +77,5 @@ namespace AuroraLib.Texture.Formats
             RGBA32 = 0x09, //RGBA8?
             CMPR = 0x0A,
         }
-
     }
 }

@@ -47,7 +47,8 @@ namespace AuroraLib.Archives
         /// <summary>
         /// Create a new <see cref="ArchiveObject" />.
         /// </summary>
-        protected ArchiveObject() { }
+        protected ArchiveObject()
+        { }
 
         internal void GetFullPath(StringBuilder PathBuilder)
         {

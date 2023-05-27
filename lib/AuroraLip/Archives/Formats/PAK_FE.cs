@@ -45,7 +45,7 @@ namespace AuroraLib.Archives.Formats
             throw new NotImplementedException();
         }
 
-        class Entrie
+        private class Entrie
         {
             public uint Unk;
             public uint name;

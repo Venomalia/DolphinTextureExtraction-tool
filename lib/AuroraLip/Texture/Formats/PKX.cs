@@ -1,5 +1,4 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+﻿using AuroraLib.Common;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -10,11 +9,16 @@ namespace AuroraLib.Archives.Formats
 
         public bool CanWrite => false;
 
-        public PKX() { }
+        public PKX()
+        { }
 
-        public PKX(string filename) : base(filename) { }
+        public PKX(string filename) : base(filename)
+        {
+        }
 
-        public PKX(Stream stream, string filename = null) : base(stream, filename) { }
+        public PKX(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
@@ -59,8 +63,6 @@ namespace AuroraLib.Archives.Formats
             public uint Unknown14;
             public ushort Unknown18;
             public ushort Unknown1A;
-
         }
-
     }
 }

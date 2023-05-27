@@ -11,11 +11,13 @@
         /// Greyscale + Alpha - 16 bits/pixel (bpp) | Block Width: 4 | Block height: 4 | Block size: 32 bytes
         /// </summary>
         IA8 = 0x00,
+
         /// <summary>
-        /// 16 bit color values without alpha. alpha use 0xff. 
+        /// 16 bit color values without alpha. alpha use 0xff.
         /// Colour - 16 bits/pixel (bpp) | Block Width: 4 | Block height: 4 | Block size: 32 bytes
         /// </summary>
         RGB565 = 0x01,
+
         /// <summary>
         /// It is used for storing either 15 bit color values without alpha, or 12 bit color values with a 3 bit alpha channel.
         /// Colour + Alpha - 16 bits/pixel (bpp) | Block Width: 4 | Block height: 4 | Block size: 32 bytes

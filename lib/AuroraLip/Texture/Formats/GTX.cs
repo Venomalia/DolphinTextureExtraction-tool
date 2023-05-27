@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using System.Diagnostics;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -76,6 +75,7 @@ namespace AuroraLib.Texture.Formats
                 case GTXFormat.I8_A2:
                 case GTXFormat.I8_A3:
                     return GXImageFormat.I8;
+
                 default:
                     return (GXImageFormat)Enum.Parse(typeof(GXImageFormat), format.ToString());
             }
@@ -85,70 +85,91 @@ namespace AuroraLib.Texture.Formats
         {
             //h0
             public ushort Width;
+
             public ushort Height;
             public byte Bpp;
+
             /// <summary>
             /// Base image + mipmaps, so minimum 1, maximum 8.
             /// </summary>
             public byte NumEntries;
+
             /// <summary>
             /// Mainly used for pool allocator, set to true while loading from file.
             /// </summary>
             public byte Used;
+
             /// <summary>
             /// Mainly set to 1 after GX calls, so overwritten during loading anyway.
             /// </summary>
             public byte InitedGX;
+
             /// <summary>
             /// Format of the texture.
             /// </summary>
             public GTXFormat Format;
+
             /// <summary>
             /// Format of the palette. Should be filled out when the texture uses palette.
             /// </summary>
             public GTXPaletteFormat PaletteFormat;
+
             //h10
             public uint WrapS;
+
             public uint WrapT;
             public GTXFilterMode MinFilter;
             public GTXFilterMode MagFilter;
+
             //h20
             public GTXFilterMode MipmapFilter;
+
             /// <summary>
             /// Used for runtime-allocated textures to free() the image data, 0 in files.
             /// </summary>
             public uint AllocatedOffset;
+
             /// <summary>
             /// Pointer to the texture with mipmaps stored sequentially like the GPU expects.
             /// </summary>
             public uint Offset;
+
             public uint Offset1; // Mipmap
+
             //h30
             public uint Offset2; // Mipmap
+
             public uint Offset3; // Mipmap
             public uint Offset4; // Mipmap
             public uint Offset5; // Mipmap
+
             //h40
             public uint Offset6; // Mipmap
+
             public uint Offset7; // Mipmap
+
             /// <summary>
             /// Pointer to palette data, size is the maximum the texture format can address.
             /// </summary>
             public uint PaletteOffset;
+
             /// <summary>
             /// Size of the texture with mipmaps in bytes.
             /// </summary>
             public uint Size;
+
             //h50
             /// <summary>
             /// Appears to be some sort of reference-like count, but doesn't free() when unreffing.
             /// Not relevant for extracting textures.
             /// </summary>
             public ushort UsageCount;
+
             /// <summary>
             /// Seemingly unused, only set to 0 when allocating from the pool, but ignored afterwards.
             /// </summary>
             public ushort Unknown54;
+
             // Space for GXTexObj and GXTlutObj follows, filled at runtime
         }
 
@@ -159,11 +180,13 @@ namespace AuroraLib.Texture.Formats
             C14X2 = 0x30,
             I4 = 0x40,
             IA4 = 0x41,
+
             // There is a GX to GTX texture format conversion function (GXXP01 @ 0x8010471C)
             // which maps GX 0x27-0x2a (all unknown) to GTX 0xa0-0xa3, but not the other way around.
             // But there is also a GTX to something texture format conversion function (GXXP01 @ 0x801030c0)
             // that also maps each to a different value if a passed bool is unset.
             I8 = 0x42,
+
             I8_A0 = 0xa0,
             I8_A1 = 0xa1,
             I8_A2 = 0xa2,
@@ -189,6 +212,5 @@ namespace AuroraLib.Texture.Formats
             Nearest = 0x01,
             Linear = 0x02
         }
-
     }
 }

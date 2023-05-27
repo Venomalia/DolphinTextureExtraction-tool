@@ -8,6 +8,7 @@ namespace AuroraLib.Compression.Formats
      * CNX decompression support by drx (Luke Zapart)
      * <thedrx@gmail.com>
      */
+
     public class CNX : ICompression, IMagicIdentify
     {
         public bool CanRead => true;
@@ -58,7 +59,6 @@ namespace AuroraLib.Compression.Formats
 
         public static byte[] Decompress_ALG(Stream source, int decomLength)
         {
-
             byte[] destination = new byte[decomLength];
 
             int destinationPointer = 0x0;

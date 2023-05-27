@@ -1,6 +1,5 @@
 ﻿namespace AuroraLib.Common
 {
-
     /// <summary>
     /// Represents a 3-byte, 24-bit unsigned integer.
     /// Mainly Nintendo uses it in a number of formats.
@@ -82,6 +81,7 @@
         }
 
         #region operators
+
         public static UInt24 operator +(UInt24 a, UInt24 b) => new UInt24(a.Value + b.Value);
 
         public static UInt24 operator -(UInt24 a, UInt24 b) => new UInt24(a.Value - b.Value);
@@ -155,9 +155,11 @@
         public static explicit operator UInt24(ulong x) => new UInt24((uint)x);
 
         public static explicit operator ulong(UInt24 x) => (ulong)x.Value;
-        #endregion
+
+        #endregion operators
 
         #region IConvertible
+
         bool IConvertible.ToBoolean(IFormatProvider provider)
             => Convert.ToBoolean(Value, provider);
 
@@ -205,6 +207,7 @@
 
         public TypeCode GetTypeCode()
             => TypeCode.UInt32;
-        #endregion
+
+        #endregion IConvertible
     }
 }

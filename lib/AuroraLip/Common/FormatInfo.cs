@@ -2,7 +2,6 @@
 {
     public class FormatInfo : IEquatable<FormatInfo>, IEquatable<Stream>
     {
-
         /// <summary>
         /// File type
         /// </summary>
@@ -41,6 +40,7 @@
         public delegate bool MatchAction(Stream stream, in string extension = "");
 
         #region Constructor
+
         public FormatInfo(string extension = "", FormatType typ = FormatType.Unknown, string description = "", string developer = "")
         {
             Typ = typ;
@@ -63,7 +63,7 @@
                 Header = null;
         }
 
-        #endregion
+        #endregion Constructor
 
         private bool Matcher(Stream stream, in string extension = "")
         {

@@ -2,13 +2,11 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /// <summary>
     /// Nintendo LZ11 compression algorithm
     /// </summary>
     public class LZ11 : ICompression
     {
-
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
@@ -137,6 +135,7 @@ namespace AuroraLib.Compression.Formats
          * base on Puyo Tools
          * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
          */
+
         public static void Compress_ALG(in byte[] sourceArray, Stream destination)
         {
             int sourceLength = sourceArray.Length,

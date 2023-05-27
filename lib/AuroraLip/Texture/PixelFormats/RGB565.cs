@@ -147,6 +147,7 @@ namespace AuroraLib.Texture.PixelFormats
             dest.B = B;
             dest.A = 0xFF;
         }
+
         public Vector4 ToScaledVector4() => ToVector4();
 
         /// <inheritdoc />

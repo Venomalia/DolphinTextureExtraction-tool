@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Texture
 {
-
     /*
     * base on https://github.com/SuperHackio/Hack.io
     */
@@ -12,13 +11,13 @@ namespace AuroraLib.Texture
     /// </summary>
     public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable, IName
     {
-
         /// <summary>
         /// The full path of this file.
         /// </summary>
         public string Name { get; set; } = null;
 
-        public JUTTexture() { }
+        public JUTTexture()
+        { }
 
         public JUTTexture(Stream stream) => Read(stream);
 
@@ -37,10 +36,13 @@ namespace AuroraLib.Texture
             fs.Close();
             Name = filepath;
         }
+
         public virtual void Save(Stream stream) => Write(stream);
+
         public virtual void Open(Stream stream) => Read(stream);
 
         protected abstract void Read(Stream stream);
+
         protected abstract void Write(Stream stream);
 
         public bool ImageEquals(JUTTexture entry) => ListEx.Equals(this, entry);
@@ -57,6 +59,7 @@ namespace AuroraLib.Texture
         #region Dispose
 
         private bool disposedValue;
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -69,16 +72,18 @@ namespace AuroraLib.Texture
                 disposedValue = true;
             }
         }
+
         ~JUTTexture()
         {
             Dispose(disposing: true);
         }
+
         public void Dispose()
         {
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
 
-        #endregion
+        #endregion Dispose
     }
 }

@@ -13,7 +13,6 @@ namespace AuroraLib.Archives
     /// </summary>
     public class ArchiveDirectory : ArchiveObject
     {
-
         public override long Size => Items.Sum(A => A.Value.Size);
 
         /// <summary>
@@ -24,14 +23,16 @@ namespace AuroraLib.Archives
         /// <summary>
         /// Create a new Archive Directory
         /// </summary>
-        public ArchiveDirectory() { }
+        public ArchiveDirectory()
+        { }
 
         /// <summary>
         /// Create a new, child directory
         /// </summary>
         /// <param name="Owner">The Owner Archive</param>
         /// <param name="parentdir">The Parent Directory. NULL if this is the Root Directory</param>
-        public ArchiveDirectory(Archive Owner, ArchiveDirectory parentdir) { OwnerArchive = Owner; Parent = parentdir; }
+        public ArchiveDirectory(Archive Owner, ArchiveDirectory parentdir)
+        { OwnerArchive = Owner; Parent = parentdir; }
 
         /// <summary>
         /// Import a Folder into a Archive
@@ -113,6 +114,7 @@ namespace AuroraLib.Archives
                 }
             }
         }
+
         /// <summary>
         /// Checks to see if an Item Exists based on a Path
         /// </summary>
@@ -129,6 +131,7 @@ namespace AuroraLib.Archives
             else
                 return ItemKeyExists(PathSplit[0], IgnoreCase);
         }
+
         /// <summary>
         /// Checks to see if an item exists in this directory only
         /// </summary>
@@ -145,8 +148,9 @@ namespace AuroraLib.Archives
                     return true;
             return false;
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="path"></param>
         /// <param name="AttachRootName"></param>
@@ -171,6 +175,7 @@ namespace AuroraLib.Archives
                 return result == null ? null : (AttachRootName ? Name + Path.DirectorySeparatorChar : "") + result;
             }
         }
+
         /// <summary>
         /// Clears all the items out of this directory
         /// </summary>
@@ -183,13 +188,14 @@ namespace AuroraLib.Archives
             }
             Items.Clear();
         }
+
         /// <summary>
         /// Returns the amount of Items in this directory (Items in subdirectories not included)
         /// </summary>
         public int Count => Items.Count;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public int GetCountAndChildren()
@@ -222,6 +228,7 @@ namespace AuroraLib.Archives
             }
             Items = NewItems;
         }
+
         /// <summary>
         /// Moves an item from it's current directory to a new directory
         /// </summary>
@@ -235,6 +242,7 @@ namespace AuroraLib.Archives
             TargetDirectory[ItemKey] = Items[ItemKey];
             Items.Remove(ItemKey);
         }
+
         /// <summary>
         /// Rename an item in the directory
         /// </summary>
@@ -249,6 +257,7 @@ namespace AuroraLib.Archives
             activeitem.Name = NewName;
             Items.Add(NewName, activeitem);
         }
+
         /// <summary>
         /// Search the directory for files that match the regex
         /// </summary>
@@ -286,10 +295,11 @@ namespace AuroraLib.Archives
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString() => $"{Name} - {Items.Count} Item(s)";
+
         /// <summary>
         /// Create an ArchiveDirectory. You cannot use this function unless this directory is empty
         /// </summary>

@@ -20,9 +20,13 @@ namespace AuroraLib.Archives.Formats
             CpkContent = new LibCPK.CPK();
         }
 
-        public CPK(string filename) : base(filename) { }
+        public CPK(string filename) : base(filename)
+        {
+        }
 
-        public CPK(Stream stream, string fullpath = null) : base(stream, fullpath) { }
+        public CPK(Stream stream, string fullpath = null) : base(stream, fullpath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
@@ -44,7 +48,6 @@ namespace AuroraLib.Archives.Formats
                 {
                     if (!Root.Items.ContainsKey(entrie.DirName))
                         Root.Items.Add(entrie.DirName, new ArchiveDirectory(this, Root));
-
 
                     dir = (ArchiveDirectory)Root.Items[entrie.DirName];
                 }

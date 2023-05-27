@@ -8,7 +8,6 @@ namespace AuroraLib.Archives.Formats
     // base on https://zenhax.com/viewtopic.php?t=16613
     public class ALAR : Archive, IMagicIdentify, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -53,6 +52,7 @@ namespace AuroraLib.Archives.Formats
                         stream.Seek(pos, SeekOrigin.Begin);
                     }
                     break;
+
                 case 3:
                     ushort unk_6 = stream.ReadUInt16(Endian.Big);
                     List<ushort> entrie_pos = new List<ushort>();
@@ -74,10 +74,10 @@ namespace AuroraLib.Archives.Formats
                         Root.AddArchiveFile(stream, size, offset, name);
                     }
                     break;
+
                 default:
                     throw new Exception($"{nameof(ALAR)} unknown flag:{flag}");
             }
-
         }
 
         protected override void Write(Stream ArchiveFile)

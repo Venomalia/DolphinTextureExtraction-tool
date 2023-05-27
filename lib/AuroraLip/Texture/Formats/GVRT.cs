@@ -55,7 +55,6 @@ namespace AuroraLib.Texture.Formats
             if (Flags.HasFlag(DataFlags.Mipmaps))
                 mipmaps = PixelFormat.GetMipmapsFromSize((int)size - 6, Width, Height);
 
-
             TexEntry current = new TexEntry(stream, PaletteData, PixelFormat, PaletteFormat, Colors, Width, Height, mipmaps)
             {
                 LODBias = 0,

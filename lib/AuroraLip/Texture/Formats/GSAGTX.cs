@@ -30,6 +30,7 @@ namespace AuroraLib.Texture.Formats
             /// Contrains entries to "windows" into the texture to display
             /// </summary>
             public uint FramesOffset;
+
             public uint Header08;
 
             /// <summary>

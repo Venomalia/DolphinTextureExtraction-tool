@@ -1,20 +1,19 @@
 ﻿namespace AuroraLib.Compression
 {
-
     /*
      * from Puyo Tools
      * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats/PrsCompression.cs
      */
 
-    class LzBufferDictionary
+    internal class LzBufferDictionary
     {
-        int minMatchAmount = 3;
-        int maxMatchAmount = 18;
-        int bufferSize = 0;
-        int bufferStart = 0;
-        int bufferPointer = 0;
-        byte[] bufferData;
-        List<int>[] offsetList;
+        private int minMatchAmount = 3;
+        private int maxMatchAmount = 18;
+        private int bufferSize = 0;
+        private int bufferStart = 0;
+        private int bufferPointer = 0;
+        private byte[] bufferData;
+        private List<int>[] offsetList;
 
         public LzBufferDictionary()
         {
@@ -91,14 +90,17 @@
                 }
             }
         }
+
         public void SetBufferStart(int pos)
         {
             bufferStart = pos;
         }
+
         public void SetMinMatchAmount(int amount)
         {
             minMatchAmount = amount;
         }
+
         public void SetMaxMatchAmount(int amount)
         {
             maxMatchAmount = amount;
@@ -111,6 +113,7 @@
             offsetList[decompressedData[offset]].Add(bufferPointer);
             bufferPointer++;
         }
+
         public void AddEntryRange(byte[] decompressedData, int offset, int length)
         {
             for (int i = 0; i < length; i++)

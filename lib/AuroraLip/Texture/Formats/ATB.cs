@@ -100,8 +100,6 @@ namespace AuroraLib.Texture.Formats
                 };
                 Add(current);
             }
-
-
         }
 
         protected override void Write(Stream stream)

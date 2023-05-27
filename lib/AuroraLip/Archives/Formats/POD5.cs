@@ -15,11 +15,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "POD5";
 
-        public POD5() { }
+        public POD5()
+        { }
 
-        public POD5(string filename) : base(filename) { }
+        public POD5(string filename) : base(filename)
+        {
+        }
 
-        public POD5(Stream stream, string filename = null) : base(stream, filename) { }
+        public POD5(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

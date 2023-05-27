@@ -22,7 +22,7 @@ namespace AuroraLib.Archives
         /// <summary>
         /// Get the name of the archive without the path
         /// </summary>
-        public string Name { get { return FullPath == null ? FullPath : new FileInfo(FullPath).Name; } }
+        public string Name => FullPath == null ? FullPath : new FileInfo(FullPath).Name;
 
         /// <summary>
         /// The Root Directory of the Archive
@@ -40,7 +40,9 @@ namespace AuroraLib.Archives
                 root = value;
             }
         }
+
         private ArchiveDirectory root;
+
         /// <summary>
         /// The total amount of files inside this archive.
         /// </summary>
@@ -55,10 +57,13 @@ namespace AuroraLib.Archives
         public Events.FileRequestDelegate FileRequest { get; set; }
 
         #region Constructors
+
         /// <summary>
         /// Create an empty archive
         /// </summary>
-        public Archive() { }
+        public Archive()
+        { }
+
         /// <summary>
         /// Open an archive
         /// </summary>
@@ -69,6 +74,7 @@ namespace AuroraLib.Archives
             Open(stream, filename);
             stream.Close();
         }
+
         /// <summary>
         /// Open an archive that's stored inside a stream.
         /// <para/> Stream will be a <see cref="MemoryStream"/> if the Hack.io.YAZ0 library was used.
@@ -77,12 +83,15 @@ namespace AuroraLib.Archives
         /// <param name="fullpath">Filename to give</param>
         public Archive(Stream stream, string fullpath = null)
             => Open(stream, fullpath);
-        #endregion
+
+        #endregion Constructors
+
         /// <summary>
         /// The Binary I/O function for reading the file
         /// </summary>
         /// <param name="ArchiveFile"></param>
         protected abstract void Read(Stream ArchiveFile);
+
         /// <summary>
         /// The Binary I/O function for writing the file
         /// </summary>
@@ -90,6 +99,7 @@ namespace AuroraLib.Archives
         protected abstract void Write(Stream ArchiveFile);
 
         #region Public Functions
+
         /// <summary>
         /// Save the Archive to a File
         /// </summary>
@@ -101,6 +111,7 @@ namespace AuroraLib.Archives
             Save(fs);
             fs.Close();
         }
+
         /// <summary>
         /// Write the Archive to a Stream
         /// </summary>
@@ -118,7 +129,7 @@ namespace AuroraLib.Archives
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -126,9 +137,11 @@ namespace AuroraLib.Archives
             int Count = Root?.GetCountAndChildren() ?? 0;
             return $"{new FileInfo(FullPath).Name} - {Count} File{(Count > 1 ? "s" : "")} total";
         }
-        #endregion
+
+        #endregion Public Functions
 
         #region File Functions
+
         /// <summary>
         /// Get or Set a file based on a path. When setting, if the file doesn't exist, it will be added (Along with any missing subdirectories). Set the file to null to delete it
         /// </summary>
@@ -162,6 +175,7 @@ namespace AuroraLib.Archives
                 Root[Path] = value;
             }
         }
+
         /// <summary>
         /// Executed when you use ArchiveBase["FilePath"] to set a file
         /// </summary>
@@ -169,8 +183,8 @@ namespace AuroraLib.Archives
         /// <param name="Path"></param>
         protected virtual void OnItemSet(object value, string Path)
         {
-
         }
+
         /// <summary>
         /// Checks to see if an Item Exists based on a Path
         /// </summary>
@@ -183,6 +197,7 @@ namespace AuroraLib.Archives
                 path = path.Substring(Root.Name.Length + 1);
             return Root.ItemExists(path, IgnoreCase);
         }
+
         /// <summary>
         /// This will return the absolute path of an item if it exists in some way. Useful if you don't know the casing of the filename inside the file. Returns null if nothing is found.
         /// </summary>
@@ -194,10 +209,13 @@ namespace AuroraLib.Archives
                 Path = Path.Substring(Root.Name.Length + 1);
             return Root.GetItemKeyFromNoCase(Path, true);
         }
+
         /// <summary>
         /// Clears all the files out of this archive
         /// </summary>
-        public void ClearAll() { Root.Clear(); }
+        public void ClearAll()
+        { Root.Clear(); }
+
         /// <summary>
         /// Moves an item to a new directory
         /// </summary>
@@ -212,13 +230,13 @@ namespace AuroraLib.Archives
             if (ItemExists(NewPath))
                 throw new Exception("An item with that name already exists in that directory");
 
-
             dynamic dest = this[OriginalPath];
             string[] split = NewPath.Split('/');
             dest.Name = split[split.Length - 1];
             this[OriginalPath] = null;
             this[NewPath] = dest;
         }
+
         /// <summary>
         /// Search the archive for files that match the regex
         /// </summary>
@@ -227,15 +245,14 @@ namespace AuroraLib.Archives
         /// <param name="IgnoreCase">Ignore the filename casing</param>
         /// <returns></returns>
         public List<string> FindItems(string Pattern, bool RootLevelOnly = false, bool IgnoreCase = false) => Root.FindItems(Pattern, RootLevelOnly, IgnoreCase);
-        #endregion
+
+        #endregion File Functions
 
         /// <summary>
         /// Create an Archive from a Folder
         /// </summary>
         /// <param name="Folderpath">Folder to make an archive from</param>
         public void Import(string Folderpath) => Root = NewDirectory(Folderpath, this);
-
-
 
         protected virtual ArchiveDirectory NewDirectory() => new ArchiveDirectory();
 

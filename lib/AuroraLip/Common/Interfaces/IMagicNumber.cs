@@ -9,6 +9,5 @@
         /// Magic Identify
         /// </summary>
         string Magic { get; }
-
     }
 }

@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /*
      * base on Puyo Tools
      * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
@@ -61,13 +60,11 @@ namespace AuroraLib.Compression.Formats
             // Go back to the beginning of the file and write out the compressed length
             var destinationLength = (int)(destination.Position - destinationStartPosition);
             destination.At(destinationStartPosition + 4, x => x.Write(destinationLength));
-
         }
 
         public byte[] Decompress(Stream source)
         {
             source.Position += 4;
-
 
             // Get the source length, destination length, and encryption key
             int sourceLength = source.ReadInt32();
@@ -131,7 +128,6 @@ namespace AuroraLib.Compression.Formats
                 }
             }
         }
-
 
         public static void Compress_ALG(in byte[] sourceArray, Stream destination, uint key = 0)
         {
@@ -214,6 +210,5 @@ namespace AuroraLib.Compression.Formats
         {
             return (ushort)(Transform((byte)(value & 0xFF), ref key) | (Transform((byte)(value >> 8), ref key) << 8));
         }
-
     }
 }

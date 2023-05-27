@@ -23,25 +23,33 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "RARC";
 
-        public RARC() { }
+        public RARC()
+        { }
 
-        public RARC(string filename) : base(filename) { }
+        public RARC(string filename) : base(filename)
+        {
+        }
 
-        public RARC(Stream stream, string filename = null) : base(stream, filename) { }
+        public RARC(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
 
         #region Fields and Properties
+
         /// <summary>
         /// If false, the user must set all unique ID's for each file
         /// </summary>
         public bool KeepFileIDsSynced { get; set; } = true;
+
         /// <summary>
         /// Gets the next free File ID
         /// </summary>
         public short NextFreeFileID => GetNextFreeID();
-        #endregion
+
+        #endregion Fields and Properties
 
         /// <summary>
         /// Folder contained inside the Archive. Can contain more <see cref="Directory"/>s if desired, as well as <see cref="File"/>s
@@ -51,13 +59,17 @@ namespace AuroraLib.Archives.Formats
             /// <summary>
             /// Create a new Archive Directory
             /// </summary>
-            public Directory() { }
+            public Directory()
+            { }
+
             /// <summary>
             /// Create a new, child directory
             /// </summary>
             /// <param name="Owner">The Owner Archive</param>
             /// <param name="parentdir">The Parent Directory. NULL if this is the Root Directory</param>
-            public Directory(RARC Owner, Directory parentdir) { OwnerArchive = Owner; Parent = parentdir; }
+            public Directory(RARC Owner, Directory parentdir)
+            { OwnerArchive = Owner; Parent = parentdir; }
+
             /// <summary>
             /// Import a Folder into a RARCDirectory
             /// </summary>
@@ -70,6 +82,7 @@ namespace AuroraLib.Archives.Formats
                 CreateFromFolder(FolderPath, Owner);
                 OwnerArchive = Owner;
             }
+
             internal Directory(RARC Owner, int ID, List<RARCDirEntry> DirectoryNodeList, List<RARCFileEntry> FlatFileList, uint DataBlockStart, Stream RARCFile)
             {
                 OwnerArchive = Owner;
@@ -89,11 +102,13 @@ namespace AuroraLib.Archives.Formats
             }
 
             internal string ToTypeString() => Name.ToUpper().PadRight(4, ' ').Substring(0, 4);
+
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <returns></returns>
             public override string ToString() => $"{Name} - {Items.Count} Item(s)";
+
             /// <summary>
             /// Create an ArchiveDirectory. You cannot use this function unless this directory is empty
             /// </summary>
@@ -120,20 +135,23 @@ namespace AuroraLib.Archives.Formats
                     Items[temp.Name] = temp;
                 }
             }
+
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <returns></returns>
             protected override ArchiveDirectory NewDirectory() => new Directory();
+
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <param name="Owner"></param>
             /// <param name="parent"></param>
             /// <returns></returns>
             protected override ArchiveDirectory NewDirectory(Archive Owner, ArchiveDirectory parent) => new Directory((RARC)Owner, (Directory)parent);
+
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <param name="filename"></param>
             /// <param name="Owner"></param>
@@ -150,14 +168,18 @@ namespace AuroraLib.Archives.Formats
             /// Extra settings for this File.<para/>Default: <see cref="FileAttribute.FILE"/> | <see cref="FileAttribute.PRELOAD_TO_MRAM"/>
             /// </summary>
             public FileAttribute FileSettings { get; set; } = FileAttribute.FILE | FileAttribute.PRELOAD_TO_MRAM;
+
             /// <summary>
             /// The ID of the file in the archive
             /// </summary>
             public short ID { get; set; } = -1;
+
             /// <summary>
             /// Empty file
             /// </summary>
-            public File() { }
+            public File()
+            { }
+
             /// <summary>
             /// Load a File's Data based on a path
             /// </summary>
@@ -165,6 +187,7 @@ namespace AuroraLib.Archives.Formats
             public File(string Filepath) : base(Filepath)
             {
             }
+
             /// <summary>
             /// Create a File from a MemoryStream
             /// </summary>
@@ -173,6 +196,7 @@ namespace AuroraLib.Archives.Formats
             public File(string name, MemoryStream ms) : base(name, ms)
             {
             }
+
             internal File(RARCFileEntry entry, uint DataBlockStart, Stream stream)
             {
                 Name = entry.Name;
@@ -181,8 +205,9 @@ namespace AuroraLib.Archives.Formats
                 stream.Position = DataBlockStart + entry.ModularA;
                 FileData = new MemoryStream(stream.Read(entry.ModularB));
             }
+
             /// <summary>
-            /// 
+            ///
             /// </summary>
             /// <returns></returns>
             public override string ToString() => $"{ID} - {Name} ({FileSettings.ToString()}) [0x{FileData.Length.ToString("X8")}]";
@@ -197,6 +222,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         #region Internals
+
         /// <summary>
         /// Only used when Reading / Writing
         /// </summary>
@@ -206,13 +232,16 @@ namespace AuroraLib.Archives.Formats
             /// Directory Type. usually the first 4 letters of the <see cref="Name"/>. If the <see cref="Name"/> is shorter than 4, the missing spots will be ' ' (space)
             /// </summary>
             public string Type { get; set; }
+
             public string Name { get; set; }
             public uint NameOffset { get; set; }
             public ushort NameHash { get; set; }
             public ushort FileCount { get; set; }
             public uint FirstFileOffset { get; set; }
 
-            public RARCDirEntry() { }
+            public RARCDirEntry()
+            { }
+
             public RARCDirEntry(Stream stream, uint StringTableOffset)
             {
                 Type = stream.ReadString(4);
@@ -229,7 +258,6 @@ namespace AuroraLib.Archives.Formats
 
             internal void Write(Stream RARCFile, Dictionary<string, uint> StringLocations)
             {
-
             }
 
             public override string ToString() => $"{Name} ({Type}) [0x{NameHash.ToString("X4")}] {FileCount} File(s)";
@@ -243,14 +271,17 @@ namespace AuroraLib.Archives.Formats
             public override long Size => 0;
             public short FileID;
             public short Type;
+
             /// <summary>
             /// For files: offset to file data in file data section, for subdirectories: index of the corresponding directory node
             /// </summary>
             public int ModularA;
+
             /// <summary>
             /// For files: size of the file, for subdirectories: always 0x10 (size of the node entry?)
             /// </summary>
             public int ModularB;
+
             internal short NameHash;
             internal FileAttribute RARCFileType => (FileAttribute)((Type & 0xFF00) >> 8);
 
@@ -269,14 +300,16 @@ namespace AuroraLib.Archives.Formats
             {
                 Hash *= 3;
                 Hash += Input[i];
-                Hash = 0xFFFF & Hash; //cast to short 
+                Hash = 0xFFFF & Hash; //cast to short
             }
 
             return (ushort)Hash;
         }
-        #endregion
+
+        #endregion Internals
 
         #region Privates
+
         /// <summary>
         /// Sets new file's File ID
         /// </summary>
@@ -297,6 +330,7 @@ namespace AuroraLib.Archives.Formats
         protected override void Read(Stream stream)
         {
             #region Header
+
             if (!IsMatch(stream))
                 throw new InvalidIdentifierException(Magic);
             uint FileSize = stream.ReadUInt32(Endian.Big),
@@ -306,9 +340,11 @@ namespace AuroraLib.Archives.Formats
                 MRAMSize = stream.ReadUInt32(Endian.Big),
                 ARAMSize = stream.ReadUInt32(Endian.Big);
             stream.Position += 0x04; //Skip the supposed padding
-            #endregion
+
+            #endregion Header
 
             #region Data Header
+
             uint DirectoryCount = stream.ReadUInt32(Endian.Big),
                     DirectoryTableOffset = stream.ReadUInt32(Endian.Big) + 0x20,
                     FileEntryCount = stream.ReadUInt32(Endian.Big),
@@ -317,7 +353,8 @@ namespace AuroraLib.Archives.Formats
                     StringTableOffset = stream.ReadUInt32(Endian.Big) + 0x20;
             ushort NextFreeFileID = stream.ReadUInt16(Endian.Big);
             KeepFileIDsSynced = stream.ReadByte() != 0x00;
-            #endregion
+
+            #endregion Data Header
 
 #if DEBUG
             //string XML = $"<RarcHeader Magic=\"{Magic}\"  FileSize=\"0x{FileSize.ToString("X8")}\"  DataHeaderOffset=\"0x{DataHeaderOffset.ToString("X8")}\"  DataOffset=\"0x{DataOffset.ToString("X8")}\"  DataLength=\"0x{DataLength.ToString("X8")}\"  MRAM=\"0x{MRAMSize.ToString("X8")}\"  ARAM=\"0x{ARAMSize.ToString("X8")}\"/>\n" +
@@ -325,6 +362,7 @@ namespace AuroraLib.Archives.Formats
 #endif
 
             #region Directory Nodes
+
             stream.Position = DirectoryTableOffset;
 
             List<RARCDirEntry> FlatDirectoryList = new List<RARCDirEntry>();
@@ -343,9 +381,11 @@ namespace AuroraLib.Archives.Formats
 #else
                 FlatDirectoryList.Add(new RARCDirEntry(stream, StringTableOffset));
 #endif
-            #endregion
+
+            #endregion Directory Nodes
 
             #region File Nodes
+
             List<RARCFileEntry> FlatFileList = new List<RARCFileEntry>();
             stream.Seek(FileEntryTableOffset, SeekOrigin.Begin);
             for (int i = 0; i < FileEntryCount; i++)
@@ -371,7 +411,6 @@ namespace AuroraLib.Archives.Formats
 
             //System.IO.File.WriteAllText("Original.xml", XML);
 #endif
-
 
             List<Directory> Directories = new List<Directory>();
             for (int i = 0; i < FlatDirectoryList.Count; i++)
@@ -411,10 +450,12 @@ namespace AuroraLib.Archives.Formats
                 }
                 Directories[i].Items = templist.ToDictionary(K => K.Key, V => V.Value);
             }
-            #endregion
+
+            #endregion File Nodes
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="stream"></param>
         protected override void Write(Stream stream)
@@ -433,6 +474,7 @@ namespace AuroraLib.Archives.Formats
             byte[] StringDataBuffer = GetStringTableBytes(FlatFileList, Root.Name, ref StringLocations).ToArray();
 
             #region File Writing
+
             stream.Write(Magic);
             stream.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
             stream.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
@@ -451,6 +493,7 @@ namespace AuroraLib.Archives.Formats
             long DirectoryEntryOffset = stream.Position;
 
             #region Directory Nodes
+
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
                 stream.Write(FlatDirectoryList[i].Type);
@@ -461,14 +504,18 @@ namespace AuroraLib.Archives.Formats
             }
 
             #region Padding
+
             while (stream.Position % 32 != 0)
                 stream.WriteByte(0x00);
-            #endregion
-            #endregion
+
+            #endregion Padding
+
+            #endregion Directory Nodes
 
             long FileEntryOffset = stream.Position;
 
             #region File Entries
+
             for (int i = 0; i < FlatFileList.Count; i++)
             {
                 stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].FileID), 2);
@@ -479,30 +526,41 @@ namespace AuroraLib.Archives.Formats
                 stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularB), 4);
                 stream.Write(new byte[4], 0, 4);
             }
+
             #region Padding
+
             while (stream.Position % 32 != 0)
                 stream.WriteByte(0x00);
-            #endregion
-            #endregion
+
+            #endregion Padding
+
+            #endregion File Entries
 
             long StringTableOffset = stream.Position;
 
             #region String Table
+
             stream.Write(StringDataBuffer, 0, StringDataBuffer.Length);
 
             #region Padding
+
             while (stream.Position % 32 != 0)
                 stream.WriteByte(0x00);
-            #endregion
-            #endregion
+
+            #endregion Padding
+
+            #endregion String Table
 
             long FileTableOffset = stream.Position;
 
             #region File Table
+
             stream.Write(DataByteBuffer, 0, DataByteBuffer.Length);
-            #endregion
+
+            #endregion File Table
 
             #region Header
+
             stream.Position = 0x04;
             stream.WriteBigEndian(BitConverter.GetBytes((int)stream.Length), 4);
             stream.Position += 0x04;
@@ -514,10 +572,12 @@ namespace AuroraLib.Archives.Formats
             stream.WriteBigEndian(BitConverter.GetBytes((int)(FileEntryOffset - 0x20)), 4);
             stream.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - StringTableOffset)), 4);
             stream.WriteBigEndian(BitConverter.GetBytes((int)(StringTableOffset - 0x20)), 4);
-            #endregion
 
-            #endregion
+            #endregion Header
+
+            #endregion File Writing
         }
+
         private List<byte> GetDataBytes(ArchiveDirectory Root, ref Dictionary<ArchiveFile, uint> Offsets, ref uint LocalOffset, ref uint MRAMSize, ref uint ARAMSize, ref uint DVDSize)
         {
             List<byte> DataBytesMRAM = new List<byte>();
@@ -530,7 +590,6 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < MRAM.Count; i++)
             {
-
                 if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray())))
                 {
                     Offsets.Add(MRAM[i], Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray()))]);
@@ -577,6 +636,7 @@ namespace AuroraLib.Archives.Formats
             DataBytes.AddRange(DataBytesDVD);
             return DataBytes;
         }
+
         private void SortFilesByLoadType(ArchiveDirectory Root, ref List<ArchiveFile> MRAM, ref List<ArchiveFile> ARAM, ref List<ArchiveFile> DVD)
         {
             foreach (KeyValuePair<string, ArchiveObject> item in Root.Items)
@@ -604,6 +664,7 @@ namespace AuroraLib.Archives.Formats
                 }
             }
         }
+
         private List<RARCFileEntry> GetFlatFileList(ArchiveDirectory Root, Dictionary<ArchiveFile, uint> FileOffsets, ref short GlobalFileID, int CurrentFolderID, ref int NextFolderID, int BackwardsFolderID)
         {
             List<RARCFileEntry> FileList = new List<RARCFileEntry>();
@@ -631,6 +692,7 @@ namespace AuroraLib.Archives.Formats
             }
             return FileList;
         }
+
         private List<ArchiveFile> GetFlatFileList(ArchiveDirectory Root)
         {
             List<ArchiveFile> FileList = new List<ArchiveFile>();
@@ -648,6 +710,7 @@ namespace AuroraLib.Archives.Formats
             }
             return FileList;
         }
+
         private List<RARCDirEntry> GetFlatDirectoryList(ArchiveDirectory Root, ref uint FirstFileOffset)
         {
             List<RARCDirEntry> FlatDirectoryList = new List<RARCDirEntry>();
@@ -664,6 +727,7 @@ namespace AuroraLib.Archives.Formats
             FlatDirectoryList.AddRange(TemporaryList);
             return FlatDirectoryList;
         }
+
         private List<byte> GetStringTableBytes(List<RARCFileEntry> FlatFileList, string RootName, ref Dictionary<string, uint> Offsets)
         {
             List<byte> strings = new List<byte>();
@@ -715,7 +779,8 @@ namespace AuroraLib.Archives.Formats
             else
                 return Remaining.First();
         }
-        #endregion
+
+        #endregion Privates
 
         /// <summary>
         /// File Attibutes for <see cref="File"/>
@@ -727,26 +792,32 @@ namespace AuroraLib.Archives.Formats
             /// Indicates this is a File
             /// </summary>
             FILE = 0x01,
+
             /// <summary>
             /// Directory. Not allowed to be used for <see cref="File"/>s, only here for reference
             /// </summary>
             DIRECTORY = 0x02,
+
             /// <summary>
             /// Indicates that this file is compressed
             /// </summary>
             COMPRESSED = 0x04,
+
             /// <summary>
             /// Indicates that this file gets Pre-loaded into Main RAM
             /// </summary>
             PRELOAD_TO_MRAM = 0x10,
+
             /// <summary>
             /// Indicates that this file gets Pre-loaded into Auxiliary RAM
             /// </summary>
             PRELOAD_TO_ARAM = 0x20,
+
             /// <summary>
             /// Indicates that this file does not get pre-loaded, but rather read from the DVD
             /// </summary>
             LOAD_FROM_DVD = 0x40,
+
             /// <summary>
             /// Indicates that this file is YAZ0 Compressed
             /// </summary>

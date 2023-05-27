@@ -13,11 +13,16 @@ namespace AuroraLib.Texture.Formats
 
         private const string magic = "HXTB";
 
-        public HXTB() { }
+        public HXTB()
+        { }
 
-        public HXTB(Stream stream) : base(stream) { }
+        public HXTB(Stream stream) : base(stream)
+        {
+        }
 
-        public HXTB(string filepath) : base(filepath) { }
+        public HXTB(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

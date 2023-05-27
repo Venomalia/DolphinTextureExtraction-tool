@@ -25,7 +25,6 @@ namespace AuroraLib.Archives.DiscImage
         public SystemCode SystemCode { get => (SystemCode)systemCode; set => systemCode = (byte)value; }
         private byte systemCode;
 
-
         public char[] GameCode
         {
             get => new char[] { (char)gameCode0, (char)gameCode1 };
@@ -37,6 +36,7 @@ namespace AuroraLib.Archives.DiscImage
                 gameCode1 = (byte)value[1];
             }
         }
+
         private byte gameCode0;
         private byte gameCode1;
 
@@ -54,6 +54,7 @@ namespace AuroraLib.Archives.DiscImage
                 makercode1 = (byte)value[1];
             }
         }
+
         private byte makercode0;
         private byte makercode1;
 
@@ -69,6 +70,7 @@ namespace AuroraLib.Archives.DiscImage
             makercode0 = (byte)Value[4];
             makercode1 = (byte)Value[5];
         }
+
         public GameID(in byte[] Value)
         {
             if (Value.Length != 6)
@@ -89,15 +91,23 @@ namespace AuroraLib.Archives.DiscImage
         }
 
         public static bool operator ==(GameID l, GameID r) => l.Value == r.Value;
+
         public static bool operator !=(GameID l, GameID r) => l.Value == r.Value;
+
         public override int GetHashCode() => Value.GetHashCode();
+
         public override bool Equals(object obj) => obj is GameID ID && ID.Value == Value;
+
         public override string ToString() => Value.ToString();
 
         public static explicit operator GameID(in byte[] x) => new GameID(x);
+
         public static explicit operator byte[](GameID x) => x.Value;
+
         public static explicit operator GameID(string x) => new GameID(x.AsSpan());
+
         public static explicit operator GameID(ReadOnlySpan<char> x) => new GameID(x);
+
         public static explicit operator string(GameID x) => x.Value.ToValidString();
     }
 }

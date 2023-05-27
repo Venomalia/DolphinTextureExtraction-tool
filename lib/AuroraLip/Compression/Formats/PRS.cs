@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /*
      * Puyo Tools
      * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats/PrsCompression.cs
@@ -85,7 +84,6 @@ namespace AuroraLib.Compression.Formats
 
         public void Compress(in byte[] Data, Stream destination)
         {
-
             Stream source = new MemoryStream(Data);
 
             // Get the source length
@@ -232,6 +230,5 @@ namespace AuroraLib.Compression.Formats
             currentByte >>= 1;
             return flag;
         }
-
     }
 }

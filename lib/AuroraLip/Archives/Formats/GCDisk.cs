@@ -16,11 +16,16 @@ namespace AuroraLib.Archives.Formats
 
         public BootBin Boot;
 
-        public GCDisk() { }
+        public GCDisk()
+        { }
 
-        public GCDisk(string filename) : base(filename) { }
+        public GCDisk(string filename) : base(filename)
+        {
+        }
 
-        public GCDisk(Stream stream, string fullpath = null) : base(stream, fullpath) { }
+        public GCDisk(Stream stream, string fullpath = null) : base(stream, fullpath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
@@ -116,6 +121,7 @@ namespace AuroraLib.Archives.Formats
             }
 
             public static explicit operator Bi2Bin(byte[] x) => new Bi2Bin(x);
+
             public static explicit operator byte[](Bi2Bin x) => x.Data;
         }
 
@@ -150,6 +156,7 @@ namespace AuroraLib.Archives.Formats
                     return stream.ToArray();
                 }
             }
+
             public GameID GameID;
             public byte DiskID;
             public byte Version;
@@ -170,7 +177,6 @@ namespace AuroraLib.Archives.Formats
             public uint userPosition;
             public uint userLength;
             public uint unknown;
-
 
             public BootBin(in byte[] Value)
             {
@@ -199,6 +205,7 @@ namespace AuroraLib.Archives.Formats
             }
 
             public static explicit operator BootBin(byte[] x) => new BootBin(x);
+
             public static explicit operator byte[](BootBin x) => x.Data;
         }
 
@@ -257,8 +264,6 @@ namespace AuroraLib.Archives.Formats
                     set => Flag = (byte)(value ? 1 : 0);
                 }
             }
-
         }
     }
-
 }

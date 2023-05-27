@@ -11,7 +11,6 @@ namespace AuroraLib.Texture
 {
     public static class GXImageEX
     {
-
         public static IBlock GetBlockDescription(this GXImageFormat Format)
             => Format switch
             {
@@ -39,14 +38,17 @@ namespace AuroraLib.Texture
                         Span<IA8> IA8 = stackalloc IA8[palette.Length / 2];
                         new IA8Block().DecodeBlock(palette, IA8);
                         return format.DecodeImage<IA8>(data, width, height, IA8);
+
                     case GXPaletteFormat.RGB565:
                         Span<RGB565> RGB565 = stackalloc RGB565[palette.Length / 2];
                         new RGB565Block().DecodeBlock(palette, RGB565);
                         return format.DecodeImage<RGB565>(data, width, height, RGB565);
+
                     case GXPaletteFormat.RGB5A3:
                         Span<RGB5A3> RGB5A3 = stackalloc RGB5A3[palette.Length / 2];
                         new RGB5A3Block().DecodeBlock(palette, RGB5A3);
                         return format.DecodeImage<RGB5A3>(data, width, height, RGB5A3);
+
                     default:
                         throw new NotSupportedException("Unsupported GXPaletteFormat");
                 }

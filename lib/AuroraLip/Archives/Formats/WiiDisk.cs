@@ -20,11 +20,16 @@ namespace AuroraLib.Archives.Formats
 
         public HeaderBin Header;
 
-        public WiiDisk() { }
+        public WiiDisk()
+        { }
 
-        public WiiDisk(string filename) : base(filename) { }
+        public WiiDisk(string filename) : base(filename)
+        {
+        }
 
-        public WiiDisk(Stream stream, string fullpath = null) : base(stream, fullpath) { }
+        public WiiDisk(Stream stream, string fullpath = null) : base(stream, fullpath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
@@ -57,7 +62,6 @@ namespace AuroraLib.Archives.Formats
                 parDirectory.AddArchiveFile(stream, partition.H3size, partition.H3offset, "h3.bin");
                 Root.Items.Add(parDirectory.Name, parDirectory);
                 //parDirectory.AddArchiveFile(stream, partition.DATAsize, partition.DATAoffset, "data.bin");
-
 
                 //Shared files of each partition
                 ArchiveDirectory DiscDirectory = new ArchiveDirectory(this, parDirectory) { Name = "disc" };
@@ -109,7 +113,6 @@ namespace AuroraLib.Archives.Formats
         /// </summary>
         public class WiiStream : SubStream
         {
-
             private byte[] BlockBuffer = new byte[_DataSize];
 
             private int BufferedBlock = -1;
@@ -138,6 +141,7 @@ namespace AuroraLib.Archives.Formats
                     position = value;
                 }
             }
+
             private new long position = 0;
 
             public WiiStream(Stream stream, long length, long offset, byte[] key) : base(stream, length, offset, true)
@@ -155,7 +159,7 @@ namespace AuroraLib.Archives.Formats
                  Partition data is encrypted using a key, which can be obtained from the partition header and the master key.
                  The actual partition data starts at an offset into the partition, and it is formatted in "clusters" of size 0x8000 (32768).
                  Each one of these blocks consists of 0x400(1024) bytes of encrypted SHA-1 hash data, followed by 0x7C00(31744) bytes of encrypted user data.
-                 The 0x400 bytes SHA-1 data is encrypted using AES-128-CBC, with the partition key and a null (all zeroes) IV. Clusters are aggregated into subgroups of 8 
+                 The 0x400 bytes SHA-1 data is encrypted using AES-128-CBC, with the partition key and a null (all zeroes) IV. Clusters are aggregated into subgroups of 8
                  */
 
                 if (BufferedBlock != BlockNumber)
@@ -205,15 +209,19 @@ namespace AuroraLib.Archives.Formats
             public uint WiiMagicWord; // GC 0 Wii 1562156707
             public uint GCMagicWord; // GC 3258163005 Wii 0
             public string GameName;
+
             /// <summary>
             /// 'False' don't work on retail consoles
             /// </summary>
             public bool Verification { get => verification == 0; set => verification = (byte)(value ? 0 : 1); }
+
             private byte verification; // 0 on , 1 off
+
             /// <summary>
             /// 'False' don't work on retail consoles
             /// </summary>
             public bool Encryption { get => encryption == 0; set => encryption = (byte)(value ? 0 : 1); }
+
             private byte encryption; // 0 on , 1 off
 
             public HeaderBin(Stream stream)
@@ -307,10 +315,13 @@ namespace AuroraLib.Archives.Formats
             {
                 //Game Partition
                 DATA = 0,
+
                 //Update Partition
                 UPDATE = 1,
+
                 //Channel installer
                 CHANNEL = 2,
+
                 //ELSE = default
             }
         }

@@ -38,6 +38,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         private bool disposedValue;
+
         protected override void Dispose(bool disposing)
         {
             if (!disposedValue)

@@ -108,11 +108,11 @@ namespace AuroraLib.Compression.Formats
             }
         }
 
-
         /*
          * base on Puyo Tools
          * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats
          */
+
         public static void Compress_ALG(byte[] sourceArray, Stream destination)
         {
             int sourceLength = sourceArray.Length,
@@ -167,6 +167,5 @@ namespace AuroraLib.Compression.Formats
                 }
             }
         }
-
     }
 }

@@ -26,6 +26,5 @@
 
         private static void DefaultNotification(NotificationType type, string message)
             => Console.WriteLine($"{type}: {message}");
-
     }
 }

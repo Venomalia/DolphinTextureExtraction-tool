@@ -1,7 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Compression;
-using IronCompress;
-using System.Buffers;
+﻿using IronCompress;
 
 namespace AuroraLib.Compression.Formats
 {

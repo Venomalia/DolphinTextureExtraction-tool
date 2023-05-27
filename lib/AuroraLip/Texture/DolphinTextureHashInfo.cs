@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Texture;
 using AuroraLib.Texture.Interfaces;
 using System.Text.RegularExpressions;
 

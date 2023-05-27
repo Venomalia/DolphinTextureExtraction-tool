@@ -81,10 +81,8 @@
             Formats.AddRange(Exten);
         }
 
-
         private static List<FormatInfo> Formats = new List<FormatInfo>();
 
         public static readonly Dictionary<string, FormatInfo> Header = new Dictionary<string, FormatInfo>();
-
     }
 }

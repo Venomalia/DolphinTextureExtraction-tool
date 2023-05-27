@@ -30,6 +30,5 @@ namespace AuroraLib.Texture.BlockFormats
             ReadOnlySpan<byte> temp = MemoryMarshal.Cast<I8, byte>(pixels);
             temp.CopyTo(data);
         }
-
     }
 }

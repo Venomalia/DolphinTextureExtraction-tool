@@ -13,7 +13,6 @@ namespace AuroraLib.Archives
     /// </summary>
     public class ArchiveFile : ArchiveObject
     {
-
         public override long Size => FileData?.CanRead == true ? (long)FileData?.Length : 0;
 
         /// <summary>
@@ -29,7 +28,8 @@ namespace AuroraLib.Archives
         /// <summary>
         /// Empty file
         /// </summary>
-        public ArchiveFile() { }
+        public ArchiveFile()
+        { }
 
         /// <summary>
         /// Load a File's Data based on a path
@@ -40,6 +40,7 @@ namespace AuroraLib.Archives
             Name = new FileInfo(Filepath).Name;
             FileData = new FileStream(Filepath, fileMode, fileAccess);
         }
+
         /// <summary>
         /// Create a File from a MemoryStream
         /// </summary>
@@ -83,9 +84,13 @@ namespace AuroraLib.Archives
         {
             public ArchiveFile Parent { get; set; }
 
-            public ArchiveFileStream(Stream stream, long length, bool protectBaseStream = true) : base(stream, length, protectBaseStream) { }
+            public ArchiveFileStream(Stream stream, long length, bool protectBaseStream = true) : base(stream, length, protectBaseStream)
+            {
+            }
 
-            public ArchiveFileStream(Stream stream, long length, long offset, bool protectBaseStream = true) : base(stream, length, offset, protectBaseStream) { }
+            public ArchiveFileStream(Stream stream, long length, long offset, bool protectBaseStream = true) : base(stream, length, offset, protectBaseStream)
+            {
+            }
         }
 
         /// <summary>

@@ -16,7 +16,6 @@ namespace AuroraLib.Compression.Formats
     /// </summary>
     public class YAY0 : ICompression, IMagicIdentify
     {
-
         public string Magic { get; } = "Yay0";
 
         public bool CanWrite { get; } = true;
@@ -103,7 +102,6 @@ namespace AuroraLib.Compression.Formats
             if (source.ReadString(4) != Magic)
                 throw new Exception($"{typeof(YAY0)}:Invalid Identifier");
 
-
             uint uncompressedSize = source.ReadUInt32(Endian.Big),
                 linkTableOffset = source.ReadUInt32(Endian.Big),
                 byteChunkAndCountModifiersOffset = source.ReadUInt32(Endian.Big);
@@ -171,6 +169,7 @@ namespace AuroraLib.Compression.Formats
         }
 
         #region Helper
+
         private static int[] FindAllMatches(ref List<byte> dictionary, byte match)
         {
             List<int> matchPositons = new List<int>();
@@ -253,7 +252,6 @@ namespace AuroraLib.Compression.Formats
                 layoutByteArray[0] = Convert.ToByte(layoutBitsString, 2);
                 layoutBytes.Add(layoutByteArray[0]);
                 layoutBits.RemoveRange(0, (layoutBits.Count < 8) ? layoutBits.Count : 8);
-
             }
 
             //assemble offsetLength shorts
@@ -336,8 +334,6 @@ namespace AuroraLib.Compression.Formats
                                     finalYAY0Block.Add(extendedLengthBytes[0]);
                                     extendedLengthBytes.RemoveAt(0);
                                 }
-
-
                             }
                         }
                     }
@@ -346,6 +342,7 @@ namespace AuroraLib.Compression.Formats
 
             return finalYAY0Block.ToArray();
         }
-        #endregion
+
+        #endregion Helper
     }
 }

@@ -20,13 +20,19 @@ namespace AuroraLib.Archives.Formats
                 libraryPath = value;
             }
         }
+
         private static string libraryPath;
 
-        public SevenZip() { }
+        public SevenZip()
+        { }
 
-        public SevenZip(string filename) : base(filename) { }
+        public SevenZip(string filename) : base(filename)
+        {
+        }
 
-        public SevenZip(Stream stream, string fullpath = null) : base(stream, fullpath) { }
+        public SevenZip(Stream stream, string fullpath = null) : base(stream, fullpath)
+        {
+        }
 
         static SevenZip()
         {

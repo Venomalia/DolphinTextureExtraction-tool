@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.BlockFormats
 {
-
     /// <summary>
     /// Represents a block of CMPR (Compressed) pixels. Each block has a size of 8x8 pixels.
     /// The 32-byte block is organized into four 4x4 sub-blocks, each containing compressed pixel data.

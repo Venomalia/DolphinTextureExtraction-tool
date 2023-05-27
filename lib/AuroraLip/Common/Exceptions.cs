@@ -6,7 +6,8 @@ namespace AuroraLib.Common
     {
         public string ExpectedIdentifier { get; set; }
 
-        public InvalidIdentifierException() { }
+        public InvalidIdentifierException()
+        { }
 
         public InvalidIdentifierException(string ExpectedIdentifier) : base($"Expected \"{ExpectedIdentifier}\"")
         {
@@ -18,12 +19,19 @@ namespace AuroraLib.Common
     {
         public string ExpectedIdentifier { get; set; }
 
-        public PaletteException() { }
+        public PaletteException()
+        { }
 
-        public PaletteException(string message) : base(message) { }
+        public PaletteException(string message) : base(message)
+        {
+        }
 
-        public PaletteException(string message, Exception innerException) : base(message, innerException) { }
+        public PaletteException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
 
-        protected PaletteException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected PaletteException(SerializationInfo info, StreamingContext context) : base(info, context)
+        {
+        }
     }
 }

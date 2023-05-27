@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Common
 {
-
     /// <summary>
     /// Extension of the <see cref="Stream"/>.
     /// </summary>
@@ -26,7 +25,6 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static byte[] Read(this Stream stream, int Count, Endian order = Endian.Little, int Offset = 0)
         {
-
 #if DEBUG
             if (stream.Position + Count > stream.Length)
                 Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
@@ -288,8 +286,9 @@ namespace AuroraLib.Common
                 return memoryStream.ToArray();
             }
         }
+
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="magic">Match</param>
@@ -409,9 +408,11 @@ namespace AuroraLib.Common
             {
                 case SeekOrigin.Begin:
                     break;
+
                 case SeekOrigin.Current:
                     offset += stream.Position;
                     break;
+
                 case SeekOrigin.End:
                     offset = stream.Length - offset;
                     break;

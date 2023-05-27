@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Texture.Formats;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -9,12 +8,13 @@ namespace AuroraLib.Texture.Formats
     /// </summary>
     public class GSScene : HALDAT
     {
-        public List<string> Extensions => new List<string>() {".gsscene", ".floordat", ".modeldat"};
+        public List<string> Extensions => new List<string>() { ".gsscene", ".floordat", ".modeldat" };
 
         public override bool IsMatch(Stream stream, in string extension = "")
             => Extensions.Contains(extension.ToLower());
 
-        public GSScene() { }
+        public GSScene()
+        { }
 
         public GSScene(Stream stream) => Read(stream);
 

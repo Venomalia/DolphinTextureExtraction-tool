@@ -10,11 +10,16 @@ namespace AuroraLib.Texture.Formats
 
         public string Extension => ".tex";
 
-        public TEX_KS() { }
+        public TEX_KS()
+        { }
 
-        public TEX_KS(Stream stream) : base(stream) { }
+        public TEX_KS(Stream stream) : base(stream)
+        {
+        }
 
-        public TEX_KS(string filepath) : base(filepath) { }
+        public TEX_KS(string filepath) : base(filepath)
+        {
+        }
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
@@ -61,7 +66,7 @@ namespace AuroraLib.Texture.Formats
             Add(current);
         }
 
-        static Dictionary<uint, GXImageFormat> TEX_ImageFormat = new Dictionary<uint, GXImageFormat>
+        private static Dictionary<uint, GXImageFormat> TEX_ImageFormat = new Dictionary<uint, GXImageFormat>
         {
             { 0x00, GXImageFormat.RGBA32 },
             { 0x4b, GXImageFormat.IA8 },

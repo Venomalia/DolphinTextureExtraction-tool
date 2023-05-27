@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Archives.Formats
 {
-
     // Format references https://github.com/intns/MODConv. For now, the textures are enough for us.
 
     /// <summary>
@@ -16,11 +15,16 @@ namespace AuroraLib.Archives.Formats
 
         public static string Extension => ".mod";
 
-        public MOD() { }
+        public MOD()
+        { }
 
-        public MOD(string filename) : base(filename) { }
+        public MOD(string filename) : base(filename)
+        {
+        }
 
-        public MOD(Stream stream, string filename = null) : base(stream, filename) { }
+        public MOD(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
@@ -48,15 +52,18 @@ namespace AuroraLib.Archives.Formats
                     case ChunkTyps.Texture:
                         ReadTextureChunk(stream, lengthOfStruct, StartOfStruct);
                         break;
+
                     case ChunkTyps.TextureAttribute:
                         ReadTextureAttributeChunk(stream, lengthOfStruct, StartOfStruct);
                         break;
-                    case ChunkTyps.EoF: //End of binary data Start of INI data 
+
+                    case ChunkTyps.EoF: //End of binary data Start of INI data
                         stream.Seek(lengthOfStruct, SeekOrigin.Current);
                         StartOfStruct = stream.Position;
                         lengthOfStruct = (int)(stream.Length - stream.Position);
                         Root.AddArchiveFile(stream, lengthOfStruct, "info.ini");
                         break;
+
                     default:
                         Root.AddArchiveFile(stream, lengthOfStruct, opcode.ToString() + ".bin");
                         break;

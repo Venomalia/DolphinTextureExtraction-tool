@@ -8,9 +8,8 @@ namespace AuroraLib.Texture.PixelFormats
     /// Represents a 16-bit pixel format containing a 8-bit intensity and a 8-bit alpha value.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct IA8  : IPixel<IA8>, IPackedVector<ushort>, IPixel
+    public struct IA8 : IPixel<IA8>, IPackedVector<ushort>, IPixel
     {
-
         /// <summary>
         /// Gets or sets the intensity component.
         /// </summary>

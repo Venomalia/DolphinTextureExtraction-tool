@@ -4,7 +4,6 @@ namespace AuroraLib.Texture.Formats
 {
     public class GCIX : GVRT
     {
-
         public override bool CanWrite => false;
 
         public override string Magic => magic;
@@ -26,6 +25,5 @@ namespace AuroraLib.Texture.Formats
         {
             throw new NotImplementedException();
         }
-
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 
-
 namespace AuroraLib.Texture.Formats
 {
     // The actual file type is likely 'FIPA'

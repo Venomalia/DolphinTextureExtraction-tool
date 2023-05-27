@@ -1,19 +1,18 @@
 ﻿namespace AuroraLib.Compression
 {
-
     /*
      * from Puyo Tools
      * https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Compression/Formats/PrsCompression.cs
      */
 
-    class LzWindowDictionary
+    internal class LzWindowDictionary
     {
-        int windowSize = 0x1000;
-        int windowStart = 0;
-        int windowLength = 0;
-        int minMatchAmount = 3;
-        int maxMatchAmount = 18;
-        List<int>[] offsetList;
+        private int windowSize = 0x1000;
+        private int windowStart = 0;
+        private int windowLength = 0;
+        private int minMatchAmount = 3;
+        private int maxMatchAmount = 18;
+        private List<int>[] offsetList;
 
         public LzWindowDictionary()
         {
@@ -92,10 +91,12 @@
         {
             windowSize = size;
         }
+
         public void SetMinMatchAmount(int amount)
         {
             minMatchAmount = amount;
         }
+
         public void SetMaxMatchAmount(int amount)
         {
             maxMatchAmount = amount;
@@ -107,6 +108,7 @@
             offsetList[decompressedData[offset]].Add(offset);
             SlideWindow(1);
         }
+
         public void AddEntryRange(in byte[] decompressedData, int offset, int length)
         {
             for (int i = 0; i < length; i++)

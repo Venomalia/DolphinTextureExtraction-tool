@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /// <summary>
     /// Nintendo LZ77 compression algorithm use LZ10
     /// </summary>

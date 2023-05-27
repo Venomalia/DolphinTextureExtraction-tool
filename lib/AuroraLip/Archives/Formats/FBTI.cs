@@ -13,11 +13,16 @@ namespace AuroraLib.Archives.Formats
 
         private const string magic = "FBTI";
 
-        public FBTI() { }
+        public FBTI()
+        { }
 
-        public FBTI(string filename) : base(filename) { }
+        public FBTI(string filename) : base(filename)
+        {
+        }
 
-        public FBTI(Stream stream, string filename = null) : base(stream, filename) { }
+        public FBTI(Stream stream, string filename = null) : base(stream, filename)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);

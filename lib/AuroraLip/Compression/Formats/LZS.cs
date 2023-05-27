@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Compression.Formats
 {
-
     /*
      * xdanieldzd & lue
      * Library for Decompressing LZSS files
@@ -15,7 +14,6 @@ namespace AuroraLib.Compression.Formats
     /// </summary>
     public class LZS : ICompression, IMagicIdentify
     {
-
         public string Magic { get; } = "LzS";
 
         public int MagicOffset { get; } = 0;
@@ -28,7 +26,6 @@ namespace AuroraLib.Compression.Formats
         {
             throw new NotImplementedException();
         }
-
 
         public byte[] Decompress(Stream source)
         {
@@ -112,10 +109,8 @@ namespace AuroraLib.Compression.Formats
                 // compressed size match?
                 uint compressedSize = BitConverter.ToUInt32(stream.Read(4), 0);
                 return stream.Length == compressedSize + 0x10;
-
             }
             return false;
-
         }
     }
 }

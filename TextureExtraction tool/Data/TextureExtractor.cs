@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
-using AuroraLib.Texture;
 using Hack.io;
 using SixLabors.ImageSharp;
 using System.Runtime.CompilerServices;

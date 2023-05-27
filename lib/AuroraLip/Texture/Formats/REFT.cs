@@ -6,7 +6,6 @@ namespace AuroraLib.Texture.Formats
     // https://wiki.tockdom.com/wiki/BREFF_and_BREFT_(File_Format)
     public class REFT : JUTTexture, IMagicIdentify, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -19,19 +18,22 @@ namespace AuroraLib.Texture.Formats
 
         public ushort FormatVersion { get; set; }
 
+        public REFT()
+        { }
 
-        public REFT() { }
+        public REFT(Stream stream) : base(stream)
+        {
+        }
 
-        public REFT(Stream stream) : base(stream) { }
-
-        public REFT(string filepath) : base(filepath) { }
+        public REFT(string filepath) : base(filepath)
+        {
+        }
 
         public bool IsMatch(Stream stream, in string extension = "")
             => stream.MatchString(magic);
 
         protected override void Read(Stream stream)
         {
-
             Bres.Header header = new(stream);
             if (header.Magic != magic)
                 throw new InvalidIdentifierException(Magic);

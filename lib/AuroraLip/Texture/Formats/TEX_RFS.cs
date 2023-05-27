@@ -12,11 +12,16 @@ namespace AuroraLib.Texture.Formats
 
         public string Extension => ".tex";
 
-        public TEX_RFS() { }
+        public TEX_RFS()
+        { }
 
-        public TEX_RFS(Stream stream) : base(stream) { }
+        public TEX_RFS(Stream stream) : base(stream)
+        {
+        }
 
-        public TEX_RFS(string filepath) : base(filepath) { }
+        public TEX_RFS(string filepath) : base(filepath)
+        {
+        }
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
@@ -49,7 +54,6 @@ namespace AuroraLib.Texture.Formats
 
             stream.Seek(0x34, SeekOrigin.Begin);
 
-
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, (int)ImageWidth, (int)ImageHeight)
             {
                 LODBias = 0,
@@ -64,7 +68,7 @@ namespace AuroraLib.Texture.Formats
             Add(current);
         }
 
-        static Dictionary<uint, GXImageFormat> TEX_ImageFormat = new Dictionary<uint, GXImageFormat>
+        private static Dictionary<uint, GXImageFormat> TEX_ImageFormat = new Dictionary<uint, GXImageFormat>
         {
             { 0x11, GXImageFormat.RGBA32 },
             { 0x13, GXImageFormat.I8 },

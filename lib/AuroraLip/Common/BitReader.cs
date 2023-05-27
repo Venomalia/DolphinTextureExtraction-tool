@@ -20,6 +20,7 @@ namespace AuroraLib.Common
                 return basestream;
             }
         }
+
         private readonly Stream basestream;
 
         /// <summary>
@@ -62,6 +63,7 @@ namespace AuroraLib.Common
                 _bit = value;
             }
         }
+
         private int _bit = 0;
 
         /// <summary>
@@ -201,9 +203,10 @@ namespace AuroraLib.Common
             _buffered = false;
         }
 
-
         #region Dispose
+
         private bool disposedValue;
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -223,6 +226,7 @@ namespace AuroraLib.Common
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-        #endregion
+
+        #endregion Dispose
     }
 }

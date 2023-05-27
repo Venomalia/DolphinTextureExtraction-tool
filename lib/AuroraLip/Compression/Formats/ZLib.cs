@@ -75,12 +75,15 @@ namespace AuroraLib.Compression.Formats
                 case CompressionLevel.NoCompression:
                     dlevel = 0;
                     break;
+
                 case CompressionLevel.Optimal:
                     dlevel = -1;
                     break;
+
                 case CompressionLevel.Fastest:
                     dlevel = 1;
                     break;
+
                 case CompressionLevel.SmallestSize:
                     dlevel = 9;
                     break;
@@ -146,7 +149,5 @@ namespace AuroraLib.Compression.Formats
                 return checksum % 31 != 0 || checksum % 255 != 0;
             }
         }
-
-
     }
 }

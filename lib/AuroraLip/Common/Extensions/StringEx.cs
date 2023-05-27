@@ -7,7 +7,7 @@ namespace AuroraLib.Common
     /// </summary>
     public static class StringEx
     {
-        static string exePath = null;
+        private static string exePath = null;
         public static string ExePath => exePath ??= Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location) ?? string.Empty;
 
         public static string SimpleDate => DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
@@ -74,6 +74,5 @@ namespace AuroraLib.Common
         /// <param name="width">How long the divider should be</param>
         /// <param name="divider">What character should make up the divider</param>
         public static string Divider(int width, char divider) => string.Empty.PadRight(width, divider);
-
     }
 }

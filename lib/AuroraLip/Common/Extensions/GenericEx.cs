@@ -85,6 +85,5 @@
 
             return (float)diff / (float)span1.Length;
         }
-
     }
 }

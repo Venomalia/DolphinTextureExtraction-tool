@@ -43,13 +43,11 @@ namespace AuroraLib.Archives.Formats
                     stream.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
                     MemoryStream DeStream = lZSS.Decompress(stream, (int)Info.DecompressedSize);
                     Root.AddArchiveFile(DeStream, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
-
                 }
                 else
                 {
                     Root.AddArchiveFile(stream, Info.DecompressedSize, Info.FileStartPointer, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
                 }
-
             }
         }
 
@@ -62,9 +60,9 @@ namespace AuroraLib.Archives.Formats
         {
             //magic
             public uint Version;
+
             public uint Id;
             public uint Entries;
-
 
             public uint flags; // 0x01: Try loading debug/<filename> if exists; 0x40000000: (checked ingame, but unknown)
             public uint unk2;
@@ -130,7 +128,7 @@ namespace AuroraLib.Archives.Formats
                 get => (FileFormat)FileFormatRaw;
                 set
                 {
-                    FileFormatFromResourceID = value;;
+                    FileFormatFromResourceID = value;
                     FileFormatRaw = (uint)value;
                 }
             }

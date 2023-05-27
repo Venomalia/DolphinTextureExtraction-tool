@@ -109,6 +109,5 @@ namespace AuroraLib.Texture.PixelFormats
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override int GetHashCode() => this.PackedValue.GetHashCode();
-
     }
 }

@@ -2,7 +2,6 @@
 
 namespace AuroraLib.Texture.J3D
 {
-
     /*
     * Super Hackio Incorporated
     * "Copyright © Super Hackio Incorporated 2020-2021"

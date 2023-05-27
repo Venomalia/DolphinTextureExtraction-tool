@@ -1,6 +1,4 @@
-﻿using AuroraLib.Texture;
-
-namespace AuroraLib.Texture.Interfaces
+﻿namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Defines the properties of a texture used by the GX API in the GameCube and Wii consoles.
@@ -72,7 +70,5 @@ namespace AuroraLib.Texture.Interfaces
         /// The number of mipmaps for the texture.
         /// </summary>
         int MipMaps { get; }
-
     }
-
 }

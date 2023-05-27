@@ -47,24 +47,31 @@ namespace AuroraLib.Texture.Formats
                         case 0x01:
                             ParseType01(stream, chunk, Root);
                             break;
+
                         case 0x02:
                             ParseType02(stream, chunk, Root);
                             break;
+
                         case 0x03:
                             ParseType03(stream, chunk, Root);
                             break;
+
                         case 0x04:
                             ParseType04(stream, chunk, Root);
                             break;
+
                         case 0x05:
                             ParseType05(stream, chunk, Root);
                             break;
+
                         case 0x06:
                             ParseType06(stream, chunk, Root);
                             break;
+
                         case 0x07:
                             ParseType07(stream, chunk, Root);
                             break;
+
                         default:
                             throw new Exception($"Unknown type: 0x{chunk.Type:X8}");
                     }
@@ -114,21 +121,27 @@ namespace AuroraLib.Texture.Formats
                 case 0x00:
                     ParseType04Subtype00(stream, chunk, Root);
                     break;
+
                 case 0x01:
                     ParseType04Subtype01(stream, chunk, Root);
                     break;
+
                 case 0x05:
                     ParseType04Subtype05(stream, chunk, Root);
                     break;
+
                 case 0x06:
                     ParseType04Subtype06(stream, chunk, Root);
                     break;
+
                 case 0x07:
                     ParseType04Subtype07(stream, chunk, Root);
                     break;
+
                 case 0x09:
                     ParseType04Subtype09(stream, chunk, Root);
                     break;
+
                 default:
                     throw new Exception($"Unknown type 0x04 subtype: 0x{param.Subtype:X8}");
             }
@@ -303,7 +316,7 @@ namespace AuroraLib.Texture.Formats
             public uint Unknown6C;
         }
 
-        struct Type01
+        private struct Type01
         {
             public uint Type; // Maybe?
             public uint Size; // Not always?
@@ -311,7 +324,7 @@ namespace AuroraLib.Texture.Formats
             // If Type == 3, then Size bytes of data follows
         }
 
-        struct Type02
+        private struct Type02
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -328,7 +341,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        struct Type03
+        private struct Type03
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -340,7 +353,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        struct Type04
+        private struct Type04
         {
             public uint Subtype;
             public uint Unknown04;
@@ -348,7 +361,7 @@ namespace AuroraLib.Texture.Formats
             // Subtype data follows here
         }
 
-        struct Type04Subtype00
+        private struct Type04Subtype00
         {
             public uint Unknown00;
             public uint Count;
@@ -357,7 +370,7 @@ namespace AuroraLib.Texture.Formats
             // Count * 0x10 bytes follow, decrypted with itself? XOR within a 0x10 chunk
         }
 
-        struct Type04Subtype01
+        private struct Type04Subtype01
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -370,7 +383,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        struct Type04Subtype05
+        private struct Type04Subtype05
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -393,7 +406,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        struct Type04Subtype06
+        private struct Type04Subtype06
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -402,14 +415,15 @@ namespace AuroraLib.Texture.Formats
             // Count * 0x10 bytes follow
         }
 
-        struct Type04Subtype07
+        private struct Type04Subtype07
         {
             public uint Count;
             public uint Unknown04;
             public uint Unknown08;
             // Count * 0x10 bytes follow
         }
-        struct Type04Subtype09
+
+        private struct Type04Subtype09
         {
             public uint ArchiveSize;
             public uint ArchivePtr; // Filled at runtime
@@ -422,7 +436,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        struct Type05
+        private struct Type05
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -431,13 +445,13 @@ namespace AuroraLib.Texture.Formats
             public uint Unknown10;
         }
 
-        struct Type06
+        private struct Type06
         {
             public uint Unknown00;
             public uint Unknown04;
         }
 
-        struct Type07
+        private struct Type07
         {
             public uint Size;
             public uint Unknown04;

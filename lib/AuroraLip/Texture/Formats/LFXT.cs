@@ -1,15 +1,11 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Texture;
-using AuroraLib.Texture;
 using AuroraLib.Texture.BlockFormats;
-using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.Formats
 {
     public class LFXT : JUTTexture, IMagicIdentify, IFileAccess
     {
-
         public bool CanRead => true;
 
         public bool CanWrite => false;
@@ -43,7 +39,7 @@ namespace AuroraLib.Texture.Formats
                 {
                     int size = GXFormat.CalculatedDataSize(Properties.Width, Properties.Height, i);
                     byte[] data = stream.Read(size);
-                    //BGRA32 To RGBA32  
+                    //BGRA32 To RGBA32
                     for (int p = 0; p < data.Length; p += 4) //Swap R and B channel
                     {
                         (data[p], data[p + 2]) = (data[p + 2], data[p]);
@@ -103,20 +99,28 @@ namespace AuroraLib.Texture.Formats
         {
             [FieldOffset(0)]
             public LFXTFormat Format;
+
             [FieldOffset(2)]
             public ushort Width;
+
             [FieldOffset(4)]
             public ushort Height;
+
             [FieldOffset(6)]
             public LFXTPalette SubFormat;
+
             [FieldOffset(7)]
             private byte pad;
+
             [FieldOffset(8)]
             public ushort Colours;
+
             [FieldOffset(10)]
             public uint Flags;
+
             [FieldOffset(14)]
             public ushort MaxLOD;
+
             [FieldOffset(16)]
             private uint pad2;
 

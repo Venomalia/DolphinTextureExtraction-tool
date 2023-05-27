@@ -15,5 +15,4 @@
         /// </summary>
         public ulong TlutHash { get; }
     }
-
 }

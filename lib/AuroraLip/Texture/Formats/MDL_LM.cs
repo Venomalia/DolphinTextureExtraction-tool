@@ -108,6 +108,5 @@ namespace AuroraLib.Texture.Formats
                 CMPR = 0x0A
             }
         }
-
     }
 }

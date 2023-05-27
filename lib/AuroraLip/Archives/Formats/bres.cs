@@ -56,7 +56,7 @@ namespace AuroraLib.Archives.Formats
             uint GroupSize = stream.ReadUInt32(ByteOrder);
             uint Groups = stream.ReadUInt32(ByteOrder);
 
-            IndexGroup[] groups = stream.For((int)Groups, s => s.Read<IndexGroup>(ByteOrder));
+            IndexGroup[] groups = stream.For((int)Groups + 1, s => s.Read<IndexGroup>(ByteOrder));
 
             foreach (IndexGroup group in groups)
             {

@@ -1,40 +1,18 @@
 ﻿using AuroraLib.Texture;
-using System.Drawing;
-using static AuroraLib.Texture.J3DTextureConverter;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace AuroraLib.Palette
 {
-    public class JUTPalette : List<Color>
+    public interface IJUTPalette
     {
         /// <summary>
         /// specifies how the data within the palette is stored.
         /// </summary>
-        public GXPaletteFormat Format { get; set; }
+        GXPaletteFormat Format { get; }
 
         /// <summary>
-        /// The size in bits.
+        /// Palette data
         /// </summary>
-        public int Size => this.Count * 2;
-
-        public JUTPalette(GXPaletteFormat format = GXPaletteFormat.IA8) : base()
-            => Format = format;
-
-        public JUTPalette(GXPaletteFormat format, IEnumerable<Color> collection) : base(collection)
-            => Format = format;
-
-        public JUTPalette(GXPaletteFormat format, ReadOnlySpan<byte> PaletteData, int colors) : base(DecodePalette(PaletteData, format, colors))
-            => Format = format;
-
-        public byte[] GetBytes()
-            => EncodePalette(this, this.Format);
-
-        public static explicit operator byte[](JUTPalette x)
-            => EncodePalette(x, x.Format);
-
-        public override bool Equals(object obj)
-            => obj is JUTPalette entry && Format == entry.Format && base.Equals(entry);
-
-        public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), Format);
+        byte[] Data { get; }
     }
 }

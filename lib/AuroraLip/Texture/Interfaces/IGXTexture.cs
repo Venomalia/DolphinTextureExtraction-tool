@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Texture;
 
-namespace AuroraLip.Texture.Interfaces
+namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Defines the properties of a texture used by the GX API in the GameCube and Wii consoles.

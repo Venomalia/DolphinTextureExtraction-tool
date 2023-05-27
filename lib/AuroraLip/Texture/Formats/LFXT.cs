@@ -1,9 +1,11 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
+using AuroraLib.Texture;
+using AuroraLib.Texture.BlockFormats;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace AuroraLip.Texture.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class LFXT : JUTTexture, IMagicIdentify, IFileAccess
     {
@@ -39,7 +41,7 @@ namespace AuroraLip.Texture.Formats
                 // BGRA32 to GXImageFormat.RGBA32 No idea why anyone does that XD
                 for (int i = 0; i < Properties.Mipmaps + 1; i++)
                 {
-                    int size = GXFormat.GetCalculatedDataSize(Properties.Width, Properties.Height, i);
+                    int size = GXFormat.CalculatedDataSize(Properties.Width, Properties.Height, i);
                     byte[] data = stream.Read(size);
                     //BGRA32 To RGBA32  
                     for (int p = 0; p < data.Length; p += 4) //Swap R and B channel
@@ -47,8 +49,8 @@ namespace AuroraLip.Texture.Formats
                         (data[p], data[p + 2]) = (data[p + 2], data[p]);
                     }
                     //RGBA32 to GXImageFormat.RGBA32
-                    using Bitmap bitmap = BitmapEx.ToBitmap(data, Properties.Width >> i, Properties.Height >> i);
-                    ms.Write(J3DTextureConverter.EncodeImage(bitmap, GXImageFormat.RGBA32, null));
+                    Span<Rgba32> pixel = MemoryMarshal.Cast<byte, Rgba32>(data);
+                    ms.Write(((IBlock<Rgba32>)new RGBA32Block()).EncodePixel(pixel, Properties.Width >> i, Properties.Height >> i));
                 }
                 stream = ms;
                 stream.Seek(0, SeekOrigin.Begin);

@@ -82,7 +82,7 @@ namespace AuroraLib.Texture.Formats
                 WrapT = this[0].WrapT,
                 IsPaletteFormat = this[0].Format.IsPaletteFormat(),
                 PaletteFormat = this[0].PaletteFormat,
-                PaletteCount = (ushort)this[0].Palettes.Sum(p => p.Size),
+                PaletteCount = (ushort)this[0].Palettes.Sum(p => p.Length/2),
                 PaletteDataAddress = (uint)(DataOffset - HeaderStart),
                 EnableMipmaps = Count > 1,
                 EnableEdgeLOD = this[0].EnableEdgeLOD,
@@ -95,15 +95,15 @@ namespace AuroraLib.Texture.Formats
                 ImageCount = (byte)this[0].Count,
                 unknown = 0,
                 LODBias = this[0].LODBias,
-                ImageDataAddress = (uint)(DataOffset + this[0].Palettes.Sum(p => p.Size) - HeaderStart),
+                ImageDataAddress = (uint)(DataOffset + this[0].Palettes.Sum(p => p.Length) - HeaderStart),
             };
             stream.WriteObjekt(ImageHeader, Endian.Big);
 
             long Pauseposition = stream.Position;
             stream.Position = DataOffset;
 
-            foreach (Palette.JUTPalette bytes in this[0].Palettes)
-                stream.Write(bytes.GetBytes());
+            foreach (byte[] bytes in this[0].Palettes)
+                stream.Write(bytes);
 
             foreach (byte[] bytes in this[0].RawImages)
                 stream.Write(bytes);

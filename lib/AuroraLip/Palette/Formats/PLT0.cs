@@ -1,23 +1,19 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
-using System.Drawing;
-using static AuroraLib.Texture.J3DTextureConverter;
 
 namespace AuroraLib.Palette.Formats
 {
-    public class PLT0 : JUTPalette, IMagicIdentify
+    public class PLT0 : IMagicIdentify, IJUTPalette
     {
         public string Magic => magic;
+
+        public GXPaletteFormat Format { get; set; }
+
+        public byte[] Data { get; set; }
 
         private const string magic = "PLT0";
 
         public PLT0(Stream stream) => Read(stream);
-
-        public PLT0(GXPaletteFormat format = GXPaletteFormat.IA8) : base(format) { }
-
-        public PLT0(GXPaletteFormat format, IEnumerable<Color> collection) : base(format, collection) { }
-
-        public PLT0(GXPaletteFormat format, ReadOnlySpan<byte> PaletteData, int colors) : base(format, PaletteData, colors) { }
 
         protected void Read(Stream stream)
         {
@@ -35,8 +31,7 @@ namespace AuroraLib.Palette.Formats
             uint PathOffset = stream.ReadUInt32(Endian.Big);
             uint DataOffset = stream.ReadUInt32(Endian.Big);
             stream.Seek(SectionOffsets, SeekOrigin.Begin);
-            byte[] PaletteData = stream.Read(colors * 2);
-            this.AddRange(DecodePalette(PaletteData, Format, colors));
+            Data = stream.Read(colors * 2);
         }
     }
 }

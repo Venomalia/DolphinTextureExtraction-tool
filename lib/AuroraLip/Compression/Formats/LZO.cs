@@ -3,7 +3,7 @@ using AuroraLib.Compression;
 using IronCompress;
 using System.Buffers;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     public class LZO : IronCompressBase
     {

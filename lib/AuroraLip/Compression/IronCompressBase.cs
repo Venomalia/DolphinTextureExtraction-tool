@@ -2,7 +2,7 @@
 using AuroraLib.Compression;
 using IronCompress;
 
-namespace AuroraLip.Compression
+namespace AuroraLib.Compression
 {
     public abstract class IronCompressBase : ICompression, ICompressionLevel
     {

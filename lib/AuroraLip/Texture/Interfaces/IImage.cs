@@ -1,4 +1,4 @@
-﻿namespace AuroraLip.Texture.Interfaces
+﻿namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Interface representing an image properties with width and height.

@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.Texture
+﻿using System.Numerics;
+
+namespace AuroraLib.Texture
 {
     public interface IBlock<TPixel> : IBlock where TPixel : unmanaged, IPixel<TPixel>
     {
@@ -82,8 +84,8 @@
 
                         if (pixelX >= width || pixelY >= height)
                         {
-                            // Reuse the value of the previous pixel within the same block for pixels outside the image
-                            blockPixel[i] = blockPixel[i - 1];
+                            //use max value for pixels outside the image
+                            blockPixel[i].FromVector4(Vector4.One);
                         }
                         else
                         {

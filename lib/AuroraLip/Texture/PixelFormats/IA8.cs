@@ -107,7 +107,7 @@ namespace AuroraLib.Texture.PixelFormats
 
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void FromVector4(Vector4 vector) => SetIA8((byte)Math.Round((vector.X * 30 + vector.Y * 59 + vector.Z * 11) / 100f), (byte)Math.Round(vector.W * 255));
+        public void FromVector4(Vector4 vector) => SetIA8((byte)Math.Round((vector.X * 255 * 30 + vector.Y * 255 * 59 + vector.Z * 255 * 11) / 100f), (byte)Math.Round(vector.W * 255));
 
         /// <inheritdoc />
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

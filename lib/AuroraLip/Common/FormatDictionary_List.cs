@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Texture.Formats;
+using AuroraLip.Archives.Formats;
 
 namespace AuroraLib.Common
 {
@@ -419,6 +420,8 @@ namespace AuroraLib.Common
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
+            new FormatInfo(".cmn", FormatType.Archive) { Class = typeof(CMN)}, //http://wiki.xentax.com/index.php/NHL_2K3_CMN
+            new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture"), //http://wiki.xentax.com/index.php/GCT_Image
 
             //Audio
             new FormatInfo(".mul", FormatType.Audio),

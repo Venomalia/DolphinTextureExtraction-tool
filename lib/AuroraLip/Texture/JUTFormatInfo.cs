@@ -113,7 +113,7 @@ namespace AuroraLib.Texture
         public static int GetMaxPaletteColours(this GXImageFormat Format)
         {
             if (!Format.IsPaletteFormat())
-                throw new FormatException($"{Format} Is not a Palette format!");
+                return 0;
             return MaxTlutColours[(int)Format - 8];
         }
 

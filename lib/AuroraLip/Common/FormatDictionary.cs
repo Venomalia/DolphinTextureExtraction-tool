@@ -64,13 +64,20 @@
                 {
                     try
                     {
-                        file.Class = Reflection.FileAccess.GetByMagic(file.Header.Magic);
-                        file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
+                        if (file.Class == null)
+                        {
+                            file.Class = Reflection.FileAccess.GetByMagic(file.Header.Magic);
+                            file.IsMatch = Reflection.FileAccess.GetInstance(file.Class).IsMatch;
+                        }
                     }
                     catch (Exception) { }
                     if (file.Header.Magic.Length > 1)
                         Header.Add(file.Header.Magic, file);
 
+                    Formats.Add(file);
+                }
+                else if (file.Class != null)
+                {
                     Formats.Add(file);
                 }
                 else

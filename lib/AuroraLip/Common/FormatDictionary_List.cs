@@ -323,6 +323,7 @@ namespace AuroraLib.Common
             new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo(".gvr", "GCIX", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo(".gvrt","GVRT", FormatType.Texture, "VR Texture", "SEGA"),
+            new FormatInfo(".pvr","PVRT", FormatType.Texture, "VR Texture", "SEGA"),
             new FormatInfo("", new byte[]{128,0,0,1,0},0, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
             new FormatInfo(".rvm","CVMH", FormatType.Archive, "Sonic Riders Archive", "SEGA"),
             new FormatInfo(".XVRs", FormatType.Texture, "Sonic Riders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
@@ -411,6 +412,11 @@ namespace AuroraLib.Common
             new FormatInfo(".h4m", "HVQM4 1.4" , FormatType.Video,"","Hudson Soft"),
             new FormatInfo(".h4m", "HVQM4 1.5", FormatType.Video,"","Hudson Soft"),
 
+            //Radical Entertainment
+            new FormatInfo(".rcf", "ATG CORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
+            new FormatInfo(".rcf", "RADCORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
+            new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
+
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
@@ -422,6 +428,9 @@ namespace AuroraLib.Common
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
             new FormatInfo(".cmn", FormatType.Archive) { Class = typeof(CMN)}, //http://wiki.xentax.com/index.php/NHL_2K3_CMN
             new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture"), //http://wiki.xentax.com/index.php/GCT_Image
+            
+            new FormatInfo(".DIR", FormatType.Archive, "Shrek SuperSlam Dir"){ Class = typeof(ShrekDir), IsMatch = ShrekDir.Matcher},
+            new FormatInfo(".texpack","TXPK", FormatType.Texture, "Shrek Texture"),
 
             //Audio
             new FormatInfo(".mul", FormatType.Audio),

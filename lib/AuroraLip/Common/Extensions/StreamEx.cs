@@ -430,7 +430,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long Align(this Stream stream, int boundary = 32)
-            => stream.Align(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
+            => stream.Seek(CalculatePadding(stream.Position, boundary), SeekOrigin.Begin);
 
         /// <summary>
         /// Writes padding bytes to the stream until its position aligns with the specified boundary.

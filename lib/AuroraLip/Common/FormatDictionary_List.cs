@@ -408,14 +408,20 @@ namespace AuroraLib.Common
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },
             new FormatInfo(".hsf", "HSFV037" , FormatType.Texture,"Mario Party Model","Hudson Soft"),
             new FormatInfo(".atb", FormatType.Texture,"Mario Party texture","Hudson Soft"){ Class = typeof(ATB), IsMatch = ATB.Matcher },
-            new FormatInfo(".h4m", "HVQM4 1.3" , FormatType.Video,"","Hudson Soft"),
-            new FormatInfo(".h4m", "HVQM4 1.4" , FormatType.Video,"","Hudson Soft"),
-            new FormatInfo(".h4m", "HVQM4 1.5", FormatType.Video,"","Hudson Soft"),
+            new FormatInfo(".h4m", "HVQM4" , FormatType.Video,"","Hudson Soft"),
 
             //Radical Entertainment
             new FormatInfo(".rcf", "ATG CORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
             new FormatInfo(".rcf", "RADCORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
             new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
+            
+            //Eurocom
+            new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom") {Class = typeof(Filelist)},
+            new FormatInfo(".csb","MUSX", FormatType.Audio, "Eurocom Audio","Eurocom"),
+            new FormatInfo(".edb","GEOM", FormatType.Archive, "Eurocom","Eurocom"),
+
+            //EA
+            new FormatInfo(".viv","BIG4", FormatType.Audio,"BIG Audio","EA"),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
@@ -458,6 +464,7 @@ namespace AuroraLib.Common
             new FormatInfo(".bfn", "FONTbfn1", FormatType.Font),
             new FormatInfo(".pkb",  "RFNA", FormatType.Font),
             //Model
+            new FormatInfo(".HGO","HGOF", FormatType.Model),
             new FormatInfo(".CMDL", FormatType.Model),
             new FormatInfo(".MREA", FormatType.Model, "Area"),
             new FormatInfo(".fpc", FormatType.Model, "pac file container"),
@@ -465,6 +472,7 @@ namespace AuroraLib.Common
             new FormatInfo(".pdf","%PDF",FormatType.Text,"Portable Document Format","Adobe Inc."),
             new FormatInfo(".json",FormatType.Text,"JavaScript Object Notation"),
             new FormatInfo(".py",FormatType.Skript,"Python Skript","Python Software"),
+            new FormatInfo(".ssf","SEC ",FormatType.Archive,"Deadly Alliance"),
             new FormatInfo(".kxe","KXER",FormatType.Skript,"Kuribo Mod","riidefi"),
             new FormatInfo(".pdb","BSJB",FormatType.Else,"PDB Symboles"),
             new FormatInfo(".bat",FormatType.Skript,"Batch file"),

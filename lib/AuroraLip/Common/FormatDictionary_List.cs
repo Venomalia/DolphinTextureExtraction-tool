@@ -346,13 +346,13 @@ namespace AuroraLib.Common
             new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
             new FormatInfo(".MPD", new byte[]{(byte)'M', (byte)'P', (byte)'D',0}, 0, FormatType.Unknown, "Crystal Bearers data", "Square Enix"),
 
-            //Tecmo & Grasshopper Manufacture
-            new FormatInfo(".RSL","RMHG", FormatType.Archive, "Fatal Frame Archive", "Tecmo"),
-            new FormatInfo(".bin","GCT0", FormatType.Texture, "Fatal Frame Texture", "Tecmo"),
-            new FormatInfo(".bin","CGMG", FormatType.Model, "Fatal Frame Model", "Tecmo"),
+            //Grasshopper Manufacture
+            new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture"),
+            new FormatInfo(".bin","GCT0", FormatType.Texture, "Grasshopper Texture", "Grasshopper Manufacture"),
+            new FormatInfo(".bin","CGMG", FormatType.Model, "Grasshopper Model", "Grasshopper Manufacture"),
 
             //Treasure
-            new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure"),
+            new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure") { Class = typeof(RSC), IsMatch = RSC.Matcher},
             new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure"),
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
 
@@ -416,12 +416,20 @@ namespace AuroraLib.Common
             new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
             
             //Eurocom
-            new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom") {Class = typeof(Filelist)},
+            new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom") {Class = typeof(Filelist)}, //https://github.com/eurotools/eurochef
             new FormatInfo(".csb","MUSX", FormatType.Audio, "Eurocom Audio","Eurocom"),
             new FormatInfo(".edb","GEOM", FormatType.Archive, "Eurocom","Eurocom"),
 
             //EA
             new FormatInfo(".viv","BIG4", FormatType.Audio,"BIG Audio","EA"),
+            new FormatInfo(".vpa","VPAK", FormatType.Unknown,"V Archive","EA"),
+            new FormatInfo(".vp6","MVhd", FormatType.Video,"VP6","EA"),
+            new FormatInfo(".moi","MOIR", FormatType.Unknown,"","EA"),
+            new FormatInfo(".abk","ABKC", FormatType.Audio,"audio bank","EA"),
+            new FormatInfo(".bnk","BNKb", FormatType.Audio,"audio","EA"),
+            new FormatInfo(".asf","SCHl", FormatType.Audio,"audio","EA"),
+            new FormatInfo(".loc","LOCH", FormatType.Unknown,"","EA"),
+            new FormatInfo(".pfd","PFDx", FormatType.Unknown,"","EA"),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),

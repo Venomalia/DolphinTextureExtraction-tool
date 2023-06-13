@@ -404,7 +404,7 @@ namespace DolphinTextureExtraction
                         else
                         {
                             ArchiveFile file = so.File;
-                            archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file.Parent[N]).FileData);
+                            archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file?.Parent[N]).FileData);
                         }
                         archive.Open(so.Stream, so.SubPath.ToString());
                         long size = archive.Root.Size;

@@ -45,8 +45,26 @@ namespace AuroraLib.Archives.Formats
                 throw new InvalidIdentifierException("root");
             uint RootSize = stream.ReadUInt32(ByteOrder);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
-            ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
             //Index Group
+            ReadIndex(stream, (int)(stream.Position + RootSize - 8), Root);
+
+            //is brtex & brplt pair
+            if (Root.Items.Count == 1 && Root.ItemExists("Textures(NW4R)"))
+            {
+                //try to request an external file.
+                string datname = Path.ChangeExtension(Path.GetFileNameWithoutExtension(FullPath), ".brplt");
+                try
+                {
+                    reference_stream = FileRequest.Invoke(datname);
+                    Bres plt = new (reference_stream, FullPath);
+                    foreach (var item in plt.Root.Items)
+                    {
+                        Root.Items.Add(item.Key, item.Value);
+                    }
+                }
+                catch (Exception)
+                { }
+            }
         }
 
         private void ReadIndex(Stream stream, in int EndOfRoot, ArchiveDirectory ParentDirectory)
@@ -116,6 +134,17 @@ namespace AuroraLib.Archives.Formats
         protected override void Write(Stream ArchiveFile)
         {
             throw new NotImplementedException();
+        }
+
+        private Stream reference_stream;
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                reference_stream?.Dispose();
+            }
         }
 
         public unsafe struct Header

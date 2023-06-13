@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Drawing;
 using System.Numerics;
+using System.Reflection.PortableExecutable;
 
 namespace AuroraLib.Texture
 {
@@ -75,6 +76,9 @@ namespace AuroraLib.Texture
 
         public static Image<XPixel> ApplyPalette<TPixel, XPixel>(this Image<TPixel> image, ReadOnlySpan<XPixel> palette, Converter<TPixel, int> pixelToIndex) where TPixel : unmanaged, IPixel<TPixel> where XPixel : unmanaged, IPixel<XPixel>
         {
+            if (palette.Length == 0)
+                throw new PaletteException("No palette data to apply.");
+
             Image<XPixel> paletteImage = new(image.Width, image.Height);
 
             IMemoryGroup<XPixel> pixelsPalette = paletteImage.GetPixelMemoryGroup();

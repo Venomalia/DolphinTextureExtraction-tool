@@ -71,15 +71,15 @@ namespace AuroraLib.Texture.Formats
                     Archive ParentBres = substream.Parent.OwnerArchive;
                     if (ParentBres.ItemExists("Palettes(NW4R)"))
                     {
-                        var PalletNames = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
+                        List<string> PalletNames = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
 
                         if (PalletNames.Count == 0)
                         {
-                            throw new PaletteException("No palette data could be found");
+                            throw new PaletteException("No linked pallete palette data could be found");
                         }
 
                         stream.Position = SectionOffsets;
-                        var tex = new TexEntry(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
+                        TexEntry tex = new TexEntry(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
                         {
                             LODBias = 0,
                             MagnificationFilter = GXFilterMode.Nearest,
@@ -102,6 +102,10 @@ namespace AuroraLib.Texture.Formats
                         }
                         Add(tex);
                         return;
+                    }
+                    else
+                    {
+                        throw new PaletteException("No palette data could be found");
                     }
                 }
             }

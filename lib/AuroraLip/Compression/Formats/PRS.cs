@@ -25,9 +25,7 @@ namespace AuroraLib.Compression.Formats
             => stream.Length > 6 & stream.PeekByte() > 17 && (stream.ReadByte() & 0x1) == 1 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
 
         public byte[] Decompress(Stream source)
-        {
-            return Decompress_ALG(source, Order);
-        }
+            => Decompress_ALG(source, Order);
 
         public void Compress(in byte[] source, Stream destination)
             => Compress_ALG(source, destination, Order);

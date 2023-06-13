@@ -434,7 +434,7 @@ namespace AuroraLib.Common
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
-            new FormatInfo(".fpk", FormatType.Archive, comp_),
+            new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting"){ Class = typeof(FPK), IsMatch = FPK.Matcher},
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
             new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),

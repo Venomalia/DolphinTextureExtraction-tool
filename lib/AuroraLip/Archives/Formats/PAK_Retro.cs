@@ -88,7 +88,8 @@ namespace AuroraLib.Archives.Formats
         {
             //prime 1, DKCR = Zlip
             //prime 2,3 = LZO1X-999
-            if (input.Read<ZLib.Header>().Validate())
+            ZLib.Header header = input.Read<ZLib.Header>();
+            if (header.Validate() && header.HasDictionary == false && header.CompressionInfo == 7 && header.CompressionLevel == 3)
             {
                 input.Seek(0, SeekOrigin.Begin);
                 ZLib zLib = new();

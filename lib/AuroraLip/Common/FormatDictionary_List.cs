@@ -431,6 +431,10 @@ namespace AuroraLib.Common
             new FormatInfo(".loc","LOCH", FormatType.Unknown,"","EA"),
             new FormatInfo(".pfd","PFDx", FormatType.Unknown,"","EA"),
 
+            //Red Entertainment
+            new FormatInfo(".pak", FormatType.Archive, "Tengai Makyō II Archive", "Red Entertainment"){ Class = typeof(PAK_TM2), IsMatch = PAK_TM2.Matcher },
+            new FormatInfo(".cns","@CNS", FormatType.Archive, "CNS Compressed", "Red Entertainment"),
+
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp

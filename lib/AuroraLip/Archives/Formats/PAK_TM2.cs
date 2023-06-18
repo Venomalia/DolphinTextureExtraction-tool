@@ -16,14 +16,21 @@ namespace AuroraLip.Archives.Formats
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
-            if (extension == Extension && stream.Length > 0x20)
+            if ((extension == Extension || extension == string.Empty || extension == ".cns") && stream.Length > 0x20)
             {
                 uint entryCount = stream.ReadUInt32(Endian.Big);
                 if (entryCount != 0 && entryCount < 1024 && stream.Position + entryCount * 8 < stream.Length)
                 {
-                    stream.Seek((entryCount - 1) * 8, SeekOrigin.Current);
-                    Entry lastEntry = stream.Read<Entry>(Endian.Big);
-                    return lastEntry.Offset + lastEntry.Size == stream.Length;
+                    Entry[] entrys = stream.For((int)entryCount, s => s.Read<Entry>(Endian.Big));
+
+                    for (int i = 0; i < entryCount - 1; i++)
+                    {
+                        if (entrys[i].Offset + entrys[i].Size > entrys[i + 1].Offset)
+                        {
+                            return false;
+                        }
+                    }
+                    return entrys.First().Offset >= stream.Position && entrys.Last().Offset + entrys.Last().Size == stream.Length;
                 }
             }
             return false;

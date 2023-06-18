@@ -12,7 +12,9 @@ namespace AuroraLib.Archives.Formats
             => Matcher(stream, extension);
 
         public new static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower().Equals(Extension) && stream.ReadUInt32(Endian.Big) == 2;
+        {
+            return extension.ToLower().Equals(Extension) && stream.ReadUInt32(Endian.Big) == 2 && stream.ReadUInt32(Endian.Big) == 64 && stream.ReadUInt64(Endian.Big) != 0 && stream.ReadUInt64(Endian.Big) != 0;
+        }
 
         protected override void Read(Stream stream)
         {

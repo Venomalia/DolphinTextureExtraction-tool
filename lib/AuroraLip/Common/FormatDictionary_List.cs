@@ -434,6 +434,9 @@ namespace AuroraLib.Common
             //Red Entertainment
             new FormatInfo(".pak", FormatType.Archive, "Tengai Makyō II Archive", "Red Entertainment"){ Class = typeof(PAK_TM2), IsMatch = PAK_TM2.Matcher },
             new FormatInfo(".cns","@CNS", FormatType.Archive, "CNS Compressed", "Red Entertainment"),
+            new FormatInfo(".hps"," HALPST", FormatType.Audio, "Audio", "Red Entertainment"),
+            new FormatInfo(".iwf"," FWS4", FormatType.Unknown, "?", "Red Entertainment"),
+            new FormatInfo(".exi"," MROF", FormatType.Unknown, "?", "Red Entertainment"),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),

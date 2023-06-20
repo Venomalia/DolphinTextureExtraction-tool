@@ -178,8 +178,10 @@ namespace AuroraLib.Common
 
             //Next Level Games
             new FormatInfo(".rlt","PTLG", FormatType.Texture, "Strikers Texture","Next Level Games"),
+            new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games"){ Class = typeof(RES_NLG), IsMatch = RES_NLG.Matcher},
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
+            new FormatInfo(".fen","FENL", FormatType.Unknown, "","Next Level Games"),
 
             //HAL Laboratory & Sora Ltd.
             new FormatInfo(".pac",new byte[]{65,82,67,0},0, FormatType.Archive, "Brawl Archive"){ Class = typeof(ARC0)},

@@ -2,7 +2,7 @@
 using AuroraLib.Common;
 using System.Runtime.InteropServices;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class BIG : Archive, IMagicIdentify, IFileAccess
     {

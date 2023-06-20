@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Texture.Formats;
-using AuroraLip.Archives.Formats;
 
 namespace AuroraLib.Common
 {

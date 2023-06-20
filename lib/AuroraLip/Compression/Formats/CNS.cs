@@ -1,7 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// CNS compression algorithm, used in Games from Red Entertainment.

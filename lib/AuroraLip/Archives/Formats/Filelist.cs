@@ -3,7 +3,7 @@ using AuroraLib.Common;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class Filelist : Archive, IFileAccess
     {

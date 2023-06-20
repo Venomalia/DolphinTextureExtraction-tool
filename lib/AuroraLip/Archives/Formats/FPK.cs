@@ -1,9 +1,9 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
 using AuroraLib.Compression.Formats;
-using AuroraLip.Compression.Formats;
+using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class FPK : Archive, IFileAccess
     {

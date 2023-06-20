@@ -1,7 +1,7 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class CMN : Archive, IFileAccess
     {

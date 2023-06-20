@@ -2,7 +2,7 @@
 using AuroraLib.Compression;
 using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Compression.Formats
+namespace AuroraLib.Compression.Formats
 {
     public class ZLB : ICompression, IMagicIdentify
     {

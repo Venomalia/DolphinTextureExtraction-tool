@@ -1,8 +1,8 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
-using AuroraLip.Compression.Formats;
+using AuroraLib.Compression.Formats;
 
-namespace AuroraLip.Archives.Formats
+namespace AuroraLib.Archives.Formats
 {
     public class ShrekDir : Archive, IFileAccess
     {

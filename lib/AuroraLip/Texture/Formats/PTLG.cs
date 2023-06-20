@@ -25,74 +25,117 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.MatchString(magic) || (extension == string.Empty && stream.At(0x10, s => s.MatchString(magic)));
 
         protected override void Read(Stream stream)
         {
             if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            {
+                stream.Seek(0x10, SeekOrigin.Begin);
+                if (!stream.MatchString(magic))
+                    throw new InvalidIdentifierException(Magic);
+            }
 
             uint numTextures = stream.ReadUInt32(Endian.Big);
-            uint unk = stream.ReadUInt32(Endian.Big);
+            uint hash = stream.ReadUInt32(Endian.Big); // GC 0 Wii != 0
             uint padding = stream.ReadUInt32(Endian.Big);
 
             uint Off = stream.ReadUInt32(Endian.Big);
+
+            PTLGType type = Off == 0 ? PTLGType.GC : hash == 0 ? PTLGType.GCCompact : PTLGType.Wii;
             if (Off == 0)
-                stream.Seek(12, SeekOrigin.Current); //GC
+                stream.Seek(12, SeekOrigin.Current);
             else
-                stream.Seek(-4, SeekOrigin.Current); //wii
+                stream.Seek(-4, SeekOrigin.Current);
 
-            List<PTLGEntry> Entries = new List<PTLGEntry>();
-            for (int i = 0; i < numTextures; i++)
-            {
-                Entries.Add(new PTLGEntry(stream));
-            }
-
-            long startPos = stream.Position; //1008
+            Entry[] Entrys = stream.For((int)numTextures, s => s.Read<Entry>(Endian.Big));
+            long startPos = stream.Position;
 
             for (int i = 0; i < numTextures; i++)
             {
-                stream.Seek(startPos + Entries[i].ImageOffset, SeekOrigin.Begin);
-
-                long pos = stream.Position;
-
-                uint Images = stream.ReadUInt32(Endian.Big);
-                uint unknown2 = stream.ReadUInt32(Endian.Big); //1 3 2 8 ||Unknown ==12  2439336753|1267784150|3988437873
-                byte unknown4 = (byte)stream.ReadByte(); //5 0 8
-                PTLGImageFormat PTLGFormat = (PTLGImageFormat)stream.ReadByte();
-                GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), PTLGFormat.ToString());
-                byte unknown5 = (byte)stream.ReadByte(); //5 0 8
-                byte unknown6 = (byte)stream.ReadByte(); //3 4 0 2 6 8
-                ushort ImageWidth = stream.ReadUInt16(Endian.Big);//GC
-
-                if (ImageWidth == 0)
-                    ImageWidth = stream.ReadUInt16(Endian.Big); //wii
-                ushort ImageHeight = stream.ReadUInt16(Endian.Big);
-
-                ushort unknown7 = stream.ReadUInt16(Endian.Big);//0
-                uint unknown8 = stream.ReadUInt32(Endian.Big); //256
-                uint unknown9 = stream.ReadUInt32(Endian.Big);//is 65535 Unknown ==12
-                uint unknown10 = stream.ReadUInt32(Endian.Big);//0
-
-                //No a texture?
-                if (Entries[i].Unknown != 0) continue;
-
-                TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, (int)Images - 1)
+                stream.Seek(startPos + Entrys[i].ImageOffset, SeekOrigin.Begin);
+                if (ReadTexture(stream, Entrys[i].SectionSize, out TexEntry current, Entrys[i].Flag))
                 {
-                    LODBias = 0,
-                    MagnificationFilter = GXFilterMode.Nearest,
-                    MinificationFilter = GXFilterMode.Nearest,
-                    WrapS = GXWrapMode.CLAMP,
-                    WrapT = GXWrapMode.CLAMP,
-                    EnableEdgeLOD = false,
-                    MinLOD = 0,
-                    MaxLOD = Images - 1
-                };
-                Add(current);
-
-                stream.Seek(pos + Entries[i].SectionSize, SeekOrigin.Begin);
+                    Add(current);
+                }
             }
         }
+
+        public static bool ReadTexture(Stream stream, uint size, out TexEntry texture, uint flag = 0)
+        {
+            long endPos = stream.Position + size;
+
+            uint Images = stream.ReadUInt32(Endian.Big);
+
+            if (Images > 0x10)
+            {
+                //1313621792 "NLG " Font Description file
+                //1600939625 "_lfi" maybe a pallete or other game data?
+                //2142000 TPL
+
+                if (Images == 2142000)
+                {
+                    List<TexEntry> entries = new();
+                    TPL.ProcessStream(stream, stream.Position - 4, entries);
+
+                    texture = entries.First();
+                    return true;
+                }
+
+                texture = null;
+                return false;
+            }
+
+            uint Format0 = stream.ReadUInt32(Endian.Big); //RGB5A3 1 CMPR 2 RGBA32 3 C8 8
+            byte Format1 = (byte)stream.ReadByte(); //5 RGBA32 8
+            PTLGImageFormat PTLGFormat = (PTLGImageFormat)stream.ReadByte();
+            byte Format3 = (byte)stream.ReadByte(); //5 RGBA32 8
+            byte Format4 = (byte)stream.ReadByte(); //CMPR 0 RGB5A3 3 RGBA32 8 C8 0 || 1 || 4 
+
+            GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), PTLGFormat.ToString());
+            ReadOnlySpan<byte> Palette = ReadOnlySpan<byte>.Empty;
+            ushort ImageWidth, ImageHeight;
+            uint Collors = 0;
+
+            ImageWidth = stream.ReadUInt16(Endian.Big);
+            if (ImageWidth == 0)
+            {
+                ImageWidth = stream.ReadUInt16(Endian.Big);
+                ImageHeight = stream.ReadUInt16(Endian.Big);
+
+                ushort pad1 = stream.ReadUInt16(Endian.Big);
+                Collors = stream.ReadUInt32(Endian.Big);
+            }
+            else
+            {
+                ImageHeight = stream.ReadUInt16(Endian.Big);
+            }
+
+            if (Collors != 0)
+            {
+                Format = GXImageFormat.C8;
+                Palette = stream.At(endPos - Collors * 2, SeekOrigin.Begin, s => s.Read((int)Collors * 2));
+            }
+
+            //The image files are aligned from end.
+            int imageSize = Format.GetCalculatedTotalDataSize(ImageWidth, ImageHeight, (int)Images - 1);
+            stream.Seek(endPos - Collors * 2 - imageSize, SeekOrigin.Begin);
+
+            texture = new(stream, Palette, Format, GXPaletteFormat.RGB5A3, (int)Collors, ImageWidth, ImageHeight, (int)Images - 1)
+            {
+                LODBias = 0,
+                MagnificationFilter = GXFilterMode.Nearest,
+                MinificationFilter = GXFilterMode.Nearest,
+                WrapS = GXWrapMode.CLAMP,
+                WrapT = GXWrapMode.CLAMP,
+                EnableEdgeLOD = false,
+                MinLOD = 0,
+                MaxLOD = Images - 1
+            };
+
+            return true;
+        }
+
 
         protected override void Write(Stream stream)
         {
@@ -104,26 +147,25 @@ namespace AuroraLib.Texture.Formats
             I4 = 0x02,
             I8 = 0x03,
             IA4 = 0x04,
-            RGB5A3 = 0x05,
+            RGB5A3 = 0x05, // or C8
             CMPR = 0x06,
             RGB565 = 0x07,
             RGBA32 = 0x08
         }
 
-        public class PTLGEntry
+        public struct Entry
         {
             public uint Hash;
             public uint ImageOffset;
             public uint SectionSize;
-            public uint Unknown; //0 or 12
+            public uint Flag; //0 or 12
+        }
 
-            public PTLGEntry(Stream stream)
-            {
-                Hash = stream.ReadUInt32(Endian.Big);
-                ImageOffset = stream.ReadUInt32(Endian.Big);
-                SectionSize = stream.ReadUInt32(Endian.Big);
-                Unknown = stream.ReadUInt32(Endian.Big);
-            }
+        public enum PTLGType
+        {
+            Wii,
+            GC,
+            GCCompact
         }
     }
 }

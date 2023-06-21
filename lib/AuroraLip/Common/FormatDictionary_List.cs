@@ -362,10 +362,14 @@ namespace AuroraLib.Common
 
             //Vanillaware
             new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa "+comp_,"Vanillaware"),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
-            new FormatInfo(".ftx", "FTEX", FormatType.Texture, "Muramasa Texture","Vanillaware"),
+            new FormatInfo(".ftx", "FTEX", FormatType.Archive, "Muramasa Texture Archive","Vanillaware"),
             new FormatInfo(".mbs", "FMBS", FormatType.Model, "Muramasa Model","Vanillaware"),
             new FormatInfo(".nms", "NMSB", FormatType.Text, "Muramasa Text","Vanillaware"),
             new FormatInfo(".nsb", "NSBD", FormatType.Skript, "Muramasa Skript","Vanillaware"),
+            new FormatInfo(".abf", "MLIB", FormatType.Parameter, "Muramasa Skript","Vanillaware"),
+            new FormatInfo(".esb", "EMBP", FormatType.Parameter, "Muramasa Skript","Vanillaware"),
+            new FormatInfo(".otb", "OTB ", FormatType.Audio, "SE"),
+            new FormatInfo(".nsi", "NSI ", FormatType.Audio, "SE Info"),
 
             //Krome Studios
             new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),

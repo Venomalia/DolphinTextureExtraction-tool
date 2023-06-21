@@ -90,7 +90,15 @@ namespace AuroraLib.Texture
                 //reads all row image data.
                 for (int i = 0; i <= Mipmap; i++)
                 {
-                    RawImages.Add(Stream.Read(Format.CalculatedDataSize(ImageWidth, ImageHeight, i)));
+                    if (ImageWidth == 0 || ImageHeight == 0)
+                    {
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"{Mipmap} Mips are too many, possible are {i - 1}.");
+                        break;
+                    }
+                    RawImages.Add(Stream.Read(Format.CalculatedDataSize(ImageWidth, ImageHeight)));
+
+                    ImageWidth >>= 1;
+                    ImageHeight >>= 1;
                 }
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }

@@ -16,10 +16,21 @@ namespace AuroraLib.Texture.Formats
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
-            if (extension.ToLower().Equals(".tpl") && stream.ReadUInt32(Endian.Big) >= 1)
+            uint ImageCount = stream.ReadUInt32(Endian.Big);
+            if (extension.ToLower().Equals(".tpl") && ImageCount >= 1)
             {
-                Entry entry = stream.At(4, S => S.Read<Entry>(Endian.Big));
-                return Enum.IsDefined(typeof(GXImageFormat), entry.Format) && entry.ImageOffset > 10 && entry.Width > 2 && entry.Height > 2 && entry.Width < 1024 && entry.Height < 1024 && entry.MaxLOD != 0;
+                for (int i = 0; i < ImageCount; i++)
+                {
+                    Entry entry = stream.Read<Entry>(Endian.Big);
+                    if (Enum.IsDefined(typeof(GXImageFormat), entry.Format) && entry.ImageOffset > 10 && entry.Width > 2 && entry.Height > 2 && entry.Width < 1024 && entry.Height < 1024 && entry.MaxLOD != 0)
+                    {
+                        return true;
+                    }
+                    else if (entry.ImageOffset != 0 || entry.Width != 0 || entry.Height != 0)
+                    {
+                        break;
+                    }
+                }
             }
             return false;
         }
@@ -36,7 +47,7 @@ namespace AuroraLib.Texture.Formats
 
                 stream.Seek(entry.ImageOffset, SeekOrigin.Begin);
 
-                TexEntry current = new TexEntry(stream, null, entry.Format, GXPaletteFormat.IA8, 16, entry.Width, entry.Height, entry.MaxLOD - 1)
+                TexEntry current = new(stream, null, entry.Format, GXPaletteFormat.IA8, 16, entry.Width, entry.Height, entry.MaxLOD - 1)
                 {
                     LODBias = 0,
                     MagnificationFilter = GXFilterMode.Linear,

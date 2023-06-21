@@ -386,7 +386,7 @@ namespace DolphinTextureExtraction
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
                         {
-                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(PathEX.WithoutExtension(so.SubPath)).ToString()));
+                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(so.SubPath).ToString()));
                             return true;
                         }
                         break;

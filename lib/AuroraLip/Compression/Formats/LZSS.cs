@@ -49,23 +49,23 @@ namespace AuroraLib.Compression.Formats
             uint compressedSize = source.ReadUInt32(Endian.Big);
             uint unk = source.ReadUInt32(Endian.Big);
 
-            return Decompress(source, (int)compressedSize).ToArray();
+            return Decompress(source, (int)decompressedSize).ToArray();
         }
 
-        public MemoryStream Decompress(Stream inputStream, int compressedSize)
+        public MemoryStream Decompress(Stream inputStream, int decomLength)
         {
             int n = 1 << EI;
             int f = 1 << EJ;
 
             int flags = 0;
-            byte[] slidingWindow = new byte[n];
-            MemoryStream outStream = new MemoryStream(compressedSize);
+            Span<byte> slidingWindow = EI <= 14 ? stackalloc byte[n] : new byte[n];
+            MemoryStream outStream = new(decomLength);
 
             int r = n - f - P;
             n--;
             f--;
 
-            while (outStream.Position < compressedSize)
+            while (outStream.Position < decomLength)
             {
                 //Reads New Code Word from Compressed Stream if Expired
                 if ((flags & 0x100) == 0)

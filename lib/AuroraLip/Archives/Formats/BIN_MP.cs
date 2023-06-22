@@ -13,40 +13,47 @@ namespace AuroraLib.Archives.Formats
 
         public static string Extension => ".bin";
 
-        private static readonly LZSS lZSS = new LZSS(10, 6, 2);
+        private static readonly LZSS lZSS = new(10, 6, 2);
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
-            if (!extension.ToLower().Equals(Extension))
-                return false;
-
-            uint files = stream.ReadUInt32(Endian.Big);
-            if (files > 1000 || files == 0)
-                return false;
-            uint[] offsets = new uint[files];
-            for (int i = 0; i < files; i++)
+            if (extension.ToLower().Equals(Extension))
             {
-                offsets[i] = stream.ReadUInt32(Endian.Big);
+                uint files = stream.ReadUInt32(Endian.Big);
+                if (files > 1000 || files == 0)
+                    return false;
+                uint[] offsets = new uint[files];
+                for (int i = 0; i < files; i++)
+                {
+                    offsets[i] = stream.ReadUInt32(Endian.Big);
+                }
+
+                if (offsets[0] == stream.Position)
+                {
+
+                    uint lastoffset = (uint)stream.Position - 1;
+                    for (int i = 0; i < files; i++)
+                    {
+                        if (offsets[i] <= lastoffset || stream.Length < offsets[i] + 10)
+                            return false;
+                        lastoffset = offsets[i] + 0x20;
+
+                        stream.Seek(offsets[i], SeekOrigin.Begin);
+                        uint DeSize = stream.ReadUInt32(Endian.Big);
+                        uint type = stream.ReadUInt32(Endian.Big);
+
+                        if (!Enum.IsDefined(typeof(CompressionType), type) || DeSize > 0xA00000 || DeSize == 0)
+                            return false;
+                    }
+
+                    return true;
+                }
             }
 
-            uint lastoffset = (uint)stream.Position - 1;
-            for (int i = 0; i < files; i++)
-            {
-                if (offsets[i] <= lastoffset || stream.Length < offsets[i] + 10)
-                    return false;
-                lastoffset = offsets[i] + 0x10;
-
-                stream.Seek(offsets[i] + 4, SeekOrigin.Begin);
-                uint type = stream.ReadUInt32(Endian.Big);
-
-                if (!Enum.IsDefined(typeof(CompressionType), type))
-                    return false;
-            }
-
-            return true;
+            return false;
         }
 
         protected override void Read(Stream stream)

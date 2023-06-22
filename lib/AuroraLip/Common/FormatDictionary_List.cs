@@ -75,6 +75,7 @@ namespace AuroraLib.Common
             new FormatInfo(".bars","BARS", FormatType.Audio, "Audio ReSource archive", Nin_),
             new FormatInfo(".arsl","ARSL", FormatType.Audio, "Audio ReSource LIST", Nin_),
             new FormatInfo(".dsp", FormatType.Audio, "Nintendo ADPCM codec", Nin_),
+            new FormatInfo(".dsp", "DSP", FormatType.Audio, "Nintendo ADPCM codec", Nin_),
             new FormatInfo(".idsp","IDSP", FormatType.Audio,"Nintendo ADPCM codec", Nin_),
             new FormatInfo(".baa", FormatType.Audio, "JAudio archive", Nin_),
             new FormatInfo(".aw", FormatType.Audio, "JAudio wave archive", Nin_),
@@ -328,6 +329,8 @@ namespace AuroraLib.Common
             new FormatInfo("", new byte[]{128,0,0,1,0},0, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
             new FormatInfo(".rvm","CVMH", FormatType.Archive, "Sonic Riders Archive", "SEGA"),
             new FormatInfo(".XVRs", FormatType.Texture, "Sonic Riders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
+            //SEGA Hitmaker
+            new FormatInfo(".bin","PK_0", FormatType.Archive, "Zip "+comp_, "Hitmaker"),
 
             //Imageepoch
             new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),
@@ -435,6 +438,17 @@ namespace AuroraLib.Common
             new FormatInfo(".asf","SCHl", FormatType.Audio,"audio","EA"),
             new FormatInfo(".loc","LOCH", FormatType.Unknown,"","EA"),
             new FormatInfo(".pfd","PFDx", FormatType.Unknown,"","EA"),
+            
+            //Rebellion
+            new FormatInfo(".asrBE","AsuraZlb", FormatType.Archive,comp_, "Rebellion"),
+            new FormatInfo(".asrBE","Asura   ", FormatType.Archive,"Asura Archive", "Rebellion"),
+            new FormatInfo(".txth","TXTH", FormatType.Text,"Asura Text", "Rebellion"),
+            new FormatInfo(".fcsr","FCSR", FormatType.Archive,"Asura archive entry", "Rebellion"),
+            new FormatInfo(".txtt","TXTT", FormatType.Parameter,"Asura texture info", "Rebellion"),
+            new FormatInfo(".ofnf","OFNF", FormatType.Parameter,"Asura archive info", "Rebellion"),
+            new FormatInfo(".lfsr","LFSR", FormatType.Parameter,"", "Rebellion"),
+            new FormatInfo(".msds","MSDS", FormatType.Parameter,"", "Rebellion"),
+            new FormatInfo(".veld","VELD", FormatType.Parameter,"", "Rebellion"),
 
             //Red Entertainment
             new FormatInfo(".pak", FormatType.Archive, "Tengai Makyō II Archive", "Red Entertainment"){ Class = typeof(PAK_TM2), IsMatch = PAK_TM2.Matcher },
@@ -449,7 +463,7 @@ namespace AuroraLib.Common
             new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting"){ Class = typeof(FPK), IsMatch = FPK.Matcher},
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
             new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
-            new FormatInfo(".asr","AsuraZlb", FormatType.Archive, "Rebellion"),
+
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
             new FormatInfo(".cmn", FormatType.Archive) { Class = typeof(CMN)}, //http://wiki.xentax.com/index.php/NHL_2K3_CMN
@@ -500,7 +514,6 @@ namespace AuroraLib.Common
             new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture"),
             new FormatInfo(".txfl","TXFL", FormatType.Texture, "Pitfall Texture"),
             new FormatInfo(".arc", FormatType.Archive, "Pitfall Archive"){ Class = typeof(ARC_Pit), IsMatch = ARC_Pit.Matcher},
-            new FormatInfo(".asrBE","Asura   TXTH", FormatType.Text, "Rebellion"),
             new FormatInfo(".bas", FormatType.Animation, "Sound Animation"),
             new FormatInfo(".blight", "LGHT", FormatType.Effect, "Light"),
             new FormatInfo(".bfog", "FOGM", FormatType.Else, "Fog"),

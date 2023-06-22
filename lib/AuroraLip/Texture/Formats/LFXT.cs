@@ -15,7 +15,7 @@ namespace AuroraLib.Texture.Formats
         private const string magic = "LFXT";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Length > 0x30 && stream.MatchString(magic) && stream.ReadString().Length > 3;
 
         protected override void Read(Stream stream)
         {

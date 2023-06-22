@@ -258,7 +258,12 @@ namespace DolphinTextureExtraction
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             var SubPath = PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
-            Scan(new ScanObjekt(stream, SubPath, 0, file.Extension));
+            ScanObjekt objekt = new(stream, SubPath, 0, file.Extension);
+            if (objekt.Format.Typ != FormatType.Unknown)
+            {
+                Log.WriteNotification(NotificationType.Info, $"Scan \"{SubPath}\" recognized as {objekt.Format.GetFullDescription()}");
+            }
+            Scan(objekt);
             stream.Close();
         }
 
@@ -292,8 +297,15 @@ namespace DolphinTextureExtraction
 
                     //Checks all possible illegal characters and converts them to hex
                     string path = PathEX.GetValidPath(file.FullPath);
+                    path = Path.Combine(subPath, path);
 
-                    Scan(new ScanObjekt(file, Path.Combine(subPath, path).AsSpan(), deep));
+                    ScanObjekt objekt = new(file, path.AsSpan(), deep);
+                    if (objekt.Format.Typ != FormatType.Unknown)
+                    {
+                        Log.WriteNotification(NotificationType.Info, $"Scan \"{path}\" recognized as {objekt.Format.GetFullDescription()}, Deep:{deep}");
+                    }
+
+                    Scan(objekt);
                     lock (Result)
                     {
                         ArchLength += Length;

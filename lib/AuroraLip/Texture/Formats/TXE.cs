@@ -64,7 +64,7 @@ namespace AuroraLib.Texture.Formats
                 stream.Seek(16, SeekOrigin.Current);
                 DataSize = stream.ReadInt32(Endian.Big);
             }
-            int Mipmaps = Format.GetMipmapsFromSize(DataSize, ImageWidth, ImageHeight);
+            int Mipmaps = DataSize == 0 ? 0 : Format.GetMipmapsFromSize(DataSize, ImageWidth, ImageHeight);
 
             TexEntry current = new TexEntry(stream, null, Format, GXPaletteFormat.IA8, 0, ImageWidth, ImageHeight, Mipmaps)
             {

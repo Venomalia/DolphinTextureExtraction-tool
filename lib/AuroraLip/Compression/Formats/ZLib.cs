@@ -64,39 +64,37 @@ namespace AuroraLib.Compression.Formats
 
         public MemoryStream Compress(byte[] Data, CompressionLevel level, int bufferSize = 4096, bool noHeader = false)
         {
-            MemoryStream ms = new MemoryStream();
+            MemoryStream ms = new();
+            Compress(Data, ms, level, bufferSize, noHeader);
+            return ms;
+        }
+
+        public void Compress(byte[] Data, Stream dst, CompressionLevel level, int bufferSize = 4096, bool noHeader = false)
+        {
+            int dlevel = level switch
+            {
+                CompressionLevel.NoCompression => 0,
+                CompressionLevel.Optimal => -1,
+                CompressionLevel.Fastest => 1,
+                CompressionLevel.SmallestSize => 9,
+                _ => -1,
+            };
+            Compress(Data, dst, dlevel, bufferSize, noHeader);
+        }
+        public void Compress(byte[] Data, Stream dst, int level, int bufferSize = 4096, bool noHeader = false)
+        {
             byte[] buffer = new byte[bufferSize];
 
-            int dlevel = -1;
-            switch (level)
-            {
-                case CompressionLevel.NoCompression:
-                    dlevel = 0;
-                    break;
-
-                case CompressionLevel.Optimal:
-                    dlevel = -1;
-                    break;
-
-                case CompressionLevel.Fastest:
-                    dlevel = 1;
-                    break;
-
-                case CompressionLevel.SmallestSize:
-                    dlevel = 9;
-                    break;
-            }
-            Deflater deflater = new(dlevel, noHeader);
+            Deflater deflater = new(level, noHeader);
             deflater.SetInput(Data);
 
             while (!deflater.IsFinished)
             {
                 deflater.Deflate(buffer);
-                ms.Write(buffer, 0, buffer.Length);
+                dst.Write(buffer, 0, buffer.Length);
             }
             Adler = deflater.Adler;
             deflater.Reset();
-            return ms;
         }
 
         private static bool IsMatch(in byte[] Data)

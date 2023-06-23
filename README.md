@@ -13,6 +13,8 @@ the tool can also unpack all supported formats.
 The most common formats are already supported, new features and formats will be added over time.
 
 ## Download
+This is a .NET 6.0 application and requires the .NET Runtime 6.0. If you don't have it installed yet, you can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+
 [<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?style=for-the-badge" alt="Release Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/latest)
 
 [<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?include_prereleases&sort=semver&label=prerelease&style=for-the-badge" alt="Pre releases Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/)
@@ -44,21 +46,25 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 ### ROM images
 - GCDisk (ISO), WiiDisk (ISO), WAD
 ### Archives
-- AFS, ALAR, ARC0, BIN_MP, CPK, FBC, FBTI, FSYS, GVMH, NARC, NLCM, ONE_SB, ONE_UN, PAK_FE, PAK_Retro, PAK_RetroWii, PCKG, POD5, POSD, RARC, RKV2, RMHG, RTDP, TXAG, U8, bres, pBin, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
+- Asura, AFS, ALAR, ALIG, ARC_Pit, ARC0, BIN_MP, BIG, CMN, CPK, FBC, Filelist, FBTI, FSYS, FPK, GVMH, GSW, GSScene, RSC, NARC, NLCM, ONE_SB, ONE_UN, PAK_FE, PAK_Retro, PAK_RetroWii, PAK_TM2, PCKG, POD5, POSD, RARC, RKV2, RMHG, RTDP, TXAG, TXE, U8, bres, pBin, ShrekDir, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
 ### Compressing
--  CNX, CLZ, COMP, CRILAYLA, CXLZ, FCMP, GCLZ, GZIP, LH, LZ00, LZ01, LZ10, LZ11, LZ77, LZS, LZSS, PRS, YAY0, YAZ0, YAZ1, ZLib
+-  AKLZ, AsuraZlb, CNS, CNX, CLZ, COMP, CRILAYLA, CXLZ, FCMP, GCLZ, GZIP, LH, LZ00, LZ01, LZ10, LZ11, LZ77, LZS, LZSS, LZSS_Sega, PRS, PRS_BE, YAY0, YAZ0, YAZ1, ZLB, ZLib, LZ4, LZO, RefPack, Zstd
 ### Textures
--  BTI, FIPAFTEX, GBIX, GCIX, GCT0, GTX, GVRT, HXTB, NUTC, PTLG, REFT, TEX, TEX0, TEX1, TEX_KS, TEX_RFS, TPL, TPL_0, TXE, TXTR, WTMD, ATB
+-  ALTX, BTI, FIPAFTEX, FTEX, GCNT, GBIX, GCIX, GCT0, GTX, GVRT, HXTB, LFXT, NUTC, PTLG, REFT, TEX, TEX0, TEX1, TEX_KS, TEX_RFS, TPL, TPL_0, TXE, TXTR, WTMD, ATB
 ### Model archives
-- MOD, BMD3, BDL4, MDL_LM, HSF
+- MOD, BMD3, BDL4, MDL_LM, HSF, PKX, WZX, GSAGTX, GSFILE11
 
 ## Credits
  
+- [ImageSharp](https://github.com/SixLabors/ImageSharp) used as graphics API.
+
 - [Hack.io](https://github.com/SuperHackio/Hack.io) to read RARC, U8, YAZ, YAY, BTI, TPL, TEX1, BMD and BDL Format
 
 - [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT, Format and to read PRS, CNX, Lz00, lz01 Lz10, Lz11 Compressing.
 
 - [HashDepot](https://github.com/ssg/HashDepot) used for xxHash generation
+
+- [Ironcompress](https://github.com/aloneguid/ironcompress) used for LZO, LZ4 and Zstandard.
 
 - [SevenZip](https://github.com/adoconnection/SevenZipExtractor) to read formats supported by 7Zip
 	
@@ -83,3 +89,6 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 - [mpatbtools](https://github.com/gamemasterplc/mpatbtools) reference for ATB Format.
 
 - [BrawlCrate](https://github.com/soopercool101/BrawlCrate) reference for ARC0 Format.
+
+- [Helco](https://github.com/Helco/Pitfall) reference for LFXT Format.
+

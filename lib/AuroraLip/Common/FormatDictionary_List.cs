@@ -456,13 +456,24 @@ namespace AuroraLib.Common
             new FormatInfo(".hps"," HALPST", FormatType.Audio, "Audio", "Red Entertainment"),
             new FormatInfo(".iwf"," FWS4", FormatType.Unknown, "?", "Red Entertainment"),
             new FormatInfo(".exi"," MROF", FormatType.Unknown, "?", "Red Entertainment"),
+            
+            //AQ Interactive
+            new FormatInfo(".pk", FormatType.Archive, "","AQ Interactive") { Class = typeof(PK_AQ), IsMatch = PK_AQ.Matcher,  },
+            new FormatInfo(".texture",new byte[]{ 0x63, 0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x74, 0x65, 0x78, 0x74},0, FormatType.Texture, "Texture data","AQ Interactive"){ Class = typeof(text), IsMatch = text.Matcher,  },
+            new FormatInfo(".model",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6D, 0x6F, 0x64, 0x6C},0, FormatType.Model, "Model data","AQ Interactive"),
+            new FormatInfo(".motion",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x61 , 0x6E, 0x69, 0x6D},0, FormatType.Animation, "Animation data","AQ Interactive"),
+            new FormatInfo(".locator",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6C, 0x6F, 0x63, 0x74},0, FormatType.Parameter, "Locator data","AQ Interactive"),
+            new FormatInfo(".hocb"," COH@", FormatType.Collision, "collision data","AQ Interactive"),
+            new FormatInfo(".eff"," @EFF", FormatType.Effect, "effect data","AQ Interactive"),
+            new FormatInfo(".xsca"," @FSX", FormatType.Unknown, "data","AQ Interactive"),
+            new FormatInfo(".hcb"," BCH@", FormatType.Unknown, "data","AQ Interactive"),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
+            new FormatInfo(".mio","MIO0", FormatType.Archive, comp_),
             new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting"){ Class = typeof(FPK), IsMatch = FPK.Matcher},
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
-            new FormatInfo(".pk", FormatType.Archive), //https://github.com/RGBA-CRT/LSPK-Extracter
 
             new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
             new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),

@@ -81,21 +81,32 @@ namespace AuroraLib.Texture
             /// <summary>
             /// Creates an TexEntry from a Stream
             /// </summary>
-            public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmap = 0)
+            public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmaps = 0)
             {
                 this.Format = Format;
                 this.Height = ImageHeight;
                 this.Width = ImageWidth;
 
                 //reads all row image data.
-                for (int i = 0; i <= Mipmap; i++)
+                for (int i = 0; i <= Mipmaps; i++)
                 {
                     if (ImageWidth == 0 || ImageHeight == 0)
                     {
-                        Events.NotificationEvent.Invoke(NotificationType.Info, $"{Mipmap} Mips are too many, possible are {i - 1}.");
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{Mipmaps} image size would be \"0\".");
                         break;
                     }
-                    RawImages.Add(Stream.Read(Format.CalculatedDataSize(ImageWidth, ImageHeight)));
+
+                    int imageSize = Format.CalculatedDataSize(ImageWidth, ImageHeight);
+
+                    if (Stream.Position + imageSize > Stream.Length)
+                    {
+                        if (i == 0)
+                            throw new EndOfStreamException($"Cannot read {imageSize} bytes of pixel data is beyond the end of the stream.");
+
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{Mipmaps} is beyond the end of the stream.");
+                        break;
+                    }
+                    RawImages.Add(Stream.Read(imageSize));
 
                     ImageWidth >>= 1;
                     ImageHeight >>= 1;

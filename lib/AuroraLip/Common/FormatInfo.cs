@@ -67,7 +67,7 @@
 
         private bool Matcher(Stream stream, in string extension = "")
         {
-            if (Header != null)
+            if (Header != null && stream.Length >= Header.Offset + Header.Bytes.Length)
             {
                 stream.Position += Header.Offset;
                 return stream.Length >= Header.Bytes.Length && stream.Read(Header.Bytes.Length).ArrayEqual(Header.Bytes);

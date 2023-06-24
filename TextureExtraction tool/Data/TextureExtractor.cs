@@ -397,8 +397,10 @@ namespace DolphinTextureExtraction
         {
             if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
             {
+                byte[] infoBytes = stream.Read(32 > stream.Length ? (int)stream.Length : 32);
+
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
+                    $"Bytes{infoBytes.Length}:[{BitConverter.ToString(infoBytes)}]");
             }
             else
             {

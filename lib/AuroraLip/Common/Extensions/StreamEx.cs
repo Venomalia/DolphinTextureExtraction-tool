@@ -16,7 +16,6 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are read.</param>
         /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
         /// <exception cref="IOException">An I/O error occurred.</exception>
@@ -29,7 +28,6 @@ namespace AuroraLib.Common
             if (stream.Position + Count > stream.Length)
                 Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
 #endif
-
             byte[] Final = new byte[Count];
             stream.Read(Final, Offset, Count);
             switch (order)
@@ -73,8 +71,8 @@ namespace AuroraLib.Common
         /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
         /// <param name="order">Byte order, in which bytes are read.</param>
-        /// <returns>The value <typeparamref name="T"/> that were read.</returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns>The value <typeparamref name="T"/> that were read.</return
+        /// <exception cref="EndOfStreamException">Thrown when attempting to read <typeparamref name="T"/> beyond the end of the stream.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
         /// <exception cref="IOException">An I/O error occurred.</exception>
@@ -83,10 +81,9 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static unsafe T Read<T>(this Stream stream, Endian order = Endian.Little) where T : unmanaged
         {
-#if DEBUG
             if (stream.Position + sizeof(T) > stream.Length)
-                Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
-#endif
+                throw new EndOfStreamException($"Cannot read {typeof(T)} is beyond the end of the stream.");
+
             T value;
             Span<byte> buffer = new(&value, sizeof(T));
             stream.Read(buffer);

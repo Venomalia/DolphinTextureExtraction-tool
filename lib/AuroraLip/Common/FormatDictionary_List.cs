@@ -329,6 +329,7 @@ namespace AuroraLib.Common
             new FormatInfo("", new byte[]{128,0,0,1,0},0, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
             new FormatInfo(".rvm","CVMH", FormatType.Archive, "Sonic Riders Archive", "SEGA"),
             new FormatInfo(".XVRs", FormatType.Texture, "Sonic Riders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
+            new FormatInfo(".fmi","BD@M", FormatType.Unknown, "", "SEGA"),
             //SEGA Hitmaker
             new FormatInfo(".bin","PK_0", FormatType.Archive, "Zip "+comp_, "Hitmaker"),
 

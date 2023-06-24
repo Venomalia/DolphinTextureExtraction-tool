@@ -325,6 +325,9 @@ namespace AuroraLib.Common
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),
             new FormatInfo(".sfd", 2, new byte[] { 1, 186, 33 } , FormatType.Video, "SofDec Video", "CRIWARE"),
 
+            //Capcom
+            new FormatInfo("", FormatType.Archive, "MT Framework Archive", "Capcom"){ Class = typeof(ARC_MTF)},
+
             //UbiSoft
             new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft"),
             new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BIG)),

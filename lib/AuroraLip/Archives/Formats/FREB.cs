@@ -21,10 +21,6 @@ namespace AuroraLib.Archives.Formats
             FolderEntye A = new(stream, Endian.Big);
             FolderEntye B = new(stream, Endian.Big);
 
-            if (A.Files != 0 || A.Folder != 1 || B.Folder != 0)
-            {
-
-            }
             FileEntye[] entyes = stream.For(B.Files, s => new FileEntye(s, Endian.Big));
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
@@ -33,7 +29,9 @@ namespace AuroraLib.Archives.Formats
             {
                 string name;
                 if (entyes[i].Name.Length != 0)
+                {
                     name = entyes[i].Name;
+                }
                 else
                 {
                     long nameOffset = entyes[i].GetNameOffset();

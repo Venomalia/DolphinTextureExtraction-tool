@@ -313,7 +313,7 @@ namespace AuroraLib.Common
 
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
-            new FormatInfo(".olk", "olnk".ToByte(),4, FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
+            new FormatInfo(".olk", "olnk".GetBytes(),4, FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco"),
 
             //SEGA

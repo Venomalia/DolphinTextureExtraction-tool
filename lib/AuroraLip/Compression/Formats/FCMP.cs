@@ -23,7 +23,7 @@ namespace MuramasaTDB_Encoding
         public void Compress(in byte[] source, Stream destination)
         {
             // Write out the header
-            destination.Write(magic.ToByte());
+            destination.Write(magic.GetBytes());
             destination.Write(source.Length); // Decompressed length
             destination.Write(305397760);
 

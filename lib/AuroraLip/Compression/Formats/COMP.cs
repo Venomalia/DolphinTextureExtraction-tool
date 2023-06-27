@@ -22,7 +22,7 @@ namespace AuroraLib.Compression.Formats
         {
             var destinationStartPosition = destination.Position;
             // Write out the header
-            destination.Write(magic.ToByte());
+            destination.Write(magic.GetBytes());
             if (source.Length <= 0xFFFFFF)
             {
                 destination.Write(0x11 | (source.Length << 8));

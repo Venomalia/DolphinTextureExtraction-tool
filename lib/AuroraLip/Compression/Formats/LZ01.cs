@@ -24,7 +24,7 @@ namespace AuroraLib.Compression.Formats
         {
             var destinationStartPosition = destination.Position;
             // Write out the header
-            destination.Write(magic.ToByte());
+            destination.Write(magic.GetBytes());
             destination.Write(0); // Compressed length (will be filled in later)
             destination.Write(source.Length); // Decompressed length
             destination.Write(0);

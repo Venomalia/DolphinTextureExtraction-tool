@@ -306,7 +306,7 @@ namespace AuroraLib.Common
         /// <returns>"true" when the pattern is found</returns>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Search(this Stream stream, string pattern) => stream.Search(pattern.ToByte());
+        public static bool Search(this Stream stream, string pattern) => stream.Search(pattern.GetBytes());
 
         /// <summary>
         /// searches for a specific pattern in a stream and moves its position until the pattern is found.

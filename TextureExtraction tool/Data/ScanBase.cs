@@ -439,7 +439,7 @@ namespace DolphinTextureExtraction
                             {
                                 List<byte[]> ident = new()
                                 {
-                                    identify.Magic.ToByte()
+                                    identify.Magic.GetBytes()
                                 };
                                 using (Archive Cut = new DataCutter(so.Stream, ident))
                                 {

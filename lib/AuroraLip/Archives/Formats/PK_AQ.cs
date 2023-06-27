@@ -87,7 +87,7 @@ namespace AuroraLib.Archives.Formats
                         string filename = fsStream.ReadString();
                         //Get CRC32
                         crc32.Reset();
-                        crc32.Update(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').ToByte());
+                        crc32.Update(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').GetBytes());
                         uint test = (uint)crc32.Value;
                         HEntry fileEntry = Array.Find(hEntries, e => e.CRC32 == crc32.Value);
 

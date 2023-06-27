@@ -26,7 +26,7 @@ namespace AuroraLib.Compression.Formats
                 throw new Exception($"{typeof(LZ77)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
             }
             // Write out the header
-            destination.Write(magic.ToByte());
+            destination.Write(magic.GetBytes());
             destination.Write(0x10 | (source.Length << 8));
 
             LZ10.Compress_ALG(source, destination);

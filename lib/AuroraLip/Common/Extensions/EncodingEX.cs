@@ -76,8 +76,6 @@ namespace AuroraLib.Common
         /// <param name="String"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static byte[] ToByte(this string String)
-            => DefaultEncoding.GetBytes(String);
 
         /// <summary>
         ///
@@ -126,6 +124,8 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         public static byte ToByte(this char Char, Encoding Encoding)
             => Encoding.GetBytes(Char.ToString())[0];
+        public static byte[] GetBytes(this string String)
+            => DefaultEncoding.GetBytes(String);
 
         internal static Predicate<byte> GetValidbytesPredicate(in Encoding encoder = null)
         {

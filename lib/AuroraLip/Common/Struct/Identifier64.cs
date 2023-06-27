@@ -136,6 +136,6 @@ namespace AuroraLib.Common.Struct
 
         public override int GetHashCode() => (int)HashDepot.XXHash.Hash32(AsSpan());
 
-        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > 1 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
+        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > 2 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
     }
 }

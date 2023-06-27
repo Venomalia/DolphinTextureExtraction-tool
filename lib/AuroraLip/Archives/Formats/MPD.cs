@@ -27,7 +27,7 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < entries.Length; i++)
             {
-                Root.AddArchiveFile(stream, entries[i].Size, mpd.BaseOffset + entries[i].Offset, entries[i].Magic.ToString());
+                Root.AddArchiveFile(stream, entries[i].Size, mpd.BaseOffset + entries[i].Offset, entries[i].Magic.GetString());
             }
         }
 

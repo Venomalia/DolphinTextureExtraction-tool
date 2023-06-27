@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace AuroraLib.Common
+﻿namespace AuroraLib.Common
 {
     public class HeaderInfo : IEquatable<HeaderInfo>, IEquatable<Stream>
     {
@@ -8,9 +6,9 @@ namespace AuroraLib.Common
 
         public int Offset { get; } = 0;
 
-        public string Magic => Bytes.ToValidString();
+        public string Magic => EncodingEX.DefaultEncoding.GetString(Bytes);
 
-        public string MagicASKI => Bytes.ToValidString(b => b >= 32 && b < 127);
+        public string MagicASKI => EncodingEX.GetValidString(Bytes, b => b < 32 && b >= 127);
 
         public HeaderInfo(byte[] bytes, int offset = 0)
         {
@@ -20,13 +18,13 @@ namespace AuroraLib.Common
 
         public HeaderInfo(string magic, int offset = 0)
         {
-            Bytes = magic.ToByte();
+            Bytes = magic.GetBytes();
             Offset = offset;
         }
 
         public HeaderInfo(Stream stream)
         {
-            List<byte> bytes = new List<byte>();
+            List<byte> bytes = new();
             stream.Seek(0, SeekOrigin.Begin);
 
             int readbyte;
@@ -35,7 +33,7 @@ namespace AuroraLib.Common
                 if (bytes.Count >= 4)
                 {
                     int X = 0;
-                    foreach (var b in bytes)
+                    foreach (byte b in bytes)
                         if (b == readbyte) X++;
                     if (X > 3)
                     {
@@ -69,7 +67,7 @@ namespace AuroraLib.Common
                 }
                 bytes.Add((byte)readbyte);
             }
-            if (bytes.ToArray().ToValidString(Encoding.ASCII).Length <= 1)
+            if (EncodingEX.ValidSize(bytes.ToArray(), b => b < 32 || b >= 127) <= 1)
                 bytes.Clear();
 
             Bytes = bytes.ToArray();

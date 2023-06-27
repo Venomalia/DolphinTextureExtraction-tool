@@ -284,18 +284,46 @@ namespace AuroraLib.Common
             }
         }
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="magic">Match</param>
-        /// <returns></returns>
+
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool MatchString(this Stream stream, in string magic)
         {
             if (magic.Length > stream.Length - stream.Position) return false;
             return stream.ReadString(magic.Length) == magic;
+        }
+
+        /// <summary>
+        /// Matches the identifier in the <paramref name="stream"/> with the specified <paramref name="identifier"/>.
+        /// </summary>
+        /// <param name="stream">The stream to match against.</param>
+        /// <param name="identifier">The identifier to match.</param>
+        /// <returns>true if the identifier matches the content of the stream; otherwise, false.</returns>
+        public static bool Match(this Stream stream, in IIdentifier identifier)
+        {
+            Span<byte> magic = identifier.AsSpan();
+            Span<byte> buffer = stackalloc byte[magic.Length];
+            stream.Read(buffer);
+            return buffer.SequenceEqual(magic);
+        }
+
+        /// <summary>
+        /// Matches the identifier in the <paramref name="stream"/> with the specified <paramref name="identifier"/> and throws an <see cref="InvalidIdentifierException"/> if the match fails.
+        /// </summary>
+        /// <param name="stream">The stream to match against.</param>
+        /// <param name="identifier">The identifier to match.</param>
+        /// <exception cref="InvalidIdentifierException">Thrown when the match fails.</exception>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MatchThrow(this Stream stream, in IIdentifier identifier)
+        {
+            Span<byte> magic = identifier.AsSpan();
+            Span<byte> buffer = stackalloc byte[magic.Length];
+            stream.Read(buffer);
+            if (!buffer.SequenceEqual(magic))
+            {
+                throw new InvalidIdentifierException(new Identifier(buffer.ToArray()), identifier);
+            }
         }
 
         /// <summary>

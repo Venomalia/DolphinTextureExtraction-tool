@@ -149,7 +149,7 @@ namespace DolphinTextureExtraction
 
                             if (Mode == Modes.Split)
                             {
-                                List<string> patternstrings = pattern.Select(s => s.ToValidString()).ToList();
+                                List<string> patternstrings = pattern.Select(s => EncodingEX.GetValidString(s)).ToList();
                                 do
                                 {
                                     if (patternstrings.Count > 0)
@@ -158,7 +158,7 @@ namespace DolphinTextureExtraction
                                         Console.WriteLine("Edit identifiers? Yes or (No)");
                                         if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
                                         {
-                                            pattern = patternstrings.Select(s => s.ToByte()).ToList();
+                                            pattern = patternstrings.Select(s => s.GetBytes()).ToList();
                                             break;
                                         }
                                     }
@@ -189,7 +189,7 @@ namespace DolphinTextureExtraction
                             Console.WriteLine($"Mode: {Mode.GetDescription()}");
                             Console.WriteLine($"Input Path: \"{InputPath}\"");
                             Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => s.ToValidString()))}");
+                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => EncodingEX.GetValidString(s)))}");
                             PrintOptions();
                             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
 
@@ -322,7 +322,7 @@ namespace DolphinTextureExtraction
                                 pattern = new List<byte[]>();
                                 while (args.Length > p)
                                 {
-                                    pattern.Add(args[p++].ToByte());
+                                    pattern.Add(args[p++].GetBytes());
                                 }
                             }
 

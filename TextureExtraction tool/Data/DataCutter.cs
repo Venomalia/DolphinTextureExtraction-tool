@@ -44,7 +44,7 @@ namespace DolphinTextureExtraction
 
             while (stream.Search(pattern, out byte[] match))
             {
-                FormatDictionary.Header.TryGetValue(match.ToValidString(), out FormatInfo format);
+                FormatDictionary.Header.TryGetValue(EncodingEX.GetValidString(match), out FormatInfo format);
                 if (format == null) format = new FormatInfo(".bin", match, 0, FormatType.Unknown);
                 long entrystart = stream.Position - format.Header.Offset;
 
@@ -82,7 +82,7 @@ namespace DolphinTextureExtraction
                     continue;
                 }
 
-                switch (match.ToValidString())
+                switch (EncodingEX.GetValidString(match))
                 {
                     case "CLZ":
                     case "pack":

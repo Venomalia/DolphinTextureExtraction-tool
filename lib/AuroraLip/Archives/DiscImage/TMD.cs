@@ -34,7 +34,7 @@ namespace AuroraLib.Archives.DiscImage
         public List<CMD> CMDs;
 
         public TitleFlags TitleFlag => (TitleFlags)BitConverter.ToUInt32(TitleID, 0).Swap();
-        public string TitleString => TitleID.ToValidString(4, 4);
+        public string TitleString => EncodingEX.GetValidString(TitleID.AsSpan()[..4]);
 
         public TMD(Stream stream)
         {

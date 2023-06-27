@@ -5,6 +5,7 @@ namespace AuroraLib.Common
 {
     public static partial class StreamEx
     {
+        #region ReadString
         /// <summary>
         /// Reads a String from the Stream. String are terminated by "<paramref name="validbytes"/> == false".
         /// </summary>
@@ -12,45 +13,118 @@ namespace AuroraLib.Common
         /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
         [DebuggerStepThrough]
-        public static string ReadString(this Stream stream, Predicate<byte> validbytes = null)
-            => stream.ReadString(EncodingEX.DefaultEncoding, validbytes);
+        public static string ReadString(this Stream stream)
+            => EncodingEX.GetString(stream.ReadStringBytes(EncodingEX.InvalidByte));
 
         /// <summary>
-        /// Reads a String from the Stream. String are terminated by "<paramref name="validbytes"/> == false".
+        /// Reads a string from the specified <paramref name="stream"/> using the specified <paramref name="encoding"/>.
+        /// The string is read until an invalid byte is encountered.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="Encoding">Encoding to use when getting the string</param>
-        /// <param name="validbytes">Determines if the byte is valid</param>
-        /// <returns></returns>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use when getting the string.</param>
+        /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
-        public static string ReadString(this Stream stream, Encoding Encoding, Predicate<byte> validbytes = null)
+        public static string ReadString(this Stream stream, Encoding Encoding)
+            => Encoding.GetString(ReadStringBytes(stream, EncodingEX.InvalidByte));
+
+        /// <summary>
+        /// Reads a string from the specified <paramref name="stream"/>.
+        /// The string is read until the specified <paramref name="terminator"/> byte is encountered.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="terminator">The byte that indicates the end of the string.</param>
+        /// <returns>The string read from the stream.</returns>
+        [DebuggerStepThrough]
+        public static string ReadString(this Stream stream, byte terminator)
+            => EncodingEX.GetString(ReadStringBytes(stream, s => s == terminator));
+
+        /// <summary>
+        /// Reads a string from the specified <paramref name="stream"/> using the specified <paramref name="encoding"/>.
+        /// The string is read until the specified <paramref name="terminator"/> byte is encountered.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use when getting the string.</param>
+        /// <param name="terminator">The byte that indicates the end of the string.</param>
+        /// <returns>The string read from the stream.</returns>
+        [DebuggerStepThrough]
+        public static string ReadString(this Stream stream, Encoding Encoding, byte terminator)
+            => Encoding.GetString(ReadStringBytes(stream, s => s == terminator));
+
+        /// <summary>
+        /// Reads a string from the specified <paramref name="stream"/> and stops reading when the specified <paramref name="stopByte"/> is encountered.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="stopByte">The stop byte predicate that determines when to stop reading.</param>
+        /// <returns>The string read from the stream.</returns>
+        [DebuggerStepThrough]
+        public static string ReadString(this Stream stream, Predicate<byte> stopByte)
+            => EncodingEX.GetString(ReadStringBytes(stream, stopByte));
+
+        /// <summary>
+        /// Reads a string from the <paramref name="stream"/> using the specified <paramref name="encoding"/> and stops reading when the specified <paramref name="stopByte"/> is encountered.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="encoding">The encoding to use for converting the read bytes to a string.</param>
+        /// <param name="stopByte">The stop byte predicate that determines when to stop reading.</param>
+        /// <returns>The string read from the stream.</returns>
+        [DebuggerStepThrough]
+        public static string ReadString(this Stream stream, Encoding encoding, Predicate<byte> stopByte)
+            => encoding.GetString(ReadStringBytes(stream, stopByte));
+
+        private static byte[] ReadStringBytes(this Stream stream, Predicate<byte> stopByte)
         {
-            if (validbytes == null) validbytes = EncodingEX.GetValidbytesPredicate(Encoding);
-
-            List<byte> bytes = new List<byte>();
-
-            int readbyte;
-            while ((readbyte = stream.ReadByte()) > -1)
+            List<byte> bytes = new();
+            int readByte;
+            do
             {
-                if (!validbytes.Invoke((byte)readbyte)) break;
-                bytes.Add((byte)readbyte);
-            }
-            return Encoding.GetString(bytes.ToArray());
+                readByte = stream.ReadByte();
+                if (readByte == -1)
+                    throw new EndOfStreamException();
+
+                if (stopByte.Invoke((byte)readByte))
+                    break;
+
+                bytes.Add((byte)readByte);
+
+            } while (true);
+
+            return bytes.ToArray();
         }
 
         /// <summary>
-        /// Reads a String from the file. String length is determined by the "<paramref name="StringLength"/>" parameter.
+        /// Reads a string by reading the specified number of bytes from the specified <paramref name="stream"/>.
+        /// <paramref name="Padding"/> bytes are removed from the resulting string.
         /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="StringLength">Length of the string to read. Cannot be longer than the <see cref="FileStream.Length"/></param>
-        /// <returns>Complete String</returns>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="length">The length of the string to read.</param>
+        /// <param name="Padding">The byte to be removed from the resulting string if found (optional).</param>
+        /// <returns>The string read from the stream with the terminator byte removed if present.</returns>
         [DebuggerStepThrough]
-        public static string ReadString(this Stream FS, int StringLength)
+        public static string ReadString(this Stream FS, int length, byte Padding = 0)
         {
-            byte[] bytes = new byte[StringLength];
-            FS.Read(bytes, 0, StringLength);
-            return bytes.ToValidString();
+            Span<byte> bytes = stackalloc byte[length];
+            FS.Read(bytes);
+            return EncodingEX.GetString(bytes, Padding);
         }
+
+        /// <summary>
+        /// Reads a string by reading the specified number of bytes from the specified <paramref name="stream"/> using the specified <paramref name="encoding"/>.
+        /// <paramref name="Padding"/> bytes are removed from the resulting string.
+        /// </summary>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="length">The number of bytes to read.</param>
+        /// <param name="encoding">The encoding to use for converting the read bytes to a string.</param>
+        /// <param name="Padding">The byte to be removed from the resulting string if found (optional).</param>
+        /// <returns>The string read from the stream with the terminator byte removed if present.</returns>
+        [DebuggerStepThrough]
+        public static string ReadString(this Stream FS, int length, Encoding encoding, byte Padding = 0)
+        {
+            Span<byte> bytes = stackalloc byte[length];
+            FS.Read(bytes);
+            return EncodingEX.GetString(bytes, encoding, Padding);
+        }
+
+        #endregion
 
         [DebuggerStepThrough]
         public static void Write(this Stream FS, string String)

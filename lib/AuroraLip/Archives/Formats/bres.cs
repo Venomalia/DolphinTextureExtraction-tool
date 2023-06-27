@@ -81,7 +81,7 @@ namespace AuroraLib.Archives.Formats
                 if (group.NamePointer != 0)
                 {
                     stream.Seek(StartOfGroup + group.NamePointer, SeekOrigin.Begin);
-                    string Name = stream.ReadString(x => x != 0);
+                    string Name = stream.ReadString();
 
                     if (group.DataPointer != 0)
                     {

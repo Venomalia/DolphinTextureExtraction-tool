@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AuroraLib.Common
@@ -7,68 +8,140 @@ namespace AuroraLib.Common
     {
         public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(28591);
 
-        internal static readonly Predicate<byte> AllValidBytes_ASKI = b => b >= 32 && b < 127;
+        internal static readonly Predicate<byte> InvalidByte = b => b < 32 || b == 127;
 
-        internal static readonly Predicate<byte> AllValidBytes = b => b >= 32 && b != 127;
-
+        #region GetString
         /// <summary>
-        /// Decodes all the Valid bytes in the specified byte array into a string.
+        /// Converts a span of bytes to a string using the default character encoding.
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="validbytes">Determines if the byte is valid</param>
-        /// <returns></returns>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <returns>The resulting string.</returns>
         [DebuggerStepThrough]
-        public static string ToValidString(this byte[] bytes, Predicate<byte> validbytes = null)
-            => bytes.ToValidString(DefaultEncoding, validbytes);
-
-        /// <summary>
-        /// Decodes all the Valid bytes in the specified byte array into a string.
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="Encoding">Encoding to use when getting the string</param>
-        /// <param name="validbytes">Determines if the byte is valid</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static string ToValidString(this byte[] bytes, Encoding Encoding, Predicate<byte> validbytes = null)
+        public static string GetString(ReadOnlySpan<byte> bytes)
         {
-            if (validbytes == null) validbytes = GetValidbytesPredicate(Encoding);
-
-            List<byte> magicbytes = new List<byte>();
-            foreach (byte b in bytes) if (validbytes.Invoke(b)) magicbytes.Add(b);
-            return Encoding.GetString(magicbytes.ToArray());
+            Span<char> chars = stackalloc char[bytes.Length];
+            for (int i = 0; i < chars.Length; i++)
+            {
+                chars[i] = (char)bytes[i];
+            }
+            return new(chars);
         }
 
         /// <summary>
-        /// Decodes all the Valid bytes in the specified byte array into a string.
+        /// Converts a span of bytes to a string using the specified character encoding.
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
-        /// <param name="validbytes"></param>
-        /// <returns></returns>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="encoding">The character encoding to use.</param>
+        /// <returns>The resulting string.</returns>
         [DebuggerStepThrough]
-        public static string ToValidString(this byte[] bytes, int start, int length, Predicate<byte> validbytes = null)
-            => bytes.ToValidString(DefaultEncoding, start, length, validbytes);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetString(ReadOnlySpan<byte> bytes, Encoding encoding)
+            => encoding.GetString(bytes);
 
         /// <summary>
-        /// Decodes all the Valid bytes in the specified byte array into a string.
+        /// Converts a span of bytes to a string, stopping at the specified terminator byte.
         /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="Encoding"></param>
-        /// <param name="start"></param>
-        /// <param name="length"></param>
-        /// <param name="validbytes"></param>
-        /// <returns></returns>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="terminator">The terminator byte indicating the end of the string.</param>
+        /// <returns>The resulting string.</returns>
         [DebuggerStepThrough]
-        public static string ToValidString(this byte[] bytes, Encoding Encoding, int start, int length, Predicate<byte> validbytes = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetString(ReadOnlySpan<byte> bytes, in byte terminator)
         {
-            validbytes ??= GetValidbytesPredicate(Encoding);
-
-            List<byte> magicbytes = new List<byte>();
-            for (int i = start; i < start + length; i++)
-                if (validbytes.Invoke(bytes[i])) magicbytes.Add(bytes[i]);
-            return Encoding.GetString(magicbytes.ToArray());
+            int end = bytes.IndexOf(terminator);
+            return GetString(bytes[..(end == -1 ? bytes.Length : end)]);
         }
+
+        /// <summary>
+        /// Converts a span of bytes to a string using the specified encoding, stopping at the specified terminator byte.
+        /// </summary>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="encoding">The encoding to use for the conversion.</param>
+        /// <param name="terminator">The terminator byte indicating the end of the string.</param>
+        /// <returns>The resulting string.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetString(ReadOnlySpan<byte> bytes, Encoding encoding, in byte terminator)
+        {
+            int end = bytes.IndexOf(terminator);
+            return GetString(bytes[..(end == -1 ? bytes.Length : end)], encoding);
+        }
+        #endregion
+
+        #region GetValidString
+        /// <summary>
+        /// Converts a span of bytes to a string, excluding invalid characters (bytes with values less than 0x20 or equal to 127).
+        /// </summary>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <returns>The resulting string.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetValidString(ReadOnlySpan<byte> bytes)
+            => GetString(bytes[..ValidSize(bytes)]);
+
+        /// <summary>
+        /// Converts a span of bytes to a string using the specified encoding, excluding invalid characters (bytes with values less than 0x20 or equal to 127).
+        /// </summary>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="encoding">The encoding to use for the conversion.</param>
+        /// <returns>The resulting string.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetValidString(ReadOnlySpan<byte> bytes, Encoding encoding)
+            => GetString(bytes[..ValidSize(bytes)], encoding);
+
+        internal static int ValidSize(ReadOnlySpan<byte> bytes)
+        {
+            int end = bytes.Length;
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                if (bytes[i] < 0x20 || bytes[i] == 127)
+                {
+                    end = i;
+                    break;
+                }
+            }
+            return end;
+        }
+
+        /// <summary>
+        /// Converts a span of bytes to a string, excluding bytes that match the specified invalid byte predicate.
+        /// </summary>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="invalidByte">The predicate used to determine if a byte is invalid.</param>
+        /// <returns>The resulting string.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetValidString(ReadOnlySpan<byte> bytes, Predicate<byte> invalidByte)
+            => GetString(bytes[..ValidSize(bytes, invalidByte)]);
+
+        /// <summary>
+        /// Converts a span of bytes to a string using the specified encoding, excluding bytes that match the specified invalid byte predicate.
+        /// </summary>
+        /// <param name="bytes">The span of bytes to convert.</param>
+        /// <param name="encoding">The encoding to use for the conversion.</param>
+        /// <param name="invalidByte">The predicate used to determine if a byte is invalid.</param>
+        /// <returns>The resulting string.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string GetValidString(ReadOnlySpan<byte> bytes, Encoding encoding, Predicate<byte> invalidByte)
+            => GetString(bytes[..ValidSize(bytes, invalidByte)], encoding);
+
+        internal static int ValidSize(ReadOnlySpan<byte> bytes, Predicate<byte> invalidByte)
+        {
+            int end = bytes.Length;
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                if (invalidByte.Invoke(bytes[i]))
+                {
+                    end = i;
+                    break;
+                }
+            }
+            return end;
+        }
+        #endregion
+
 
         /// <summary>
         ///
@@ -76,61 +149,8 @@ namespace AuroraLib.Common
         /// <param name="String"></param>
         /// <returns></returns>
         [DebuggerStepThrough]
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="String"></param>
-        /// <param name="Encoding">Encoding to use when getting the byte[]</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static byte[] ToByte(this string String, Encoding Encoding)
-            => Encoding.GetBytes(String);
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Byte"></param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static char ToChar(this byte Byte)
-            => DefaultEncoding.GetChars(new byte[] { Byte })[0];
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Byte"></param>
-        /// <param name="Encoding">Encoding to use when getting the char</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static char ToChar(this byte Byte, Encoding Encoding)
-            => Encoding.GetChars(new byte[] { Byte })[0];
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Char"></param>
-        /// <returns></returns>
-        //[DebuggerStepThrough]
-        public static byte ToByte(this char Char)
-            => DefaultEncoding.GetBytes(Char.ToString())[0];
-
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="Char"></param>
-        /// <param name="Encoding">Encoding to use when getting the byte</param>
-        /// <returns></returns>
-        [DebuggerStepThrough]
-        public static byte ToByte(this char Char, Encoding Encoding)
-            => Encoding.GetBytes(Char.ToString())[0];
         public static byte[] GetBytes(this string String)
             => DefaultEncoding.GetBytes(String);
 
-        internal static Predicate<byte> GetValidbytesPredicate(in Encoding encoder = null)
-        {
-            if (encoder == Encoding.ASCII) return AllValidBytes_ASKI;
-            else return AllValidBytes;
-        }
     }
 }

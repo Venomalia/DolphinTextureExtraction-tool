@@ -110,20 +110,20 @@ namespace AuroraLib.Common.Struct
         /// <inheritdoc />
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override string ToString()
-            => new((sbyte*)Address, 0, 4);
+        public string GetString()
+            => EncodingEX.GetString(AsSpan(), 0x0);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string ToString(Encoding encoding)
-            => new((sbyte*)Address, 0, 4, encoding);
+        public string GetString(Encoding encoding)
+            => EncodingEX.GetString(AsSpan(), encoding, 0x0);
 
         /// <inheritdoc />
-        public bool Equals(string other) => other == ToString();
+        public bool Equals(string other) => other == GetString();
 
         /// <inheritdoc />
-        public bool Equals(IIdentifier other) => other.AsSpan().SequenceEqual(AsSpan());
+        public bool Equals(IIdentifier other) => other != null && other.AsSpan().SequenceEqual(AsSpan());
 
         public static implicit operator Identifier32(uint v) => *(Identifier32*)&v;
         public static implicit operator uint(Identifier32 v) => *(uint*)&v;
@@ -132,6 +132,10 @@ namespace AuroraLib.Common.Struct
         public static explicit operator int(Identifier32 v) => *(int*)&v;
 
         public static explicit operator Identifier32(string v) => new(v);
-        public static explicit operator string(Identifier32 v) => v.ToString();
+        public static explicit operator string(Identifier32 v) => v.GetString();
+
+        public override int GetHashCode() => (int)HashDepot.XXHash.Hash32(AsSpan());
+
+        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > 1 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
     }
 }

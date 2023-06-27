@@ -108,6 +108,6 @@ namespace AuroraLib.Archives.DiscImage
 
         public static explicit operator GameID(ReadOnlySpan<char> x) => new GameID(x);
 
-        public static explicit operator string(GameID x) => x.Value.ToValidString();
+        public static explicit operator string(GameID x) => EncodingEX.GetString(x.Value);
     }
 }

@@ -26,13 +26,14 @@ namespace AuroraLib.Common
         /// Returns the string representation of the identifier.
         /// </summary>
         /// <returns>The string representation of the identifier.</returns>
-        string ToString();
+        string GetString();
 
         /// <summary>
         /// Returns the string representation of the identifier using the specified encoding.
         /// </summary>
         /// <param name="encoding">The encoding to use.</param>
         /// <returns>The string representation of the identifier.</returns>
-        string ToString(Encoding encoding);
+        string GetString(Encoding encoding);
+
     }
 }

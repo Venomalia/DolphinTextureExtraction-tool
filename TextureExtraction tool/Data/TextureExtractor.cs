@@ -132,6 +132,13 @@ namespace DolphinTextureExtraction
         public static async Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
         {
             TextureExtractor Extractor = new(meindirectory, savedirectory, options);
+#if DEBUG
+            if (Extractor.Option.Parallel.MaxDegreeOfParallelism == 1)
+            {
+                ExtractorResult result = Extractor.StartScan();
+                return await Task.Run(() => result);
+            }
+#endif
             return await Task.Run(() => Extractor.StartScan());
         }
 

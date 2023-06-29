@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using static DolphinTextureExtraction.TextureExtractor;
 
 namespace DolphinTextureExtraction
 {
@@ -13,7 +14,14 @@ namespace DolphinTextureExtraction
 
         public static async Task<Results> StartScan_Async(string meindirectory, string savedirectory, Options options)
         {
-            Unpack Extractor = new Unpack(meindirectory, savedirectory, options);
+            Unpack Extractor = new(meindirectory, savedirectory, options);
+#if DEBUG
+            if (Extractor.Option.Parallel.MaxDegreeOfParallelism == 1)
+            {
+                Results result = Extractor.StartScan();
+                return await Task.Run(() => result);
+            }
+#endif
             return await Task.Run(() => Extractor.StartScan());
         }
 

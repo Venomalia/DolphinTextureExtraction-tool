@@ -22,7 +22,9 @@ namespace AuroraLib.Compression.Formats
         public static Endian Order => Endian.Little;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 6 & stream.PeekByte() > 17 && (stream.ReadByte() & 0x1) == 1 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
+        {
+            return stream.Length > 6 & stream.PeekByte() > 17 && (stream.ReadByte() & 0x1) == 1;
+        }
 
         public byte[] Decompress(Stream source)
             => Decompress_ALG(source, Order);
@@ -50,7 +52,7 @@ namespace AuroraLib.Compression.Formats
                     // Long
                     lookBehindOffset = source.ReadUInt16(order);
 
-                    if (lookBehindOffset == 0 && source.Position < source.Length)
+                    if (lookBehindOffset == 0)
                     {
                         break;
                     }

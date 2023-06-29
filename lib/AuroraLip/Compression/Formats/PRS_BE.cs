@@ -14,7 +14,7 @@ namespace AuroraLib.Compression.Formats
         public static Endian Order => Endian.Big;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 6 && (stream.ReadByte() & 128) == 128 && stream.At(-2, SeekOrigin.End, S => S.ReadUInt16()) == 0;
+            => stream.Length > 6 && (stream.ReadByte() & 128) == 128;
 
         public byte[] Decompress(Stream source)
             => PRS.Decompress_ALG(source, Order);

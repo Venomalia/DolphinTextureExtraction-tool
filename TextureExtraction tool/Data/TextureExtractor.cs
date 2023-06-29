@@ -106,7 +106,7 @@ namespace DolphinTextureExtraction
                 sb.AppendLine($"Unsupported files: {Unsupported}");
                 if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}");
                 sb.AppendLine($"Unknown files: {Unknown}");
-                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.GetFullType()))}");
+                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.GetTypName()))}");
                 sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
                 sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
                 return sb.ToString();
@@ -395,7 +395,7 @@ namespace DolphinTextureExtraction
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
         {
-            if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
+            if (FormatTypee.Identifier == null)
             {
                 byte[] infoBytes = stream.Read(32 > stream.Length ? (int)stream.Length : 32);
 
@@ -405,7 +405,7 @@ namespace DolphinTextureExtraction
             else
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{BitConverter.ToString(FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
+                    $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{BitConverter.ToString(FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
             }
 
             if (stream.Length > 130)

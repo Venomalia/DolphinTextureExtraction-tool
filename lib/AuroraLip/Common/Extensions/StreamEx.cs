@@ -71,7 +71,7 @@ namespace AuroraLib.Common
         /// <typeparam name="T"></typeparam>
         /// <param name="stream"></param>
         /// <param name="order">Byte order, in which bytes are read.</param>
-        /// <returns>The value <typeparamref name="T"/> that were read.</return
+        /// <returns>The value <typeparamref name="T"/> that were read.</returns>
         /// <exception cref="EndOfStreamException">Thrown when attempting to read <typeparamref name="T"/> beyond the end of the stream.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
@@ -299,12 +299,13 @@ namespace AuroraLib.Common
         /// <param name="stream">The stream to match against.</param>
         /// <param name="identifier">The identifier to match.</param>
         /// <returns>true if the identifier matches the content of the stream; otherwise, false.</returns>
+        [DebuggerStepThrough]
         public static bool Match(this Stream stream, in IIdentifier identifier)
         {
             Span<byte> magic = identifier.AsSpan();
             Span<byte> buffer = stackalloc byte[magic.Length];
-            stream.Read(buffer);
-            return buffer.SequenceEqual(magic);
+            int i = stream.Read(buffer);
+            return i == magic.Length && buffer.SequenceEqual(magic);
         }
 
         /// <summary>
@@ -314,13 +315,12 @@ namespace AuroraLib.Common
         /// <param name="identifier">The identifier to match.</param>
         /// <exception cref="InvalidIdentifierException">Thrown when the match fails.</exception>
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MatchThrow(this Stream stream, in IIdentifier identifier)
         {
             Span<byte> magic = identifier.AsSpan();
             Span<byte> buffer = stackalloc byte[magic.Length];
-            stream.Read(buffer);
-            if (!buffer.SequenceEqual(magic))
+            int i = stream.Read(buffer);
+            if (i != magic.Length || !buffer.SequenceEqual(magic))
             {
                 throw new InvalidIdentifierException(new Identifier(buffer.ToArray()), identifier);
             }

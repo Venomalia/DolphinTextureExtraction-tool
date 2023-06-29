@@ -13,11 +13,11 @@ namespace DolphinTextureExtraction
 
         static DataCutter()
         {
-            foreach (var item in FormatDictionary.Header)
+            foreach (FormatInfo item in FormatDictionary.Master)
             {
-                if (item.Value.Class != null && item.Value.Header.Bytes.Length >= 3)
+                if (item.Class != null && item.Identifier.AsSpan().Length >= 4)
                 {
-                    Pattern.Add(item.Value.Header.Bytes);
+                    Pattern.Add(item.Identifier.AsSpan().ToArray());
                 }
             }
         }
@@ -44,14 +44,14 @@ namespace DolphinTextureExtraction
 
             while (stream.Search(pattern, out byte[] match))
             {
-                FormatDictionary.Header.TryGetValue(EncodingEX.GetValidString(match), out FormatInfo format);
-                if (format == null) format = new FormatInfo(".bin", match, 0, FormatType.Unknown);
-                long entrystart = stream.Position - format.Header.Offset;
+                FormatDictionary.TryGetValue(match, out FormatInfo format);
+                if (format == null) format = new FormatInfo(".bin", 0, match, FormatType.Unknown);
+                long entrystart = stream.Position - format.IdentifierOffset;
 
                 // if Compresst?
-                if (Root.Count <= 1 && stream.Position > 6 + format.Header.Offset)
+                if (Root.Count <= 1 && stream.Position > 6 + format.IdentifierOffset)
                 {
-                    stream.Seek(-5 - format.Header.Offset, SeekOrigin.Current);
+                    stream.Seek(-5 - format.IdentifierOffset, SeekOrigin.Current);
                     switch (stream.ReadByte())
                     {
                         case 16: //LZ77
@@ -77,7 +77,7 @@ namespace DolphinTextureExtraction
                 stream.Seek(entrystart, SeekOrigin.Begin);
                 if (!format.IsMatch(stream))
                 {
-                    stream.Seek(entrystart + format.Header.Offset + 1, SeekOrigin.Begin);
+                    stream.Seek(entrystart + format.IdentifierOffset + 1, SeekOrigin.Begin);
                     err++;
                     continue;
                 }
@@ -154,7 +154,7 @@ namespace DolphinTextureExtraction
 
                 if (TotalSize > stream.Length - entrystart)
                 {
-                    stream.Seek(entrystart + format.Header.Offset + 1, SeekOrigin.Begin);
+                    stream.Seek(entrystart + format.IdentifierOffset + 1, SeekOrigin.Begin);
                     err++;
                     continue;
                 }

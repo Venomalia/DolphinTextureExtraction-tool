@@ -70,7 +70,7 @@ namespace DolphinTextureExtraction
 
         private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
         {
-            if (FormatTypee.Header == null || FormatTypee.Header?.Magic.Length <= 3)
+            if (FormatTypee.Identifier == null)
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
                     $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
@@ -78,7 +78,7 @@ namespace DolphinTextureExtraction
             else
             {
                 Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Header.Magic}] Bytes:[{string.Join(",", FormatTypee.Header.Bytes)}] Offset:{FormatTypee.Header.Offset}");
+                    $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{string.Join(",", FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
             }
         }
 

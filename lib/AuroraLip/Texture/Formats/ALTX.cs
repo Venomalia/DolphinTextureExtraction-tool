@@ -2,7 +2,7 @@
 
 namespace AuroraLib.Texture.Formats
 {
-    internal class ALTX : ALIG
+    public class ALTX : ALIG
     {
         public override string Magic => magic;
 

@@ -1,5 +1,8 @@
 ﻿namespace AuroraLib.Common
 {
+    /// <summary>
+    /// The format type specifies the intended use of a file format.
+    /// </summary>
     public enum FormatType
     {
         Unknown = default,
@@ -20,5 +23,6 @@
         Shader,
         Rom,
         Else,
+        Dummy
     }
 }

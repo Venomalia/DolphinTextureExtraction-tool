@@ -21,20 +21,24 @@ namespace AuroraLib.Compression
 
             foreach (var Instance in Instances)
             {
-                if (Instance.CanRead && Instance.IsMatch(stream))
+                try
                 {
-                    try
+                    if (Instance.CanRead && Instance.IsMatch(stream))
                     {
                         stream.Seek(startPosition, SeekOrigin.Begin);
                         outstream = new MemoryStream(Instance.Decompress(stream));
                         type = Instance.GetType();
                         return true;
                     }
-                    catch (Exception)
-                    {
-                    }
                 }
-                stream.Seek(startPosition, SeekOrigin.Begin);
+                catch (Exception t)
+                {
+
+                }
+                finally
+                {
+                    stream.Seek(startPosition, SeekOrigin.Begin);
+                }
             }
 
             outstream = null;

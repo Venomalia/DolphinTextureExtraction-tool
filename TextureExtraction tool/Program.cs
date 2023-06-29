@@ -1,6 +1,8 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Data;
+using SixLabors.ImageSharp;
 using static DolphinTextureExtraction.ScanBase;
 
 namespace DolphinTextureExtraction
@@ -25,10 +27,16 @@ namespace DolphinTextureExtraction
 #endif
         static Program()
         {
+
             //link external classes
-            FormatDictionary.GetValue("J3D2bdl4").Class = typeof(Hack.io.BDL);
-            FormatDictionary.GetValue("J3D2bmd3").Class = typeof(Hack.io.BMD);
-            FormatDictionary.GetValue("TEX1").Class = typeof(Hack.io.BMD.TEX1);
+            if (FormatDictionary.TryGetValue(new Identifier64("J3D2bdl4"), out FormatInfo formatInfo))
+            {
+                formatInfo.Class = typeof(Hack.io.BDL);
+            }
+            if (FormatDictionary.TryGetValue(new Identifier64("J3D2bmd3"), out formatInfo))
+            {
+                formatInfo.Class = typeof(Hack.io.BMD);
+            }
             GC.Collect();
 
             //are we able to change the Title?
@@ -415,11 +423,11 @@ namespace DolphinTextureExtraction
                 Console.CursorLeft = 60;
                 ConsoleEx.WriteColoured("supported:", ConsoleColor.Cyan);
                 ConsoleEx.WriteBoolPrint(item.Class != null, ConsoleColor.Green, ConsoleColor.Red);
-                if (item.Header != null)
+                if (item.Identifier != null)
                 {
                     Console.CursorLeft = 80;
                     ConsoleEx.WriteColoured("Identifier:", ConsoleColor.Cyan);
-                    Console.Write(item.Header.Magic);
+                    Console.Write(item.Identifier.ToString());
                 }
                 Console.WriteLine();
             }

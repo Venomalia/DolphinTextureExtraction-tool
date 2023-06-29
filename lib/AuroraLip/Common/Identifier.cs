@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common.Struct;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -54,6 +53,6 @@ namespace AuroraLib.Common
 
         public override int GetHashCode() => (int)HashDepot.XXHash.Hash32(AsSpan());
 
-        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > 1 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
+        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > Math.Max(2, Bytes.Length - 4) ? GetString() : BitConverter.ToString(AsSpan().ToArray());
     }
 }

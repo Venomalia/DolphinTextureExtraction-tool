@@ -2,7 +2,7 @@
 
 namespace AuroraLib.Texture.Formats
 {
-    internal class ALIG : JUTTexture, IMagicIdentify, IFileAccess
+    public class ALIG : JUTTexture, IMagicIdentify, IFileAccess
     {
         public virtual bool CanRead => true;
 

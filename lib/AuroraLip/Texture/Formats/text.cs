@@ -2,7 +2,7 @@
 
 namespace AuroraLib.Texture.Formats
 {
-    public class text : JUTTexture, IMagicIdentify, IFileAccess
+    public class text_AQ : JUTTexture, IMagicIdentify, IFileAccess
     {
         public virtual bool CanRead => true;
 

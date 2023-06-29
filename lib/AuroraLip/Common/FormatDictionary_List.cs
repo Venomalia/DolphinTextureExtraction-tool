@@ -1,6 +1,8 @@
 ﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Common.Struct;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Texture.Formats;
+using MuramasaTDB_Encoding;
 
 namespace AuroraLib.Common
 {
@@ -15,24 +17,26 @@ namespace AuroraLib.Common
             #region Nintendo
 
             //Nintendo Archive
-            new FormatInfo(".arc", "RARC", FormatType.Archive,comp_, Nin_),
-            new FormatInfo(".arc", "Uª8-", FormatType.Archive, "U8 Archive", Nin_),
-            new FormatInfo(".szs", "Yaz0", FormatType.Archive, comp_, Nin_),
-            new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_),
-            new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_),
-            new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_),
+            new FormatInfo(".arc", "RARC", FormatType.Archive, "Archive", Nin_,typeof(RARC)),
+            new FormatInfo(".arc", "Uª8-", FormatType.Archive, "Archive", Nin_,typeof(U8)),
+            new FormatInfo(".szs", "Yaz0", FormatType.Archive, comp_, Nin_,typeof(YAZ0)),
+            new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_,typeof(YAZ1)),
+            new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_,typeof(YAY0)),
+            new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_,typeof(Bres)),
             new FormatInfo(".sarc","SARC", FormatType.Archive, "Archive", Nin_),
-            new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_){ Class = typeof(MOD), IsMatch = MOD.Matcher },
-            new FormatInfo(".mdl", new byte[]{4, 180, 0,0}, 0, FormatType.Texture, "Luigi's mansion Model", Nin_){ Class = typeof(MDL_LM), IsMatch = MDL_LM.Matcher },
-            new FormatInfo(".bin", new byte[]{2}, 0, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
+            new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_,typeof(MOD)),
+            new FormatInfo(".mdl", new Identifier32(4,180,0,0), FormatType.Texture, "Luigi's mansion Model", Nin_,typeof(MDL_LM)),
+            new FormatInfo(".bin", 0, new byte[]{2}, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
             new FormatInfo(".bnfm","BNFM", FormatType.Archive, "Wiiu Model Archive", Nin_),
+            new FormatInfo(".ash","ASH0", FormatType.Archive, comp_,Nin_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
+            new FormatInfo(".mio","MIO0", FormatType.Archive, comp_,Nin_),
 
             //Nintendo Textures
-            new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_),
-            new FormatInfo(".TPL", new byte[]{0,32,175,48},0, FormatType.Texture, "Texture Palette Library", Nin_){ Class = typeof(TPL), IsMatch = TPL.Matcher },
-            new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library v0", Nin_){ Class = typeof(TPL_0), IsMatch = TPL_0.Matcher },
-            new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_){ Class = typeof(TXE), IsMatch = TXE.Matcher },
-            new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_){ Class = typeof(BTI) },
+            new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_,typeof(REFT)),
+            new FormatInfo(".TPL", new Identifier32(0,32,175,48), FormatType.Texture, "Texture Palette Library", Nin_,typeof(TPL)),
+            new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library v0", Nin_,typeof(TPL_0)),
+            new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_,typeof(TXE)),
+            new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_,typeof(BTI)),
             new FormatInfo(".ctpk","CTPK", FormatType.Texture, "3DS Video Texture Package", Nin_),
 
             //J3D
@@ -56,7 +60,7 @@ namespace AuroraLib.Common
             new FormatInfo(".brk", "J3D1brk1", FormatType.Animation, "J3D TEV color animation", Nin_),
             new FormatInfo(".bmt", "J3D2bmt3", FormatType.Else, "", Nin_),
             //NW4R
-            new FormatInfo(".tex0","TEX0", FormatType.Texture, "NW4R Texture", Nin_),
+            new FormatInfo(".tex0","TEX0", FormatType.Texture, "NW4R Texture", Nin_,typeof(TEX0)),
             new FormatInfo(".rtex", FormatType.Texture, "NW4R XML Texture", Nin_),
             new FormatInfo(".mdl0", "MDL0", FormatType.Model, "NW4R Model", Nin_),
             new FormatInfo(".chr0", "CHR0", FormatType.Animation, "NW4R Bone animation", Nin_),
@@ -82,7 +86,7 @@ namespace AuroraLib.Common
             new FormatInfo(".bms", FormatType.Audio, "JAudio music sequence", Nin_),
             new FormatInfo(".bct", FormatType.Audio, "Wii Remote sound info", Nin_),
             new FormatInfo(".csw", FormatType.Audio, "Wii Remote sound effect", Nin_),
-            new FormatInfo(".thp", "THP", FormatType.Video,"", Nin_),
+            new FormatInfo(".thp", new Identifier32((byte)'T',(byte)'H',(byte)'P',0), FormatType.Video,"video", Nin_),
             new FormatInfo(".bnk","IBNK",FormatType.Audio,"Instrument Bank",Nin_),
             new FormatInfo(".wsy","WSYS",FormatType.Audio,"Wave System Table",Nin_),
             new FormatInfo(".arc","BARC",FormatType.Audio,"BARC archive",Nin_),
@@ -104,9 +108,9 @@ namespace AuroraLib.Common
 
             //Banner
             new FormatInfo(".bns", FormatType.Else, "Banner", Nin_),
-            new FormatInfo(".bnr", new byte[]{66,78,82,49}, 0, FormatType.Else, "Banner", Nin_),
-            new FormatInfo(".bnr", new byte[]{66,78,82,50}, 0, FormatType.Else, "Banner", Nin_),
-            new FormatInfo(".bnr", new byte[]{73,77,69,84},64, FormatType.Else, "Banner", Nin_),
+            new FormatInfo(".bnr",new Identifier32(66,78,82,49), FormatType.Else, "Banner", Nin_),
+            new FormatInfo(".bnr",new Identifier32(66,78,82,50), FormatType.Else, "Banner", Nin_),
+            new FormatInfo(".bnr", 64,new byte[]{73,77,69,84}, FormatType.Else, "Banner", Nin_),
             new FormatInfo(".pac", FormatType.Else, "Banner", Nin_),
             new FormatInfo(".ico","SMDH", FormatType.Else, "3DS Video Icons", Nin_),
             new FormatInfo(".bnr","CBMD", FormatType.Else, "3DS Video Banner", Nin_),
@@ -127,8 +131,8 @@ namespace AuroraLib.Common
             new FormatInfo(".bflan","FLAN", FormatType.Animation, "Binary caFe Layout ANimation", Nin_),
             new FormatInfo(".fshu","FSHU", FormatType.Animation, "caFe SHader parameter animation Uber", Nin_),
             new FormatInfo(".fmdl","FMDL", FormatType.Animation, "caFe MoDeL", Nin_),
-            new FormatInfo(".zar","ZAR", FormatType.Archive, "Ocarina 3D Archive", Nin_),
-            new FormatInfo(".gar","GAR", FormatType.Archive, "Majora 3D Archive", Nin_),
+            new FormatInfo(".zar",new Identifier32((byte)'Z',(byte)'A',(byte)'R',0), FormatType.Archive, "Ocarina 3D Archive", Nin_),
+            new FormatInfo(".gar",new Identifier32((byte)'G',(byte)'A',(byte)'R',0), FormatType.Archive, "Majora 3D Archive", Nin_),
             new FormatInfo(".bcsar","CSAR", FormatType.Audio, "3DS Sound Archive", Nin_),
             new FormatInfo(".arc","darc", FormatType.Archive, "3DS Archive", Nin_),
             new FormatInfo(".brplt", FormatType.Else, "Wii Palette", Nin_),
@@ -137,8 +141,7 @@ namespace AuroraLib.Common
             new FormatInfo(".brtpa", FormatType.Else, "Wii Texture Pattern", Nin_),
             new FormatInfo(".dol", FormatType.Executable, "Main Executable", Nin_),
             new FormatInfo(".REL", FormatType.Executable, "Wii Executable LIB", Nin_),
-            new FormatInfo(".dol", new byte[]{174,15,56,162},0 , FormatType.Executable, "GC Executable", Nin_),
-            new FormatInfo(".elf", new byte[]{127,69,76,70,1,2,1 },0 , FormatType.Executable,"Executable", Nin_),
+            new FormatInfo(".dol",new Identifier32(174,15,56,162), FormatType.Executable, "GC Executable", Nin_),
             new FormatInfo(".jpc", "JPAC1-00", FormatType.Effect , "JParticle container", Nin_),
             new FormatInfo(".jpc", "JPAC2-10", FormatType.Effect , "JParticle container", Nin_),
             new FormatInfo(".jpc", "JPAC2-11", FormatType.Effect , "JParticle container", Nin_),
@@ -161,9 +164,9 @@ namespace AuroraLib.Common
             #region Second party developer
 
             //Retro Studios
-            new FormatInfo(".PAK", FormatType.Archive, "Retro Archive", Retro_){ Class = typeof(PAK_Retro), IsMatch = PAK_Retro.Matcher }, //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
-            new FormatInfo(".PAK", FormatType.Archive, "Retro Wii Archive", Retro_){ Class = typeof(PAK_RetroWii), IsMatch = PAK_RetroWii.Matcher }, //Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)#Header
-            new FormatInfo(".TXTR", FormatType.Texture, "Retro Texture", Retro_){ Class = typeof(TXTR) },
+            new FormatInfo(".PAK",0,new byte[]{0x0, 0x3, 0x0, 0x5, 0x0, 0x0, 0x0, 0x0 }, FormatType.Archive, "Retro Archive", Retro_,typeof(PAK_Retro)), //GC https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
+            new FormatInfo(".PAK",0,new byte[]{0x0, 0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x40 }, FormatType.Archive, "Retro Wii Archive", Retro_,typeof(PAK_RetroWii)), //Wii https://www.metroid2002.com/retfromodding/wiki/PAK_(Metroid_Prime_3)#Header
+            new FormatInfo(".TXTR", FormatType.Texture, "Retro Texture", Retro_,typeof(TXTR)),
             new FormatInfo(".AGSC", FormatType.Audio, "Retro sound effect", Retro_), // https://www.metroid2002.com/retromodding/wiki/AGSC_(File_Format)
             new FormatInfo(".CSMP", FormatType.Audio, "Retro Audio", Retro_), // https://www.metroid2002.com/retromodding/wiki/CSMP_(File_Format)
             new FormatInfo(".PART", FormatType.Effect, "Retro Particle System", Retro_),
@@ -178,34 +181,34 @@ namespace AuroraLib.Common
             new FormatInfo(".STRG", FormatType.Text, "Retro String Table", Retro_),
 
             //Next Level Games
-            new FormatInfo(".rlt","PTLG", FormatType.Texture, "Strikers Texture","Next Level Games"),
-            new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games"){ Class = typeof(RES_NLG), IsMatch = RES_NLG.Matcher},
+            new FormatInfo(".rlt","PTLG", FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
+            new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games",typeof(RES_NLG)),
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
             new FormatInfo(".fen","FENL", FormatType.Unknown, "","Next Level Games"),
 
             //HAL Laboratory & Sora Ltd.
-            new FormatInfo(".pac",new byte[]{65,82,67,0},0, FormatType.Archive, "Brawl Archive"){ Class = typeof(ARC0)},
+            new FormatInfo(".pac",new Identifier32(65,82,67,0), FormatType.Archive, "Brawl Archive","Sora Ltd.",typeof(ARC0)),
             //new FormatInfo(".dat", FormatType.Archive, "HAL Archive", "HAL Laboratory"), // https://wiki.tockdom.com/wiki/HAL_DAT_(File_Format)
             new FormatInfo(".msbin", FormatType.Text,"Brawl Text"),
 
             //Intelligent Systems
-            new FormatInfo(".pak","pack", FormatType.Archive, "Fire Emblem Archive", "Intelligent Systems"),
+            new FormatInfo(".pak","pack", FormatType.Archive, "Fire Emblem Archive", "Intelligent Systems",typeof(PAK_FE)),
 
             // Genius Sonority
-            new FormatInfo(".fsys", "FSYS", FormatType.Archive, "Genius Sonority Archive", "Genius Sonority"),
-            new FormatInfo(".GTX", FormatType.Texture, "Genius Sonority Texture", "Genius Sonority"){ Class = typeof(GTX), IsMatch = GTX.Matcher },
-            new FormatInfo(".GSscene", FormatType.Texture, "Genius Sonority Scene File (based on sysdolphin)", "Genius Sonority"){ Class = typeof(GSScene) },
-            new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority"){ Class = typeof(GSScene) },
-            new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority"){ Class = typeof(GSScene) },
-            new FormatInfo(".GSFILE11", FormatType.Archive, "Genius Sonority Unknown (#0x11)", "Genius Sonority"){ Class = typeof(GSFILE11), IsMatch = GSFILE11.Matcher },
-            new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority"){ Class = typeof(PKX), IsMatch = PKX.Matcher },
-            new FormatInfo(".WZX", FormatType.Archive, "Genius Sonority Attack (Waza)", "Genius Sonority") { Class = typeof(WZX), IsMatch = WZX.Matcher },
+            new FormatInfo(".fsys", "FSYS", FormatType.Archive, "Genius Sonority Archive", "Genius Sonority",typeof(FSYS)),
+            new FormatInfo(".GTX", FormatType.Texture, "Genius Sonority Texture", "Genius Sonority",typeof(GTX)),
+            new FormatInfo(".GSscene", FormatType.Texture, "Genius Sonority Scene File (based on sysdolphin)", "Genius Sonority",typeof(GSScene)),
+            new FormatInfo(".FLOORDAT", FormatType.Texture, "Genius Sonority Floor Model", "Genius Sonority",typeof(GSScene)),
+            new FormatInfo(".MODELDAT", FormatType.Texture, "Genius Sonority Character Model", "Genius Sonority",typeof(GSScene)),
+            new FormatInfo(".GSFILE11",new Identifier32(0x7B,0x1E,0xE3,0xF2), FormatType.Archive, "Genius Sonority Unknown (#0x11)", "Genius Sonority",typeof(GSFILE11)),
+            new FormatInfo(".PKX", FormatType.Archive, "Genius Sonority Pokémons", "Genius Sonority",typeof(PKX)),
+            new FormatInfo(".WZX", FormatType.Archive, "Genius Sonority Attack (Waza)", "Genius Sonority",typeof(WZX)),
             new FormatInfo(".GSW", FormatType.Archive, "Genius Sonority W?", "Genius Sonority"){ Class = typeof(GSW) },
-            new FormatInfo(".GSAGTX", FormatType.Archive, "Genius Sonority Animated Texture", "Genius Sonority"){ Class = typeof(GSAGTX) },
+            new FormatInfo(".GSAGTX", FormatType.Archive, "Genius Sonority Animated Texture", "Genius Sonority",typeof(GSAGTX)),
             new FormatInfo(".GPT", "GPT0", FormatType.Unknown, "Genius Sonority Particle v0", "Genius Sonority"),
             new FormatInfo(".GPT", "GPT1", FormatType.Unknown, "Genius Sonority Particle v1", "Genius Sonority"),
-            new FormatInfo(".GPT", new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, 0, FormatType.Unknown, "Genius Sonority Particle (unknown)", "Genius Sonority"),
+            new FormatInfo(".GPT", 0,new byte[]{ 0x01, 0xF0, 0x5, 0xDA, 0x00, 0x03, 0x00, 0x02 }, FormatType.Unknown, "Genius Sonority Particle (unknown)", "Genius Sonority"),
 
             // Genius Sonority (non-textures)
             new FormatInfo(".MSG", FormatType.Text, "Genius Sonority Messages", "Genius Sonority"),
@@ -222,47 +225,69 @@ namespace AuroraLib.Common
             #region Common
 
             //Common Archives
-            new FormatInfo(".rar","Rar!", FormatType.Archive, "Roshal Archive","win.rar GmbH") { Class = typeof(SevenZip)},
-            new FormatInfo(".zip","PK", FormatType.Archive, "zip Archive","PKWARE, Inc") { Class = typeof(SevenZip)},
-            new FormatInfo(".7z",new byte[]{55, 122, 188, 175, 39, 28},0, FormatType.Archive, "7-Zip archive","Igor Pavlov") { Class = typeof(SevenZip)},
+            new FormatInfo(".rar","Rar!", FormatType.Archive, "Roshal Archive","win.rar GmbH",typeof(SevenZip)),
+            new FormatInfo(".zip",new Identifier32((byte)'P',(byte)'K',3,4), FormatType.Archive, "zip Archive","PKWARE, Inc",typeof(SevenZip)),
+            new FormatInfo(".zip",new Identifier32((byte)'P',(byte)'K',5,6), FormatType.Dummy, "Empty zip Archive","PKWARE, Inc",typeof(SevenZip)),
+            new FormatInfo(".zip",new Identifier32((byte)'P',(byte)'K',7,8), FormatType.Archive, "zip spanned Archive","PKWARE, Inc",typeof(SevenZip)),
+            new FormatInfo(".7z",0,new byte[]{55, 122, 188, 175, 39, 28}, FormatType.Archive, "7-Zip archive","Igor Pavlov",typeof(SevenZip)),
             new FormatInfo(".tar","ustar", FormatType.Archive, "Unix Standard TAR","Unix") { Class = typeof(SevenZip)},
-            new FormatInfo(".deb","!<arch>", FormatType.Archive, "Debian pack","The Debian Projec") { Class = typeof(SevenZip)},
-            new FormatInfo(".dmg",new byte[]{120, 1, 115, 13, 98, 98, 96},0, FormatType.Archive, "Apple Disk Image","Apple Inc.") { Class = typeof(SevenZip)},
-            new FormatInfo(".rpm",new byte[]{237, 171, 238, 219},0, FormatType.Archive, "Red Hat Pack","Red Hat") { Class = typeof(SevenZip)},
-            new FormatInfo(".xar","xar!", FormatType.Archive, "eXtensible ARchive format","OpenDarwin project") { Class = typeof(SevenZip)},
-            new FormatInfo(".bz2","BZ", FormatType.Archive, "BZip2 compression","Julian Seward") { Class = typeof(SevenZip) , IsMatch = BZip_Matcher},
-            new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki") { Class = typeof(SevenZip) , IsMatch = LZH_Matcher},
-            new FormatInfo(".gz",new byte[]{31,139},0, FormatType.Archive, "GNU zip","GNU Project"){ Class = typeof(GZip)},
+            new FormatInfo(".deb","!<arch>␊", FormatType.Archive, "Debian pack","The Debian Projec") { Class = typeof(SevenZip)},
+            new FormatInfo(".dmg",0,new byte[]{120, 1, 115, 13, 98, 98, 96}, FormatType.Archive, "Apple Disk Image","Apple Inc.",typeof(SevenZip)),
+            new FormatInfo(".rpm",0,new byte[]{237, 171, 238, 219}, FormatType.Archive, "Red Hat Pack","Red Hat",typeof(SevenZip)),
+            new FormatInfo(".xar","xar!", FormatType.Archive, "eXtensible ARchive format","OpenDarwin project",typeof(SevenZip)),
+            new FormatInfo(".bz2","BZ", FormatType.Archive, "BZip2 compression","Julian Seward",typeof(SevenZip)) { IsMatch = BZip_Matcher},
+            new FormatInfo(".lzh","-lh", FormatType.Archive, "LHA compression","Haruyasu Yoshizaki",typeof(SevenZip)),
+            new FormatInfo(".sqfs",0,new byte[]{ 104, 115, 113, 115 }, FormatType.Archive, "Squashfs Binary Format","Phillip Lougher",typeof(SevenZip)),
+            new FormatInfo(".gz",0,new byte[]{31,139}, FormatType.Archive, "GNU zip","GNU Project",typeof(GZip)),
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
-            new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski"),
-            new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
-            new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00 "+comp_),
-            new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01 "+comp_),
-            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii"),
-            new FormatInfo(".Comp","COMP", FormatType.Archive, comp_),
-            new FormatInfo(".CNX","CNX", FormatType.Archive, comp_),
-            new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_),
+            new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski",typeof(LZSS)),
+            new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics",typeof(LZS)),
+            new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00 "+comp_,string.Empty,typeof(LZ00)),
+            new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01 "+comp_,string.Empty,typeof(LZ01)),
+            new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii",string.Empty,typeof(LZ77)),
+            new FormatInfo(".Comp","COMP", FormatType.Archive, comp_,string.Empty,typeof(COMP)),
+            new FormatInfo(".CNX",new Identifier32((byte)'C',(byte)'N',(byte)'X',0x2), FormatType.Archive, comp_,string.Empty,typeof(CNX)),
+            new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_,string.Empty,typeof(CXLZ)),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv " + comp_),
-            new FormatInfo(".ZS", FormatType.Archive, "Zstandard " + comp_),
-            new FormatInfo(".zlib", FormatType.Archive, comp_) {Class = typeof(ZLib), IsMatch = ZLib.Matcher},
-            new FormatInfo(".ZLB","ZLB", FormatType.Archive, comp_),
+            new FormatInfo(".ZS",new Identifier32(4247762216), FormatType.Archive, "Zstandard " + comp_,string.Empty,typeof(Zstd)),
+            new FormatInfo(".zlib", FormatType.Archive, comp_,"Mark Adle",typeof(ZLib)){IsMatch = ZLib.Matcher},
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
 
             //Common Textures
-            new FormatInfo(".PNG", new byte[]{137,80,78,71,13},0, FormatType.Texture, "Portable Network Graphics"),
-            new FormatInfo(".Gif", "GIF89", FormatType.Texture, "Graphics Interchange Format"),
-            new FormatInfo(".Jpg", new byte[]{255,216,255,224},0, FormatType.Texture, "Joint Photographic Group"),
+            new FormatInfo(".PNG", 0,new byte[]{137,80,78,71,13,10,26,10}, FormatType.Texture, "Portable Network Graphics"),
+            new FormatInfo(".Gif", "GIF87a", FormatType.Texture, "Graphics Interchange Format"),
+            new FormatInfo(".Gif", "GIF89a", FormatType.Texture, "Graphics Interchange Format"),
+            new FormatInfo(".Jpg", 0,new byte[]{255,216,255,224}, FormatType.Texture, "Joint Photographic Group"),
             new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"){IsMatch = TGA_Matcher},
+            new FormatInfo(".psd", new Identifier32("8BPS"), FormatType.Texture, "Photoshop Document file", "Adobe Inc."),
+            
+            //Common Audio
+            new FormatInfo(".ogg",new Identifier32("0ggS"), FormatType.Audio,"Ogg Vorbis audio", "Xiph.Org Foundation"),
+            new FormatInfo(".mp3","ID3", FormatType.Audio, "MPEG Audio Layer III"),
+            new FormatInfo(".mid","MThd", FormatType.Audio,"Musical Instrument Digital Interface"),
+
+            //Commen Else
+            new FormatInfo(".elf",new Identifier32(127,(byte)'E',(byte)'L',(byte)'F'), FormatType.Executable,"Executable and Linkable Format", "Unix System Laboratories"),
+            new FormatInfo(".class",new Identifier32(0xCA,0xFE,0xBA,0xBE), FormatType.Executable,"Java class file", "Sun Microsystems"),
+            new FormatInfo(".pdf","%PDF",FormatType.Text,"Portable Document Format","Adobe Inc."),
+            new FormatInfo(".json",FormatType.Text,"JavaScript Object Notation"),
+            new FormatInfo(".py",FormatType.Skript,"Python Skript","Python Software"),
+            new FormatInfo(".bat",FormatType.Skript,"Batch file"),
+            new FormatInfo(".t",FormatType.Text),
+            new FormatInfo(".htm", FormatType.Else, "Hypertext Markup"),
+            new FormatInfo(".MAP", FormatType.Else, "Debugger infos"),
+            new FormatInfo(".lua", FormatType.Skript, "Script"),
+            new FormatInfo(".cpp", FormatType.Skript, "C++ Source code"),
+            new FormatInfo(".h",FormatType.Text,"Header file"),
+            new FormatInfo(".pdb","BSJB",FormatType.Else,"PDB Symboles"),
 
             //Microsoft
-            new FormatInfo(".cab","MSCF", FormatType.Archive, "Cabinet Archive", "Microsoft") { Class = typeof(SevenZip)},
-            new FormatInfo(".vhd","conectix", FormatType.Archive, "Virtual Hard Disk","Microsoft") { Class = typeof(SevenZip)},
+            new FormatInfo(".cab","MSCF", FormatType.Archive, "Cabinet Archive", "Microsoft",typeof(SevenZip)),
+            new FormatInfo(".vhd","conectix", FormatType.Archive, "Virtual Hard Disk","Microsoft",typeof(SevenZip)),
+            new FormatInfo(".chm","ITSF", FormatType.Archive, "Compiled HTML Help"," Microsoft",typeof(SevenZip)),
             new FormatInfo(".bmp", "BM", FormatType.Texture,"BitMap Picture", "Microsoft"),
-            new FormatInfo(".DDS", "DDS |", FormatType.Texture, "Direct Draw Surface", "Microsoft"),
-            new FormatInfo(".exe", new byte[]{77,90,144}, 0, FormatType.Executable, "Windows Executable", "Microsoft"),
-
-            //Audio
-            new FormatInfo(".mid","MThd", FormatType.Audio,"Musical Instrument Digital Interface"),
+            new FormatInfo(".DDS", "DDS ", FormatType.Texture, "Direct Draw Surface", "Microsoft"),
+            new FormatInfo(".exe", 0,new byte[]{77,90,144,0}, FormatType.Executable, "Windows Executable", "Microsoft"),
 
             //Text
             new FormatInfo(".txt", FormatType.Text,"Text file"),
@@ -273,100 +298,97 @@ namespace AuroraLib.Common
             new FormatInfo(".ini", FormatType.Text, "Configuration file"),
 
             //Roms & Iso
-            new FormatInfo(".gba", new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130},0, FormatType.Rom, "GBA Rom", Nin_),
-            new FormatInfo(".nes", new byte[]{78,69,83,26,1,1},0 , FormatType.Rom, "Rom", Nin_),
-            new FormatInfo(".rvz", new byte[]{82,86,90,1,1},0 , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
-            new FormatInfo(".WIA", new byte[]{87,73,65,1,1},0 , FormatType.Rom, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad", FormatType.Rom, "Wii WAD",Nin_){ Class = typeof(WAD), IsMatch = WAD.Matcher},
+            new FormatInfo(".gba", 0,new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}, FormatType.Rom, "GBA Rom", Nin_),
+            new FormatInfo(".nes", 0,new byte[]{78,69,83,26} , FormatType.Rom, "Rom", Nin_),
+            new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
+            new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Rom, "Wii ISO Archive","Wiimm"),
+            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'), FormatType.Rom, "Wii WAD",Nin_,typeof(WAD)),
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
-            new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_){ Class = typeof(GCDisk), IsMatch = GCDisk.Matcher},
-            new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_){ Class = typeof(WiiDisk), IsMatch = WiiDisk.Matcher},
-            new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table"),
+            new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_,typeof(GCDisk)),
+            new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_,typeof(WiiDisk)),
+            new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table","",typeof(SevenZip)),
             new FormatInfo(".nsp", "PFS0", FormatType.Rom, "Switch Partition",Nin_),
             new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
             new FormatInfo(".GCZ", FormatType.Rom, "GameCube Zip"),
             new FormatInfo(".wbfs", FormatType.Rom, "Wii Backup File System"),
-
-            //else
-            new FormatInfo(".htm", FormatType.Else, "Hypertext Markup"),
-            new FormatInfo(".MAP", FormatType.Else, "Debugger infos"),
-            new FormatInfo(".lua", FormatType.Skript, "Script"),
-            new FormatInfo(".cpp", FormatType.Skript, "C++ Source code"),
-            new FormatInfo(".h",FormatType.Text,"Header file"),
 
             #endregion Common
 
             #region Mixed
 
             //CRIWARE
-            new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE"),
-            new FormatInfo(".CCRI", "CRILAYLA" , FormatType.Archive, "Compact Compressed", "CRIWARE"),
-            new FormatInfo(".afs", "AFS", FormatType.Archive, "File Archive", "CRIWARE"),
+            new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE",typeof(CPK)),
+            new FormatInfo(".CCRI", "CRILAYLA" , FormatType.Archive, "Compact Compressed", "CRIWARE",typeof(CRILAYLA)),
+            new FormatInfo(".afs", new Identifier32((byte)'A',(byte)'F',(byte)'S',(byte)' '), FormatType.Archive, "File Archive", "CRIWARE",typeof(AFS)),
+            new FormatInfo(".afs", new Identifier32((byte)'A',(byte)'F',(byte)'S',0), FormatType.Archive, "File Archive", "CRIWARE",typeof(AFS)),
             new FormatInfo(".adx", "€", FormatType.Audio, "CRI Audio", "CRIWARE"){ IsMatch = ADX_Matcher},
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),
-            new FormatInfo(".sfd", new byte[]{1,186,33},2 , FormatType.Video, "SofDec Video", "CRIWARE"),
+            new FormatInfo(".sfd", 2, new byte[] { 1, 186, 33 } , FormatType.Video, "SofDec Video", "CRIWARE"),
 
             //UbiSoft
-            new FormatInfo(".bf","BUG", FormatType.Archive, "UbiSoft Archive"),
-            new FormatInfo(".bf","BIG", FormatType.Archive, "UbiSoft Archive"),
+            new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft"),
+            new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BIG)),
             new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft Audio"),
 
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
-            new FormatInfo(".olk", "olnk".GetBytes(),4, FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
-            new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco"),
+            new FormatInfo(".olk", 4,"olnk".GetBytes(), FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
+            new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco",typeof(NUTC)),
 
             //SEGA
-            new FormatInfo(".one", FormatType.Archive, "Sonic Storybook Series Archive", "SEGA") { Class = typeof(ONE_SB), IsMatch = ONE_SB.Matcher},
-            new FormatInfo(".one","one.", FormatType.Archive, "Sonic Unleashed Archive", "SEGA"),
+            new FormatInfo(".one", FormatType.Archive, "Sonic Storybook Series Archive", "SEGA",typeof(ONE_SB)),
+            new FormatInfo(".one","one.", FormatType.Archive, "Sonic Unleashed Archive", "SEGA",typeof(ONE_UN)),
             new FormatInfo(".one", FormatType.Archive, "Sonic Archive", "SEGA"),
-            new FormatInfo(".TXD", "TXAG", FormatType.Archive, "Sonic Storybook Texture Archive", "SEGA"),
-            new FormatInfo(".gvm", "GVMH", FormatType.Archive, "SEGA Texture archive", "SEGA"),
-            new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA"),
-            new FormatInfo(".gvr", "GCIX", FormatType.Texture, "VR Texture", "SEGA"),
-            new FormatInfo(".gvrt","GVRT", FormatType.Texture, "VR Texture", "SEGA"),
+            new FormatInfo(".TXD", "TXAG", FormatType.Archive, "Sonic Storybook Texture Archive", "SEGA",typeof(TXAG)),
+            new FormatInfo(".gvm", "GVMH", FormatType.Archive, "SEGA Texture archive", "SEGA",typeof(GVMH)),
+            new FormatInfo(".gvr", "GBIX", FormatType.Texture, "VR Texture", "SEGA",typeof(GBIX)),
+            new FormatInfo(".gvr", "GCIX", FormatType.Texture, "VR Texture", "SEGA",typeof(GCIX)),
+            new FormatInfo(".gvrt","GVRT", FormatType.Texture, "VR Texture", "SEGA",typeof(GVRT)),
             new FormatInfo(".pvr","PVRT", FormatType.Texture, "VR Texture", "SEGA"),
-            new FormatInfo("", new byte[]{128,0,0,1,0},0, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
+            //new FormatInfo("", 0, new byte[] { 128, 0, 0, 1, 0 }, FormatType.Archive, "Sonic Riders lzss", "SEGA"), //https://github.com/romhack/sonic_riders_lzss
             new FormatInfo(".rvm","CVMH", FormatType.Archive, "Sonic Riders Archive", "SEGA"),
             new FormatInfo(".XVRs", FormatType.Texture, "Sonic Riders Texture", "SEGA"), //https://github.com/Sewer56/SonicRiders.Index/tree/master/Source
             new FormatInfo(".fmi","BD@M", FormatType.Unknown, "", "SEGA"),
             //SEGA Hitmaker
             new FormatInfo(".bin","PK_0", FormatType.Archive, "Zip "+comp_, "Hitmaker"),
+            
+            //Sega AM1 Overworks
+            new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends","Overworks",typeof(AKLZ)),
 
             //Imageepoch
-            new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch"),
-            new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch"),
+            new FormatInfo(".vol", "RTDP", FormatType.Archive, "Arc Rise Archive", "Imageepoch",typeof(RTDP)),
+            new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch",typeof(WTMD)),
 
             //Natsume
-            new FormatInfo(".pBin", "pBin", FormatType.Archive, "Harvest Moon Archive", "Natsume"),
-            new FormatInfo(".tex", FormatType.Texture, "Harvest Moon Texture", "Natsume"){ Class = typeof(FIPAFTEX), IsMatch = FIPAFTEX.Matcher },
+            new FormatInfo(".pBin", "pBin", FormatType.Archive, "Harvest Moon Archive", "Natsume",typeof(pBin)),
+            new FormatInfo(".tex", FormatType.Texture, "Harvest Moon Texture", "Natsume",typeof(FIPAFTEX)),
 
             //Neverland
-            new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland"),
-            new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive Header", "Neverland"),
-            new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland"),
+            new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland",typeof(FBTI)),
+            new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive Header", "Neverland",typeof(NLCM)),
+            new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland",typeof(HXTB)),
 
             //Square Enix
-            new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix"),
-            new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix"),
-            new FormatInfo(".MPD", new byte[]{(byte)'M', (byte)'P', (byte)'D',0}, 0, FormatType.Unknown, "Crystal Bearers data", "Square Enix"),
+            new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix",typeof(POSD)),
+            new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix",typeof(FREB)),
+            new FormatInfo(".MPD", 0, new byte[] {(byte) 'M',(byte) 'P',(byte) 'D', 0 }, FormatType.Archive, "Crystal Bearers data", "Square Enix",typeof(MPD)),
 
             //Grasshopper Manufacture
-            new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture"),
-            new FormatInfo(".bin","GCT0", FormatType.Texture, "Grasshopper Texture", "Grasshopper Manufacture"),
+            new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture",typeof(RMHG)),
+            new FormatInfo(".bin","GCT0", FormatType.Texture, "Grasshopper Texture", "Grasshopper Manufacture",typeof(GCT0)),
             new FormatInfo(".bin","CGMG", FormatType.Model, "Grasshopper Model", "Grasshopper Manufacture"),
 
             //Treasure
-            new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure") { Class = typeof(RSC), IsMatch = RSC.Matcher},
-            new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure"),
+            new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure",typeof(RSC)),
+            new FormatInfo(".arc", "NARC", FormatType.Archive, "Sin and Punishment archive", "Treasure",typeof(NARC)),
             new FormatInfo(".nj", "NJTL", FormatType.Model, "Ninja Model", "Treasure"),//https://gitlab.com/dashgl/ikaruga/-/snippets/2046285
 
             //Tri-Crescendo
             new FormatInfo(".csl", "CSL ", FormatType.Archive, "Fragile Dreams "+comp_, "Tri-Crescendo"),
 
             //Vanillaware
-            new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa "+comp_,"Vanillaware"),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
-            new FormatInfo(".ftx", "FTEX", FormatType.Archive, "Muramasa Texture Archive","Vanillaware"),
+            new FormatInfo(".fcmp", "FCMP", FormatType.Archive, "Muramasa "+comp_,"Vanillaware",typeof(FCMP)),//Muramasa - The Demon Blade Decompressor http://www.jaytheham.com/code/
+            new FormatInfo(".ftx", "FTEX", FormatType.Archive, "Muramasa Texture Archive","Vanillaware",typeof(FTEX)),
             new FormatInfo(".mbs", "FMBS", FormatType.Model, "Muramasa Model","Vanillaware"),
             new FormatInfo(".nms", "NMSB", FormatType.Text, "Muramasa Text","Vanillaware"),
             new FormatInfo(".nsb", "NSBD", FormatType.Skript, "Muramasa Skript","Vanillaware"),
@@ -376,31 +398,34 @@ namespace AuroraLib.Common
             new FormatInfo(".nsi", "NSI ", FormatType.Audio, "SE Info"),
 
             //Krome Studios
-            new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios"),
-            new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios"){ Class = typeof(TEX_KS), IsMatch = TEX_KS.Matcher },
+            new FormatInfo(".rkv", "RKV2", FormatType.Archive, "Star Wars Force Unleashed", "Krome Studios",typeof(RKV2)),
+            new FormatInfo(".tex", FormatType.Texture, "Star Wars Force Unleashed", "Krome Studios",typeof(TEX_KS)),
 
             //Red Fly Studios
-            new FormatInfo("", FormatType.Texture, "Star Wars Force Unleashed 2", "Red Fly Studios"){ Class = typeof(TEX_RFS), IsMatch = TEX_RFS.Matcher },
-            new FormatInfo(".POD", "POD5", FormatType.Archive, "Star Wars Force Unleashed 2", "Red Fly Studios"),
+            new FormatInfo("", FormatType.Texture, "Star Wars Force Unleashed 2", "Red Fly Studios",typeof(TEX_RFS)),
+            new FormatInfo(".POD", "POD5", FormatType.Archive, "Star Wars Force Unleashed 2", "Red Fly Studios",typeof(POD5)),
 
             //H.a.n.d.
-            new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.") { Class= typeof(FBC)},
+            new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.",typeof(FBC)),
 
             //Cing
-            new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing"),  // also pcha
+            new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing",typeof(PCKG)),  // also pcha
 
             //Victor Interactive
-            new FormatInfo(".clz", "CLZ", FormatType.Archive, comp_, "Victor Interactive"),
+            new FormatInfo(".clz",new Identifier32((byte)'C',(byte)'L',(byte)'Z',0), FormatType.Archive, comp_, "Victor Interactive",typeof(CLZ)),
 
             //Ganbarion
             new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
 
+            //Rare
+            new FormatInfo(".ZLB",new Identifier32((byte)'Z',(byte)'L',(byte)'B',0x0), FormatType.Archive, comp_,"",typeof(ZLB)),
+
             //Aqualead. use in Pandora's Tower
-            new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead"), // https://zenhax.com/viewtopic.php?t=16613
+            new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead",typeof(ALAR)), // https://zenhax.com/viewtopic.php?t=16613
             new FormatInfo(".act","ALCT", FormatType.Archive, "Container", "Aqualead"),
             new FormatInfo(".aar","ALLZ", FormatType.Archive, "AL LZSS Compressed", "Aqualead"), //https://github.com/Brolijah/Aqualead_LZSS
-            new FormatInfo(".atx","ALTX", FormatType.Texture, "Texture", "Aqualead"),
-            new FormatInfo(".aig","ALIG", FormatType.Texture, "Image", "Aqualead"),
+            new FormatInfo(".atx","ALTX", FormatType.Texture, "Texture", "Aqualead",typeof(ALTX)),
+            new FormatInfo(".aig","ALIG", FormatType.Texture, "Image", "Aqualead",typeof(ALIG)),
             new FormatInfo(".ams","ALMS", FormatType.Collision, "Mesh Collision", "Aqualead"),
             new FormatInfo(".asn","ALSN", FormatType.Audio, "Sound", "Aqualead"),
             new FormatInfo(".amt","ALMT", FormatType.Animation, "Motion", "Aqualead"),
@@ -411,13 +436,14 @@ namespace AuroraLib.Common
             new FormatInfo(".aod","ALOD", FormatType.Else, "Object Definition", "Aqualead"),
             new FormatInfo(".atb","ALTB", FormatType.Else, "Table", "Aqualead"),
             new FormatInfo(".ard","ALRD", FormatType.Else, "Record Prop", "Aqualead"),
-            new FormatInfo(".GCLz","GCLZ", FormatType.Archive, comp_),
+            new FormatInfo(".GCLz","GCLZ", FormatType.Archive, comp_,"",typeof(GCLZ)),
 
             //Hudson Soft
-            new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft"){ Class = typeof(BIN_MP), IsMatch = BIN_MP.Matcher },
-            new FormatInfo(".hsf", "HSFV037" , FormatType.Texture,"Mario Party Model","Hudson Soft"),
-            new FormatInfo(".atb", FormatType.Texture,"Mario Party texture","Hudson Soft"){ Class = typeof(ATB), IsMatch = ATB.Matcher },
-            new FormatInfo(".h4m", "HVQM4" , FormatType.Video,"","Hudson Soft"),
+            new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft",typeof(BIN_MP)),
+            new FormatInfo(".hsf",new Identifier64(1447449416), FormatType.Texture,"Mario Party Model","Hudson Soft",typeof(HSF)),
+            new FormatInfo(".atb", FormatType.Texture,"Mario Party texture","Hudson Soft",typeof(ATB)),
+            new FormatInfo(".h3m", "HVQM3 1." , FormatType.Video,"Video","Hudson Soft"),
+            new FormatInfo(".h4m", "HVQM4 1." , FormatType.Video,"Video","Hudson Soft"),
 
             //Radical Entertainment
             new FormatInfo(".rcf", "ATG CORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
@@ -425,7 +451,7 @@ namespace AuroraLib.Common
             new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
             
             //Eurocom
-            new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom") {Class = typeof(Filelist)}, //https://github.com/eurotools/eurochef
+            new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom", typeof(Filelist)), //https://github.com/eurotools/eurochef
             new FormatInfo(".csb","MUSX", FormatType.Audio, "Eurocom Audio","Eurocom"),
             new FormatInfo(".edb","GEOM", FormatType.Archive, "Eurocom","Eurocom"),
 
@@ -441,8 +467,8 @@ namespace AuroraLib.Common
             new FormatInfo(".pfd","PFDx", FormatType.Unknown,"","EA"),
             
             //Rebellion
-            new FormatInfo(".asrBE","AsuraZlb", FormatType.Archive,comp_, "Rebellion"),
-            new FormatInfo(".asrBE","Asura   ", FormatType.Archive,"Asura Archive", "Rebellion"),
+            new FormatInfo(".asrBE","AsuraZlb", FormatType.Archive,comp_, "Rebellion",typeof(AsuraZlb)),
+            new FormatInfo(".asrBE","Asura   ", FormatType.Archive,"Asura Archive", "Rebellion",typeof(Asura)),
             new FormatInfo(".txth","TXTH", FormatType.Text,"Asura Text", "Rebellion"),
             new FormatInfo(".fcsr","FCSR", FormatType.Archive,"Asura archive entry", "Rebellion"),
             new FormatInfo(".txtt","TXTT", FormatType.Parameter,"Asura texture info", "Rebellion"),
@@ -452,37 +478,42 @@ namespace AuroraLib.Common
             new FormatInfo(".veld","VELD", FormatType.Parameter,"", "Rebellion"),
 
             //Red Entertainment
-            new FormatInfo(".pak", FormatType.Archive, "Tengai Makyō II Archive", "Red Entertainment"){ Class = typeof(PAK_TM2), IsMatch = PAK_TM2.Matcher },
-            new FormatInfo(".cns","@CNS", FormatType.Archive, "CNS Compressed", "Red Entertainment"),
+            new FormatInfo(".pak", FormatType.Archive, "Tengai Makyō II Archive", "Red Entertainment",typeof(PAK_TM2)),
+            new FormatInfo(".cns","@CNS", FormatType.Archive, "CNS Compressed", "Red Entertainment",typeof(CNS)),
             new FormatInfo(".hps"," HALPST", FormatType.Audio, "Audio", "Red Entertainment"),
             new FormatInfo(".iwf"," FWS4", FormatType.Unknown, "?", "Red Entertainment"),
             new FormatInfo(".exi"," MROF", FormatType.Unknown, "?", "Red Entertainment"),
             
             //AQ Interactive
-            new FormatInfo(".pk", FormatType.Archive, "","AQ Interactive") { Class = typeof(PK_AQ), IsMatch = PK_AQ.Matcher,  },
-            new FormatInfo(".texture",new byte[]{ 0x63, 0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x74, 0x65, 0x78, 0x74},0, FormatType.Texture, "Texture data","AQ Interactive"){ Class = typeof(text), IsMatch = text.Matcher,  },
-            new FormatInfo(".model",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6D, 0x6F, 0x64, 0x6C},0, FormatType.Model, "Model data","AQ Interactive"),
-            new FormatInfo(".motion",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x61 , 0x6E, 0x69, 0x6D},0, FormatType.Animation, "Animation data","AQ Interactive"),
-            new FormatInfo(".locator",new byte[]{0x63,0x68,0x6E,0x6B,0x64,0x61,0x74,0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6C, 0x6F, 0x63, 0x74},0, FormatType.Parameter, "Locator data","AQ Interactive"),
+            new FormatInfo(".pk", FormatType.Archive, "Archive","AQ Interactive",typeof(PK_AQ)),
+            new FormatInfo(".texture",0, new byte[] { 0x63, 0x68, 0x6E, 0x6B, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x74, 0x65, 0x78, 0x74 }, FormatType.Texture, "Texture data","AQ Interactive",typeof(text_AQ)),
+            new FormatInfo(".model",0, new byte[] { 0x63, 0x68, 0x6E, 0x6B, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6D, 0x6F, 0x64, 0x6C }, FormatType.Model, "Model data","AQ Interactive"),
+            new FormatInfo(".motion",0, new byte[] { 0x63, 0x68, 0x6E, 0x6B, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x61, 0x6E, 0x69, 0x6D }, FormatType.Animation, "Animation data","AQ Interactive"),
+            new FormatInfo(".locator",0, new byte[] { 0x63, 0x68, 0x6E, 0x6B, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x6C, 0x6F, 0x63, 0x74 }, FormatType.Parameter, "Locator data","AQ Interactive"),
             new FormatInfo(".hocb"," COH@", FormatType.Collision, "collision data","AQ Interactive"),
             new FormatInfo(".eff"," @EFF", FormatType.Effect, "effect data","AQ Interactive"),
             new FormatInfo(".xsca"," @FSX", FormatType.Unknown, "data","AQ Interactive"),
             new FormatInfo(".hcb"," BCH@", FormatType.Unknown, "data","AQ Interactive"),
+            
+            //Activision & Shaba Games & Treyarch
+            new FormatInfo(".DIR", FormatType.Archive, "Shrek SuperSlam Dir","Shaba Games",typeof(ShrekDir)),
+            new FormatInfo(".texpack","TXPK", FormatType.Texture, "Shrek Texture","Shaba Games"),
+            new FormatInfo(".cmn", FormatType.Archive,"","Treyarch",typeof(CMN)), //http://wiki.xentax.com/index.php/NHL_2K3_CMN
+            new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture","Activision",typeof(GCNT)), //http://wiki.xentax.com/index.php/GCT_Image
+
+            //Edge of Reality
+            new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture","Edge of Reality",typeof(LFXT)),
+            new FormatInfo(".txfl","TXFL", FormatType.Texture, "Pitfall Texture","Edge of Reality"),
+            new FormatInfo(".arc", FormatType.Archive, "Pitfall Archive","Edge of Reality",typeof(ARC_Pit)),
+
+            //Eighting
+            new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting",typeof(FPK)),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
-            new FormatInfo(".ash","ASH0", FormatType.Archive, comp_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
-            new FormatInfo(".mio","MIO0", FormatType.Archive, comp_),
-            new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting"){ Class = typeof(FPK), IsMatch = FPK.Matcher},
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),
+            new FormatInfo(".dict", 0,new byte[]{169,243,36,88,6,1}, FormatType.Archive),
 
-            new FormatInfo(".dict", new byte[]{169,243,36,88,6,1},0, FormatType.Archive),
-            new FormatInfo(".dat", "AKLZ~?Qd=ÌÌÍ", FormatType.Archive,"Skies of Arcadia Legends"),
-            new FormatInfo(".cmn", FormatType.Archive) { Class = typeof(CMN)}, //http://wiki.xentax.com/index.php/NHL_2K3_CMN
-            new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture"), //http://wiki.xentax.com/index.php/GCT_Image
-            
-            new FormatInfo(".DIR", FormatType.Archive, "Shrek SuperSlam Dir"){ Class = typeof(ShrekDir), IsMatch = ShrekDir.Matcher},
-            new FormatInfo(".texpack","TXPK", FormatType.Texture, "Shrek Texture"),
 
             //Audio
             new FormatInfo(".mul", FormatType.Audio),
@@ -500,7 +531,7 @@ namespace AuroraLib.Common
             new FormatInfo(".cbd", FormatType.Audio, "data"),
             new FormatInfo(".rsd", FormatType.Audio, "MADWORLD"),
             new FormatInfo(".c3d", FormatType.Else, "3D Audio Position"),
-            new FormatInfo(".chd","CHD", FormatType.Else),
+            new FormatInfo(".chd",new Identifier32((byte)'C',(byte)'H',(byte)'D',0), FormatType.Else),
             //Video
             new FormatInfo(".dat", "MOC5", FormatType.Video,"Mobiclip"),
             new FormatInfo(".mds", "MDSV", FormatType.Video,"zack and wiki Video"),
@@ -515,17 +546,8 @@ namespace AuroraLib.Common
             new FormatInfo(".MREA", FormatType.Model, "Area"),
             new FormatInfo(".fpc", FormatType.Model, "pac file container"),
             //else
-            new FormatInfo(".pdf","%PDF",FormatType.Text,"Portable Document Format","Adobe Inc."),
-            new FormatInfo(".json",FormatType.Text,"JavaScript Object Notation"),
-            new FormatInfo(".py",FormatType.Skript,"Python Skript","Python Software"),
             new FormatInfo(".ssf","SEC ",FormatType.Archive,"Deadly Alliance"),
             new FormatInfo(".kxe","KXER",FormatType.Skript,"Kuribo Mod","riidefi"),
-            new FormatInfo(".pdb","BSJB",FormatType.Else,"PDB Symboles"),
-            new FormatInfo(".bat",FormatType.Skript,"Batch file"),
-            new FormatInfo(".t",FormatType.Text),
-            new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture"),
-            new FormatInfo(".txfl","TXFL", FormatType.Texture, "Pitfall Texture"),
-            new FormatInfo(".arc", FormatType.Archive, "Pitfall Archive"){ Class = typeof(ARC_Pit), IsMatch = ARC_Pit.Matcher},
             new FormatInfo(".bas", FormatType.Animation, "Sound Animation"),
             new FormatInfo(".blight", "LGHT", FormatType.Effect, "Light"),
             new FormatInfo(".bfog", "FOGM", FormatType.Else, "Fog"),
@@ -535,16 +557,21 @@ namespace AuroraLib.Common
             new FormatInfo(".pac", "NPAC", FormatType.Else, "Star Fox Assault"),
             new FormatInfo(".blmap", "LMAP", FormatType.Else, "Light Map"),
             new FormatInfo(".idb", "looc", FormatType.Else, "Debugger infos"),
-            new FormatInfo(".dummy", "dummy", FormatType.Else, "dummy"),
-            new FormatInfo(".zzz", FormatType.Else, "place holder"),
             new FormatInfo(".pkb", "SB  ", FormatType.Skript, "Skript"),
-            new FormatInfo(".efc", new byte[]{114,117,110,108,101,110,103,116,104,32,99,111,109,112,46}, 0, FormatType.Unknown),
+            new FormatInfo(".efc", 0, new byte[] { 114, 117, 110, 108, 101, 110, 103, 116, 104, 32, 99, 111, 109, 112, 46 }, FormatType.Unknown),
+
+            //dummys
+            new FormatInfo(".zero", FormatType.Dummy, "dummy file"){IsMatch = Zero_Matcher},
+            new FormatInfo(".dummy", "dummy", FormatType.Dummy, "dummy file"),
+            new FormatInfo(".zzz", FormatType.Dummy, "place holder"),
 
             #endregion Mixed
         };
 
+        #region Help Matcher
+
         //Is needed to detect ADX files reliably.
-        public static bool ADX_Matcher(Stream stream, in string extension = "")
+        private static bool ADX_Matcher(Stream stream, in string extension = "")
         {
             if (stream.ReadByte() != 128 || stream.ReadByte() != 0)
                 return false;
@@ -554,19 +581,19 @@ namespace AuroraLib.Common
             return stream.MatchString("(c)CRI");
         }
 
-        public static bool BZip_Matcher(Stream stream, in string extension = "")
+        private static bool BZip_Matcher(Stream stream, in string extension = "")
         {
             byte[] Data = stream.Read(4);
             return stream.Length > 4 && Data[0] == 66 && Data[1] == 90 && (Data[2] == 104 || Data[2] == 0) && Data[3] >= 49 && Data[3] <= 57;
         }
 
-        public static bool LZH_Matcher(Stream stream, in string extension = "")
+        private static bool LZH_Matcher(Stream stream, in string extension = "")
             => stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
 
-        public static bool BIN_LM_Matcher(Stream stream, in string extension = "")
+        private static bool BIN_LM_Matcher(Stream stream, in string extension = "")
             => stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
 
-        public static bool TGA_Matcher(Stream stream, in string extension = "")
+        private static bool TGA_Matcher(Stream stream, in string extension = "")
         {
             if (extension.ToLower() == ".tga" && stream.Length > 18)
             {
@@ -577,5 +604,23 @@ namespace AuroraLib.Common
             }
             return false;
         }
+
+        private static bool Zero_Matcher(Stream stream, in string extension = "")
+        {
+            while (stream.Length < 0x40)
+            {
+                int i8 = stream.ReadByte();
+                if (i8 != 0)
+                {
+                    return false;
+                }
+                if (i8 == -1)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        #endregion
     }
 }

@@ -12,7 +12,7 @@ namespace AuroraLib.Archives.Formats
         public const string Extension = ".cmn";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+            => extension.ToLower() == Extension && stream.ReadUInt32() < 200 && stream.ReadUInt32() != 0 && stream.ReadUInt32() == 1;
 
         protected override void Read(Stream stream)
         {

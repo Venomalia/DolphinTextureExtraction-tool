@@ -17,6 +17,9 @@ namespace AuroraLib.Compression.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
+            if (stream.Length < 0x10)
+                return false;
+
             uint compressedSize = stream.ReadUInt32();
             uint decompressedSize = stream.ReadUInt32();
             return (compressedSize == stream.Length - 8 || compressedSize == stream.Length) && decompressedSize != compressedSize && decompressedSize >= 0x20;

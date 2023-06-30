@@ -18,7 +18,7 @@ namespace MuramasaTDB_Encoding
         public const string magic = "FCMP";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Length > 0x10 && stream.MatchString(magic);
 
         public void Compress(in byte[] source, Stream destination)
         {

@@ -9,6 +9,6 @@ namespace AuroraLib.Compression.Formats
         public const string Extension = ".lz4";
 
         public override bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+            => stream.Length > 0x10 && extension.ToLower() == Extension;
     }
 }

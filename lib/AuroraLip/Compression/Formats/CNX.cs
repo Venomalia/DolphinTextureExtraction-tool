@@ -20,7 +20,7 @@ namespace AuroraLib.Compression.Formats
         public const string magic = "CNX";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadByte() == 0x2;
+            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 0x2;
 
         public void Compress(in byte[] source, Stream destination)
         {

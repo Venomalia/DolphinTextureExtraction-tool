@@ -14,7 +14,7 @@ namespace AuroraLib.Compression.Formats
         public const string magic = "CRILAYLA";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Length > 0x10 && stream.MatchString(magic);
 
         public void Compress(in byte[] source, Stream destination)
         {

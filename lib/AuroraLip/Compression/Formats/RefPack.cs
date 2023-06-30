@@ -22,6 +22,9 @@ namespace AuroraLib.Compression.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
+            if (stream.Length < 0x10)
+                return false;
+
             Header header = new(stream);
             return header.IsValid;
         }

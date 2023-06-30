@@ -13,7 +13,7 @@ namespace AuroraLib.Compression.Formats
         public static string magic = "CXLZ";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadByte() == 16;
+            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 16;
 
         public void Compress(in byte[] source, Stream destination)
         {

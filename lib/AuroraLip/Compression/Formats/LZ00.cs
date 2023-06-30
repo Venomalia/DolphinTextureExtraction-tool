@@ -22,7 +22,7 @@ namespace AuroraLib.Compression.Formats
         public const string magic = "LZ00";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Length > 0x10 && stream.MatchString(magic);
 
         public void Compress(in byte[] source, Stream destination)
         {

@@ -75,12 +75,12 @@ namespace AuroraLib.Compression.Formats
                         }
                         else
                         {
-                            exit = true;
+                            break;
                         }
                     }
                     else
                     {
-                        exit = true;
+                        break;
                     }
                 }
                 else
@@ -113,12 +113,12 @@ namespace AuroraLib.Compression.Formats
                                     }
                                     else
                                     {
-                                        exit = true;
+                                        break;
                                     }
                                 }
                                 else
                                 {
-                                    exit = true;
+                                    break;
                                 }
                             }
                             else

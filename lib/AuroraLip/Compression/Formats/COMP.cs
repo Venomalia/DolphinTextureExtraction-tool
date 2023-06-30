@@ -16,7 +16,7 @@ namespace AuroraLib.Compression.Formats
         public const string magic = "COMP";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadByte() == 17;
+            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 17;
 
         public void Compress(in byte[] source, Stream destination)
         {

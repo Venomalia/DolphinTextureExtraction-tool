@@ -59,12 +59,15 @@ namespace AuroraLib.Archives.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
-            try
+            Span<byte> id = stackalloc byte[8];
+            stream.Read(id);
+            foreach (var item in FileSignatures)
             {
-                using (SevenZipExtractor.ArchiveFile archiveFile = new SevenZipExtractor.ArchiveFile(new SubStream(stream, stream.Length), null, libraryPath)) { }
-                return true;
+                if (id[..item.Value.Length].SequenceEqual(item.Value))
+                {
+                    return true;
+                }
             }
-            catch (Exception) { }
             return false;
         }
 
@@ -91,5 +94,69 @@ namespace AuroraLib.Archives.Formats
         {
             throw new NotImplementedException();
         }
+
+        internal static Dictionary<SevenZipFormat, byte[]> FileSignatures = new()
+        {
+            {
+                SevenZipFormat.Rar5, new byte[8] { 82, 97, 114, 33, 26, 7, 1, 0 }
+            },
+            {
+                SevenZipFormat.Rar, new byte[7] { 82, 97, 114, 33, 26, 7, 0 }
+            },
+            {
+                SevenZipFormat.Vhd, new byte[8] { 99, 111, 110, 101, 99, 116, 105, 120 }
+            },
+            {
+                SevenZipFormat.Deb, new byte[7] { 33, 60, 97, 114, 99, 104, 62 }
+            },
+            {
+                SevenZipFormat.Dmg, new byte[7] { 120, 1, 115, 13, 98, 98, 96 }
+            },
+            {
+                SevenZipFormat.SevenZip, new byte[6] { 55, 122, 188, 175, 39, 28 }
+            },
+            {
+                SevenZipFormat.Tar, new byte[5] { 117, 115, 116, 97, 114 }
+            },
+            {
+                SevenZipFormat.Iso, new byte[5] { 67, 68, 48, 48, 49 }
+            },
+            {
+                SevenZipFormat.Cab, new byte[4] { 77, 83, 67, 70 }
+            },
+            {
+                SevenZipFormat.Rpm, new byte[4] { 237, 171, 238, 219 }
+            },
+            {
+                SevenZipFormat.Xar, new byte[4] { 120, 97, 114, 33 }
+            },
+            {
+                SevenZipFormat.Chm, new byte[4] { 73, 84, 83, 70 }
+            },
+            {
+                SevenZipFormat.BZip2, new byte[3] { 66, 90, 104 }
+            },
+            {
+                SevenZipFormat.Flv, new byte[3] { 70, 76, 86 }
+            },
+            {
+                SevenZipFormat.Swf, new byte[3] { 70, 87, 83 }
+            },
+            {
+                SevenZipFormat.GZip, new byte[2] { 31, 11 }
+            },
+            {
+                SevenZipFormat.Zip, new byte[2] { 80, 75 }
+            },
+            {
+                SevenZipFormat.Arj, new byte[2] { 96, 234 }
+            },
+            {
+                SevenZipFormat.Lzh, new byte[3] { 45, 108, 104 }
+            },
+            {
+                SevenZipFormat.SquashFS, new byte[4] { 104, 115, 113, 115 }
+            }
+        };
     }
 }

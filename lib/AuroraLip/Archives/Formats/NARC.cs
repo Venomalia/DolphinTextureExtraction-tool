@@ -1,16 +1,17 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class NARC : Archive, IMagicIdentify, IFileAccess
+    public class NARC : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "NARC";
+        private static readonly Identifier32 _identifier = new("NARC");
 
         public NARC()
         { }
@@ -24,12 +25,11 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint NrEntries = stream.ReadUInt32(Endian.Big);
             uint StringTableSize = stream.ReadUInt32(Endian.Big);
             uint DataTablePosition = stream.ReadUInt32(Endian.Big);

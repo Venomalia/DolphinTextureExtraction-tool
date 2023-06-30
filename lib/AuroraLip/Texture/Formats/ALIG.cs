@@ -1,26 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class ALIG : JUTTexture, IMagicIdentify, IFileAccess
+    public class ALIG : JUTTexture, IHasIdentifier, IFileAccess
     {
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => false;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "ALIG";
+        private static readonly Identifier32 _identifier = new("ALIG");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
             long start = stream.Position;
-
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(magic);
+            stream.MatchThrow(_identifier);
 
             Header header = stream.Read<Header>();
             stream.Seek(start + header.Offset, SeekOrigin.Begin);

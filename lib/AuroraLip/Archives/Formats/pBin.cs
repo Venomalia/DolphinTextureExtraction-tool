@@ -1,25 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
     // Used in Harvest Moon: Animal Parade
-    public class pBin : Archive, IMagicIdentify, IFileAccess
+    public class pBin : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "pBin";
+        private static readonly Identifier32 _identifier = new("pBin");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint unknown1 = stream.ReadUInt32(Endian.Big);
             uint unknown2 = stream.ReadUInt32(Endian.Big);

@@ -1,25 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
     // ref https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Archives/Formats/GvmArchive.cs
-    public class GVMH : Archive, IMagicIdentify, IFileAccess
+    public class GVMH : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "GVMH";
+        private static readonly Identifier32 _identifier = new("GVMH");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint entryOffset = stream.ReadUInt32() + 8;
             stream.Position++;

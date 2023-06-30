@@ -1,19 +1,20 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FREB : Archive, IMagicIdentify, IFileAccess
+    public class FREB : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "FREB";
+        private static readonly Identifier32 _identifier = new("FREB");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic) && stream.Length < 67108864;
+            => stream.Match(_identifier) && stream.Length < 67108864;
 
         protected override void Read(Stream stream)
         {

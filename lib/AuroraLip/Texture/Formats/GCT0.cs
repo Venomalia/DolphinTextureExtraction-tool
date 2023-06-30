@@ -1,24 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class GCT0 : JUTTexture, IMagicIdentify, IFileAccess
+    public class GCT0 : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "GCT0";
+        private static readonly Identifier32 _identifier = new("GCT0");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             GXImageFormat Format = (GXImageFormat)stream.ReadUInt32(Endian.Big);
             ushort Width = stream.ReadUInt16(Endian.Big);

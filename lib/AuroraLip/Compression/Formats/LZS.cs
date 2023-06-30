@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -12,15 +13,15 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// LZS Lempel–Ziv–Stac algorithm, is based on LZSS.
     /// </summary>
-    public class LZS : ICompression, IMagicIdentify
+    public class LZS : ICompression, IHasIdentifier
     {
-        public string Magic { get; } = "LzS";
-
-        public int MagicOffset { get; } = 0;
-
         public bool CanWrite { get; } = false;
 
         public bool CanRead { get; } = true;
+
+        public virtual IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier32 _identifier = new(new byte[] { (byte)'L', (byte)'z', (byte)'S', 0 });
 
         public void Compress(in byte[] source, Stream destination)
         {
@@ -103,7 +104,7 @@ namespace AuroraLib.Compression.Formats
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
-            if (stream.Length < 16 && stream.MatchString(Magic))
+            if (stream.Length < 16 && stream.Match(_identifier))
             {
                 stream.Position = 12;
                 // compressed size match?

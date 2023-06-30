@@ -1,16 +1,17 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PCKG : Archive, IMagicIdentify, IFileAccess
+    public class PCKG : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "PCKG";
+        private static readonly Identifier32 _identifier = new("PCKG");
 
         public PCKG()
         { }
@@ -23,7 +24,8 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "") => stream.MatchString(magic);
+        public bool IsMatch(Stream stream, in string extension = "")
+            => stream.Match(_identifier);
 
         private const string Bres = "bresþÿ";
 

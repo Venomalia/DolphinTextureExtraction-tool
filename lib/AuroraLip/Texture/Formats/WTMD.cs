@@ -1,17 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     //bas on https://forum.xentax.com/viewtopic.php?t=9256
-    public class WTMD : JUTTexture, IMagicIdentify, IFileAccess
+    public class WTMD : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "WTMD";
+        private static readonly Identifier32 _identifier = new("WTMD");
 
         public WTMD()
         { }
@@ -25,12 +26,11 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(Identifier);
 
             uint none = stream.ReadUInt16(Endian.Big);
             uint PalettePosition = stream.ReadUInt16(Endian.Big);

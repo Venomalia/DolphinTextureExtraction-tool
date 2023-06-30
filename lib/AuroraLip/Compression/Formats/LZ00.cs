@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -11,18 +12,18 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// Standard LZ algorithm with encryption
     /// </summary>
-    public class LZ00 : ICompression, IMagicIdentify
+    public class LZ00 : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "LZ00";
+        private static readonly Identifier32 _identifier = new("LZ00");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x10 && stream.MatchString(magic);
+            => stream.Length > 0x10 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)
         {
@@ -32,7 +33,7 @@ namespace AuroraLib.Compression.Formats
 
             var destinationStartPosition = destination.Position;
             // Write out the header
-            destination.Write(magic.GetBytes());
+            destination.Write(_identifier);
             destination.Write(0); // Compressed length (will be filled in later)
             destination.Write(0);
             destination.Write(0);

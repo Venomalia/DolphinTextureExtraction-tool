@@ -1,17 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
 namespace AuroraLib.Archives.Formats
 {
-    public class Bres : Archive, IMagicIdentify, IFileAccess
+    public class Bres : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "bres";
+        private static readonly Identifier32 _identifier = new("bres");
 
         #region Fields and Properties
 
@@ -31,13 +32,13 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
             Header header = new(stream);
-            if (header.Magic != magic)
-                throw new InvalidIdentifierException(Magic);
+            if (header.Magic != _identifier)
+                throw new InvalidIdentifierException(header.Magic, _identifier);
             ByteOrder = header.BOM;
             stream.Seek(header.RootOffset, SeekOrigin.Begin);
             //root sections
@@ -56,7 +57,7 @@ namespace AuroraLib.Archives.Formats
                 try
                 {
                     reference_stream = FileRequest.Invoke(datname);
-                    Bres plt = new (reference_stream, FullPath);
+                    Bres plt = new(reference_stream, FullPath);
                     foreach (var item in plt.Root.Items)
                     {
                         Root.Items.Add(item.Key, item.Value);
@@ -149,7 +150,7 @@ namespace AuroraLib.Archives.Formats
 
         public unsafe struct Header
         {
-            private fixed char magic[4];
+            public Identifier32 Magic;
             public Endian BOM;
             public ushort Version;
             public uint Length;
@@ -158,34 +159,12 @@ namespace AuroraLib.Archives.Formats
 
             public Header(Stream stream)
             {
-                string Magic = stream.ReadString(4);
-                for (int i = 0; i < 4; i++)
-                {
-                    magic[i] = Magic[i];
-                }
+                Magic = stream.Read<Identifier32>();
                 BOM = stream.ReadBOM();
                 Version = stream.ReadUInt16(BOM);
                 Length = stream.ReadUInt32(BOM);
                 RootOffset = stream.ReadUInt16(BOM);
                 Sections = stream.ReadUInt16(BOM);
-            }
-
-            public string Magic
-            {
-                get
-                {
-                    fixed (char* magicPtr = magic)
-                    {
-                        return new string(magicPtr, 0, 4);
-                    }
-                }
-                set
-                {
-                    for (int i = 0; i < 4; i++)
-                    {
-                        magic[i] = value[i];
-                    }
-                }
             }
         }
 

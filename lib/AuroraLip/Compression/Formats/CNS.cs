@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Compression;
 
 namespace AuroraLib.Compression.Formats
@@ -6,15 +7,15 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// CNS compression algorithm, used in Games from Red Entertainment.
     /// </summary>
-    public class CNS : ICompression, IMagicIdentify
+    public class CNS : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "@CNS";
+        private static readonly Identifier32 _identifier = new("@CNS");
 
         public byte[] Decompress(Stream source)
         {
@@ -28,7 +29,7 @@ namespace AuroraLib.Compression.Formats
 
         public void Compress(in byte[] source, Stream destination)
         {
-            destination.Write(magic);
+            destination.Write(_identifier);
             if (source[0] == 0x0 && source[1] == 0x20 && source[2] == 0xAF && source[3] == 0x30)
             {
                 destination.WriteString("TPL");
@@ -44,7 +45,7 @@ namespace AuroraLib.Compression.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
 
         public static byte[] Decompress_ALG(Stream source, int decomLength)

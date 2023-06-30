@@ -16,9 +16,12 @@ namespace AuroraLib.Texture.Formats
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
+            if (stream.Length < 0x10 || extension.ToLower() != Extension)
+                return false;
+
             stream.Seek(12, SeekOrigin.Begin);
             uint pattern_offset = stream.ReadUInt32(Endian.Big);
-            return extension.ToLower() == Extension && pattern_offset == 20;
+            return pattern_offset == 20;
         }
 
         public List<PatternEntry> Patterns = new List<PatternEntry>();

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -6,23 +7,22 @@ namespace AuroraLib.Archives.Formats
     /// Brawl ARC0 Archive
     /// </summary>
     // ref https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs
-    public class ARC0 : Archive, IMagicIdentify, IFileAccess
+    public class ARC0 : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "ARC";
+        private static readonly Identifier32 _identifier = new((byte)'A', (byte)'R', (byte)'C', 0);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadByte() == 0;
+            => stream.Match(_identifier) && stream.ReadByte() == 0;
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             ushort version = stream.ReadUInt16(Endian.Big); //257
             ushort files = stream.ReadUInt16(Endian.Big);

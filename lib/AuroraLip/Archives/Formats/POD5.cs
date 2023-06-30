@@ -1,19 +1,20 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Compression.Formats;
 
 namespace AuroraLib.Archives.Formats
 {
     // From https://zenhax.com/viewtopic.php?f=9&t=7288
     // Thanks to Acewell, aluigi, AlphaTwentyThree, Chrrox
-    public class POD5 : Archive, IMagicIdentify, IFileAccess
+    public class POD5 : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "POD5";
+        private static readonly Identifier32 _identifier = new("POD5");
 
         public POD5()
         { }
@@ -27,12 +28,12 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new Exception($"Invalid Identifier. Expected \"{Magic}\"");
+            stream.MatchThrow(_identifier);
+
             stream.Seek(0x58, SeekOrigin.Begin);
             uint FileCount = stream.ReadUInt32(Endian.Little);
             stream.Seek(0x108, SeekOrigin.Begin);

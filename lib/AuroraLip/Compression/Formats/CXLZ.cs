@@ -1,19 +1,20 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
-    public class CXLZ : ICompression, IMagicIdentify
+    public class CXLZ : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public static string magic = "CXLZ";
+        private static readonly Identifier32 _identifier = new("CXLZ");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 16;
+            => stream.Length > 0x10 && stream.Match(_identifier) && stream.ReadByte() == 16;
 
         public void Compress(in byte[] source, Stream destination)
         {
@@ -23,7 +24,7 @@ namespace AuroraLib.Compression.Formats
                 throw new Exception($"{typeof(CXLZ)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
             }
             // Write out the header
-            destination.Write(magic.GetBytes());
+            destination.Write(_identifier);
             destination.Write(0x10 | (source.Length << 8));
 
             LZ10.Compress_ALG(source, destination);

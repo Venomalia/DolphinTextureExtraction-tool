@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using AuroraLib.Common.Struct;
+using System.Diagnostics;
 using System.Text;
 
 namespace AuroraLib.Common
@@ -34,6 +35,5 @@ namespace AuroraLib.Common
         /// <param name="encoding">The encoding to use.</param>
         /// <returns>The string representation of the identifier.</returns>
         string GetString(Encoding encoding);
-
     }
 }

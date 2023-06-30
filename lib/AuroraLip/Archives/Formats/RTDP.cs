@@ -1,16 +1,17 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class RTDP : Archive, IMagicIdentify, IFileAccess
+    public class RTDP : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "RTDP";
+        private static readonly Identifier32 _identifier = new("RTDP");
 
         public RTDP()
         { }
@@ -24,12 +25,11 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             int EOH = (int)stream.ReadUInt32(Endian.Big);
             int NrEntries = (int)stream.ReadUInt32(Endian.Big);
             int Size = (int)stream.ReadUInt32(Endian.Big);

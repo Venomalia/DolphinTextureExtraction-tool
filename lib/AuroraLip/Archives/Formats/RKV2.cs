@@ -1,16 +1,17 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class RKV2 : Archive, IMagicIdentify, IFileAccess
+    public class RKV2 : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "RKV2";
+        private static readonly Identifier32 _identifier = new("RKV2");
 
         public RKV2()
         { }
@@ -24,12 +25,11 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint FileCount = stream.ReadUInt32(Endian.Little);
             uint NameSize = stream.ReadUInt32(Endian.Little);
             uint FullName_Files = stream.ReadUInt32(Endian.Little);

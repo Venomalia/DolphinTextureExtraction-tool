@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -11,16 +12,18 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// CLZ compression algorithm, used in Games from Victor Interactive Software.
     /// </summary>
-    public class CLZ : ICompression, IMagicIdentify
+    public class CLZ : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic { get; } = "CLZ";
+        public virtual IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier32 _identifier = new((byte)'C', (byte)'L', (byte)'Z', 0);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 16 && stream.ReadByte() == 67 && stream.ReadByte() == 76 && stream.ReadByte() == 90;
+            => stream.Length > 16 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)
         {

@@ -1,19 +1,18 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
-    public class ZLB : ICompression, IMagicIdentify
+    public class ZLB : ICompression, IHasIdentifier
     {
 
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "ZLB";
+        private static readonly Identifier32 _identifier = new((byte)'Z', (byte)'L', (byte)'B', 0x0);
 
         private static readonly ZLib ZLipInstance = new();
 
@@ -27,7 +26,7 @@ namespace AuroraLib.Compression.Formats
             {
                 if (!IsMatch(source))
                 {
-                    if (!source.Search(magic))
+                    if (!source.Search(_identifier.AsSpan().ToArray()))
                     {
                         break;
                     }
@@ -42,7 +41,7 @@ namespace AuroraLib.Compression.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadUInt8() == 0;
+            => stream.Match(_identifier);
 
         public unsafe struct Header
         {

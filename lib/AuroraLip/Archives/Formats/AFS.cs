@@ -1,22 +1,28 @@
 ﻿using AFSLib;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class AFS : Archive, IMagicIdentify, IFileAccess
+    public class AFS : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifierA;
 
-        private const string magic = "AFS";
+        public static readonly Identifier32 _identifierA = new("AFS ");
+
+        public static readonly Identifier32 _identifierB = new((byte)'A', (byte)'F', (byte)'S', 0);
 
         private AFSLib.AFS AFSBase;
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+        {
+            Identifier32 identifier = stream.Read<Identifier32>();
+            return identifier == _identifierA || identifier == _identifierB;
+        }
 
         protected override void Read(Stream ArchiveFile)
         {

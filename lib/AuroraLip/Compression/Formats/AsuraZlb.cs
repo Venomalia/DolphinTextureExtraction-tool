@@ -1,21 +1,22 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
-    public class AsuraZlb : ICompression, IMagicIdentify
+    public class AsuraZlb : ICompression, IHasIdentifier
     {
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "AsuraZlb";
+        private static readonly Identifier64 _identifier = new("AsuraZlb");
 
         private static readonly ZLib ZLib = new();
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.MatchString(Magic);
+            => stream.Length > 4 && stream.Match(_identifier);
 
         public byte[] Decompress(Stream source)
             => source.At(0x14, s => ZLib.Decompress(s));
@@ -24,7 +25,7 @@ namespace AuroraLib.Compression.Formats
         {
             long start = destination.Position;
 
-            destination.Write(Magic);
+            destination.Write(_identifier);
             destination.Write(1);
             destination.Write(0); // Placeholder
             destination.Write(source.Length);

@@ -1,24 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class TXAG : Archive, IMagicIdentify, IFileAccess
+    public class TXAG : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "TXAG";
+        private static readonly Identifier32 _identifier = new("TXAG");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(Magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             ushort unk = stream.ReadUInt16(Endian.Big);
             ushort fileCount = stream.ReadUInt16(Endian.Big);

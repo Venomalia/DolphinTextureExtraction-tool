@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
@@ -12,15 +13,15 @@ namespace AuroraLib.Archives.Formats
     /// <summary>
     /// Based on https://wiki.tockdom.com/wiki/U8_(File_Format)
     /// </summary>
-    public class U8 : Archive, IMagicIdentify, IFileAccess
+    public class U8 : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "Uª8-";
+        private static readonly Identifier32 _identifier = new("Uª8-");
 
         public U8()
         { }
@@ -34,12 +35,11 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint OffsetToNodeSection = stream.ReadUInt32(Endian.Big); //usually 0x20
             uint NodeSectionSize = stream.ReadUInt32(Endian.Big);
@@ -204,7 +204,7 @@ namespace AuroraLib.Archives.Formats
             }
 
             //Write the Header
-            stream.Write(Magic);
+            stream.Write(_identifier);
             stream.WriteBigEndian(BitConverter.GetBytes(0x20), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(Nodes.Count * 0x0C + StringBytes.Count), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);

@@ -1,24 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class Asura : Archive, IMagicIdentify, IFileAccess
+    public class Asura : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "Asura   ";
+        private static readonly Identifier64 _identifier = new("Asura   ");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x20 && stream.MatchString(magic);
+            => stream.Length > 0x20 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(magic);
+            stream.MatchThrow(_identifier);
 
             Endian endian = stream.At(0xC, s => s.DetectByteOrder<int>());
 

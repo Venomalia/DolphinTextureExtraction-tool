@@ -1,18 +1,19 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
     // Rune Factory (Frontier) archive format
     // Cross-referenced with https://github.com/master801/Rune-Factory-Frontier-Tools
-    public class NLCM : Archive, IMagicIdentify, IFileAccess
+    public class NLCM : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "NLCM";
+        private static readonly Identifier32 _identifier = new("NLCM");
 
         private Stream reference_stream;
 
@@ -40,12 +41,11 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint table_offset = stream.ReadUInt32(Endian.Big);
             uint unknown2 = stream.ReadUInt32(Endian.Big);
             uint file_count = stream.ReadUInt32(Endian.Big);

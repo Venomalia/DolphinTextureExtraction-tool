@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Collections;
 using System.Text;
 
@@ -14,16 +15,18 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// Nintendo YAY0 compression algorithm
     /// </summary>
-    public class YAY0 : ICompression, IMagicIdentify
+    public class YAY0 : ICompression, IHasIdentifier
     {
-        public string Magic { get; } = "Yay0";
-
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
+        public virtual IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier32 _identifier = new("Yay0");
+
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.MatchString(Magic);
+            => stream.Length > 4 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)
         {
@@ -99,8 +102,7 @@ namespace AuroraLib.Compression.Formats
         //Based on https://github.com/LordNed/WArchive-Tools/blob/master/ArchiveToolsLib/Compression/Yay0Decoder.cs
         public byte[] Decompress(Stream source)
         {
-            if (source.ReadString(4) != Magic)
-                throw new Exception($"{typeof(YAY0)}:Invalid Identifier");
+            source.MatchThrow(_identifier);
 
             uint uncompressedSize = source.ReadUInt32(Endian.Big),
                 linkTableOffset = source.ReadUInt32(Endian.Big),

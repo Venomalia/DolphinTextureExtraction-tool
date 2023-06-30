@@ -1,19 +1,20 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class POSD : Archive, IMagicIdentify, IFileAccess
+    public class POSD : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "POSD";
+        private static readonly Identifier32 _identifier = new("POSD");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
@@ -28,8 +29,7 @@ namespace AuroraLib.Archives.Formats
                 throw new Exception($"{nameof(POSD)}: could not request the file {datname}.");
             }
 
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint dir_count = stream.ReadUInt32(Endian.Big);
 

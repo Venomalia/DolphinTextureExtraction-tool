@@ -1,28 +1,28 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Texture.BlockFormats;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class LFXT : JUTTexture, IMagicIdentify, IFileAccess
+    public class LFXT : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "LFXT";
+        private static readonly Identifier32 _identifier = new("LFXT");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x30 && stream.MatchString(magic) && stream.ReadString().Length > 3;
+            => stream.Length > 0x30 && stream.Match(_identifier) && stream.ReadString().Length > 3;
 
         protected override void Read(Stream stream)
         {
             // NOTE: non-Nintendo consoles (PS2, XBox, PC) have the TXFL magic and use Little Endian
             // but that is out of scope for DTE
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             string _Name = stream.ReadString();
             var Properties = stream.Read<HeaderProperties>(Endian.Big);
 

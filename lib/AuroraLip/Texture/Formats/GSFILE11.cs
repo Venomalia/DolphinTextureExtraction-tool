@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -8,13 +9,15 @@ namespace AuroraLib.Texture.Formats
     /// Real file extension is unknown, number is from FSYS filetype field
     /// Based on Pokémon XD Gale of Darkness (GXXP01).
     /// </summary>
-    public class GSFILE11 : Archive, IMagicIdentify, IFileAccess
+    public class GSFILE11 : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => "\x7b\x1e\xe3\xf2";
+        public virtual IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier32 _identifier = new(0x7B, 0x1E, 0xE3, 0xF2);
 
         public GSFILE11()
         { }

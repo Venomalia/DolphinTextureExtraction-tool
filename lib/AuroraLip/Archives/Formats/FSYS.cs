@@ -1,28 +1,28 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Compression.Formats;
 
 namespace AuroraLib.Archives.Formats
 {
     //base https://github.com/PekanMmd/Pokemon-XD-Code/
-    public class FSYS : Archive, IMagicIdentify, IFileAccess
+    public class FSYS : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "FSYS";
+        private static readonly Identifier32 _identifier = new("FSYS");
 
         private static readonly LZSS lZSS = new LZSS(12, 4, 2);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 112 && stream.MatchString(Magic);
+            => stream.Length > 112 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             Header header = stream.Read<Header>(Endian.Big);
 
             stream.Seek(header.FileInfoOffset, SeekOrigin.Begin);

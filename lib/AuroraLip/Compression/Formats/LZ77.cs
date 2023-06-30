@@ -1,22 +1,23 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// Nintendo LZ77 compression algorithm use LZ10
     /// </summary>
-    public class LZ77 : ICompression, IMagicIdentify
+    public class LZ77 : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public static string magic = "LZ77";
+        private static readonly Identifier32 _identifier = new("LZ77");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadByte() == 16;
+            => stream.Match(_identifier) && stream.ReadByte() == 16;
 
         public void Compress(in byte[] source, Stream destination)
         {
@@ -26,7 +27,7 @@ namespace AuroraLib.Compression.Formats
                 throw new Exception($"{typeof(LZ77)} compression can't be used to compress files larger than {0xFFFFFF:N0} bytes.");
             }
             // Write out the header
-            destination.Write(magic.GetBytes());
+            destination.Write(_identifier);
             destination.Write(0x10 | (source.Length << 8));
 
             LZ10.Compress_ALG(source, destination);

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -6,13 +7,15 @@ namespace AuroraLib.Texture.Formats
     /// Luigi's Mansion model files.
     /// </summary>
     // ref https://github.com/KillzXGaming/MdlConverter/tree/master/Plugins/GCNLibrary/LM/MDL
-    public class MDL_LM : JUTTexture, IFileAccess
+    public class MDL_LM : JUTTexture, IFileAccess, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public const uint Magic = 78905344;
+        public virtual IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier32 _identifier = new(4, 180, 0, 0);
 
         public const string Extension = ".mdl";
 
@@ -20,7 +23,7 @@ namespace AuroraLib.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension && stream.ReadInt32(Endian.Big) == Magic;
+            => extension.ToLower() == Extension && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
@@ -42,7 +45,7 @@ namespace AuroraLib.Texture.Formats
 
         private struct Header
         {
-            public uint Magic;
+            public Identifier32 Magic;
             public ushort FaceCount;
             private readonly ushort Padding;
             public ushort NodeCount;
@@ -81,7 +84,7 @@ namespace AuroraLib.Texture.Formats
             private readonly ulong Padding7;
 
             public bool IsValid()
-                => MDL_LM.Magic == Magic;
+                => _identifier == Magic;
         }
 
         private static class Tex

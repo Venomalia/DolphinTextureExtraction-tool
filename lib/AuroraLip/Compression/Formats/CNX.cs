@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -9,24 +10,24 @@ namespace AuroraLib.Compression.Formats
      * <thedrx@gmail.com>
      */
 
-    public class CNX : ICompression, IMagicIdentify
+    public class CNX : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "CNX";
+        private static readonly Identifier32 _identifier = new((byte)'C', (byte)'N', (byte)'X', 0x2);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 0x2;
+            => stream.Length > 0x10 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)
         {
             var destinationStartPosition = destination.Position;
             // Write out the header
-            destination.WriteString(magic, 0x2);
+            destination.Write(_identifier);
 
             // Get the file extension, and adjust as necessary to get it as 3 bytes
 

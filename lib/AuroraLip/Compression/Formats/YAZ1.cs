@@ -1,9 +1,12 @@
-﻿namespace AuroraLib.Compression.Formats
+﻿using AuroraLib.Common.Struct;
+using AuroraLib.Common;
+
+namespace AuroraLib.Compression.Formats
 {
     public class YAZ1 : YAZ0
     {
-        public override string Magic => magic;
+        public override IIdentifier Identifier => _identifier;
 
-        public new const string magic = "Yaz1";
+        private static readonly Identifier32 _identifier = new("Yaz1");
     }
 }

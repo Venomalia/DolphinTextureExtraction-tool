@@ -1,21 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class TPL : JUTTexture, IFileAccess
+    public class TPL : JUTTexture, IFileAccess, IHasIdentifier
     {
-        public static readonly byte[] Magic = new byte[4] { 0x00, 0x20, 0xAF, 0x30 };
-
         public bool CanRead => true;
 
         public bool CanWrite => true;
+
+        public virtual IIdentifier Identifier => Magic;
+
+        public static readonly Identifier32 Magic = new(0x00, 0x20, 0xAF, 0x30);
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
-            => stream.Length > 12 && stream.ReadByte() == Magic[0] && stream.ReadByte() == Magic[1] && stream.ReadByte() == Magic[2] && stream.ReadByte() == Magic[3];
+            => stream.Length > 12 && stream.Match(Magic);
 
         public TPL() : base()
         {
@@ -79,8 +82,7 @@ namespace AuroraLib.Texture.Formats
         {
             long HeaderStart = stream.Position;
 
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException("0x0020AF30");
+            stream.MatchThrow(Magic);
 
             ProcessStream(stream, HeaderStart, this);
         }
@@ -88,7 +90,7 @@ namespace AuroraLib.Texture.Formats
         protected override void Write(Stream stream)
         {
             long HeaderStart = stream.Position;
-            stream.Write(Magic, 0, Magic.Length);
+            stream.Write(Magic);
 
             stream.Write(Count, Endian.Big); //TotalImageCount
             stream.Write(stream.Position + 4 - HeaderStart, Endian.Big); //ImageOffsetTableOffset

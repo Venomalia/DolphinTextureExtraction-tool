@@ -1,24 +1,28 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class text_AQ : JUTTexture, IMagicIdentify, IFileAccess
+    public class text_AQ : JUTTexture, IHasIdentifier, IFileAccess
     {
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => false;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "chnkdata";
-        private const string Platform = "wii ";
-        private const string Type = "text";
+        private static readonly byte[] _bytes = new byte[] { 0x63, 0x68, 0x6E, 0x6B, 0x64, 0x61, 0x74, 0x61, 0x00, 0x00, 0x00, 0x00, 0x77, 0x69, 0x69, 0x20, 0x74, 0x65, 0x78, 0x74 };
+
+        private static readonly Identifier _identifier = new(_bytes);
+
+        //public static readonly Identifier32 Platform = new(_identifierbyte.AsSpan().Slice(12, 4)); // Wii
+        //public static readonly Identifier32 Type = new(_identifierbyte.AsSpan().Slice(16, 4)); // text
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() != ".pk" && stream.Length > 0x40 && stream.MatchString(magic) && stream.ReadInt32() == 0 && stream.MatchString(Platform) && stream.MatchString(Type);
+            => extension.ToLower() != ".pk" && stream.Length > 0x40 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

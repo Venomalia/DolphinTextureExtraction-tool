@@ -1,18 +1,19 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     // https://wiki.tockdom.com/wiki/BREFF_and_BREFT_(File_Format)
-    public class REFT : JUTTexture, IMagicIdentify, IFileAccess
+    public class REFT : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "REFT";
+        private static readonly Identifier32 _identifier = new("REFT");
 
         public Endian ByteOrder { get; set; }
 
@@ -30,13 +31,12 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
             Bres.Header header = new(stream);
-            if (header.Magic != magic)
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             ByteOrder = header.BOM;
             FormatVersion = header.Version;
             if (header.Sections > 1)
@@ -45,8 +45,7 @@ namespace AuroraLib.Texture.Formats
             }
             stream.Position = 0x10;
             //root sections
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint RootSize = stream.ReadUInt32(ByteOrder);
             long SubfilePosition = stream.ReadUInt32(ByteOrder) + stream.Position - 4;
             uint Unknown = stream.ReadUInt32(ByteOrder);

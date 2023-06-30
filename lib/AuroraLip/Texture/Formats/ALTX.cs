@@ -1,18 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     public class ALTX : ALIG
     {
-        public override string Magic => magic;
+        public override IIdentifier Identifier => _identifier;
 
-        private const string magic = "ALTX";
+        private static readonly Identifier32 _identifier = new("ALTX");
 
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint unk = stream.ReadUInt32();
             uint Offset = stream.ReadUInt32(Endian.Big);

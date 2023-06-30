@@ -1,26 +1,26 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class BIG : Archive, IMagicIdentify, IFileAccess
+    public class BIG : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "BIG";
+        private static readonly Identifier32 _identifier = new((byte)'B', (byte)'I', (byte)'G', 0);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) && stream.ReadUInt8() == 0;
+            => stream.Match(_identifier) && stream.ReadUInt8() == 0;
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(magic);
+            stream.MatchThrow(_identifier);
 
             Header header = stream.Read<Header>();
 

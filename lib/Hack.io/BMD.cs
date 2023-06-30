@@ -1,23 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Texture;
 using OpenTK.Graphics.OpenGL;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io
 {
-    public partial class BMD : IFileAccess, IMagicIdentify
+    public partial class BMD : IFileAccess, IHasIdentifier
     {
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "J3D2bmd3";
+        private static readonly Identifier64 _identifier = new("J3D2bmd3");
 
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => true;
 
         public virtual bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
 
         public string FileName { get; set; }
@@ -53,8 +54,7 @@ namespace Hack.io
 
         protected virtual void Read(Stream stream)
         {
-            if (!stream.ReadString(8).Equals(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             stream.Position += 0x08 + 16;
             Scenegraph = new INF1(stream, out int VertexCount);
@@ -82,7 +82,7 @@ namespace Hack.io
 
         protected virtual void Write(Stream BMD)
         {
-            BMD.Write(magic);
+            BMD.Match(_identifier);
             bool IsBDL = false;
             BMD.Write(new byte[8] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, (byte)(IsBDL ? 0x09 : 0x08) }, 0, 8);
             BMD.Write(new byte[16], 0, 16);

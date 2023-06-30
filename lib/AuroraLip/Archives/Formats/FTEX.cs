@@ -1,19 +1,20 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FTEX : Archive, IMagicIdentify, IFileAccess
+    public class FTEX : Archive, IHasIdentifier, IFileAccess
     {
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => false;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "FTEX";
+        private static readonly Identifier32 _identifier = new("FTEX");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

@@ -1,16 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io
 {
-    public partial class BDL : BMD, IFileAccess, IMagicIdentify
+    public partial class BDL : BMD, IFileAccess, IHasIdentifier
     {
-        public override string Magic => magic;
 
-        private const string magic = "J3D2bdl4";
+        public override IIdentifier Identifier => _identifier;
+
+        private static readonly Identifier64 _identifier = new("J3D2bdl4");
 
         public override bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         public MDL3 MatDisplayList { get; private set; }
 
@@ -28,8 +30,7 @@ namespace Hack.io
 
         protected override void Read(Stream BDLFile)
         {
-            if (!BDLFile.ReadString(8).Equals(magic))
-                throw new InvalidIdentifierException(Magic);
+            BDLFile.MatchThrow(_identifier);
 
             BDLFile.Position += 0x08 + 16;
             Scenegraph = new INF1(BDLFile, out int VertexCount);

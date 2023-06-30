@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -8,15 +9,15 @@ namespace AuroraLib.Compression.Formats
     // base on original C implementation from Haruhiko Okumura
     // Mario Party  = EI=10 EJ=6 P=2
     // Pokemon FSYS = EI=12 EJ=4 P=2
-    public class LZSS : ICompression, IMagicIdentify
+    public class LZSS : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "LZSS";
+        private static readonly Identifier32 _identifier = new("LZSS");
 
         public byte EI = 10; // offset bits
         public byte EJ = 6; // length bits
@@ -43,8 +44,7 @@ namespace AuroraLib.Compression.Formats
 
         public byte[] Decompress(Stream source)
         {
-            if (!IsMatch(source))
-                throw new InvalidIdentifierException(Magic);
+            source.MatchThrow(_identifier);
             uint decompressedSize = source.ReadUInt32(Endian.Big);
             uint compressedSize = source.ReadUInt32(Endian.Big);
             uint unk = source.ReadUInt32(Endian.Big);
@@ -104,6 +104,6 @@ namespace AuroraLib.Compression.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 112 && stream.MatchString(Magic);
+            => stream.Length > 112 && stream.Match(_identifier);
     }
 }

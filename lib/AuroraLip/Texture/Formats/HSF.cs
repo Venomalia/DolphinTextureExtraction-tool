@@ -1,24 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     //base https://github.com/Ploaj/Metanoia/blob/master/Metanoia/Formats/GameCube/HSF.cs
-    public class HSF : JUTTexture, IFileAccess, IMagicIdentify
+    public class HSF : JUTTexture, IFileAccess, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "HSFV037";
+        private static readonly Identifier64 _identifier = new(1447449416);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            stream.Position = 8;
+            stream.MatchThrow(_identifier);
             var header = stream.Read<Header>(Endian.Big);
 
             stream.Seek(header.Textures.Offset, SeekOrigin.Begin);

@@ -4,18 +4,18 @@ using AuroraLib.Common.Struct;
 namespace AuroraLib.Archives.Formats
 {
     //use in FFCC
-    public class MPD : Archive, IMagicIdentify, IFileAccess
+    public class MPD : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "MPD";
+        private static readonly Identifier32 _identifier = new(new byte[] { (byte)'M', (byte)'P', (byte)'D', 0 });
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic) && stream.ReadUInt8() == 0;
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

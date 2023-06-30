@@ -1,17 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     // Rune Factory (Frontier) texture format
-    public class HXTB : JUTTexture, IMagicIdentify, IFileAccess
+    public class HXTB : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "HXTB";
+        private static readonly Identifier32 _identifier = new("HXTB");
 
         public HXTB()
         { }
@@ -25,12 +26,11 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             string version = stream.ReadString(4);
             uint name_table_offset = stream.ReadUInt32(Endian.Big);

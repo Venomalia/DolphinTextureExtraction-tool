@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -12,23 +13,23 @@ namespace AuroraLib.Compression.Formats
     /// <summary>
     /// Nintendo YAZ0 compression algorithm
     /// </summary>
-    public class YAZ0 : ICompression, IMagicIdentify
+    public class YAZ0 : ICompression, IHasIdentifier
     {
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "Yaz0";
+        private static readonly Identifier32 _identifier = new("Yaz0");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.MatchString(Magic);
+            => stream.Length > 4 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)
         {
             // Write out the header
-            destination.Write(magic);
+            destination.Write(_identifier);
             destination.Write(source.Length);
             destination.Write(0);
             destination.Write(0);

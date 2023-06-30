@@ -1,17 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     // base on https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs
-    public class PTLG : JUTTexture, IMagicIdentify, IFileAccess
+    public class PTLG : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "PTLG";
+        private static readonly Identifier32 _identifier = new("PTLG");
 
         public PTLG()
         { }
@@ -25,15 +26,14 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic) || (extension == string.Empty && stream.At(0x10, s => s.MatchString(magic)));
+            => stream.Match(_identifier) || (extension == string.Empty && stream.At(0x10, s => s.Match(_identifier)));
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
+            if (!stream.Match(_identifier))
             {
                 stream.Seek(0x10, SeekOrigin.Begin);
-                if (!stream.MatchString(magic))
-                    throw new InvalidIdentifierException(Magic);
+                stream.MatchThrow(_identifier);
             }
 
             uint numTextures = stream.ReadUInt32(Endian.Big);

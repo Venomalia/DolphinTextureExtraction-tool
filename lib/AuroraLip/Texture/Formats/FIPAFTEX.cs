@@ -35,7 +35,7 @@ namespace AuroraLib.Texture.Formats
             // These files contain one or more TPLs
             // so we use a helper function to parse the TPL
             // after finding the start of the stream
-            while (stream.Search(TPL.Magic))
+            while (stream.Search(TPL.Magic.AsSpan().ToArray()))
             {
                 long HeaderStart = stream.Position;
                 stream.Read(4);  // skip TPL magic

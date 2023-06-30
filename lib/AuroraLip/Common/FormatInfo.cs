@@ -56,6 +56,10 @@ namespace AuroraLib.Common
                     IsMatch = access.IsMatch;
                     CanRead = access.CanRead;
                     CanWrite = access.CanWrite;
+                    if (IdentifierOffset == 0 && Identifier == null && access is IHasIdentifier magic)
+                    {
+                        Identifier = magic.Identifier;
+                    }
                 }
                 else
                 {

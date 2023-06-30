@@ -25,7 +25,7 @@ namespace AuroraLib.Common
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_,typeof(Bres)),
             new FormatInfo(".sarc","SARC", FormatType.Archive, "Archive", Nin_),
             new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_,typeof(MOD)),
-            new FormatInfo(".mdl", new Identifier32(4,180,0,0), FormatType.Texture, "Luigi's mansion Model", Nin_,typeof(MDL_LM)),
+            new FormatInfo(".mdl", FormatType.Texture, "Luigi's mansion Model", Nin_,typeof(MDL_LM)),
             new FormatInfo(".bin", 0, new byte[]{2}, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
             new FormatInfo(".bnfm","BNFM", FormatType.Archive, "Wiiu Model Archive", Nin_),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_,Nin_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
@@ -33,7 +33,7 @@ namespace AuroraLib.Common
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_,typeof(REFT)),
-            new FormatInfo(".TPL", new Identifier32(0,32,175,48), FormatType.Texture, "Texture Palette Library", Nin_,typeof(TPL)),
+            new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library", Nin_,typeof(TPL)),
             new FormatInfo(".TPL", FormatType.Texture, "Texture Palette Library v0", Nin_,typeof(TPL_0)),
             new FormatInfo(".txe", FormatType.Texture, "Dolphin 1 Texture", Nin_,typeof(TXE)),
             new FormatInfo(".bti", FormatType.Texture, "Binary Texture Image", Nin_,typeof(BTI)),
@@ -181,7 +181,7 @@ namespace AuroraLib.Common
             new FormatInfo(".STRG", FormatType.Text, "Retro String Table", Retro_),
 
             //Next Level Games
-            new FormatInfo(".rlt","PTLG", FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
+            new FormatInfo(".rlt",new Identifier32("PTLG"),0x10, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
             new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games",typeof(RES_NLG)),
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
@@ -241,7 +241,7 @@ namespace AuroraLib.Common
             new FormatInfo(".gz",0,new byte[]{31,139}, FormatType.Archive, "GNU zip","GNU Project",typeof(GZip)),
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski",typeof(LZSS)),
-            new FormatInfo(".LZ", "LzS", FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics",typeof(LZS)),
+            new FormatInfo(".LZ",0, new byte[] { (byte)'L', (byte)'z', (byte)'S', 0 }, FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics",typeof(LZS)),
             new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00 "+comp_,string.Empty,typeof(LZ00)),
             new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01 "+comp_,string.Empty,typeof(LZ01)),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii",string.Empty,typeof(LZ77)),
@@ -302,7 +302,7 @@ namespace AuroraLib.Common
             new FormatInfo(".nes", 0,new byte[]{78,69,83,26} , FormatType.Rom, "Rom", Nin_),
             new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
             new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Rom, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'), FormatType.Rom, "Wii WAD",Nin_,typeof(WAD)),
+            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'),4, FormatType.Rom, "Wii WAD",Nin_,typeof(WAD)),
             new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
             new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_,typeof(GCDisk)),
             new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_,typeof(WiiDisk)),

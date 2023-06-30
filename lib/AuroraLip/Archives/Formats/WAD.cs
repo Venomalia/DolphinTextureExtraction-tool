@@ -1,16 +1,19 @@
 ﻿using AuroraLib.Archives.DiscImage;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Security.Cryptography;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class WAD : Archive, IFileAccess
+    public class WAD : Archive, IFileAccess, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public static uint Magic = 1232273408;
+        public virtual IIdentifier Identifier => Magic;
+
+        public static readonly Identifier32 Magic = new (0, 0, (byte)'s', (byte)'I');
 
         public WADHeader Header;
 
@@ -111,7 +114,7 @@ namespace AuroraLib.Archives.Formats
         public struct WADHeader
         {
             public uint HeaderSize { get; }
-            public uint Magic { get; }
+            public Identifier32 Magic { get; }
             public uint CertSize { get; }
             private uint Reserved;
             public uint TicketSize { get; }

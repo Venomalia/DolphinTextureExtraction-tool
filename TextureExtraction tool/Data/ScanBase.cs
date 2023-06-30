@@ -433,13 +433,13 @@ namespace DolphinTextureExtraction
                         so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
 
                         //checks if hidden files are present.
-                        if (archive is IMagicIdentify identify)
+                        if (archive is IHasIdentifier identify)
                         {
-                            if (so.Stream.Search(identify.Magic))
+                            if (so.Stream.Search(identify.Identifier.AsSpan().ToArray()))
                             {
                                 List<byte[]> ident = new()
                                 {
-                                    identify.Magic.GetBytes()
+                                    identify.Identifier.AsSpan().ToArray(),
                                 };
                                 using (Archive Cut = new DataCutter(so.Stream, ident))
                                 {

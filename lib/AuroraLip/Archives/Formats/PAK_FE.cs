@@ -1,24 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PAK_FE : Archive, IMagicIdentify, IFileAccess
+    public class PAK_FE : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "pack";
+        private static readonly Identifier32 _identifier = new("pack");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             ushort NrEntries = stream.ReadUInt16(Endian.Big);
             ushort Unk = stream.ReadUInt16(Endian.Big);

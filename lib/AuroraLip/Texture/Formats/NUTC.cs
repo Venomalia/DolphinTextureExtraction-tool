@@ -1,9 +1,10 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
     //https://github.com/marco-calautti/Rainbow/wiki/NUT-File-Format
-    public class NUTC : JUTTexture, IMagicIdentify, IFileAccess
+    public class NUTC : JUTTexture, IHasIdentifier, IFileAccess
     {
         public ushort FormatVersion { get; set; }
 
@@ -11,9 +12,9 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "NUTC";
+        private static readonly Identifier32 _identifier = new("NUTC");
 
         public NUTC()
         { }
@@ -27,12 +28,11 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             FormatVersion = stream.ReadUInt16(Endian.Big); //is 32770
             ushort texturesCount = stream.ReadUInt16(Endian.Big);

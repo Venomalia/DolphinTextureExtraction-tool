@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
@@ -13,15 +14,15 @@ namespace AuroraLib.Archives.Formats
     /// Nintendo File Archive used in WII/GC Games.
     /// <para/> NOTE: THIS IS NOT A U8 ARCHIVE!
     /// </summary>
-    public class RARC : Archive, IMagicIdentify, IFileAccess
+    public class RARC : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "RARC";
+        private static readonly Identifier32 _identifier = new("RARC");
 
         public RARC()
         { }
@@ -35,7 +36,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         #region Fields and Properties
 
@@ -331,8 +332,7 @@ namespace AuroraLib.Archives.Formats
         {
             #region Header
 
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint FileSize = stream.ReadUInt32(Endian.Big),
                 DataHeaderOffset = stream.ReadUInt32(Endian.Big),
                 DataOffset = stream.ReadUInt32(Endian.Big) + 0x20,
@@ -475,7 +475,7 @@ namespace AuroraLib.Archives.Formats
 
             #region File Writing
 
-            stream.Write(Magic);
+            stream.Write(_identifier);
             stream.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
             stream.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
             stream.WriteBigEndian(BitConverter.GetBytes(ARAMSize), 4);

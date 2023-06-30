@@ -1,32 +1,31 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Texture;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class GCNT : JUTTexture, IMagicIdentify, IFileAccess
+    public class GCNT : JUTTexture, IHasIdentifier, IFileAccess
     {
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => false;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "GCNT";
+        private static readonly Identifier32 _identifier = new("GCNT");
 
         private const string alt = "SIZE";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic) || stream.At(8, s => s.MatchString(Magic));
+            => stream.Match(_identifier) || stream.At(8, s => s.Match(_identifier));
 
         protected override void Read(Stream stream)
         {
             long HeaderStart = stream.Position;
 
-            if (!stream.MatchString(magic))
+            if (!stream.Match(_identifier))
             {
                 HeaderStart = stream.Position += 4;
-                if (!stream.MatchString(magic))
-                    throw new InvalidIdentifierException(magic);
+                stream.MatchThrow(_identifier);
             }
 
             ImageHeader ImageHeader = stream.Read<ImageHeader>(Endian.Big);

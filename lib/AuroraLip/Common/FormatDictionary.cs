@@ -152,22 +152,6 @@ namespace AuroraLib.Common
         {
             foreach (FormatInfo formatInfo in Master)
             {
-                //No longer needed
-                if (formatInfo.Identifier != null)
-                {
-                    try
-                    {
-                        string name = formatInfo.Identifier.GetString();
-                        if (formatInfo.Class == null)
-                        {
-                            formatInfo.Class = Reflection.FileAccess.GetByMagic(name);
-                            formatInfo.IsMatch = Reflection.FileAccess.GetInstance(formatInfo.Class).IsMatch;
-                        }
-                    }
-                    catch (Exception)
-                    { }
-                }
-
                 Add(formatInfo);
             }
             Formats.Sort((x, y) => (y.Class != null).CompareTo(x.Class != null));

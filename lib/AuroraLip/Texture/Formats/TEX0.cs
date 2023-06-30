@@ -1,18 +1,19 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using AuroraLib.Palette.Formats;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class TEX0 : JUTTexture, IMagicIdentify, IFileAccess
+    public class TEX0 : JUTTexture, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "TEX0";
+        private static readonly Identifier32 _identifier = new("TEX0");
 
         public TEX0()
         { }
@@ -26,14 +27,14 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream) => Read(stream, null, GXPaletteFormat.IA8, 0);
 
         protected void Read(Stream stream, byte[] PaletteData, GXPaletteFormat PaletteFormat, int PaletteCount)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
+
             uint TotalSize = stream.ReadUInt32(Endian.Big);
             uint FormatVersion = stream.ReadUInt32(Endian.Big);
             uint Offset = stream.ReadUInt32(Endian.Big);

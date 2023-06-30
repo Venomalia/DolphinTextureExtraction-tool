@@ -1,17 +1,18 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class CPK : Archive, IMagicIdentify, IFileAccess
+    public class CPK : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "CPK ";
+        private static readonly Identifier32 _identifier = new("CPK ");
 
         public readonly LibCPK.CPK CpkContent;
 
@@ -29,7 +30,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

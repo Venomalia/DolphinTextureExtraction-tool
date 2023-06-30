@@ -1,24 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// This LZSS header was used in Skies of Arcadia Legends
     /// </summary>
-    public class AKLZ : ICompression, IMagicIdentify
+    public class AKLZ : ICompression, IHasIdentifier
     {
         public bool CanWrite { get; } = true;
 
         public bool CanRead { get; } = true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "AKLZ~?Qd=ÌÌÍ";
+        private static readonly Identifier _identifier = new("AKLZ~?Qd=ÌÌÍ");
 
         private static readonly LZSS LZSS = new(12, 4, 2);
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 4 && stream.MatchString(Magic);
+            => stream.Length > 4 && stream.Match(_identifier);
 
         public byte[] Decompress(Stream source)
         {

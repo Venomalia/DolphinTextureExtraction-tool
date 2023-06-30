@@ -1,28 +1,29 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// COMP use LZ11 algorithm.
     /// </summary>
-    public class COMP : ICompression, IMagicIdentify
+    public class COMP : ICompression, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => true;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        public const string magic = "COMP";
+        private static readonly Identifier32 _identifier = new("COMP");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x10 && stream.MatchString(magic) && stream.ReadByte() == 17;
+            => stream.Length > 0x10 && stream.Match(_identifier) && stream.ReadByte() == 17;
 
         public void Compress(in byte[] source, Stream destination)
         {
             var destinationStartPosition = destination.Position;
             // Write out the header
-            destination.Write(magic.GetBytes());
+            destination.Write(_identifier);
             if (source.Length <= 0xFFFFFF)
             {
                 destination.Write(0x11 | (source.Length << 8));

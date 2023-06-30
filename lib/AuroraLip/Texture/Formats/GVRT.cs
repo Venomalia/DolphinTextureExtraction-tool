@@ -1,24 +1,24 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
-    public class GVRT : JUTTexture, IMagicIdentify, IFileAccess
+    public class GVRT : JUTTexture, IHasIdentifier, IFileAccess
     {
         public virtual bool CanRead => true;
 
         public virtual bool CanWrite => false;
 
-        public virtual string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "GVRT";
+        private static readonly Identifier32 _identifier = new("GVRT");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(Magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(magic);
+            stream.MatchThrow(_identifier);
 
             uint size = stream.ReadUInt32(); //Remaining Size
             if (size != stream.Length - stream.Position)

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -6,14 +7,13 @@ namespace AuroraLib.Texture.Formats
     {
         public override bool CanWrite => false;
 
-        public override string Magic => magic;
+        public override IIdentifier Identifier => _identifier;
 
-        private const string magic = "GCIX";
+        private static readonly Identifier32 _identifier = new("GCIX");
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             uint startOfGVRT = stream.ReadUInt32();
             uint GlobalIndex = stream.ReadUInt32(Endian.Big);
 

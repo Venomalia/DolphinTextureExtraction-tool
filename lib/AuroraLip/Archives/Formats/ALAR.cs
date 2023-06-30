@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -6,23 +7,22 @@ namespace AuroraLib.Archives.Formats
     /// Aqualead Archive
     /// </summary>
     // base on https://zenhax.com/viewtopic.php?t=16613
-    public class ALAR : Archive, IMagicIdentify, IFileAccess
+    public class ALAR : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "ALAR";
+        private static readonly Identifier32 _identifier = new("ALAR");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!IsMatch(stream))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
             byte flag = stream.ReadUInt8();
             byte unk = stream.ReadUInt8();
             ushort entries = stream.ReadUInt16(Endian.Big);

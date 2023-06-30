@@ -1,25 +1,25 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {
     // base https://github.com/Zheneq/Noesis-Plugins/blob/b47579012af3b43c1e10e06639325d16ece81f71/fmt_fatalframe_rsl.py
-    public class RMHG : Archive, IMagicIdentify, IFileAccess
+    public class RMHG : Archive, IHasIdentifier, IFileAccess
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public virtual IIdentifier Identifier => _identifier;
 
-        private const string magic = "RMHG";
+        private static readonly Identifier32 _identifier = new("RMHG");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.MatchString(magic);
+            => stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(_identifier);
 
             uint count = stream.ReadUInt32();
             uint DataOffset = stream.ReadUInt32();

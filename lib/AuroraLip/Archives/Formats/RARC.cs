@@ -590,9 +590,9 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < MRAM.Count; i++)
             {
-                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray())))
+                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().SequenceEqual(MRAM[i].FileData.ToArray())))
                 {
-                    Offsets.Add(MRAM[i], Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().ArrayEqual(MRAM[i].FileData.ToArray()))]);
+                    Offsets.Add(MRAM[i], Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().SequenceEqual(MRAM[i].FileData.ToArray()))]);
                 }
                 else
                 {

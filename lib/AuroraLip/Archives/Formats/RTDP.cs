@@ -50,7 +50,9 @@ namespace AuroraLib.Archives.Formats
 
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Entry.Name };
                 stream.Position = Entry.DataOffset + EOH;
-                Sub.FileData = new MemoryStream(stream.Read((int)Entry.DataSize).DataXor(0x55));
+                byte[] data = stream.Read((int)Entry.DataSize);
+                data.AsSpan().DataXor(0x55);
+                Sub.FileData = new MemoryStream(data);
                 Root.Items.Add(Sub.Name, Sub);
             }
         }

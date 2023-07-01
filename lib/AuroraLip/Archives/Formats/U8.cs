@@ -281,9 +281,9 @@ namespace AuroraLib.Archives.Formats
                 if (!(FlatFileList[i] is ArchiveFile file))
                     continue;
 
-                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().ArrayEqual(file.FileData.ToArray())))
+                if (Offsets.Any(OFF => OFF.Key.FileData.ToArray().SequenceEqual(file.FileData.ToArray())))
                 {
-                    Offsets.Add(file, Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().ArrayEqual(file.FileData.ToArray()))]);
+                    Offsets.Add(file, Offsets[Offsets.Keys.First(FILE => FILE.FileData.ToArray().SequenceEqual(file.FileData.ToArray()))]);
                 }
                 else
                 {

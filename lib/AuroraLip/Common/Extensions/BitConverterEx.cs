@@ -369,36 +369,36 @@ namespace AuroraLib.Common
             return Finalarray[0];
         }
 
+        #region DataXor
         /// <summary>
-        /// XOR each byte with the given key
+        /// Performs an XOR operation between the elements of the <paramref name="data"/> span and the specified <paramref name="key"/>.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="data">The span of data to perform XOR on.</param>
+        /// <param name="key">The key value to use for XOR operation.</param>
         [DebuggerStepThrough]
-        public static byte[] DataXor(this byte[] data, byte key)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DataXor(this Span<byte> data, byte key)
         {
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] = (byte)(data[i] ^ key);
             }
-            return data;
         }
 
         /// <summary>
-        /// XOR each byte with the given key array
+        /// Performs an XOR operation between the elements of the <paramref name="data"/> span and the <paramref name="key"/> span.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
+        /// <param name="data">The span of data to perform XOR on.</param>
+        /// <param name="key">The span of the key to use for XOR operation.</param>
         [DebuggerStepThrough]
-        public static byte[] DataXor(this byte[] data, byte[] key)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void DataXor(this Span<byte> data, ReadOnlySpan<byte> key)
         {
             for (int i = 0; i < data.Length; i++)
             {
                 data[i] = (byte)(data[i] ^ key[i % key.Length]);
             }
-            return data;
         }
+        #endregion
     }
 }

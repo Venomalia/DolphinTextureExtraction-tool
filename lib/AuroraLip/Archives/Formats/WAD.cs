@@ -89,7 +89,7 @@ namespace AuroraLib.Archives.Formats
                 //sha1 comparison
                 SHA1 sha1 = SHA1.Create();
                 byte[] thishash = sha1.ComputeHash(buffer);
-                if (!thishash.ArrayEqual(TMD.CMDs[i].Hash))
+                if (!thishash.SequenceEqual(TMD.CMDs[i].Hash))
                     Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(WAD)} sha1 hash doesn't match in:'{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app'");
 
                 MemoryStream de = new MemoryStream(buffer);

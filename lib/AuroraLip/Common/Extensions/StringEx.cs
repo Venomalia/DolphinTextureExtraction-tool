@@ -73,6 +73,7 @@ namespace AuroraLib.Common
         /// </summary>
         /// <param name="width">How long the divider should be</param>
         /// <param name="divider">What character should make up the divider</param>
-        public static string Divider(int width, char divider) => string.Empty.PadRight(width, divider);
+        public static string Divider(int width, char divider)
+            => new(divider, width);
     }
 }

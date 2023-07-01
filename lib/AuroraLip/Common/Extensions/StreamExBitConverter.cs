@@ -160,8 +160,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, ushort value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 2, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, ushort value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 16-bit signed integer value as an block of two bytes to the file stream.
@@ -171,8 +172,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, short value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 2, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, short value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 24-bit unsigned integer value as an block of three bytes to the file stream.
@@ -182,8 +184,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, UInt24 value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverterEx.GetBytes(value), 3, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, UInt24 value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 24-bit signed integer value as an block of three bytes to the file stream.
@@ -193,8 +196,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, Int24 value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverterEx.GetBytes(value), 3, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, Int24 value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 32-bit unsigned integer value as an block of four bytes to the file stream.
@@ -204,8 +208,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, uint value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, uint value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 32-bit signed integer value as an block of four bytes to the file stream.
@@ -215,8 +220,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, int value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, int value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 64-bit unsigned integer value as an block of eight bytes to the file stream.
@@ -226,8 +232,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, ulong value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, ulong value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified 64-bit signed integer value as an block of eight bytes to the file stream.
@@ -237,8 +244,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, long value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, long value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified single-precision floating point number value as an block of four bytes to the file stream.
@@ -248,8 +256,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, float value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 4, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, float value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         /// <summary>
         /// Writes the specified double-precision floating point number value as an block of eight bytes to the file stream.
@@ -259,8 +268,9 @@ namespace AuroraLib.Common
         /// <param name="order">Byte order, in which bytes are write.</param>
         /// <param name="Offset">The zero-based byte offset in buffer at which to begin copying bytes to the current stream.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream stream, double value, Endian order = Endian.Little, int Offset = 0)
-            => stream.Write(BitConverter.GetBytes(value), 8, order, Offset);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, double value, Endian order = Endian.Little)
+            => stream.WriteObjekt(value, order);
 
         #endregion Write
 
@@ -269,54 +279,19 @@ namespace AuroraLib.Common
         /// </summary>
         /// <param name="stream">The stream to read from.</param>
         /// <returns>The endianness represented by the BOM</returns>
-        public static Endian ReadBOM(this Stream stream) => (Endian)stream.ReadUInt16();
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Endian ReadBOM(this Stream stream)
+            => stream.Read<Endian>();
 
         /// <summary>
         /// Writes the Byte order mark (BOM) to the Stream
         /// </summary>
         /// <param name="stream">The stream to read from.</param>
         /// <returns>The endianness represented by the BOM</returns>
-        public static void Write(this Stream stream, Endian order) => stream.Write((uint)order);
-
-        /// <summary>
-        /// Attempts to detect the byte order in which the stream is written, based on the provided types.
-        /// </summary>
-        /// <typeparam name="T">The types to use for checking the byte order.</typeparam>
-        /// <param name="stream">The stream to check.</param>
-        /// <returns>The detected byte order.</returns>
-        public static unsafe Endian DetectByteOrder<T>(this Stream stream) where T : unmanaged
-            => stream.At(stream.Position, s => s.DetectByteOrder(sizeof(T)) < 0 ? Endian.Little : Endian.Big);
-
-        /// <summary>
-        /// Attempts to detect the byte order in which the stream is written, based on the provided types.
-        /// </summary>
-        /// <param name="stream">The stream to check.</param>
-        /// <param name="types">The types to use for checking the byte order</param>
-        /// <returns>The detected byte order.</returns>
-        public static Endian DetectByteOrder(this Stream stream, params Type[] types)
-        {
-            long orpos = stream.Position;
-            int proBigOrder = 0;
-            foreach (var type in types)
-            {
-                proBigOrder += stream.DetectByteOrder(Marshal.SizeOf(type));
-            }
-            stream.Seek(orpos, SeekOrigin.Begin);
-            return proBigOrder < 0 ? Endian.Little : Endian.Big;
-        }
-
-        private static int DetectByteOrder(this Stream stream, int size)
-        {
-            Span<byte> buffer = stackalloc byte[size];
-            stream.Read(buffer);
-
-            int proBigOrder = 0;
-            for (int i = 0; i < size; i++)
-            {
-                int j = i < size / 2 ? i : size - i - 1;
-                proBigOrder += (buffer[j] == 0 ? (i < size / 2 ? 1 : -1) : 0);
-            }
-            return proBigOrder;
-        }
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, Endian order)
+            => stream.WriteObjekt(order);
     }
 }

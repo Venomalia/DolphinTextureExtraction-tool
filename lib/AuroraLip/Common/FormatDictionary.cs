@@ -87,7 +87,9 @@ namespace AuroraLib.Common
                 }
                 catch (Exception t)
                 {
+#if DEBUG
                     Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Match error in {item.Class?.Name}, {t}");
+#endif
                 }
                 finally
                 {
@@ -133,7 +135,7 @@ namespace AuroraLib.Common
                 }
                 else
                 {
-                    throw new AggregateException($"Identifier {formatInfo.Identifier.GetString()} is already used!");
+                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Identifier {formatInfo.Identifier} is already used!");
                 }
 
                 if (formatInfo.IdentifierOffset != 0 || formatInfo.Identifier is Identifier)

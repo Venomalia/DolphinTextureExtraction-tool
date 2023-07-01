@@ -70,13 +70,13 @@ namespace AuroraLib.Archives.Formats
             aes.Padding = PaddingMode.None;
             aes.Key = Ticket.GetPartitionKey();
 
-            long ContentPos = StreamEx.CalculatePadding(stream.Position, 64);
+            long ContentPos = StreamEx.AlignPosition(stream.Position, 64);
 
             for (int i = 0; i < TMD.Content; i++)
             {
                 stream.Align(64);
 
-                SubStream Content = new SubStream(stream, StreamEx.CalculatePadding((long)TMD.CMDs[i].Size, 16));
+                SubStream Content = new SubStream(stream, StreamEx.AlignPosition((long)TMD.CMDs[i].Size, 16));
 
                 aes.IV = TMD.CMDs[i].GetContentIV();
 

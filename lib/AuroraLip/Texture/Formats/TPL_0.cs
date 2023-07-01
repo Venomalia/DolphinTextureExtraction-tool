@@ -17,7 +17,7 @@ namespace AuroraLib.Texture.Formats
         public static bool Matcher(Stream stream, in string extension = "")
         {
             uint ImageCount = stream.ReadUInt32(Endian.Big);
-            if (extension.ToLower().Equals(".tpl") && ImageCount >= 1)
+            if (extension.ToLower().Equals(".tpl") && ImageCount >= 1 && ImageCount < 255)
             {
                 for (int i = 0; i < ImageCount; i++)
                 {

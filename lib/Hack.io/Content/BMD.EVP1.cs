@@ -129,7 +129,7 @@ namespace Hack.io
 
                 stream.Write("EVP1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)Weights.Count), 0, 2);
+                stream.Write((short)Weights.Count, Endian.Big); ;
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
                 if (Weights.Count == 0)
@@ -141,12 +141,12 @@ namespace Hack.io
                     stream.Position = start + 4;
                     stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4);
                     stream.Seek(0, SeekOrigin.End);
-                    stream.WritePadding(8, Padding);
+                    stream.WriteAlign(8, Padding);
                     return;
                 }
 
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x1C }, 0, 4); // Offset to weight count data. Always 28
-                stream.WriteBigEndian(BitConverter.GetBytes(28 + Weights.Count), 0, 4); // Offset to bone/weight indices. Always 28 + the number of weights
+                stream.Write(28 + Weights.Count, Endian.Big); // Offset to bone/weight indices. Always 28 + the number of weights
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for weight data offset
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for inverse bind matrix data offset
 
@@ -156,27 +156,27 @@ namespace Hack.io
                 foreach (Weight w in Weights)
                 {
                     foreach (int inte in w.BoneIndices)
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
+                        stream.Write((short)inte, Endian.Big);
                 }
 
-                stream.WritePadding(4, Padding);
+                stream.WriteAlign(4, Padding);
 
                 long curOffset = stream.Position;
 
                 stream.Position = start + 20;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Write((int)(curOffset - start), Endian.Big);
                 stream.Position = curOffset;
 
                 foreach (Weight w in Weights)
                 {
                     foreach (float fl in w.Weights)
-                        stream.WriteBigEndian(BitConverter.GetBytes(fl), 0, 4);
+                        stream.Write(fl, Endian.Big);
                 }
 
                 curOffset = stream.Position;
 
                 stream.Position = start + 24;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Write((int)(curOffset - start), Endian.Big);
                 stream.Position = curOffset;
 
                 foreach (Matrix4 mat in InverseBindMatrices)
@@ -185,29 +185,29 @@ namespace Hack.io
                     Vector4 Row2 = mat.Row1;
                     Vector4 Row3 = mat.Row2;
 
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row1.X), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row1.Y), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row1.Z), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row1.W), 0, 4);
+                    stream.Write(Row1.X, Endian.Big);
+                    stream.Write(Row1.Y, Endian.Big);
+                    stream.Write(Row1.Z, Endian.Big);
+                    stream.Write(Row1.W, Endian.Big);
 
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row2.X), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row2.Y), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row2.Z), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row2.W), 0, 4);
+                    stream.Write(Row2.X, Endian.Big);
+                    stream.Write(Row2.Y, Endian.Big);
+                    stream.Write(Row2.Z, Endian.Big);
+                    stream.Write(Row2.W, Endian.Big);
 
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row3.X), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row3.Y), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row3.Z), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(Row3.W), 0, 4);
+                    stream.Write(Row3.X, Endian.Big);
+                    stream.Write(Row3.Y, Endian.Big);
+                    stream.Write(Row3.Z, Endian.Big);
+                    stream.Write(Row3.W, Endian.Big);
                 }
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;
 
                 stream.Position = start + 4;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Write((int)length, Endian.Big);
                 stream.Position = end;
             }
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace AuroraLib.Common
@@ -10,9 +11,9 @@ namespace AuroraLib.Common
         /// Reads a String from the Stream. String are terminated by "<paramref name="validbytes"/> == false".
         /// </summary>
         /// <param name="stream"></param>
-        /// <param name="validbytes">Determines if the byte is valid</param>
         /// <returns></returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream)
             => EncodingEX.GetString(stream.ReadStringBytes(EncodingEX.InvalidByte));
 
@@ -24,6 +25,7 @@ namespace AuroraLib.Common
         /// <param name="encoding">The encoding to use when getting the string.</param>
         /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Encoding Encoding)
             => Encoding.GetString(ReadStringBytes(stream, EncodingEX.InvalidByte));
 
@@ -35,6 +37,7 @@ namespace AuroraLib.Common
         /// <param name="terminator">The byte that indicates the end of the string.</param>
         /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, byte terminator)
             => EncodingEX.GetString(ReadStringBytes(stream, s => s == terminator));
 
@@ -47,6 +50,7 @@ namespace AuroraLib.Common
         /// <param name="terminator">The byte that indicates the end of the string.</param>
         /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Encoding Encoding, byte terminator)
             => Encoding.GetString(ReadStringBytes(stream, s => s == terminator));
 
@@ -57,6 +61,7 @@ namespace AuroraLib.Common
         /// <param name="stopByte">The stop byte predicate that determines when to stop reading.</param>
         /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Predicate<byte> stopByte)
             => EncodingEX.GetString(ReadStringBytes(stream, stopByte));
 
@@ -68,6 +73,7 @@ namespace AuroraLib.Common
         /// <param name="stopByte">The stop byte predicate that determines when to stop reading.</param>
         /// <returns>The string read from the stream.</returns>
         [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Encoding encoding, Predicate<byte> stopByte)
             => encoding.GetString(ReadStringBytes(stream, stopByte));
 
@@ -126,76 +132,129 @@ namespace AuroraLib.Common
 
         #endregion
 
-        [DebuggerStepThrough]
-        public static void Write(this Stream FS, string String)
-            => FS.Write(String, Encoding.GetEncoding(28591));
-
+        #region WriteString
         /// <summary>
-        /// Writes a string. String won't be null terminated
+        /// Writes a sequence of characters to the <paramref name="stream"/> using the specified <paramref name="encoding"/>.
+        /// won't be null terminated.
         /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="Encoding">Encoding to use when getting the string</param>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="chars">The characters to write.</param>
+        /// <param name="encoding">The encoding to use for converting characters to bytes.</param>
         [DebuggerStepThrough]
-        public static void Write(this Stream FS, string String, Encoding Encoding)
+        public static void Write(this Stream stream, ReadOnlySpan<char> chars, Encoding encoding)
         {
-            byte[] Write = Encoding.GetBytes(String);
-            FS.Write(Write, 0, Write.Length);
+            Span<byte> buffer = stackalloc byte[encoding.GetByteCount(chars)];
+            encoding.GetBytes(chars, buffer);
+            stream.Write(buffer);
         }
 
-        /// <summary>
-        /// Writes a string with a fixed length. remaining byts are filled with the <paramref name="padding"/> byte
-        /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="padding">The Terminator of the string. Usually 0x00</param>
-        /// <param name="length"></param>
+        /// <inheritdoc cref="Write(Stream, ReadOnlySpan{char}, Encoding)"/>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, byte padding, int length)
-            => FS.WriteString(String, padding, length, Encoding.GetEncoding(28591));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, ReadOnlySpan<char> chars)
+            => stream.Write(chars, EncodingEX.DefaultEncoding);
 
         /// <summary>
-        /// Writes a string with a fixed length. remaining byts are filled with the <paramref name="padding"/> byte
+        /// Writes a specified number of characters to the <paramref name="stream"/> using the specified <paramref name="encoding"/> and adds a <paramref name="terminator"/> <see cref="byte"/> at the end.
         /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="padding">The padding byte. Usually 0x00</param>
-        /// <param name="length"></param>
-        /// <param name="encoding">Encoding to use when getting the string</param>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="chars">The characters to write.</param>
+        /// <param name="encoding">The encoding to use for converting characters to bytes.</param>
+        /// <param name="length">The maximum number of bytes to write.</param>
+        /// <param name="terminator">The terminator byte to add at the end (default is 0x0).</param>
+        /// <exception cref="ArgumentException">Thrown when the encoded bytes exceed the specified length.</exception>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, byte padding, int length, Encoding encoding)
+        public static void Write(this Stream stream, ReadOnlySpan<char> chars, Encoding encoding, int length, byte terminator = 0x0)
         {
-            byte[] Write = encoding.GetBytes(String);
-            Array.Resize(ref Write, length);
-            for (int i = String.Length; i < length; i++)
+            if (encoding.GetByteCount(chars) > length)
             {
-                Write[i] = padding;
+                throw new ArgumentException();
             }
-            FS.Write(Write, 0, Write.Length);
+
+            Span<byte> buffer = stackalloc byte[length];
+            buffer.Fill(terminator);
+            encoding.GetBytes(chars, buffer);
+            stream.Write(buffer);
         }
 
         /// <summary>
-        /// Writes a string. String will be terminated with the <paramref name="Terminator"/>
+        /// Writes a specified number of characters to the <paramref name="stream"/> and adds a <paramref name="terminator"/> <see cref="byte"/> at the end.
         /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="Terminator">The Terminator of the string. Usually 0x00</param>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="chars">The characters to write.</param>
+        /// <param name="length">The maximum number of bytes to write.</param>
+        /// <param name="terminator">The terminator byte to add at the end (default is 0x0).</param>
+        /// <exception cref="ArgumentException">Thrown when the encoded bytes exceed the specified length.</exception>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, byte Terminator = 0x0)
-            => FS.WriteString(String, Terminator, Encoding.GetEncoding(28591));
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Write(this Stream stream, ReadOnlySpan<char> chars, int length, byte terminator = 0x0)
+            => stream.Write(chars, EncodingEX.DefaultEncoding, length, terminator);
 
-        /// <summary>
-        /// Writes a string. String will be terminated with the <paramref name="terminator"/>
-        /// </summary>
-        /// <param name="FS"></param>
-        /// <param name="String">String to write to the file</param>
-        /// <param name="terminator">The Terminator of the string. Usually 0x00</param>
-        /// <param name="encoding">Encoding to use when getting the string</param>
+        /// <inheritdoc cref="Write(Stream, ReadOnlySpan{char}, int, byte)"/>
         [DebuggerStepThrough]
-        public static void WriteString(this Stream FS, string String, byte terminator, Encoding encoding)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteString(this Stream stream, ReadOnlySpan<char> chars, byte terminator = 0x0)
         {
-            FS.Write(String, encoding);
-            FS.WriteByte(terminator);
+            stream.Write(chars);
+            stream.WriteByte(terminator);
         }
+        #endregion
+
+        #region MatchString
+        /// <summary>
+        /// Matches the specified characters with the data in the <paramref name="stream"/> using the specified <paramref name="encoding"/>.
+        /// </summary>
+        /// <param name="stream">The stream to match against.</param>
+        /// <param name="chars">The characters to match.</param>
+        /// <param name="encoding">The encoding used for converting characters to bytes.</param>
+        /// <returns>true if the specified characters match the data in the stream; otherwise, false.</returns>
+        [DebuggerStepThrough]
+        public static bool Match(this Stream stream, ReadOnlySpan<char> chars, Encoding encoding)
+        {
+            Span<byte> buffer = stackalloc byte[encoding.GetByteCount(chars)];
+            encoding.GetBytes(chars, buffer);
+            return stream.Match(buffer);
+        }
+
+        /// <summary>
+        /// Matches the specified characters with the data in the <paramref name="stream"/>.
+        /// </summary>
+        /// <param name="stream">The stream to match against.</param>
+        /// <param name="chars">The characters to match.</param>
+        /// <returns>true if the specified characters match the data in the stream; otherwise, false.</returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool Match(this Stream stream, ReadOnlySpan<char> chars)
+            => stream.Match(chars, EncodingEX.DefaultEncoding);
+
+        #endregion
+
+        #region WriteAlignString
+        /// <summary>
+        /// Writes padding to the <paramref name="stream"/> to align the position to the specified <paramref name="boundary"/>, using the provided characters and <paramref name="encoding"/>.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="boundary">The desired alignment boundary.</param>
+        /// <param name="chars">The characters to use for padding.</param>
+        /// <param name="encoding">The encoding used to convert the characters to bytes.</param>
+        [DebuggerStepThrough]
+        public static void WriteAlign(this Stream stream, int boundary, ReadOnlySpan<char> chars, Encoding encoding)
+        {
+            Span<byte> buffer = stackalloc byte[encoding.GetByteCount(chars)];
+            encoding.GetBytes(chars, buffer);
+            stream.WriteAlign(boundary, buffer);
+        }
+
+        /// <summary>
+        /// Writes padding to the <paramref name="stream"/> to align the position to the specified <paramref name="boundary"/>, using the provided characters.
+        /// </summary>
+        /// <param name="stream">The stream to write to.</param>
+        /// <param name="boundary">The desired alignment boundary.</param>
+        /// <param name="chars">The characters to use for padding.</param>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void WriteAlign(this Stream stream, int boundary, ReadOnlySpan<char> chars)
+            => stream.WriteAlign(boundary,chars, EncodingEX.DefaultEncoding);
+        #endregion
     }
 }

@@ -187,12 +187,12 @@ namespace Hack.io
 
                 stream.Write("SHP1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for Section Size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)Shapes.Count), 0, 2);
+                stream.Write((short)Shapes.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x2C }, 0, 4); // ShapeDataOffset
-                stream.WriteBigEndian(BitConverter.GetBytes(RemapTableOffset), 0, 4);
-                stream.WriteBigEndian(BitConverter.GetBytes(NameTableOffset), 0, 4);
+                stream.Write(RemapTableOffset, Endian.Big);
+                stream.Write(NameTableOffset, Endian.Big);
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for AttributeTableOffset
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for MatrixTableOffset
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for PrimitiveDataOffset
@@ -204,18 +204,18 @@ namespace Hack.io
 
                 stream.Write(RemapTableData.ToArray(), 0, RemapTableData.Count);
 
-                stream.WritePadding(36, Padding);
+                stream.WriteAlign(36, Padding);
 
                 AttributeTableOffset = (int)stream.Position;
                 List<Tuple<ShapeVertexDescriptor, int>> descriptorOffsets = WriteShapeAttributeDescriptors(stream);
 
                 DRW1IndexTableOffset = (int)stream.Position;
                 List<Tuple<Packet, int>> packetMatrixOffsets = WritePacketMatrixIndices(stream);
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 PrimitiveDataOffset = (int)stream.Position;
                 List<Tuple<int, int>> PrimitiveOffsets = WritePrimitives(stream);
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 MatrixDataOffset = (int)stream.Position;
                 WriteMatrixData(stream, packetMatrixOffsets);
@@ -223,29 +223,29 @@ namespace Hack.io
                 PrimitiveLocationDataOffset = (int)stream.Position;
                 foreach (Tuple<int, int> tup in PrimitiveOffsets)
                 {
-                    stream.WriteBigEndian(BitConverter.GetBytes(tup.Item1), 0, 4);
-                    stream.WriteBigEndian(BitConverter.GetBytes(tup.Item2), 0, 4);
+                    stream.Write(tup.Item1, Endian.Big);
+                    stream.Write(tup.Item2, Endian.Big);
                 }
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 stream.Position = start + 0x2C;
                 foreach (Shape shape in Shapes)
                 {
                     stream.Position += 0x04;
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)descriptorOffsets.Find(x => x.Item1 == shape.Descriptor).Item2), 0, 2);
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)packetMatrixOffsets.IndexOf(packetMatrixOffsets.Find(x => x.Item1 == shape.Packets[0]))), 0, 2);
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)packetMatrixOffsets.IndexOf(packetMatrixOffsets.Find(x => x.Item1 == shape.Packets[0]))), 0, 2);
+                    stream.Write((short)descriptorOffsets.Find(x => x.Item1 == shape.Descriptor).Item2, Endian.Big);
+                    stream.Write((short)packetMatrixOffsets.IndexOf(packetMatrixOffsets.Find(x => x.Item1 == shape.Packets[0])), Endian.Big);
+                    stream.Write((short)packetMatrixOffsets.IndexOf(packetMatrixOffsets.Find(x => x.Item1 == shape.Packets[0])), Endian.Big);
                     stream.Position += 0x1E;
                 }
 
                 stream.Position = start + 0x04;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - start)), 0, 4);
+                stream.Write((int)(stream.Length - start), Endian.Big);
                 stream.Position += 0x10;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(AttributeTableOffset - start)), 0, 4);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(DRW1IndexTableOffset - start)), 0, 4);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(PrimitiveDataOffset - start)), 0, 4);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(MatrixDataOffset - start)), 0, 4);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(PrimitiveLocationDataOffset - start)), 0, 4);
+                stream.Write((int)(AttributeTableOffset - start), Endian.Big);
+                stream.Write((int)(DRW1IndexTableOffset - start), Endian.Big);
+                stream.Write((int)(PrimitiveDataOffset - start), Endian.Big);
+                stream.Write((int)(MatrixDataOffset - start), Endian.Big);
+                stream.Write((int)(PrimitiveLocationDataOffset - start), Endian.Big);
                 stream.Position = stream.Length;
             }
 
@@ -288,7 +288,7 @@ namespace Hack.io
                                 writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
                             else
                             {
-                                writer.WriteBigEndian(BitConverter.GetBytes((ushort)pack.MatrixIndices[i]), 0, 2);
+                                writer.Write((ushort)pack.MatrixIndices[i], Endian.Big);
                                 Last = pack.MatrixIndices[i];
                             }
                             indexOffset++;
@@ -316,7 +316,7 @@ namespace Hack.io
                             prim.Write(writer, shape.Descriptor);
                         }
 
-                        writer.WritePadding(32);
+                        writer.WriteAlign(32);
 
                         outList.Add(new Tuple<int, int>((int)((writer.Position - start) - offset), offset));
                     }
@@ -332,9 +332,9 @@ namespace Hack.io
                 {
                     for (int y = 0; y < Shapes[i].Packets.Count; y++)
                     {
-                        stream.WriteBigEndian(BitConverter.GetBytes(Shapes[i].Packets[y].DRW1MatrixID), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)Shapes[i].Packets[y].MatrixIndices.Count), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes(StartingIndex), 0, 4);
+                        stream.Write(Shapes[i].Packets[y].DRW1MatrixID, Endian.Big);
+                        stream.Write((short)Shapes[i].Packets[y].MatrixIndices.Count, Endian.Big);
+                        stream.Write(StartingIndex, Endian.Big);
                         StartingIndex += Shapes[i].Packets[y].MatrixIndices.Count;
                     }
                 }
@@ -386,7 +386,7 @@ namespace Hack.io
                 {
                     writer.WriteByte((byte)MatrixType);
                     writer.WriteByte(0xFF);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)Packets.Count), 0, 2);
+                    writer.Write((short)Packets.Count, Endian.Big);
                     writer.Write(new byte[2] { 0xDD, 0xDD }, 0, 2); // Placeholder for descriptor offset
                     writer.Write(new byte[2] { 0xDD, 0xDD }, 0, 2); // Placeholder for starting packet index
                     writer.Write(new byte[2] { 0xDD, 0xDD }, 0, 2); // Placeholder for starting packet matrix index offset
@@ -452,80 +452,80 @@ namespace Hack.io
                 {
                     if (CheckAttribute(GXVertexAttribute.PositionMatrixIdx))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.PositionMatrixIdx), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.PositionMatrixIdx].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.PositionMatrixIdx, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.PositionMatrixIdx].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Position))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Position), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Position].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Position, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Position].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Normal))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Normal), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Normal].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Normal, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Normal].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Color0))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Color0), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Color0].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Color0, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Color0].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Color1))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Color1), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Color1].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Color1, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Color1].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex0))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex0), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex0].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex0, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex0].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex1))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex1), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex1].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex1, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex1].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex2))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex2), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex2].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex2, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex2].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex3))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex3), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex3].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex3, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex3].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex4))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex4), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex4].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex4, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex4].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex5))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex5), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex5].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex5, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex5].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex6))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex6), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex6].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex6, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex6].Item1, Endian.Big);
                     }
 
                     if (CheckAttribute(GXVertexAttribute.Tex7))
                     {
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)GXVertexAttribute.Tex7), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((int)Attributes[GXVertexAttribute.Tex7].Item1), 0, 4);
+                        writer.Write((int)GXVertexAttribute.Tex7, Endian.Big);
+                        writer.Write((int)Attributes[GXVertexAttribute.Tex7].Item1, Endian.Big);
                     }
 
                     // Null attribute
@@ -646,7 +646,7 @@ namespace Hack.io
                 public void Write(Stream stream, ShapeVertexDescriptor desc)
                 {
                     stream.WriteByte((byte)PrimitiveType);
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)Vertices.Count), 0, 2);
+                    stream.Write((short)Vertices.Count, Endian.Big);
 
                     foreach (Vertex vert in Vertices)
                         vert.Write(stream, desc);
@@ -926,7 +926,7 @@ namespace Hack.io
                             stream.WriteByte((byte)value);
                             break;
                         case VertexInputType.Index16:
-                            stream.WriteBigEndian(BitConverter.GetBytes((short)value), 0, 2);
+                            stream.Write((short)value, Endian.Big);
                             break;
                         case VertexInputType.None:
                         default:
@@ -991,13 +991,13 @@ namespace Hack.io
 
                 public void Write(Stream writer)
                 {
-                    writer.WriteBigEndian(BitConverter.GetBytes(SphereRadius), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MinBounds.X), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MinBounds.Y), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MinBounds.Z), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MaxBounds.X), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MaxBounds.Y), 0, 4);
-                    writer.WriteBigEndian(BitConverter.GetBytes(MaxBounds.Z), 0, 4);
+                    writer.Write(SphereRadius, Endian.Big);
+                    writer.Write(MinBounds.X, Endian.Big);
+                    writer.Write(MinBounds.Y, Endian.Big);
+                    writer.Write(MinBounds.Z, Endian.Big);
+                    writer.Write(MaxBounds.X, Endian.Big);
+                    writer.Write(MaxBounds.Y, Endian.Big);
+                    writer.Write(MaxBounds.Z, Endian.Big);
                 }
 
                 public override string ToString() => $"Min: {MinBounds.ToString()}, Max: {MaxBounds.ToString()}, Radius: {SphereRadius.ToString()}, Center: {Center.ToString()}";

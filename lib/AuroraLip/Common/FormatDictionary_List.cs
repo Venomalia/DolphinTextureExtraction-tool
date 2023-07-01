@@ -578,7 +578,7 @@ namespace AuroraLib.Common
             ushort CopyrightOffset = stream.ReadUInt16(Endian.Big);
             if (CopyrightOffset < 8) return false;
             stream.Seek(CopyrightOffset - 2, SeekOrigin.Begin);
-            return stream.MatchString("(c)CRI");
+            return stream.Match("(c)CRI");
         }
 
         private static bool BZip_Matcher(Stream stream, in string extension = "")
@@ -588,7 +588,7 @@ namespace AuroraLib.Common
         }
 
         private static bool LZH_Matcher(Stream stream, in string extension = "")
-            => stream.Length > 5 && stream.MatchString("-lz") && stream.ReadByte() > 32 && stream.MatchString("-");
+            => stream.Length > 5 && stream.Match("-lz") && stream.ReadByte() > 32 && stream.Match("-");
 
         private static bool BIN_LM_Matcher(Stream stream, in string extension = "")
             => stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;

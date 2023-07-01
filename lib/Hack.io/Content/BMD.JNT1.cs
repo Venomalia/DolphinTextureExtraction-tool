@@ -83,7 +83,7 @@ namespace Hack.io
 
                 stream.Write("JNT1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)FlatSkeleton.Count), 0, 2);
+                stream.Write((short)FlatSkeleton.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x18 }, 0, 4); // Offset to joint data, always 24
@@ -101,29 +101,29 @@ namespace Hack.io
                 long curOffset = stream.Position;
 
                 stream.Seek((int)(start + 16), SeekOrigin.Begin);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Write((int)(curOffset - start), Endian.Big);
                 stream.Seek((int)curOffset, SeekOrigin.Begin);
 
                 for (int i = 0; i < FlatSkeleton.Count; i++)
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)i), 0, 2);
+                    stream.Write((short)i, Endian.Big);
 
-                stream.WritePadding(4, Padding);
+                stream.WriteAlign(4, Padding);
 
                 curOffset = stream.Position;
 
                 stream.Seek((int)(start + 20), SeekOrigin.Begin);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(curOffset - start)), 0, 4);
+                stream.Write((int)(curOffset - start), Endian.Big);
                 stream.Seek((int)curOffset, SeekOrigin.Begin);
 
                 stream.WriteStringTable(names);
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;
 
                 stream.Seek((int)start + 4, SeekOrigin.Begin);
-                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Write((int)length, Endian.Big);
                 stream.Seek((int)end, SeekOrigin.Begin);
             }
 
@@ -258,7 +258,7 @@ namespace Hack.io
 
                     using (MemoryStream stream = new MemoryStream())
                     {
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_MatrixType), 0, 2);
+                        stream.Write(m_MatrixType, Endian.Big);
                         stream.WriteByte((byte)(InheritParentScale ? 0x00 : 0x01));
                         stream.WriteByte(0xFF);
 
@@ -306,16 +306,16 @@ namespace Hack.io
                         //Console.WriteLine();
                         //=====
 
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.X), 0, 4);
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.Y), 0, 4);
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Scale.Z), 0, 4);
-                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[0]), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[1]), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes(compressRot[2]), 0, 2);
+                        stream.Write(m_Scale.X, Endian.Big);
+                        stream.Write(m_Scale.Y, Endian.Big);
+                        stream.Write(m_Scale.Z, Endian.Big);
+                        stream.Write(compressRot[0], Endian.Big);
+                        stream.Write(compressRot[1], Endian.Big);
+                        stream.Write(compressRot[2], Endian.Big);
                         stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.X), 0, 4);
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.Y), 0, 4);
-                        stream.WriteBigEndian(BitConverter.GetBytes(m_Translation.Z), 0, 4);
+                        stream.Write(m_Translation.X, Endian.Big);
+                        stream.Write(m_Translation.Y, Endian.Big);
+                        stream.Write(m_Translation.Z, Endian.Big);
 
                         Bounds.Write(stream);
 

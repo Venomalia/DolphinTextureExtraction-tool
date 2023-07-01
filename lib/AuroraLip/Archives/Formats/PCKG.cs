@@ -37,7 +37,7 @@ namespace AuroraLib.Archives.Formats
             while (stream.Search(Bres))
             {
                 long entrystart = stream.Position;
-                if (!stream.MatchString(Bres))
+                if (!stream.Match(Bres))
                     continue;
                 ushort Version = stream.ReadUInt16(Endian.Big);
                 uint TotalSize = stream.ReadUInt32(Endian.Big);

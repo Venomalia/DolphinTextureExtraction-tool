@@ -15,7 +15,7 @@ namespace DolphinTextureExtraction
         {
             foreach (FormatInfo item in FormatDictionary.Master)
             {
-                if (item.Class != null && item.Identifier.AsSpan().Length >= 4)
+                if (item.Class != null && item.Identifier != null && item.Identifier.AsSpan().Length >= 4)
                 {
                     Pattern.Add(item.Identifier.AsSpan().ToArray());
                 }

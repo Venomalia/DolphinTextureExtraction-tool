@@ -205,10 +205,12 @@ namespace AuroraLib.Archives.Formats
 
             //Write the Header
             stream.Write(_identifier);
-            stream.WriteBigEndian(BitConverter.GetBytes(0x20), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes(Nodes.Count * 0x0C + StringBytes.Count), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);
-            stream.WriteBigEndian(new byte[16] { 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC }, 16);
+
+            stream.Write(0x20, Endian.Big);
+            stream.Write(Nodes.Count * 0x0C + StringBytes.Count, Endian.Big);
+            stream.Write(DataOffset, Endian.Big);
+            stream.Write(DataOffset, Endian.Big);
+            stream.Write(new byte[16] { 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC });
 
             //Write the Nodes
             for (int i = 0; i < Nodes.Count; i++)
@@ -216,7 +218,7 @@ namespace AuroraLib.Archives.Formats
 
             //Write the strings
             stream.Write(StringBytes.ToArray(), 0, StringBytes.Count);
-            stream.WritePadding(0x20, 0);
+            stream.WriteAlign(0x20, 0);
 
             //Write the File Data
             stream.Write(DataBytes.ToArray(), 0, DataBytes.Count);
@@ -263,9 +265,9 @@ namespace AuroraLib.Archives.Formats
             public void Write(Stream stream)
             {
                 stream.WriteByte((byte)(IsDirectory ? 0x01 : 0x00));
-                stream.WriteBigEndian(BitConverterEx.GetBytes(NameOffset), 3);
-                stream.WriteBigEndian(BitConverter.GetBytes(DataOffset), 4);
-                stream.WriteBigEndian(BitConverter.GetBytes(Size), 4);
+                stream.Write(NameOffset,Endian.Big);
+                stream.Write(DataOffset, Endian.Big);
+                stream.Write(Size, Endian.Big);
             }
 
             public override string ToString() => $"{(IsDirectory ? "Directory" : "File")}: {NameOffset.ToString()} | {DataOffset.ToString()} | {Size.ToString()}";

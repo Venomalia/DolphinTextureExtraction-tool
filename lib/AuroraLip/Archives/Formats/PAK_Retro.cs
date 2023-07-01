@@ -119,7 +119,7 @@ namespace AuroraLib.Archives.Formats
                 if (blockSize < 0)
                 {
                     blockSize -= blockSize;
-                    output.Write(input.Read(blockSize), blockSize);
+                    output.Write(input.Read(blockSize));
                     continue;
                 }
 

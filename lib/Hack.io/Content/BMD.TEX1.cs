@@ -145,12 +145,12 @@ namespace Hack.io
 
                 stream.Write(Magic);
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)Textures.Count), 0, 2);
+                stream.Write((short)Textures.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4); // Offset to the start of the texture data. Always 32
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for string table offset
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 List<string> names = new List<string>();
                 Dictionary<BTI, long> WrittenImages = new Dictionary<BTI, long>();
@@ -182,12 +182,12 @@ namespace Hack.io
                 int NameTableOffset = (int)(stream.Position - start);
 
                 stream.WriteStringTable(names);
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
                 // Write TEX1 size
                 stream.Position = start + 4;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - start)), 0, 4);
+                stream.Write((int)(stream.Length - start), Endian.Big);
                 stream.Position = start + 0x10;
-                stream.WriteBigEndian(BitConverter.GetBytes(NameTableOffset), 0, 4);
+                stream.Write(NameTableOffset, Endian.Big);
             }
 
             public bool Contains(BTI Image) => Textures.Any(I => I.Equals(Image));

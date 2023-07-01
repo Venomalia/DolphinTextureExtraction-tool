@@ -48,31 +48,31 @@ namespace Hack.io
 
                 stream.Write("DRW1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)IsPartialWeight.Count), 0, 2);
+                stream.Write((short)IsPartialWeight.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
                 stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x14 }, 0, 4); // Offset to weight type bools, always 20
                 long IndiciesOffset = stream.Position;
-                stream.WriteBigEndian(BitConverter.GetBytes(20 + IsPartialWeight.Count), 0, 4); // Offset to indices, always 20 + number of weight type bools
+                stream.Write(20 + IsPartialWeight.Count, Endian.Big); // Offset to indices, always 20 + number of weight type bools
 
                 foreach (bool bol in IsPartialWeight)
                     stream.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                stream.WritePadding(2, Padding);
+                stream.WriteAlign(2, Padding);
 
                 uint IndOffs = (uint)(stream.Position - start);
                 foreach (int inte in TransformIndexTable)
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
+                    stream.Write((short)inte, Endian.Big);
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 long end = stream.Position;
                 long length = end - start;
 
                 stream.Position = start + 4;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Write((int)length, Endian.Big);
                 stream.Position = start + 0x10;
-                stream.WriteBigEndian(BitConverter.GetBytes(IndOffs), 0, 4); // Offset to indices, always 20 + number of weight type bools
+                stream.Write(IndOffs, Endian.Big); // Offset to indices, always 20 + number of weight type bools
                 stream.Position = end;
             }
 

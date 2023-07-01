@@ -467,14 +467,14 @@ namespace Hack.io
 
                 stream.Write("VTX1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes(0x40), 0, 4); // Offset to attribute data
+                stream.Write(0x40, Endian.Big); // Offset to attribute data
 
                 for (int i = 0; i < 13; i++) // Placeholders for attribute data offsets
                     stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4); //I can't use the typical 0xDD here because this actually is setting the values to be "empty", it's not a placeholder
 
                 WriteAttributeHeaders(stream);
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 WriteAttributeData(stream, (int)start);
 
@@ -482,7 +482,7 @@ namespace Hack.io
                 long length = (end - start);
 
                 stream.Position = (int)start + 4;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)length), 0, 4);
+                stream.Write((int)length, Endian.Big);
                 stream.Position = end;
             }
 
@@ -493,7 +493,7 @@ namespace Hack.io
                     if (!Attributes.ContainsAttribute(attrib) || attrib == GXVertexAttribute.PositionMatrixIdx)
                         continue;
 
-                    stream.WriteBigEndian(BitConverter.GetBytes((int)attrib), 0, 4);
+                    stream.Write((int)attrib, Endian.Big);
 
                     switch (attrib)
                     {
@@ -501,20 +501,20 @@ namespace Hack.io
                             break;
                         case GXVertexAttribute.Position:
                             stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x01 }, 0, 4);
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)StorageFormats[attrib].Item1), 0, 4);
+                            stream.Write((int)StorageFormats[attrib].Item1, Endian.Big);
                             stream.WriteByte(StorageFormats[attrib].Item2);
                             stream.Write(new byte[3] { 0xFF, 0xFF, 0xFF }, 0, 3);
                             break;
                         case GXVertexAttribute.Normal:
                             stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4);
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)StorageFormats[attrib].Item1), 0, 4);
+                            stream.Write((int)StorageFormats[attrib].Item1, Endian.Big);
                             stream.WriteByte(StorageFormats[attrib].Item2);
                             stream.Write(new byte[3] { 0xFF, 0xFF, 0xFF }, 0, 3);
                             break;
                         case GXVertexAttribute.Color0:
                         case GXVertexAttribute.Color1:
                             stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x01 }, 0, 4);
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)StorageFormats[attrib].Item1), 0, 4);
+                            stream.Write((int)StorageFormats[attrib].Item1, Endian.Big);
                             stream.WriteByte(StorageFormats[attrib].Item2);
                             stream.Write(new byte[3] { 0xFF, 0xFF, 0xFF }, 0, 3);
                             break;
@@ -527,7 +527,7 @@ namespace Hack.io
                         case GXVertexAttribute.Tex6:
                         case GXVertexAttribute.Tex7:
                             stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x01 }, 0, 4);
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)StorageFormats[attrib].Item1), 0, 4);
+                            stream.Write((int)StorageFormats[attrib].Item1, Endian.Big);
                             stream.WriteByte(StorageFormats[attrib].Item2);
                             stream.Write(new byte[3] { 0xFF, 0xFF, 0xFF }, 0, 3);
                             break;
@@ -553,7 +553,7 @@ namespace Hack.io
                     {
                         case GXVertexAttribute.Position:
                             stream.Position = baseOffset + 0x0C;
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - baseOffset)), 0, 4);
+                            stream.Write((int)(stream.Length - baseOffset), Endian.Big);
                             stream.Position = (int)endOffset;
 
                             foreach (Vector3 posVec in (List<Vector3>)Attributes.GetAttributeData(attrib))
@@ -571,26 +571,26 @@ namespace Hack.io
                                         stream.WriteByte((byte)((sbyte)Math.Round(posVec.Z * (1 << StorageFormats[attrib].Item2))));
                                         break;
                                     case GXDataType.Unsigned16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(posVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(posVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(posVec.Z * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((ushort)Math.Round(posVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((ushort)Math.Round(posVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((ushort)Math.Round(posVec.Z * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Signed16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(posVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(posVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(posVec.Z * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((short)Math.Round(posVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((short)Math.Round(posVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((short)Math.Round(posVec.Z * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Float32:
-                                        stream.WriteBigEndian(BitConverter.GetBytes(posVec.X), 0, 4);
-                                        stream.WriteBigEndian(BitConverter.GetBytes(posVec.Y), 0, 4);
-                                        stream.WriteBigEndian(BitConverter.GetBytes(posVec.Z), 0, 4);
+                                        stream.Write(posVec.X, Endian.Big);
+                                        stream.Write(posVec.Y, Endian.Big);
+                                        stream.Write(posVec.Z, Endian.Big);
                                         break;
                                 }
                             }
                             break;
                         case GXVertexAttribute.Normal:
                             stream.Position = baseOffset + 0x10;
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - baseOffset)), 0, 4);
+                            stream.Write((int)(stream.Length - baseOffset), Endian.Big);
                             stream.Position = (int)endOffset;
 
                             foreach (Vector3 normVec in Attributes.Normals)
@@ -608,19 +608,19 @@ namespace Hack.io
                                         stream.WriteByte((byte)((sbyte)Math.Round(normVec.Z * (1 << StorageFormats[attrib].Item2))));
                                         break;
                                     case GXDataType.Unsigned16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(normVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(normVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(normVec.Z * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((ushort)Math.Round(normVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((ushort)Math.Round(normVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((ushort)Math.Round(normVec.Z * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Signed16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(normVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(normVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(normVec.Z * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((short)Math.Round(normVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((short)Math.Round(normVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((short)Math.Round(normVec.Z * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Float32:
-                                        stream.WriteBigEndian(BitConverter.GetBytes(normVec.X), 0, 4);
-                                        stream.WriteBigEndian(BitConverter.GetBytes(normVec.Y), 0, 4);
-                                        stream.WriteBigEndian(BitConverter.GetBytes(normVec.Z), 0, 4);
+                                        stream.Write(normVec.X, Endian.Big);
+                                        stream.Write(normVec.Y, Endian.Big);
+                                        stream.Write(normVec.Z, Endian.Big);
                                         break;
                                 }
                             }
@@ -628,7 +628,7 @@ namespace Hack.io
                         case GXVertexAttribute.Color0:
                         case GXVertexAttribute.Color1:
                             stream.Position = baseOffset + 0x18 + (int)(attrib - 11) * 4;
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - baseOffset)), 0, 4);
+                            stream.Write((int)(stream.Length - baseOffset), Endian.Big);
                             stream.Position = (int)endOffset;
 
                             foreach (Color4 col in (List<Color4>)Attributes.GetAttributeData(attrib))
@@ -648,7 +648,7 @@ namespace Hack.io
                         case GXVertexAttribute.Tex6:
                         case GXVertexAttribute.Tex7:
                             stream.Position = baseOffset + 0x20 + (int)(attrib - 13) * 4;
-                            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - baseOffset)), 0, 4);
+                            stream.Write((int)(stream.Length - baseOffset), Endian.Big);
                             stream.Position = (int)endOffset;
 
                             foreach (Vector2 texVec in (List<Vector2>)Attributes.GetAttributeData(attrib))
@@ -664,22 +664,22 @@ namespace Hack.io
                                         stream.WriteByte((byte)((sbyte)Math.Round(texVec.Y * (1 << StorageFormats[attrib].Item2))));
                                         break;
                                     case GXDataType.Unsigned16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(texVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((ushort)Math.Round(texVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((ushort)Math.Round(texVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((ushort)Math.Round(texVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Signed16:
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(texVec.X * (1 << StorageFormats[attrib].Item2))), 0, 2);
-                                        stream.WriteBigEndian(BitConverter.GetBytes((short)Math.Round(texVec.Y * (1 << StorageFormats[attrib].Item2))), 0, 2);
+                                        stream.Write((short)Math.Round(texVec.X * (1 << StorageFormats[attrib].Item2)), Endian.Big);
+                                        stream.Write((short)Math.Round(texVec.Y * (1 << StorageFormats[attrib].Item2)), Endian.Big);
                                         break;
                                     case GXDataType.Float32:
-                                        stream.WriteBigEndian(BitConverter.GetBytes(texVec.X), 0, 4);
-                                        stream.WriteBigEndian(BitConverter.GetBytes(texVec.Y), 0, 4);
+                                        stream.Write(texVec.X, Endian.Big);
+                                        stream.Write(texVec.Y, Endian.Big);
                                         break;
                                 }
                             }
                             break;
                     }
-                    stream.WritePadding(32, Padding);
+                    stream.WriteAlign(32, Padding);
                 }
             }
 

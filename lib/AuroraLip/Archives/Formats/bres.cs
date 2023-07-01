@@ -42,7 +42,7 @@ namespace AuroraLib.Archives.Formats
             ByteOrder = header.BOM;
             stream.Seek(header.RootOffset, SeekOrigin.Begin);
             //root sections
-            if (!stream.MatchString("root"))
+            if (!stream.Match("root"))
                 throw new InvalidIdentifierException("root");
             uint RootSize = stream.ReadUInt32(ByteOrder);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };

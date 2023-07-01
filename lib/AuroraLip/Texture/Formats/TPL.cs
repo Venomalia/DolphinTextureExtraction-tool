@@ -101,7 +101,7 @@ namespace AuroraLib.Texture.Formats
 
             for (int i = 0; i < Count; i++)
             {
-                stream.WritePadding(32);
+                stream.WriteAlign(32);
                 bool IsPalette = this[i].Format.IsPaletteFormat();
                 uint PaletteHeader = !IsPalette ? 0 : (uint)(stream.Position - HeaderStart);
 
@@ -113,13 +113,13 @@ namespace AuroraLib.Texture.Formats
                         Unpacked = 0x00,
                         Pad = 0x00,
                         Format = this[i].PaletteFormat,
-                        PaletteDataAddress = (uint)(StreamEx.CalculatePadding(stream.Position + Unsafe.SizeOf<PaletteHeader>(), 32) - HeaderStart)
+                        PaletteDataAddress = (uint)(StreamEx.AlignPosition(stream.Position + Unsafe.SizeOf<PaletteHeader>(), 32) - HeaderStart)
                     };
                     stream.WriteObjekt(paletteHeader, Endian.Big);
-                    stream.WritePadding(32);
+                    stream.WriteAlign(32);
                     foreach (var Palette in this[i].Palettes)
                         stream.Write(Palette);
-                    stream.WritePadding(32);
+                    stream.WriteAlign(32);
                 }
 
                 uint ImageHeader = ImageHeader = (uint)(stream.Position - HeaderStart);
@@ -129,7 +129,7 @@ namespace AuroraLib.Texture.Formats
                     Height = (ushort)this[i].Height,
                     Width = (ushort)this[i].Width,
                     Format = this[i].Format,
-                    ImageDataAddress = (uint)(StreamEx.CalculatePadding(stream.Position + Unsafe.SizeOf<PaletteHeader>(), 32) - HeaderStart),
+                    ImageDataAddress = (uint)(StreamEx.AlignPosition(stream.Position + Unsafe.SizeOf<PaletteHeader>(), 32) - HeaderStart),
                     WrapS = this[i].WrapS,
                     WrapT = this[i].WrapT,
                     MagFilter = this[i].MagnificationFilter,
@@ -141,7 +141,7 @@ namespace AuroraLib.Texture.Formats
                     Unpacked = 0x00,
                 };
                 stream.WriteObjekt(imageHeader, Endian.Big);
-                stream.WritePadding(32);
+                stream.WriteAlign(32);
 
                 foreach (byte[] bytes in this[i].RawImages)
                 {

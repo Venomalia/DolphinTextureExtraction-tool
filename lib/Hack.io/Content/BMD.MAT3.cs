@@ -774,7 +774,7 @@ namespace Hack.io
 
                 writer.Write(Magic);
                 writer.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                writer.WriteBigEndian(BitConverter.GetBytes((short)m_RemapIndices.Count), 0, 2);
+                writer.Write((short)m_RemapIndices.Count, Endian.Big);
                 writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
                 writer.Write(new byte[4] { 0x00, 0x00, 0x00, 0x84 }, 0, 4); // Offset to material init data. Always 132
@@ -806,9 +806,9 @@ namespace Hack.io
                 Offsets[0] = (int)(curOffset - start);
 
                 for (int i = 0; i < m_RemapIndices.Count; i++)
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)m_RemapIndices[i]), 0, 2);
+                    writer.Write((short)m_RemapIndices[i], Endian.Big);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -816,7 +816,7 @@ namespace Hack.io
                 Offsets[1] = (int)(curOffset - start);
 
                 writer.WriteStringTable(names);
-                writer.WritePadding(8, Padding);
+                writer.WriteAlign(8, Padding);
 
                 curOffset = writer.Position;
 
@@ -834,7 +834,7 @@ namespace Hack.io
 
                 //CullModeIO.Write(writer, m_CullModeBlock);
                 for (int i = 0; i < m_CullModeBlock.Count; i++)
-                    writer.WriteBigEndian(BitConverter.GetBytes((int)m_CullModeBlock[i]), 0, 4);
+                    writer.Write((int)m_CullModeBlock[i], Endian.Big);
 
                 curOffset = writer.Position;
 
@@ -858,7 +858,7 @@ namespace Hack.io
                 foreach (byte chanNum in NumColorChannelsBlock)
                     writer.WriteByte(chanNum);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -869,7 +869,7 @@ namespace Hack.io
                 foreach (Material.ChannelControl chan in m_ChannelControlBlock)
                     chan.Write(writer);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -910,7 +910,7 @@ namespace Hack.io
                 foreach (byte texGenCnt in NumTexGensBlock)
                     writer.WriteByte(texGenCnt);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -963,9 +963,9 @@ namespace Hack.io
                 Offsets[14] = (int)(curOffset - start);
 
                 foreach (int inte in m_TexRemapBlock)
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)inte), 0, 2);
+                    writer.Write((short)inte, Endian.Big);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -984,10 +984,10 @@ namespace Hack.io
                 //Int16ColorIO.Write(writer, m_TevColorBlock);
                 for (int i = 0; i < m_TevColorBlock.Count; i++)
                 {
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)(m_TevColorBlock[i].R * 255)), 0, 2);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)(m_TevColorBlock[i].G * 255)), 0, 2);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)(m_TevColorBlock[i].B * 255)), 0, 2);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)(m_TevColorBlock[i].A * 255)), 0, 2);
+                    writer.Write((short)(m_TevColorBlock[i].R * 255), Endian.Big);
+                    writer.Write((short)(m_TevColorBlock[i].G * 255), Endian.Big);
+                    writer.Write((short)(m_TevColorBlock[i].B * 255), Endian.Big);
+                    writer.Write((short)(m_TevColorBlock[i].A * 255), Endian.Big);
                 }
 
                 curOffset = writer.Position;
@@ -1012,7 +1012,7 @@ namespace Hack.io
                 foreach (byte bt in NumTevStagesBlock)
                     writer.WriteByte(bt);
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -1085,7 +1085,7 @@ namespace Hack.io
                 foreach (bool bol in m_zCompLocBlock)
                     writer.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                writer.WritePadding(4, Padding);
+                writer.WriteAlign(4, Padding);
 
                 curOffset = writer.Position;
 
@@ -1098,7 +1098,7 @@ namespace Hack.io
                     foreach (bool bol in m_ditherBlock)
                         writer.WriteByte((byte)(bol ? 0x01 : 0x00));
 
-                    writer.WritePadding(4, Padding);
+                    writer.WriteAlign(4, Padding);
                 }
 
                 curOffset = writer.Position;
@@ -1110,13 +1110,13 @@ namespace Hack.io
                 foreach (Material.NBTScaleHolder scale in m_NBTScaleBlock)
                     scale.Write(writer);
 
-                writer.WritePadding(32, Padding);
+                writer.WriteAlign(32, Padding);
 
                 writer.Position = start + 4;
-                writer.WriteBigEndian(BitConverter.GetBytes((int)(writer.Length - start)), 0, 4);
+                writer.Write((int)(writer.Length - start), Endian.Big);
                 writer.Position += 0x08;
                 for (int i = 0; i < 29; i++)
-                    writer.WriteBigEndian(BitConverter.GetBytes(Offsets[i]), 0, 4);
+                    writer.Write(Offsets[i], Endian.Big);
                 writer.Position = writer.Length;
             }
             private void WriteMaterialInitData(Stream writer, Material mat, ref List<CullMode> m_CullModeBlock,
@@ -1161,7 +1161,7 @@ namespace Hack.io
                 {
                     if (!m_MaterialColorBlock.Any(MatCol => MatCol == mat.MaterialColors[0].Value))
                         m_MaterialColorBlock.Add(mat.MaterialColors[0].Value);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)m_MaterialColorBlock.IndexOf(mat.MaterialColors[0].Value)), 0, 2);
+                    writer.Write((short)m_MaterialColorBlock.IndexOf(mat.MaterialColors[0].Value), Endian.Big);
                 }
                 else
                     writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1170,7 +1170,7 @@ namespace Hack.io
                 {
                     if (!m_MaterialColorBlock.Any(MatCol => MatCol == mat.MaterialColors[1].Value))
                         m_MaterialColorBlock.Add(mat.MaterialColors[1].Value);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)m_MaterialColorBlock.IndexOf(mat.MaterialColors[1].Value)), 0, 2);
+                    writer.Write((short)m_MaterialColorBlock.IndexOf(mat.MaterialColors[1].Value), Endian.Big);
                 }
                 else
                     writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1181,7 +1181,7 @@ namespace Hack.io
                     {
                         if (!m_ChannelControlBlock.Any(ChanCol => ChanCol == mat.ChannelControls[i].Value))
                             m_ChannelControlBlock.Add(mat.ChannelControls[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_ChannelControlBlock.IndexOf(mat.ChannelControls[i].Value)), 0, 2);
+                        writer.Write((short)m_ChannelControlBlock.IndexOf(mat.ChannelControls[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1191,7 +1191,7 @@ namespace Hack.io
                 {
                     if (!m_AmbientColorBlock.Any(AmbCol => AmbCol == mat.AmbientColors[0].Value))
                         m_AmbientColorBlock.Add(mat.AmbientColors[0].Value);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)m_AmbientColorBlock.IndexOf(mat.AmbientColors[0].Value)), 0, 2);
+                    writer.Write((short)m_AmbientColorBlock.IndexOf(mat.AmbientColors[0].Value), Endian.Big);
                 }
                 else
                     writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1200,7 +1200,7 @@ namespace Hack.io
                 {
                     if (!m_AmbientColorBlock.Any(AmbCol => AmbCol == mat.AmbientColors[1].Value))
                         m_AmbientColorBlock.Add(mat.AmbientColors[1].Value);
-                    writer.WriteBigEndian(BitConverter.GetBytes((short)m_AmbientColorBlock.IndexOf(mat.AmbientColors[1].Value)), 0, 2);
+                    writer.Write((short)m_AmbientColorBlock.IndexOf(mat.AmbientColors[1].Value), Endian.Big);
                 }
                 else
                     writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1211,7 +1211,7 @@ namespace Hack.io
                     {
                         if (!m_LightingColorBlock.Any(LightCol => LightCol == mat.LightingColors[i].Value))
                             m_LightingColorBlock.Add(mat.LightingColors[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_LightingColorBlock.IndexOf(mat.LightingColors[i].Value)), 0, 2);
+                        writer.Write((short)m_LightingColorBlock.IndexOf(mat.LightingColors[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1223,7 +1223,7 @@ namespace Hack.io
                     {
                         if (!m_TexCoord1GenBlock.Any(TexCoord => TexCoord == mat.TexCoord1Gens[i].Value))
                             m_TexCoord1GenBlock.Add(mat.TexCoord1Gens[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TexCoord1GenBlock.IndexOf(mat.TexCoord1Gens[i].Value)), 0, 2);
+                        writer.Write((short)m_TexCoord1GenBlock.IndexOf(mat.TexCoord1Gens[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1235,7 +1235,7 @@ namespace Hack.io
                     {
                         if (!m_TexCoord2GenBlock.Any(PostTexCoord => PostTexCoord == mat.PostTexCoordGens[i].Value))
                             m_TexCoord2GenBlock.Add(mat.PostTexCoordGens[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TexCoord2GenBlock.IndexOf(mat.PostTexCoordGens[i].Value)), 0, 2);
+                        writer.Write((short)m_TexCoord2GenBlock.IndexOf(mat.PostTexCoordGens[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1247,7 +1247,7 @@ namespace Hack.io
                     {
                         if (!m_TexMatrix1Block.Any(TexMat => TexMat == mat.TexMatrix1[i].Value))
                             m_TexMatrix1Block.Add(mat.TexMatrix1[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TexMatrix1Block.IndexOf(mat.TexMatrix1[i].Value)), 0, 2);
+                        writer.Write((short)m_TexMatrix1Block.IndexOf(mat.TexMatrix1[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1259,8 +1259,8 @@ namespace Hack.io
                     {
                         if (!m_TexMatrix2Block.Any(PostTexMat => PostTexMat == mat.PostTexMatrix[i].Value))
                             m_TexMatrix2Block.Add(mat.PostTexMatrix[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TexMatrix2Block.IndexOf(mat.PostTexMatrix[i].Value)), 0, 2);
-                    }
+                        writer.Write((short)m_TexMatrix2Block.IndexOf(mat.PostTexMatrix[i].Value), Endian.Big);
+            }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
                 }
@@ -1271,7 +1271,7 @@ namespace Hack.io
                     {
                         if (!m_TexRemapBlock.Any(TexId => TexId == (short)mat.TextureIndices[i]))
                             m_TexRemapBlock.Add((short)mat.TextureIndices[i]);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TexRemapBlock.IndexOf((short)mat.TextureIndices[i])), 0, 2);
+                        writer.Write((short)m_TexRemapBlock.IndexOf((short)mat.TextureIndices[i]), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1283,7 +1283,7 @@ namespace Hack.io
                     {
                         if (!m_TevKonstColorBlock.Any(KCol => KCol == mat.KonstColors[i].Value))
                             m_TevKonstColorBlock.Add(mat.KonstColors[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TevKonstColorBlock.IndexOf(mat.KonstColors[i].Value)), 0, 2);
+                        writer.Write((short)m_TevKonstColorBlock.IndexOf(mat.KonstColors[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1301,7 +1301,7 @@ namespace Hack.io
                     {
                         if (!m_TevOrderBlock.Any(TevOrder => TevOrder == mat.TevOrders[i].Value))
                             m_TevOrderBlock.Add(mat.TevOrders[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TevOrderBlock.IndexOf(mat.TevOrders[i].Value)), 0, 2);
+                        writer.Write((short)m_TevOrderBlock.IndexOf(mat.TevOrders[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1313,7 +1313,7 @@ namespace Hack.io
                     {
                         if (!m_TevColorBlock.Any(TevCol => TevCol == mat.TevColors[i].Value))
                             m_TevColorBlock.Add(mat.TevColors[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TevColorBlock.IndexOf(mat.TevColors[i].Value)), 0, 2);
+                        writer.Write((short)m_TevColorBlock.IndexOf(mat.TevColors[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1325,7 +1325,7 @@ namespace Hack.io
                     {
                         if (!m_TevStageBlock.Any(TevStg => TevStg == mat.TevStages[i].Value))
                             m_TevStageBlock.Add(mat.TevStages[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_TevStageBlock.IndexOf(mat.TevStages[i].Value)), 0, 2);
+                        writer.Write((short)m_TevStageBlock.IndexOf(mat.TevStages[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1337,7 +1337,7 @@ namespace Hack.io
                     {
                         if (!m_SwapModeBlock.Any(SwapMode => SwapMode == mat.SwapModes[i].Value))
                             m_SwapModeBlock.Add(mat.SwapModes[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_SwapModeBlock.IndexOf(mat.SwapModes[i].Value)), 0, 2);
+                        writer.Write((short)m_SwapModeBlock.IndexOf(mat.SwapModes[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1349,7 +1349,7 @@ namespace Hack.io
                     {
                         if (!m_SwapTableBlock.Any(SwapTable => SwapTable == mat.SwapTables[i].Value))
                             m_SwapTableBlock.Add(mat.SwapTables[i].Value);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)m_SwapTableBlock.IndexOf(mat.SwapTables[i].Value)), 0, 2);
+                        writer.Write((short)m_SwapTableBlock.IndexOf(mat.SwapTables[i].Value), Endian.Big);
                     }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -1357,19 +1357,19 @@ namespace Hack.io
 
                 if (!m_FogBlock.Any(Fog => Fog == mat.FogInfo))
                     m_FogBlock.Add(mat.FogInfo);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)m_FogBlock.IndexOf(mat.FogInfo)), 0, 2);
+                writer.Write((short)m_FogBlock.IndexOf(mat.FogInfo), Endian.Big);
 
                 if (!m_AlphaCompBlock.Any(AlphaComp => AlphaComp == mat.AlphCompare))
                     m_AlphaCompBlock.Add(mat.AlphCompare);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)m_AlphaCompBlock.IndexOf(mat.AlphCompare)), 0, 2);
+                writer.Write((short)m_AlphaCompBlock.IndexOf(mat.AlphCompare), Endian.Big);
 
                 if (!m_blendModeBlock.Any(Blend => Blend == mat.BMode))
                     m_blendModeBlock.Add(mat.BMode);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)m_blendModeBlock.IndexOf(mat.BMode)), 0, 2);
+                writer.Write((short)m_blendModeBlock.IndexOf(mat.BMode), Endian.Big);
 
                 if (!m_NBTScaleBlock.Any(NBT => NBT == mat.NBTScale))
                     m_NBTScaleBlock.Add(mat.NBTScale);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)m_NBTScaleBlock.IndexOf(mat.NBTScale)), 0, 2);
+                writer.Write((short)m_NBTScaleBlock.IndexOf(mat.NBTScale), Endian.Big);
             }
             #endregion
 
@@ -2103,13 +2103,13 @@ namespace Hack.io
 
                         public void Write(Stream writer)
                         {
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M11), 0, 4);
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M12), 0, 4);
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M13), 0, 4);
+                            writer.Write(Matrix.M11, Endian.Big);
+                            writer.Write(Matrix.M12, Endian.Big);
+                            writer.Write(Matrix.M13, Endian.Big);
 
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M21), 0, 4);
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M22), 0, 4);
-                            writer.WriteBigEndian(BitConverter.GetBytes(Matrix.M23), 0, 4);
+                            writer.Write(Matrix.M21, Endian.Big);
+                            writer.Write(Matrix.M22, Endian.Big);
+                            writer.Write(Matrix.M23, Endian.Big);
 
                             writer.WriteByte(Exponent);
                             writer.WriteByte(0xFF);
@@ -2563,31 +2563,31 @@ namespace Hack.io
                         writer.WriteByte((byte)Projection);
                         writer.WriteByte((byte)((IsMaya ? 0x80 : 0) | (byte)MappingMode));
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Center.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Center.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Center.Z), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Scale.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Scale.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes((short)(Rotation * (32768.0f / 180))), 0, 2);
+                        writer.Write(Center.X, Endian.Big);
+                        writer.Write(Center.Y, Endian.Big);
+                        writer.Write(Center.Z, Endian.Big);
+                        writer.Write(Scale.X, Endian.Big);
+                        writer.Write(Scale.Y, Endian.Big);
+                        writer.Write((short)(Rotation * (32768.0f / 180)), Endian.Big);
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Translation.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Translation.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M11), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M12), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M13), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M14), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M21), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M22), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M23), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M24), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M31), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M32), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M33), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M34), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M41), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M42), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M43), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(ProjectionMatrix.M44), 0, 4);
+                        writer.Write(Translation.X, Endian.Big);
+                        writer.Write(Translation.Y, Endian.Big);
+                        writer.Write(ProjectionMatrix.M11, Endian.Big);
+                        writer.Write(ProjectionMatrix.M12, Endian.Big);
+                        writer.Write(ProjectionMatrix.M13, Endian.Big);
+                        writer.Write(ProjectionMatrix.M14, Endian.Big);
+                        writer.Write(ProjectionMatrix.M21, Endian.Big);
+                        writer.Write(ProjectionMatrix.M22, Endian.Big);
+                        writer.Write(ProjectionMatrix.M23, Endian.Big);
+                        writer.Write(ProjectionMatrix.M24, Endian.Big);
+                        writer.Write(ProjectionMatrix.M31, Endian.Big);
+                        writer.Write(ProjectionMatrix.M32, Endian.Big);
+                        writer.Write(ProjectionMatrix.M33, Endian.Big);
+                        writer.Write(ProjectionMatrix.M34, Endian.Big);
+                        writer.Write(ProjectionMatrix.M41, Endian.Big);
+                        writer.Write(ProjectionMatrix.M42, Endian.Big);
+                        writer.Write(ProjectionMatrix.M43, Endian.Big);
+                        writer.Write(ProjectionMatrix.M44, Endian.Big);
                     }
 
                     public TexMatrix Clone()
@@ -3132,18 +3132,18 @@ namespace Hack.io
                     {
                         writer.WriteByte(Type);
                         writer.WriteByte((byte)(Enable ? 0x01 : 0x00));
-                        writer.WriteBigEndian(BitConverter.GetBytes(Center), 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(StartZ), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(EndZ), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(NearZ), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(FarZ), 0, 4);
+                        writer.Write(Center, Endian.Big);
+                        writer.Write(StartZ, Endian.Big);
+                        writer.Write(EndZ, Endian.Big);
+                        writer.Write(NearZ, Endian.Big);
+                        writer.Write(FarZ, Endian.Big);
                         writer.WriteByte((byte)(Color.R * 255));
                         writer.WriteByte((byte)(Color.G * 255));
                         writer.WriteByte((byte)(Color.B * 255));
                         writer.WriteByte((byte)(Color.A * 255));
 
                         for (int i = 0; i < 10; i++)
-                            writer.WriteBigEndian(BitConverter.GetBytes((ushort)(RangeAdjustmentTable[i] * 256)), 0, 2);
+                            writer.Write((ushort)(RangeAdjustmentTable[i] * 256), Endian.Big);
                     }
 
                     public Fog Clone()
@@ -3464,9 +3464,9 @@ namespace Hack.io
                         writer.WriteByte(Unknown1);
                         writer.WriteByte(0xFF);
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Scale.X), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Scale.Y), 0, 4);
-                        writer.WriteBigEndian(BitConverter.GetBytes(Scale.Z), 0, 4);
+                        writer.Write(Scale.X, Endian.Big);
+                        writer.Write(Scale.Y, Endian.Big);
+                        writer.Write(Scale.Z, Endian.Big);
                     }
 
                     public NBTScaleHolder Clone() => new NBTScaleHolder(Unknown1, new Vector3(Scale.X, Scale.Y, Scale.Z));

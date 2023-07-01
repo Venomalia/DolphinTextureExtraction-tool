@@ -477,17 +477,17 @@ namespace AuroraLib.Archives.Formats
 
             stream.Write(_identifier);
             stream.Write(new byte[16] { 0xDD, 0xDD, 0xDD, 0xDD, 0x00, 0x00, 0x00, 0x20, 0xDD, 0xDD, 0xDD, 0xDD, 0xEE, 0xEE, 0xEE, 0xEE }, 0, 16);
-            stream.WriteBigEndian(BitConverter.GetBytes(MRAMSize), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes(ARAMSize), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes(DVDSize), 4);
+            stream.Write(MRAMSize, Endian.Big);
+            stream.Write(ARAMSize, Endian.Big);
+            stream.Write(DVDSize, Endian.Big);
             //Data Header
-            stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList.Count), 4);
+            stream.Write(FlatDirectoryList.Count, Endian.Big);
             stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //Directory Nodes Location (-0x20)
-            stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList.Count), 4);
+            stream.Write(FlatFileList.Count, Endian.Big);
             stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); //File Entries Location (-0x20)
             stream.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //String Table Size
             stream.Write(new byte[4] { 0xEE, 0xEE, 0xEE, 0xEE }, 0, 4); //string Table Location (-0x20)
-            stream.WriteBigEndian(BitConverter.GetBytes((ushort)FlatFileList.Count), 2);
+            stream.Write((ushort)FlatFileList.Count, Endian.Big);
             stream.WriteByte((byte)(KeepFileIDsSynced ? 0x01 : 0x00));
             stream.Write(new byte[5], 0, 5);
             long DirectoryEntryOffset = stream.Position;
@@ -497,10 +497,10 @@ namespace AuroraLib.Archives.Formats
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
                 stream.Write(FlatDirectoryList[i].Type);
-                stream.WriteBigEndian(BitConverter.GetBytes(StringLocations[FlatDirectoryList[i].Name]), 4);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].NameHash), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FileCount), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatDirectoryList[i].FirstFileOffset), 4);
+                stream.Write(StringLocations[FlatDirectoryList[i].Name], Endian.Big);
+                stream.Write(FlatDirectoryList[i].NameHash, Endian.Big);
+                stream.Write(FlatDirectoryList[i].FileCount, Endian.Big);
+                stream.Write(FlatDirectoryList[i].FirstFileOffset, Endian.Big);
             }
 
             #region Padding
@@ -518,12 +518,12 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < FlatFileList.Count; i++)
             {
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].FileID), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(StringToHash(FlatFileList[i].Name)), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].Type), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes((ushort)StringLocations[FlatFileList[i].Name]), 2);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularA), 4);
-                stream.WriteBigEndian(BitConverter.GetBytes(FlatFileList[i].ModularB), 4);
+                stream.Write(FlatFileList[i].FileID, Endian.Big);
+                stream.Write(StringToHash(FlatFileList[i].Name), Endian.Big);
+                stream.Write(FlatFileList[i].Type, Endian.Big);
+                stream.Write((ushort)StringLocations[FlatFileList[i].Name], Endian.Big);
+                stream.Write(FlatFileList[i].ModularA, Endian.Big);
+                stream.Write(FlatFileList[i].ModularB, Endian.Big);
                 stream.Write(new byte[4], 0, 4);
             }
 
@@ -562,16 +562,16 @@ namespace AuroraLib.Archives.Formats
             #region Header
 
             stream.Position = 0x04;
-            stream.WriteBigEndian(BitConverter.GetBytes((int)stream.Length), 4);
+            stream.Write((int)stream.Length, Endian.Big);
             stream.Position += 0x04;
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - 0x20)), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(stream.Length - FileTableOffset)), 4);
+            stream.Write((int)(FileTableOffset - 0x20), Endian.Big);
+            stream.Write((int)(stream.Length - FileTableOffset), Endian.Big);
             stream.Position += 0x10;
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(DirectoryEntryOffset - 0x20)), 4);
+            stream.Write((int)(DirectoryEntryOffset - 0x20), Endian.Big);
             stream.Position += 0x04;
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileEntryOffset - 0x20)), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(FileTableOffset - StringTableOffset)), 4);
-            stream.WriteBigEndian(BitConverter.GetBytes((int)(StringTableOffset - 0x20)), 4);
+            stream.Write((int)(FileEntryOffset - 0x20), Endian.Big);
+            stream.Write((int)(FileTableOffset - StringTableOffset), Endian.Big);
+            stream.Write((int)(StringTableOffset - 0x20), Endian.Big);
 
             #endregion Header
 

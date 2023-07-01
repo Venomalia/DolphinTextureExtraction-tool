@@ -98,7 +98,7 @@ namespace Hack.io
             Textures.Write(BMD);
 
             BMD.Position = 0x08;
-            BMD.WriteBigEndian(BitConverter.GetBytes((int)BMD.Length), 4);
+            BMD.Write((int)BMD.Length, Endian.Big);
         }
 
         public enum GXVertexAttribute

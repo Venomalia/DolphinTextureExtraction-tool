@@ -63,23 +63,23 @@ namespace Hack.io
 
                 stream.Write("INF1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
-                stream.WriteBigEndian(BitConverter.GetBytes((short)ScalingRule), 0, 2);
+                stream.Write((short)ScalingRule, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
-                stream.WriteBigEndian(BitConverter.GetBytes(SHP1.CountPackets(ShapesForMatrixGroupCount)), 0, 4); // Number of packets
-                stream.WriteBigEndian(BitConverter.GetBytes(VerticiesForVertexCount.Attributes.Positions.Count), 0, 4); // Number of vertex positions
-                stream.WriteBigEndian(BitConverter.GetBytes(24), 0, 4);
+                stream.Write(SHP1.CountPackets(ShapesForMatrixGroupCount), Endian.Big); // Number of packets
+                stream.Write(VerticiesForVertexCount.Attributes.Positions.Count, Endian.Big); // Number of vertex positions
+                stream.Write(24, Endian.Big);
 
                 Root.Write(stream);
 
-                stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
-                stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                stream.Write((short)0x0000, Endian.Big);
+                stream.Write((short)0x0000, Endian.Big);
 
-                stream.WritePadding(32, Padding);
+                stream.WriteAlign(32, Padding);
 
                 long end = stream.Position;
                 stream.Position = start + 4;
-                stream.WriteBigEndian(BitConverter.GetBytes((int)(end - start)), 0, 4);
+                stream.Write((int)(end - start), Endian.Big);
                 stream.Position = end;
             }
 
@@ -119,12 +119,12 @@ namespace Hack.io
 
                 public void Write(Stream stream)
                 {
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)Type), 0, 2);
-                    stream.WriteBigEndian(BitConverter.GetBytes((short)Index), 0, 2);
+                    stream.Write((short)Type, Endian.Big);
+                    stream.Write((short)Index, Endian.Big);
                     if (Children.Count > 0)
                     {
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0001), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                        stream.Write((short)0x0001, Endian.Big);
+                        stream.Write((short)0x0000, Endian.Big);
                     }
                     for (int i = 0; i < Children.Count; i++)
                     {
@@ -132,8 +132,8 @@ namespace Hack.io
                     }
                     if (Children.Count > 0)
                     {
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0002), 0, 2);
-                        stream.WriteBigEndian(BitConverter.GetBytes((short)0x0000), 0, 2);
+                        stream.Write((short)0x0002, Endian.Big);
+                        stream.Write((short)0x0000, Endian.Big);
                     }
                 }
 

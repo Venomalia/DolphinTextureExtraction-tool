@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using System.IO;
 
 namespace AuroraLib.Texture.J3D
 {
@@ -38,12 +39,12 @@ namespace AuroraLib.Texture.J3D
         {
             long start = writer.Position;
 
-            writer.WriteBigEndian(BitConverter.GetBytes((short)names.Count), 2);
+            writer.Write((short)names.Count, Endian.Big);
             writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
 
             foreach (string st in names)
             {
-                writer.WriteBigEndian(BitConverter.GetBytes(HashString(st)), 2);
+                writer.Write(HashString(st), Endian.Big);
                 writer.Write(new byte[2], 0, 2);
             }
 
@@ -51,7 +52,7 @@ namespace AuroraLib.Texture.J3D
             for (int i = 0; i < names.Count; i++)
             {
                 writer.Seek((int)(start + (6 + i * 4)), SeekOrigin.Begin);
-                writer.WriteBigEndian(BitConverter.GetBytes((short)(curOffset - start)), 2);
+                writer.Write((short)(curOffset - start), Endian.Big);
                 writer.Seek((int)curOffset, SeekOrigin.Begin);
 
                 writer.WriteString(names[i], 0x00);

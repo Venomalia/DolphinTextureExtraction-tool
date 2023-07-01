@@ -18,7 +18,7 @@ namespace AuroraLib.Texture.Formats
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
-            if (!stream.MatchString(magic))
+            if (!stream.Match(magic))
                 return false;
 
             return true;
@@ -29,7 +29,7 @@ namespace AuroraLib.Texture.Formats
 
         protected override void Read(Stream stream)
         {
-            if (!stream.MatchString(magic))
+            if (!stream.Match(magic))
                 throw new InvalidIdentifierException(Magic);
 
             // These files contain one or more TPLs

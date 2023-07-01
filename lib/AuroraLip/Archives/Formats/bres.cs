@@ -10,9 +10,9 @@ namespace AuroraLib.Archives.Formats
 
         public bool CanWrite => false;
 
-        public virtual IIdentifier Identifier => _identifier;
+        public virtual IIdentifier Identifier => Magic;
 
-        private static readonly Identifier32 _identifier = new("bres");
+        public static readonly Identifier32 Magic = new("bres");
 
         #region Fields and Properties
 
@@ -32,13 +32,13 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Match(_identifier);
+            => stream.Match(Magic);
 
         protected override void Read(Stream stream)
         {
             Header header = new(stream);
-            if (header.Magic != _identifier)
-                throw new InvalidIdentifierException(header.Magic, _identifier);
+            if (header.Magic != Magic)
+                throw new InvalidIdentifierException(header.Magic, Magic);
             ByteOrder = header.BOM;
             stream.Seek(header.RootOffset, SeekOrigin.Begin);
             //root sections
@@ -75,7 +75,7 @@ namespace AuroraLib.Archives.Formats
             uint GroupSize = stream.ReadUInt32(ByteOrder);
             uint Groups = stream.ReadUInt32(ByteOrder);
 
-            IndexGroup[] groups = stream.For((int)Groups + 1, s => s.Read<IndexGroup>(ByteOrder));
+            IndexGroup[] groups = stream.Read<IndexGroup>(Groups + 1, ByteOrder);
 
             foreach (IndexGroup group in groups)
             {
@@ -90,12 +90,11 @@ namespace AuroraLib.Archives.Formats
                         if (StartOfGroup + group.DataPointer >= EndOfRoot)
                         {
                             ArchiveFile Sub = new() { Name = Name, Parent = ParentDirectory, OwnerArchive = this };
-                            string Magic = stream.ReadString(4);
-                            uint FileSize = stream.ReadUInt32(ByteOrder);
-                            stream.Position -= 8;
-                            if (Magic != "RASD" && FileSize <= stream.Length - stream.Position)
+                            SubFile subFile = stream.Peek<SubFile>(ByteOrder);
+
+                            if (subFile.Type != SubFile.FileType.RASD && subFile.Size <= stream.Length - stream.Position)
                             {
-                                Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, FileSize) { Parent = Sub };
+                                Sub.FileData = new ArchiveFile.ArchiveFileStream(stream, subFile.Size) { Parent = Sub };
                                 if (ParentDirectory.Items.ContainsKey(Sub.Name))
                                 {
                                     for (int n = 1; true; n++)
@@ -148,7 +147,7 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        public unsafe struct Header
+        public struct Header
         {
             public Identifier32 Magic;
             public Endian BOM;
@@ -176,6 +175,64 @@ namespace AuroraLib.Archives.Formats
             public ushort RightIndex;
             public uint NamePointer;
             public uint DataPointer;
+        }
+
+        public struct SubFile
+        {
+            public Identifier32 Magic;
+            public uint Size;
+            public uint version;
+            public uint BresOffset;
+
+            public FileType Type => (FileType)(uint)Magic;
+
+            public enum FileType : uint
+            {
+                /// <summary>
+                /// Model movement animation. 
+                /// </summary>
+                CHR0 = 810698819,
+                /// <summary>
+                /// Color changing animation.
+                /// </summary>
+                CLR0 = 810699843,
+                /// <summary>
+                /// Model file. 
+                /// </summary>
+                MDL0 = 810304589,
+                /// <summary>
+                /// Texture swapping animation. 
+                /// </summary>
+                PAT0 = 67110656,
+                /// <summary>
+                /// Scene setting.
+                /// </summary>
+                SCN0 = 810435411,
+                /// <summary>
+                /// Polygon shape morphing animation.
+                /// </summary>
+                SHP0 = 810567763,
+                /// <summary>
+                /// Texture movement animation. 
+                /// </summary>
+                SRT0 = 810832467,
+                /// <summary>
+                /// Texture file. 
+                /// </summary>
+                TEX0 = 811091284,
+                /// <summary>
+                /// Color Palette file.
+                /// </summary>
+                PLT0 = 810830928,
+                /// <summary>
+                /// Bone visibility
+                /// </summary>
+                VIS0 = 810764630,
+                /// <summary>
+                /// Linked file
+                /// </summary>
+                RASD = 1146306898,
+            };
         }
     }
 }

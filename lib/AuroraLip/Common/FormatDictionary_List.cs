@@ -426,6 +426,8 @@ namespace AuroraLib.Common
             //Rare
             new FormatInfo(".ZLB",new Identifier32((byte)'Z',(byte)'L',(byte)'B',0x0), FormatType.Archive, comp_,"",typeof(ZLB)),
 
+            //From Software
+            new FormatInfo(".gtx",new Identifier32("GTX1"),4, FormatType.Texture, "Graphics Texture Extension", "From Software",typeof(GTX1)),
             //Idea Factory
             new FormatInfo(".s3g", FormatType.Texture, string.Empty, "Idea Factory",typeof(S3G)),
             new FormatInfo(".ONE", "ONE1", FormatType.Archive, "Generation of Chaos Archive", "Idea Factory"),

@@ -426,6 +426,10 @@ namespace AuroraLib.Common
             //Rare
             new FormatInfo(".ZLB",new Identifier32((byte)'Z',(byte)'L',(byte)'B',0x0), FormatType.Archive, comp_,"",typeof(ZLB)),
 
+            //Idea Factory
+            new FormatInfo(".s3g", FormatType.Texture, string.Empty, "Idea Factory",typeof(S3G)),
+            new FormatInfo(".ONE", "ONE1", FormatType.Archive, "Generation of Chaos Archive", "Idea Factory"),
+
             //Aqualead. use in Pandora's Tower
             new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead",typeof(ALAR)), // https://zenhax.com/viewtopic.php?t=16613
             new FormatInfo(".act","ALCT", FormatType.Archive, "Container", "Aqualead"),

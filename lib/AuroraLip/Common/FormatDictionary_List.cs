@@ -286,7 +286,7 @@ namespace AuroraLib.Common
             new FormatInfo(".vhd","conectix", FormatType.Archive, "Virtual Hard Disk","Microsoft",typeof(SevenZip)),
             new FormatInfo(".chm","ITSF", FormatType.Archive, "Compiled HTML Help"," Microsoft",typeof(SevenZip)),
             new FormatInfo(".bmp", "BM", FormatType.Texture,"BitMap Picture", "Microsoft"),
-            new FormatInfo(".DDS", "DDS ", FormatType.Texture, "Direct Draw Surface", "Microsoft",typeof(DDS)),
+            new FormatInfo(".DDS", "DDS ", FormatType.Texture, "Direct Draw Surface", "Microsoft"),
             new FormatInfo(".exe", 0,new byte[]{77,90,144,0}, FormatType.Executable, "Windows Executable", "Microsoft"),
 
             //Text
@@ -431,6 +431,10 @@ namespace AuroraLib.Common
 
             //From Software
             new FormatInfo(".gtx",new Identifier32("GTX1"),4, FormatType.Texture, "Graphics Texture Extension", "From Software",typeof(GTX1)),
+            new FormatInfo(".tex", FormatType.Archive, "Texture archive", "From Software",typeof(ARC_FS)),
+            new FormatInfo(".ctm", FormatType.Archive, "Model Archive", "From Software",typeof(CTM_FC)),
+            new FormatInfo(".ptm", FormatType.Archive, "archive", "From Software",typeof(ARC_FS)),
+
             //Idea Factory
             new FormatInfo(".s3g", FormatType.Texture, string.Empty, "Idea Factory",typeof(S3G)),
             new FormatInfo(".ONE", "ONE1", FormatType.Archive, "Generation of Chaos Archive", "Idea Factory"),

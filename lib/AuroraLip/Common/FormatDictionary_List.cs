@@ -286,7 +286,7 @@ namespace AuroraLib.Common
             new FormatInfo(".vhd","conectix", FormatType.Archive, "Virtual Hard Disk","Microsoft",typeof(SevenZip)),
             new FormatInfo(".chm","ITSF", FormatType.Archive, "Compiled HTML Help"," Microsoft",typeof(SevenZip)),
             new FormatInfo(".bmp", "BM", FormatType.Texture,"BitMap Picture", "Microsoft"),
-            new FormatInfo(".DDS", "DDS ", FormatType.Texture, "Direct Draw Surface", "Microsoft"),
+            new FormatInfo(".DDS", "DDS ", FormatType.Texture, "Direct Draw Surface", "Microsoft",typeof(DDS)),
             new FormatInfo(".exe", 0,new byte[]{77,90,144,0}, FormatType.Executable, "Windows Executable", "Microsoft"),
 
             //Text

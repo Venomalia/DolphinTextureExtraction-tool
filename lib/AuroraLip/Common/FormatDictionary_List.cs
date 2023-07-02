@@ -333,6 +333,9 @@ namespace AuroraLib.Common
             new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BIG)),
             new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft Audio"),
 
+            //Keen Games
+            new FormatInfo("", FormatType.Archive, "Dawn of Discovery Archive","Keen Games",typeof(PAKb)),
+
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
             new FormatInfo(".olk", 4,"olnk".GetBytes(), FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500

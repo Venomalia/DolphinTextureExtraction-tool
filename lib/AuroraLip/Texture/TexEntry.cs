@@ -73,50 +73,58 @@ namespace AuroraLib.Texture
             #region Constructor
 
             /// <summary>
-            /// Creates an empty TexEntry
+            /// Creates an empty <see cref="TexEntry"/>.
             /// </summary>
             public TexEntry()
             { }
 
             /// <summary>
-            /// Creates an TexEntry from a Stream
+            /// Creates an new <see cref="TexEntry"/>.
             /// </summary>
-            public TexEntry(Stream Stream, GXImageFormat Format, int ImageWidth, int ImageHeight, int Mipmaps = 0)
+            public TexEntry(byte[] data, GXImageFormat format, int width, int height)
             {
-                this.Format = Format;
-                this.Height = ImageHeight;
-                this.Width = ImageWidth;
+                RawImages.Add(data);
+                Format = format;
+                Height = height;
+                Width = width;
+                Hash = HashDepot.XXHash.Hash64(data);
+            }
 
-                //reads all row image data.
-                for (int i = 0; i <= Mipmaps; i++)
-                {
-                    if (ImageWidth == 0 || ImageHeight == 0)
-                    {
-                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{Mipmaps} image size would be \"0\".");
-                        break;
-                    }
-
-                    int imageSize = Format.CalculatedDataSize(ImageWidth, ImageHeight);
-
-                    if (Stream.Position + imageSize > Stream.Length)
-                    {
-                        if (i == 0)
-                            throw new EndOfStreamException($"Cannot read {imageSize} bytes of pixel data is beyond the end of the stream.");
-
-                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{Mipmaps} is beyond the end of the stream.");
-                        break;
-                    }
-                    RawImages.Add(Stream.Read(imageSize));
-
-                    ImageWidth >>= 1;
-                    ImageHeight >>= 1;
-                }
+            /// <summary>
+            /// Creates an <see cref="TexEntry"/> from a <see cref="Stream"/>,
+            /// Automatically reads all pixel data.
+            /// </summary>
+            public TexEntry(Stream stream, GXImageFormat format, int width, int height, int mipmaps = 0)
+            {
+                Format = format;
+                Height = height;
+                Width = width;
+                ReadHelper(stream, format, width, height, mipmaps);
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }
 
             /// <summary>
-            /// Creates an TexEntry with Pallets data from a Stream
+            /// Creates an <see cref="TexEntry"/> from a <see cref="Stream"/>,
+            /// Automatically reads all pixel data and a Palette if present.
             /// </summary>
+            public TexEntry(Stream stream, GXImageFormat format, GXPaletteFormat paletteFormat, int width, int height, int mipmaps = 0) : this(stream, format, width, height, mipmaps)
+            {
+                PaletteFormat = paletteFormat;
+                if (format.IsPaletteFormat())
+                {
+                    int palettesize = format.GetMaxPaletteSize();
+                    if (stream.Position + palettesize > stream.Length)
+                    {
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read Palette, is beyond the end of the stream.");
+                    }
+                    else
+                    {
+                        Palettes.Add(stream.Read(palettesize));
+                    }
+                }
+            }
+
+            /// <inheritdoc cref="TexEntry.TexEntry(Stream, GXImageFormat, int, int, int)"/>
             public TexEntry(Stream Stream, ReadOnlySpan<byte> PaletteData, GXImageFormat Format, GXPaletteFormat PaletteFormat, int PaletteCount, int ImageWidth, int ImageHeight, int Mipmap = 0) : this(Stream, Format, ImageWidth, ImageHeight, Mipmap)
             {
                 this.PaletteFormat = PaletteFormat;
@@ -133,6 +141,34 @@ namespace AuroraLib.Texture
                         for (int i = 0; i < PalettesNumber; i++)
                             Palettes.Add(PaletteData.Slice(i * PaletteSize, PaletteSize).ToArray());
                     }
+                }
+            }
+
+            private void ReadHelper(Stream stream, GXImageFormat format, int width, int height, int mipmaps = 0)
+            {
+                for (int i = 0; i <= mipmaps; i++)
+                {
+                    if (width == 0 || height == 0)
+                    {
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{mipmaps} image size would be \"0\".");
+                        break;
+                    }
+
+                    int imageSize = format.CalculatedDataSize(width, height);
+
+                    if (stream.Position + imageSize > stream.Length)
+                    {
+                        if (i == 0)
+                            throw new EndOfStreamException($"Cannot read {imageSize} bytes of pixel data is beyond the end of the stream.");
+
+                        Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{mipmaps} is beyond the end of the stream.");
+                        break;
+                    }
+                    byte[] imageData = stream.Read(imageSize);
+                    RawImages.Add(imageData);
+
+                    width >>= 1;
+                    height >>= 1;
                 }
             }
 

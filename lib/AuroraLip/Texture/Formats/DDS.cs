@@ -14,23 +14,32 @@ namespace AuroraLib.Texture.Formats
         public static readonly Identifier32 Magic = new("DDS ");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 124 && stream.Match(Magic);
+            => stream.Length > 124 && stream.Match(Magic) && stream.ReadUInt32() == 124;
 
         protected override void Read(Stream stream)
         {
-            //ARGB
             Header header = stream.Read<Header>();
-            TexEntry tex = new(stream, AImageFormats.DXT1, (int)header.Width, (int)header.Height, (int)header.MipMapCount)
+            TexEntry tex;
+            switch (header.Format.Flag)
             {
-                LODBias = 0,
-                MagnificationFilter = GXFilterMode.Nearest,
-                MinificationFilter = GXFilterMode.Nearest,
-                WrapS = GXWrapMode.CLAMP,
-                WrapT = GXWrapMode.CLAMP,
-                EnableEdgeLOD = false,
-                MinLOD = 0,
-                MaxLOD = 0
-            };
+                case PixelFormat.Flags.FourCC:
+                    AImageFormats format = header.Format.FourCC switch
+                    {
+                        PixelFormat.FourCCType.DXT1 => AImageFormats.DXT1,
+                    };
+                    tex = new(stream, format, (int)header.Width, (int)header.Height, (int)header.MipMapCount);
+                    break;
+                case PixelFormat.Flags.RGBA:
+                    if (header.Format.RGBBitCount != 32)
+                    {
+                        throw new NotSupportedException();
+                    }
+                    tex = new(stream, (int)header.Width, (int)header.Height, (int)header.MipMapCount, header.Format.RBitMask, header.Format.GBitMask, header.Format.BBitMask, header.Format.ABitMask);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+            tex.MaxLOD = header.MipMapCount;
             Add(tex);
         }
 
@@ -252,7 +261,7 @@ namespace AuroraLib.Texture.Formats
             /// Possible values include: DXT1, DXT2, DXT3, DXT4, or DXT5. A FourCC of DX10 indicates the prescense of the DDS_HEADER_DXT10 extended header, and the dxgiFormat member of that structure indicates the true format.
             /// When using a four-character code, Flags must include <see cref="Flags.FourCC"/>.
             /// </summary>
-            public Identifier32 FourCC;
+            public FourCCType FourCC;
             /// <summary>
             /// Number of bits in an RGB (possibly including alpha) format. Valid when <see cref="Flag"/> includes <see cref="Flags.RGB"/>, <see cref="Flags.Luminance"/>, or <see cref="Flags.YUV"/>.
             /// </summary>

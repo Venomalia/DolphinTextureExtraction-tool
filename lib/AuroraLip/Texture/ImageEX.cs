@@ -287,5 +287,44 @@ namespace AuroraLib.Texture
                 data[(i + 2) * 2 + 3] = data[(i + 2) * 2 + 3].Swap().SwapAlternateBits();
             }
         }
+
+        /// <summary>
+        /// Formats pixel data to RGBA32 format using the specified color bit masks.
+        /// </summary>
+        /// <param name="data">The array of pixel data to convert.</param>
+        /// <param name="RBitMask">The bitmask for the red color channel.</param>
+        /// <param name="GBitMask">The bitmask for the green color channel.</param>
+        /// <param name="BBitMask">The bitmask for the blue color channel.</param>
+        /// <param name="ABitMask">The bitmask for the alpha channel.</param>
+        public static void ToRGBA32(Span<byte> data, uint RBitMask, uint GBitMask, uint BBitMask, uint ABitMask)
+        {
+            Span<int> pixel = MemoryMarshal.Cast<byte, int>(data);
+            int RShift = GetShiftCount(RBitMask);
+            int GShift = GetShiftCount(GBitMask);
+            int BShift = GetShiftCount(BBitMask);
+            int AShift = GetShiftCount(ABitMask);
+
+            for (int i = 0; i < pixel.Length; i++)
+            {
+                (data[i * 4], data[i * 4 + 1], data[i * 4 + 2], data[i * 4 + 3]) =
+                    (
+                    (byte)((pixel[i] & RBitMask) >> RShift),
+                    (byte)((pixel[i] & GBitMask) >> GShift),
+                    (byte)((pixel[i] & BBitMask) >> BShift),
+                    (byte)((pixel[i] & ABitMask) >> AShift)
+                    );
+            }
+        }
+
+        private static int GetShiftCount(uint bitmask)
+        {
+            int count = 0;
+            while ((bitmask & 1) == 0)
+            {
+                bitmask >>= 1;
+                count++;
+            }
+            return count;
+        }
     }
 }

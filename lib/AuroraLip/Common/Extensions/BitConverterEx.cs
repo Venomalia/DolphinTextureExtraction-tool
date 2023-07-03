@@ -100,10 +100,19 @@ namespace AuroraLib.Common
 
         /// <summary>
         /// Flip the ByteOrder of the 8-bit unsigned integer.
+        /// 11001000 => 00010011
         /// </summary>
         [DebuggerStepThrough]
         public static byte Swap(this byte b)
             => (byte)((b * 0x0202020202ul & 0x010884422010ul) % 1023);
+
+        /// <summary>
+        /// Swaps the alternate bits of a byte value.
+        /// 11001000 = 11000100
+        /// </summary>
+        [DebuggerStepThrough]
+        public static byte SwapAlternateBits(this byte value)
+            => (byte)(((value & 0xAA) >> 1) | ((value & 0x55) << 1));
 
         /// <summary>
         /// Flip the ByteOrder of the 16-bit unsigned integer.

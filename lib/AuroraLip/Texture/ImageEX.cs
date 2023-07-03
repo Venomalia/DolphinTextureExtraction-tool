@@ -6,7 +6,7 @@ using SixLabors.ImageSharp.Memory;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Drawing;
 using System.Numerics;
-using System.Reflection.PortableExecutable;
+using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture
 {
@@ -195,5 +195,97 @@ namespace AuroraLib.Texture
                 Image<Rgb24> => MipmapCompare((Image<Rgb24>)A[0], A.Skip(1).Take(2).Cast<Image<Rgb24>>().ToArray()),
                 _ => float.MaxValue,
             };
+
+        /// <summary>
+        /// Encodes the <paramref name="data"/> by rearranging the elements of <typeparamref name="T"/> as block.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the span.</typeparam>
+        /// <param name="data">The span of data to be encoded.</param>
+        /// <param name="bWidth">The width of the block.</param>
+        /// <param name="bHeight">The height of the block.</param>
+        public static void EncodeBlock<T>(Span<T> data, int bWidth, int bHeight) where T : unmanaged
+        {
+            Span<T> linebuffer = stackalloc T[bWidth * 2];
+            for (int i = 0; i < bHeight; i += 2)
+            {
+                int pos = 0;
+                Span<T> linedata = data.Slice(i * bWidth, linebuffer.Length);
+                for (int bi = 0; bi < bWidth; bi += 2)
+                {
+                    linebuffer[pos++] = linedata[bi];
+                    linebuffer[pos++] = linedata[bi + 1];
+                    linebuffer[pos++] = linedata[bi + bWidth];
+                    linebuffer[pos++] = linedata[bi + bWidth + 1];
+                }
+                linebuffer.CopyTo(linedata);
+            }
+        }
+
+        /// <summary>
+        /// Decodes the block <paramref name="data"/> by rearranging the <typeparamref name="T"/> to their original positions.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the span.</typeparam>
+        /// <param name="data">The span of data to be decoded.</param>
+        /// <param name="bWidth">The width of the block.</param>
+        /// <param name="bHeight">The height of the block.</param>
+        public static void DecodeBlock<T>(Span<T> data, int bWidth, int bHeight) where T : unmanaged
+        {
+            Span<T> linebuffer = stackalloc T[bWidth * 2];
+            for (int i = 0; i < bHeight; i += 2)
+            {
+                int pos = 0;
+                Span<T> linedata = data.Slice(i * bWidth, linebuffer.Length);
+                linedata.CopyTo(linebuffer);
+                for (int bi = 0; bi < bWidth; bi += 2)
+                {
+                    linedata[bi] = linebuffer[pos++];
+                    linedata[bi + 1] = linebuffer[pos++];
+                    linedata[bi + bWidth] = linebuffer[pos++];
+                    linedata[bi + bWidth + 1] = linebuffer[pos++];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Converts CMPR-compressed data to DXT1 format.
+        /// </summary>
+        /// <param name="data">The span of data to be converted.</param>
+        /// <param name="Width">The width of the image.</param>
+        /// <param name="Height">The height of the image.</param>
+        public static void ConvertCMPRToDXT1(Span<byte> data, int Width, int Height)
+        {
+            SwapCMPRColors(data);
+            Span<ulong> data64 = MemoryMarshal.Cast<byte, ulong>(data);
+            GXImageEX.DecodeBlock(data64, Width / 4, Height / 4);
+        }
+
+        /// <summary>
+        /// Converts DXT1-compressed data to CMPR format.
+        /// </summary>
+        /// <param name="data">The span of data to be converted.</param>
+        /// <param name="Width">The width of the image.</param>
+        /// <param name="Height">The height of the image.</param>
+        public static void ConvertDXT1ToCMPR(Span<byte> data, int Width, int Height)
+        {
+            SwapCMPRColors(data);
+            Span<ulong> data64 = MemoryMarshal.Cast<byte, ulong>(data);
+            GXImageEX.EncodeBlock(data64, Width / 4, Height / 4);
+        }
+
+        private static void SwapCMPRColors(Span<byte> data)
+        {
+            Span<ushort> data16 = MemoryMarshal.Cast<byte, ushort>(data);
+            for (int i = 0; i < data16.Length; i += 4)
+            {
+                //swap colors
+                data16[i] = data16[i].Swap();
+                data16[i + 1] = data16[i + 1].Swap();
+                //swap pixel sequence
+                data[(i + 2) * 2 + 0] = data[(i + 2) * 2 + 0].Swap().SwapAlternateBits();
+                data[(i + 2) * 2 + 1] = data[(i + 2) * 2 + 1].Swap().SwapAlternateBits();
+                data[(i + 2) * 2 + 2] = data[(i + 2) * 2 + 2].Swap().SwapAlternateBits();
+                data[(i + 2) * 2 + 3] = data[(i + 2) * 2 + 3].Swap().SwapAlternateBits();
+            }
+        }
     }
 }

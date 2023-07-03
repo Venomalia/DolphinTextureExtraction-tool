@@ -103,6 +103,28 @@ namespace AuroraLib.Texture
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }
 
+
+            public TexEntry(Stream stream, AImageFormats format, int width, int height, int mipmaps = 0)
+            {
+                Format = (GXImageFormat)format;
+                Height = height;
+                Width = width;
+                ReadHelper(stream, (GXImageFormat)format, width, height, mipmaps);
+
+                switch (format)
+                {
+                    case AImageFormats.DXT1:
+                        for (int i = 0; i < RawImages.Count; i++)
+                        {
+                            GXImageEX.ConvertDXT1ToCMPR(RawImages[i], width, height);
+                            width >>= 1;
+                            height >>= 1;
+                        }
+                        break;
+                }
+                Hash = HashDepot.XXHash.Hash64(RawImages[0]);
+            }
+
             /// <summary>
             /// Creates an <see cref="TexEntry"/> from a <see cref="Stream"/>,
             /// Automatically reads all pixel data and a Palette if present.

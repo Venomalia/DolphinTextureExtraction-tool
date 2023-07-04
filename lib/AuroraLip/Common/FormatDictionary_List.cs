@@ -347,6 +347,7 @@ namespace AuroraLib.Common
             //SEGA
             new FormatInfo(".one", FormatType.Archive, "Sonic Storybook Series Archive", "SEGA",typeof(ONE_SB)),
             new FormatInfo(".one","one.", FormatType.Archive, "Sonic Unleashed Archive", "SEGA",typeof(ONE_UN)),
+            new FormatInfo(".one", FormatType.Archive, "Shadow The Hedgehog Archive", "SEGA",typeof(ONE_SH)){IdentifierOffset = 0xC},
             new FormatInfo(".one", FormatType.Archive, "Sonic Archive", "SEGA"),
             new FormatInfo(".TXD", "TXAG", FormatType.Archive, "Sonic Storybook Texture Archive", "SEGA",typeof(TXAG)),
             new FormatInfo(".gvm", "GVMH", FormatType.Archive, "SEGA Texture archive", "SEGA",typeof(GVMH)),

@@ -298,7 +298,7 @@ namespace AuroraLib.Texture
         /// <param name="ABitMask">The bitmask for the alpha channel.</param>
         public static void ToRGBA32(Span<byte> data, uint RBitMask, uint GBitMask, uint BBitMask, uint ABitMask)
         {
-            Span<int> pixel = MemoryMarshal.Cast<byte, int>(data);
+            Span<uint> pixel = MemoryMarshal.Cast<byte, uint>(data);
             int RShift = GetShiftCount(RBitMask);
             int GShift = GetShiftCount(GBitMask);
             int BShift = GetShiftCount(BBitMask);

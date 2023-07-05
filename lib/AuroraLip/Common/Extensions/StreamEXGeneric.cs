@@ -8,7 +8,7 @@ namespace AuroraLib.Common
     {
         #region Read
         /// <summary>
-        /// Reads a primitive type of <typeparamref name="T"/> from the stream.
+        /// Reads a unmanaged struct of <typeparamref name="T"/> from the <paramref name="stream"/>.
         /// </summary>
         /// <typeparam name="T">The type of element.</typeparam>
         /// <param name="stream">The stream to read from.</param>
@@ -24,20 +24,20 @@ namespace AuroraLib.Common
         {
             int sizeT = sizeof(T);
             if (stream.Position + sizeT > stream.Length)
-                throw new EndOfStreamException($"Cannot read {typeof(T)} is beyond the end of the stream.");
+                ThrowHelper<T>();
 
             T value;
             Span<byte> buffer = new(&value, sizeT);
             stream.Read(buffer);
-            if (buffer.Length > 1 && order == Endian.Big)
+            if (order == Endian.Big == BitConverter.IsLittleEndian)
             {
-                buffer.FlipByteOrder(typeof(T));
+                buffer.ReversesByteOrder(typeof(T));
             }
             return value;
         }
 
         /// <summary>
-        /// Reads an array of <typeparamref name="T"/> from the stream.
+        /// Reads an array of <typeparamref name="T"/> from the <paramref name="stream"/>.
         /// </summary>
         /// <typeparam name="T">The type of elements in the array.</typeparam>
         /// <param name="stream">The stream to read from.</param>
@@ -49,31 +49,62 @@ namespace AuroraLib.Common
         /// <exception cref="IOException">An I/O error occurred.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         [DebuggerStepThrough]
-        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        public unsafe static T[] Read<T>(this Stream stream, uint count, Endian order = Endian.Little) where T : unmanaged
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public unsafe static T[] Read<T>(this Stream stream, int count, Endian order = Endian.Little) where T : unmanaged
         {
-            int sizeT = sizeof(T);
-            if (stream.Position + sizeT * count > stream.Length)
-                throw new EndOfStreamException($"Cannot read {typeof(T)}[{count}] is beyond the end of the stream.");
-
             T[] values = new T[count];
-            Span<byte> buffer = MemoryMarshal.Cast<T, byte>(values);
-            stream.Read(buffer);
-            if (sizeT > 1 && order == Endian.Big)
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    buffer.Slice(i * sizeT, sizeT).FlipByteOrder(typeof(T));
-                }
-            }
+            stream.Read<T>(values, order);
             return values;
         }
 
         /// <inheritdoc cref="Read{T}(Stream, uint, Endian)"/>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] Read<T>(this Stream stream, int count, Endian order = Endian.Little) where T : unmanaged
-            => stream.Read<T>((uint)count, order);
+        public static T[] Read<T>(this Stream stream, uint count, Endian order = Endian.Little) where T : unmanaged
+            => stream.Read<T>((int)count, order);
+
+        /// <summary>
+        /// Reads a span of <typeparamref name="T"/> from the <paramref name="stream"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the values in the span.</typeparam>
+        /// <param name="stream">The stream to read from.</param>
+        /// <param name="values">The span of values to read into.</param>
+        /// <param name="order">The endianness of the data in the stream. Default is <see cref="Endian.Little"/>.</param>
+        /// <exception cref="EndOfStreamException">Thrown when attempting to read beyond the end of the stream.</exception>
+        /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
+        /// <exception cref="IOException">An I/O error occurred.</exception>
+        /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        public unsafe static void Read<T>(this Stream stream, Span<T> values, Endian order = Endian.Little) where T : unmanaged
+        {
+            int sizeT = sizeof(T);
+            if (stream.Position + sizeT * values.Length > stream.Length)
+                ThrowHelper<T>((uint)values.Length);
+
+            Span<byte> buffer = MemoryMarshal.Cast<T, byte>(values);
+            stream.Read(buffer);
+
+            if (order == Endian.Big == BitConverter.IsLittleEndian && sizeT > 1)
+            {
+                for (int i = 0; i < values.Length; i++)
+                {
+                    buffer.Slice(i * sizeT, sizeT).ReversesByteOrder(typeof(T));
+                }
+            }
+        }
+
+        #region Throw
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowHelper<T>()
+            => throw new EndOfStreamException($"Cannot read {typeof(T)} is beyond the end of the stream.");
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowHelper<T>(uint count)
+            => throw new EndOfStreamException($"Cannot read {typeof(T)}[{count}] is beyond the end of the stream.");
+
+        #endregion
+
         #endregion
 
         #region Write
@@ -92,7 +123,7 @@ namespace AuroraLib.Common
             Span<byte> buffer = new(&value, sizeof(T));
             if (buffer.Length > 1 && order == Endian.Big)
             {
-                buffer.FlipByteOrder(typeof(T));
+                buffer.ReversesByteOrder(typeof(T));
             }
             stream.Write(buffer);
         }
@@ -130,7 +161,7 @@ namespace AuroraLib.Common
             Span<byte> buffer = new(&value, sizeof(T));
             if (buffer.Length > 1 && order == Endian.Big)
             {
-                buffer.FlipByteOrder(typeof(T));
+                buffer.ReversesByteOrder(typeof(T));
             }
             for (int i = 0; i < count; i++)
             {

@@ -56,12 +56,13 @@ namespace AuroraLib.Common
         #region ByteOrder
 
         /// <summary>
-        /// Flip the ByteOrder for each field of the given <paramref name="type"/>
+        /// Reverses the byte order of the specified buffer based on the given <paramref name="type"/>.
         /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="type"></param>
+        /// <param name="buffer">The buffer containing the data to reverse.</param>
+        /// <param name="type">The type of the data in the buffer.</param>
         [DebuggerStepThrough]
-        public static void FlipByteOrder(this Span<byte> buffer, Type type)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ReversesByteOrder(this Span<byte> buffer, Type type)
         {
             if (type.IsPrimitive || type == typeof(UInt24) || type == typeof(Int24))
             {
@@ -69,34 +70,61 @@ namespace AuroraLib.Common
                 return;
             }
 
-            int subOffset = 0, fieldSize;
-
-            FieldInfo[] fields;
-            lock (TypeFields)
+            int offset = 0;
+            foreach (int FieldSize in GetPrimitiveTypeSizes(type))
             {
-                if (!TypeFields.TryGetValue(type, out fields))
-                {
-                    fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                    TypeFields.Add(type, fields);
-                }
-            }
-
-            foreach (var field in fields)
-            {
-                if (field.IsStatic) continue;
-
-                Type fieldtype = field.FieldType;
-
-                if (fieldtype.IsEnum)
-                    fieldtype = Enum.GetUnderlyingType(fieldtype);
-
-                fieldSize = Marshal.SizeOf(fieldtype);
-                buffer.Slice(subOffset, fieldSize).FlipByteOrder(fieldtype);
-                subOffset += fieldSize;
+                buffer.Slice(offset, FieldSize).Reverse();
+                offset += FieldSize;
             }
         }
+        /// <inheritdoc cref="ReversesByteOrder(Span{byte}, Type)"/>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ReversesByteOrder<T>(this Span<byte> buffer) => buffer.ReversesByteOrder(typeof(T));
 
-        private static readonly Dictionary<Type, FieldInfo[]> TypeFields = new();
+        /// <summary>
+        /// Retrieves a list the sizes of primitive types and nested primitive types within the specified type.
+        /// </summary>
+        /// <param name="type">The type to analyze.</param>
+        /// <returns>An array containing the sizes of primitive types within the specified type.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
+        private static ReadOnlySpan<int> GetPrimitiveTypeSizes(Type type)
+        {
+            lock (TypePrimitives)
+            {
+                if (type.IsValueType && TypePrimitives.TryGetValue(type, out int[] primitives))
+                {
+                    return primitives;
+                }
+
+                List<int> primList = new();
+                FieldInfo[] fields = type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+                foreach (FieldInfo field in fields)
+                {
+                    if (field.IsStatic) continue;
+
+                    Type fieldtype = field.FieldType;
+
+                    if (fieldtype.IsEnum)
+                    {
+                        fieldtype = Enum.GetUnderlyingType(fieldtype);
+                    }
+
+                    if (fieldtype.IsPrimitive || fieldtype == typeof(UInt24) || fieldtype == typeof(Int24))
+                    {
+                        primList.Add(Marshal.SizeOf(fieldtype));
+                    }
+                    else
+                    {
+                        primList.AddRange(GetPrimitiveTypeSizes(fieldtype).ToArray());
+                    }
+                }
+                primitives = primList.ToArray();
+                TypePrimitives.Add(type, primitives);
+                return primitives;
+            }
+        }
+        private static readonly Dictionary<Type, int[]> TypePrimitives = new();
 
         /// <summary>
         /// Flip the ByteOrder of the 8-bit unsigned integer.

@@ -34,7 +34,7 @@ namespace AuroraLib.Common
         public bool Equals(string other) => other == GetString();
 
         /// <inheritdoc />
-        public bool Equals(IIdentifier other) => other.AsSpan().SequenceEqual(AsSpan());
+        public bool Equals(IIdentifier other) => other != null && other.AsSpan().SequenceEqual(AsSpan());
 
         /// <inheritdoc />
         [DebuggerStepThrough]

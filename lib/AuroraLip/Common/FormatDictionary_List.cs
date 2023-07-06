@@ -529,6 +529,9 @@ namespace AuroraLib.Common
             //Eighting
             new FormatInfo(".fpk", FormatType.Archive, "Archive","Eighting",typeof(FPK)),
 
+            //Tecmo
+            new FormatInfo(".gsr", FormatType.Texture, "Pangya Texture","Tecmo",typeof(GSR)),
+
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),
             new FormatInfo(".dir", FormatType.Else, "Archive Info"),

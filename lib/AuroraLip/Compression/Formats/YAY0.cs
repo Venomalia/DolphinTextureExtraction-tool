@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 using System.Collections;
 using System.Text;
 

@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -72,7 +71,7 @@ namespace AuroraLib.Texture.Formats
                     uint palette_size = stream.ReadUInt32(Endian.Big);
                     palette_count = palette_size / 2;
                     stream.Seek(palette_data_offset, SeekOrigin.Begin);
-                    palette_data = stream.Read((int)palette_size, Endian.Little);
+                    palette_data = stream.Read(palette_size);
                 }
 
                 stream.Seek(data_offset, SeekOrigin.Begin);

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Text;
 
 namespace AuroraLib.Archives.DiscImage
 {
@@ -108,6 +109,6 @@ namespace AuroraLib.Archives.DiscImage
 
         public static explicit operator GameID(ReadOnlySpan<char> x) => new GameID(x);
 
-        public static explicit operator string(GameID x) => EncodingEX.GetString(x.Value);
+        public static explicit operator string(GameID x) => EncodingX.GetString(x.Value);
     }
 }

@@ -167,13 +167,13 @@ namespace AuroraLib.Archives.Formats
                     BufferedBlock = BlockNumber;
 
                     //Get this Block IV
-                    base.position = (long)BlockNumber * _ClustersSize + 976;
+                    base._position = (long)BlockNumber * _ClustersSize + 976;
                     byte[] IV = new byte[16];
                     base.Read(IV, 0, IV.Length);
                     AES.IV = IV;
 
                     //Read Encrypted Block
-                    base.position = (long)BlockNumber * _ClustersSize + 1024;
+                    base._position = (long)BlockNumber * _ClustersSize + 1024;
                     base.Read(BlockBuffer, 0, _DataSize);
 
                     //Decrypt Block

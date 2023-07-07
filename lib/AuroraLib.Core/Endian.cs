@@ -1,4 +1,4 @@
-﻿namespace AuroraLib.Common
+﻿namespace AuroraLib.Core
 {
     /// <summary>
     /// Byte order, in which bytes are read and written.

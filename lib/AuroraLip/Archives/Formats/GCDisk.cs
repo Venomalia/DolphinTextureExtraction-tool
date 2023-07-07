@@ -88,7 +88,7 @@ namespace AuroraLib.Archives.Formats
                     stream.Write(CountryCode, Endian.Big);
                     stream.Write(Unknown_1, Endian.Big);
                     stream.Write(Unknown_2, Endian.Big);
-                    stream.WriteObjekt(0, 7068);
+                    stream.Write(0, 7068);
                     return stream.ToArray();
                 }
             }
@@ -137,14 +137,14 @@ namespace AuroraLib.Archives.Formats
                     stream.WriteByte(Version);
                     stream.WriteByte(streaming);
                     stream.WriteByte(StreamBufSize);
-                    stream.WriteObjekt(0, 14);
+                    stream.Write(0, 14);
                     stream.Write(WiiMagicWord, Endian.Big);
                     stream.Write(GCMagicWord, Endian.Big);
                     stream.Write(GameName);
-                    stream.WriteObjekt(0, 0x03e0 - GameName.Length);
+                    stream.Write(0, 0x03e0 - GameName.Length);
                     stream.Write(debugMonitorOffset, Endian.Big);
                     stream.Write(debugMonitorAddress, Endian.Big);
-                    stream.WriteObjekt(0, 24);
+                    stream.Write(0, 24);
                     stream.Write(DolOffset, Endian.Big);
                     stream.Write(FSTableOffset, Endian.Big);
                     stream.Write(FSTableSize, Endian.Big);
@@ -152,7 +152,7 @@ namespace AuroraLib.Archives.Formats
                     stream.Write(userPosition, Endian.Big);
                     stream.Write(userLength, Endian.Big);
                     stream.Write(unknown, Endian.Big);
-                    stream.WriteObjekt(0, 4);
+                    stream.Write(0, 4);
                     return stream.ToArray();
                 }
             }

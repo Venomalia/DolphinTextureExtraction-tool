@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -58,7 +57,7 @@ namespace AuroraLib.Compression.Formats
 
                 for (int i = 7; i > -1 && (destinationPointer < decomLength); i--)
                 {
-                    if (FlagByte.GetBit(i) == true)
+                    if (BitConverterX.GetBit(FlagByte) == true)
                         destination[destinationPointer++] = source.ReadUInt8();
                     else
                     {

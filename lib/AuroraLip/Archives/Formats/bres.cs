@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Exceptions;
 
 //https://wiki.tockdom.com/wiki/BRRES_(File_Format)
 namespace AuroraLib.Archives.Formats

@@ -1,12 +1,11 @@
-﻿namespace AuroraLib.Common
+﻿namespace AuroraLib.Core
 {
     /// <summary>
     /// Represents a 3-byte, 24-bit unsigned integer.
-    /// Mainly Nintendo uses it in a number of formats.
     /// </summary>
     // base on https://github.com/SuperHackio/Hack.io
     [Serializable]
-    public struct UInt24 : IComparable, IFormattable, IConvertible, IComparable<UInt24>, IComparable<UInt32>, IEquatable<UInt24>, IEquatable<UInt32>
+    public struct UInt24 : IComparable, IFormattable, IConvertible, IComparable<UInt24>, IComparable<uint>, IEquatable<UInt24>, IEquatable<uint>
     {
         private readonly byte b0, b1, b2;
 
@@ -17,15 +16,15 @@
         /// The value of this Int24 as an Int32
         /// </summary>
         public uint Value
-            => (uint)(b0 | (b1 << 8) | (b2 << 16));
+            => (uint)(b0 | b1 << 8 | b2 << 16);
 
         public UInt24(uint value)
         {
             ValidateNumericRange(value);
 
-            b0 = (byte)((value) & 0xFF);
-            b1 = (byte)((value >> 8) & 0xFF);
-            b2 = (byte)((value >> 16) & 0xFF);
+            b0 = (byte)(value & 0xFF);
+            b1 = (byte)(value >> 8 & 0xFF);
+            b2 = (byte)(value >> 16 & 0xFF);
         }
 
         public UInt24(UInt24 value)
@@ -51,22 +50,20 @@
 
         public override bool Equals(object obj) => obj is UInt24 ui24 && ui24.Value == Value;
 
-        public bool Equals(UInt24 other) => (this == other);
+        public bool Equals(UInt24 other) => this == other;
 
-        public bool Equals(uint other) => (this.Value == other);
+        public bool Equals(uint other) => Value == other;
 
         public override int GetHashCode() => Value.GetHashCode();
 
         public int CompareTo(object value)
         {
             if (value == null)
-            {
                 return 1;
-            }
             else if (value is UInt24 num24)
-                return this.CompareTo(num24);
+                return CompareTo(num24);
             if (value is uint num32)
-                return this.CompareTo(num32);
+                return CompareTo(num32);
             throw new ArgumentException("Argument must be an UInt32 or an UInt24");
         }
 
@@ -77,36 +74,36 @@
         {
             if ((object)value == null)
                 return 1;
-            return (this.Value < value ? -1 : (this.Value > value ? 1 : 0));
+            return Value < value ? -1 : Value > value ? 1 : 0;
         }
 
         #region operators
 
-        public static UInt24 operator +(UInt24 a, UInt24 b) => new UInt24(a.Value + b.Value);
+        public static UInt24 operator +(UInt24 a, UInt24 b) => new(a.Value + b.Value);
 
-        public static UInt24 operator -(UInt24 a, UInt24 b) => new UInt24(a.Value - b.Value);
+        public static UInt24 operator -(UInt24 a, UInt24 b) => new(a.Value - b.Value);
 
-        public static UInt24 operator *(UInt24 a, UInt24 b) => new UInt24(a.Value * b.Value);
+        public static UInt24 operator *(UInt24 a, UInt24 b) => new(a.Value * b.Value);
 
-        public static UInt24 operator /(UInt24 a, UInt24 b) => new UInt24(a.Value / b.Value);
+        public static UInt24 operator /(UInt24 a, UInt24 b) => new(a.Value / b.Value);
 
-        public static UInt24 operator %(UInt24 a, UInt24 b) => new UInt24(a.Value % b.Value);
+        public static UInt24 operator %(UInt24 a, UInt24 b) => new(a.Value % b.Value);
 
-        public static UInt24 operator &(UInt24 a, UInt24 b) => new UInt24(a.Value & b.Value);
+        public static UInt24 operator &(UInt24 a, UInt24 b) => new(a.Value & b.Value);
 
-        public static UInt24 operator |(UInt24 a, UInt24 b) => new UInt24(a.Value | b.Value);
+        public static UInt24 operator |(UInt24 a, UInt24 b) => new(a.Value | b.Value);
 
-        public static UInt24 operator ^(UInt24 a, UInt24 b) => new UInt24(a.Value ^ b.Value);
+        public static UInt24 operator ^(UInt24 a, UInt24 b) => new(a.Value ^ b.Value);
 
         public static uint operator >>(UInt24 a, int b) => a.Value >> b;
 
         public static uint operator <<(UInt24 a, int b) => a.Value << b;
 
-        public static UInt24 operator ~(UInt24 a) => new UInt24(~a.Value);
+        public static UInt24 operator ~(UInt24 a) => new(~a.Value);
 
-        public static UInt24 operator ++(UInt24 a) => new UInt24(a.Value + 1);
+        public static UInt24 operator ++(UInt24 a) => new(a.Value + 1);
 
-        public static UInt24 operator --(UInt24 a) => new UInt24(a.Value - 1);
+        public static UInt24 operator --(UInt24 a) => new(a.Value - 1);
 
         public static bool operator ==(UInt24 l, UInt24 r) => l.Value == r.Value;
 
@@ -120,41 +117,41 @@
 
         public static bool operator <=(UInt24 l, UInt24 r) => l.Value <= r.Value;
 
-        public static explicit operator UInt24(byte x) => new UInt24(x);
+        public static implicit operator UInt24(byte x) => new(x);
 
         public static explicit operator byte(UInt24 x) => (byte)x.Value;
 
-        public static explicit operator UInt24(sbyte x) => new UInt24((uint)x);
+        public static explicit operator UInt24(sbyte x) => new((uint)x);
 
         public static explicit operator sbyte(UInt24 x) => (sbyte)x.Value;
 
-        public static explicit operator UInt24(short x) => new UInt24((uint)x);
+        public static explicit operator UInt24(short x) => new((uint)x);
 
         public static explicit operator short(UInt24 x) => (short)x.Value;
 
-        public static explicit operator UInt24(ushort x) => new UInt24(x);
+        public static implicit operator UInt24(ushort x) => new(x);
 
         public static explicit operator ushort(UInt24 x) => (ushort)x.Value;
 
-        public static explicit operator UInt24(Int24 x) => new UInt24((uint)x.Value);
+        public static explicit operator UInt24(Int24 x) => new((uint)x.Value);
 
-        public static explicit operator Int24(UInt24 x) => new Int24((int)x.Value);
+        public static explicit operator Int24(UInt24 x) => new((int)x.Value);
 
-        public static explicit operator UInt24(int x) => new UInt24((uint)x);
+        public static explicit operator UInt24(int x) => new((uint)x);
 
-        public static explicit operator int(UInt24 x) => (int)x.Value;
+        public static implicit operator int(UInt24 x) => (int)x.Value;
 
-        public static implicit operator UInt24(uint x) => new UInt24(x);
+        public static explicit operator UInt24(uint x) => new(x);
 
-        public static explicit operator uint(UInt24 x) => x.Value;
+        public static implicit operator uint(UInt24 x) => x.Value;
 
         public static explicit operator UInt24(long x) => new UInt24((uint)x);
 
-        public static explicit operator long(UInt24 x) => x.Value;
+        public static implicit operator long(UInt24 x) => x.Value;
 
         public static explicit operator UInt24(ulong x) => new UInt24((uint)x);
 
-        public static explicit operator ulong(UInt24 x) => (ulong)x.Value;
+        public static implicit operator ulong(UInt24 x) => x.Value;
 
         #endregion operators
 

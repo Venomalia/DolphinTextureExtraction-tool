@@ -25,7 +25,7 @@ namespace AuroraLib.Texture.Formats
         protected override void Read(Stream stream)
         {
             Header header = stream.Read<Header>();
-            Add(new(stream, Span<byte>.Empty, GXImageFormat.CMPR, GXPaletteFormat.RGB5A3, 0, (int)header.Width, (int)header.Height,0)
+            Add(new(stream, Span<byte>.Empty, GXImageFormat.CMPR, GXPaletteFormat.RGB5A3, 0, (int)header.Width, (int)header.Height, 0)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,

@@ -1,21 +1,24 @@
-﻿using System.Diagnostics;
+﻿using AuroraLib.Common;
+using AuroraLib.Core.Exceptions;
+using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Text;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.IO
 {
     /// <summary>
     /// Extension of the <see cref="Stream"/>.
     /// </summary>
     public static partial class StreamEx
     {
+        #region Read
         /// <summary>
         /// Reads a block of bytes from the stream.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="Count">The maximum number of bytes to read.</param>
-        /// <param name="order">Byte order, in which bytes are read.</param>
-        /// <param name="Offset">The byte offset in array at which the read bytes will be placed.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException">Offset or Count is negative.</exception>
         /// <exception cref="NotSupportedException">The stream does not support reading.</exception>
@@ -23,23 +26,25 @@ namespace AuroraLib.Common
         /// <exception cref="ArgumentException">Offset and Count describe an invalid range in array.</exception>
         /// <exception cref="ObjectDisposedException">Methods were called after the stream was closed.</exception>
         [DebuggerStepThrough]
-        public static byte[] Read(this Stream stream, int Count, Endian order = Endian.Little)
+        public static byte[] Read(this Stream stream, int Count)
         {
-#if DEBUG
             if (stream.Position + Count > stream.Length)
-                Events.NotificationEvent.Invoke(NotificationType.Warning, $"Passed limit of {stream}.");
-#endif
+                ThrowHelper<byte>(Count);
+
             byte[] Final = new byte[Count];
-            stream.Read(Final, 0, Count);
-            switch (order)
-            {
-                case Endian.Big:
-                    Array.Reverse(Final);
-                    break;
-            }
+            stream.Read(Final);
+
             return Final;
         }
 
+        /// <inheritdoc cref="Read(Stream, int)"/>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] Read(this Stream stream, uint Count)
+            => Read(stream, (int)Count);
+        #endregion
+
+        #region PeekByte
         /// <summary>
         /// Peek the next byte
         /// </summary>
@@ -53,9 +58,24 @@ namespace AuroraLib.Common
             FS.Position--;
             return val;
         }
+        #endregion
 
         /// <summary>
-        /// Reads the stream and outputs it as array
+        /// Copies the entire contents of the stream to the specified destination stream.
+        /// </summary>
+        /// <param name="stream">The source stream to copy from.</param>
+        /// <param name="destination">The destination stream to copy to.</param>
+        /// <param name="bufferSize">The size of the buffer used for copying. Default is 81920 bytes.</param>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void CopyAllTo(this Stream stream, Stream destination, int bufferSize = 81920)
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            stream.CopyTo(destination, bufferSize);
+        }
+
+        /// <summary>
+        /// Writes the stream contents to a byte array, regardless of the <see cref="Stream.Position"/>.
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="bufferSize"></param>
@@ -66,11 +86,24 @@ namespace AuroraLib.Common
             if (stream is MemoryStream ms)
                 return ms.ToArray();
 
-            using (MemoryStream memoryStream = new())
-            {
-                stream.CopyTo(memoryStream, bufferSize);
-                return memoryStream.ToArray();
-            }
+            using MemoryStream memoryStream = new((int)(stream.Length));
+            stream.CopyAllTo(memoryStream, bufferSize);
+            return memoryStream.ToArray();
+        }
+
+        /// <summary>
+        /// Writes the stream contents to a byte array, from the current <see cref="Stream.Position"/>.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="bufferSize"></param>
+        /// <returns></returns>
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static byte[] ToArrayHere(this Stream stream, int bufferSize = 81920)
+        {
+            using MemoryStream memoryStream = new((int)(stream.Length - stream.Position));
+            stream.CopyTo(memoryStream, bufferSize);
+            return memoryStream.ToArray();
         }
 
         #region Match

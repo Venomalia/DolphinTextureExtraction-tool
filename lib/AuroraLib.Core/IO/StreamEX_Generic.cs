@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.IO
 {
     public static partial class StreamEx
     {
@@ -31,7 +31,7 @@ namespace AuroraLib.Common
             stream.Read(buffer);
             if (order == Endian.Big == BitConverter.IsLittleEndian)
             {
-                buffer.ReversesByteOrder(typeof(T));
+                BitConverterX.Swap(buffer, typeof(T));
             }
             return value;
         }
@@ -57,7 +57,7 @@ namespace AuroraLib.Common
             return values;
         }
 
-        /// <inheritdoc cref="Read{T}(Stream, uint, Endian)"/>
+        /// <inheritdoc cref="Read{T}(Stream, int, Endian)"/>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] Read<T>(this Stream stream, uint count, Endian order = Endian.Little) where T : unmanaged
@@ -79,7 +79,7 @@ namespace AuroraLib.Common
         {
             int sizeT = sizeof(T);
             if (stream.Position + sizeT * values.Length > stream.Length)
-                ThrowHelper<T>((uint)values.Length);
+                ThrowHelper<T>(values.Length);
 
             Span<byte> buffer = MemoryMarshal.Cast<T, byte>(values);
             stream.Read(buffer);
@@ -88,7 +88,7 @@ namespace AuroraLib.Common
             {
                 for (int i = 0; i < values.Length; i++)
                 {
-                    buffer.Slice(i * sizeT, sizeT).ReversesByteOrder(typeof(T));
+                    BitConverterX.Swap(buffer.Slice(i * sizeT, sizeT), typeof(T));
                 }
             }
         }
@@ -100,7 +100,7 @@ namespace AuroraLib.Common
             => throw new EndOfStreamException($"Cannot read {typeof(T)} is beyond the end of the stream.");
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void ThrowHelper<T>(uint count)
+        private static void ThrowHelper<T>(int count)
             => throw new EndOfStreamException($"Cannot read {typeof(T)}[{count}] is beyond the end of the stream.");
 
         #endregion
@@ -117,13 +117,12 @@ namespace AuroraLib.Common
         /// <param name="order">The endianness of the data to write. Default is <see cref="Endian.Little"/>.</param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        public static unsafe void WriteObjekt<T>(this Stream stream, in T objekt, Endian order = Endian.Little) where T : unmanaged
+        public static unsafe void Write<T>(this Stream stream, T objekt, Endian order = Endian.Little) where T : unmanaged
         {
-            T value = objekt;
-            Span<byte> buffer = new(&value, sizeof(T));
-            if (buffer.Length > 1 && order == Endian.Big)
+            Span<byte> buffer = new(&objekt, sizeof(T));
+            if (order == Endian.Big == BitConverter.IsLittleEndian && buffer.Length > 1)
             {
-                buffer.ReversesByteOrder(typeof(T));
+                BitConverterX.Swap(buffer, typeof(T));
             }
             stream.Write(buffer);
         }
@@ -141,7 +140,7 @@ namespace AuroraLib.Common
         {
             foreach (var item in objects)
             {
-                stream.WriteObjekt(item, order);
+                stream.Write(item, order);
             }
         }
 
@@ -155,23 +154,23 @@ namespace AuroraLib.Common
         /// <param name="order">The endianness of the data to write. Default is <see cref="Endian.Little"/>.</param>
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-        public static unsafe void WriteObjekt<T>(this Stream stream, T objekt, uint count, Endian order = Endian.Little) where T : unmanaged
+        public static unsafe void Write<T>(this Stream stream, T objekt, uint count, Endian order = Endian.Little) where T : unmanaged
         {
-            T value = objekt;
-            Span<byte> buffer = new(&value, sizeof(T));
-            if (buffer.Length > 1 && order == Endian.Big)
+            Span<byte> buffer = new(&objekt, sizeof(T));
+            if (order == Endian.Big == BitConverter.IsLittleEndian && buffer.Length > 1)
             {
-                buffer.ReversesByteOrder(typeof(T));
+                BitConverterX.Swap(buffer, typeof(T));
             }
+
             for (int i = 0; i < count; i++)
             {
                 stream.Write(buffer);
             }
         }
 
-        /// <inheritdoc cref="WriteObjekt{T}(Stream, T, uint, Endian)"/>
-        public static unsafe void WriteObjekt<T>(this Stream stream, T objekt, int count, Endian order = Endian.Little) where T : unmanaged
-            => WriteObjekt(stream, objekt, (uint)count, order);
+        /// <inheritdoc cref="Write{T}(Stream, T, uint, Endian)"/>
+        public static unsafe void Write<T>(this Stream stream, T objekt, int count, Endian order = Endian.Little) where T : unmanaged
+            => Write(stream, objekt, (uint)count, order);
 
         #endregion
 

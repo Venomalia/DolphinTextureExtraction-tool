@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using System.IO;
 
 namespace AuroraLib.Texture.J3D
 {

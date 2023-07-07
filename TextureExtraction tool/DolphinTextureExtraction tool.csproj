@@ -53,4 +53,9 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="AuroraLib.Core" />
+    <Using Include="AuroraLib.Core.IO" />
+  </ItemGroup>
+
 </Project>

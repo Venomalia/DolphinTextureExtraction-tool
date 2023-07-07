@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Text;
 using ICSharpCode.SharpZipLib.Checksum;
 
 namespace AuroraLib.Archives.Formats

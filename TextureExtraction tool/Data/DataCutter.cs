@@ -1,5 +1,8 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Core;
+using AuroraLib.Core.IO;
+using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 
@@ -82,7 +85,7 @@ namespace DolphinTextureExtraction
                     continue;
                 }
 
-                switch (EncodingEX.GetValidString(match))
+                switch (EncodingX.GetValidString(match))
                 {
                     case "CLZ":
                     case "pack":

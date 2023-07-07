@@ -1,8 +1,6 @@
-﻿using AuroraLib.Common.Struct;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.Interfaces
 {
 
     /// <summary>

@@ -1,7 +1,4 @@
-﻿using AuroraLib.Common.Struct;
-using AuroraLib.Common;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     public class YAZ1 : YAZ0
     {

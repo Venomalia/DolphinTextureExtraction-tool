@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <FileAlignment>2048</FileAlignment>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <FileAlignment>2048</FileAlignment>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Cryptography\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HashDepot" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\ImplicitUsings.props" Pack="true" PackagePath="build" />
+  </ItemGroup>
+  
+</Project>

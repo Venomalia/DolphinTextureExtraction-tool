@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Texture.PixelFormats;
+﻿using AuroraLib.Texture.PixelFormats;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.BlockFormats
@@ -24,7 +23,7 @@ namespace AuroraLib.Texture.BlockFormats
             for (int i = 0; i < pixels.Length; i++)
             {
                 pixels[i] = MemoryMarshal.AsRef<I16>(data.Slice(i * 2, 2));
-                pixels[i].PackedValue = pixels[i].PackedValue.Swap();
+                pixels[i].PackedValue = BitConverterX.Swap(pixels[i].PackedValue);
                 pixels[i].PackedValue &= 0x3FFF;
             }
         }
@@ -35,7 +34,7 @@ namespace AuroraLib.Texture.BlockFormats
             for (int i = 0; i < pixels.Length; i++)
             {
                 pixels[i].PackedValue &= 0x3FFF;
-                ushort value = pixels[i].PackedValue.Swap();
+                ushort value = BitConverterX.Swap(pixels[i].PackedValue);
                 MemoryMarshal.Write(data.Slice(i * 2, 2), ref value);
             }
         }

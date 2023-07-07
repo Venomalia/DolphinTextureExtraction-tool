@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Interfaces;
 
 //Heavily based on the SuperBMD Library.
 namespace Hack.io

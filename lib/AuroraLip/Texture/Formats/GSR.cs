@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -88,7 +87,7 @@ namespace AuroraLib.Texture.Formats
                 if (palette_data_offset != 0)
                 {
                     stream.Seek(palette_data_offset, SeekOrigin.Begin);
-                    byte[] all_palette_data = stream.Read((int)palette_size, Endian.Little);
+                    byte[] all_palette_data = stream.Read(palette_size);
                     palette_data = new byte[all_palette_data.Length];
 
                     // Creators broke up the image into two palettes, interweaving
@@ -99,15 +98,15 @@ namespace AuroraLib.Texture.Formats
                     // in the first half of the palette memory, and the second one
                     // be in the latter half of the memory
 
-                    for (int i = 0; i < all_palette_data.Length; i+=4)
+                    for (int i = 0; i < all_palette_data.Length; i += 4)
                     {
                         // First pair goes into the first half of the outgoing palette memory
-                        palette_data[i/2] = all_palette_data[i];
-                        palette_data[i/2+1] = all_palette_data[i + 1];
+                        palette_data[i / 2] = all_palette_data[i];
+                        palette_data[i / 2 + 1] = all_palette_data[i + 1];
 
                         // Second pair goes into the later half of hte outgoing palette memory
-                        palette_data[i/2 + all_palette_data.Length / 2] = all_palette_data[i + 2];
-                        palette_data[i/2 + 1 + all_palette_data.Length / 2] = all_palette_data[i + 3];
+                        palette_data[i / 2 + all_palette_data.Length / 2] = all_palette_data[i + 2];
+                        palette_data[i / 2 + 1 + all_palette_data.Length / 2] = all_palette_data[i + 3];
                     }
                 }
             }

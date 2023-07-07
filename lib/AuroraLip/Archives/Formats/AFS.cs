@@ -1,6 +1,5 @@
 ﻿using AFSLib;
 using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 
 namespace AuroraLib.Archives.Formats
 {

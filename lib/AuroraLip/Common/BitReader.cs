@@ -108,11 +108,11 @@ namespace AuroraLib.Common
             if (byteorder == Endian.Big)
             {
                 startbit = (length + startbit + 7 & -8) - startbit;
-                return _buffer.GetBits(startbit, length);
+                return BitConverterX.GetBits(_buffer, startbit, length);
             }
             else
             {
-                return _buffer.Swap().GetBits(64 - startbit, length);
+                return BitConverterX.GetBits(BitConverterX.Swap(_buffer), 64 - startbit, length);
             }
         }
 

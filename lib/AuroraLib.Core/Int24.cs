@@ -1,8 +1,7 @@
-﻿namespace AuroraLib.Common
+﻿namespace AuroraLib.Core
 {
     /// <summary>
     /// Represents a 3-byte, 24-bit signed integer.
-    /// Mainly Nintendo uses it in a number of formats.
     /// </summary>
     // base on https://github.com/SuperHackio/Hack.io
     [Serializable]
@@ -17,7 +16,7 @@
         /// The value of this Int24 as an Int32
         /// </summary>
         public int Value
-            => (b0 | (b1 << 8) | (b2 << 16));
+            => b0 | (b1 << 8) | (b2 << 16);
 
         /// <summary>
         /// Create a new Int24
@@ -85,31 +84,31 @@
 
         #region operators
 
-        public static Int24 operator +(Int24 a, Int24 b) => new Int24(a.Value + b.Value);
+        public static Int24 operator +(Int24 a, Int24 b) => new(a.Value + b.Value);
 
-        public static Int24 operator -(Int24 a, Int24 b) => new Int24(a.Value - b.Value);
+        public static Int24 operator -(Int24 a, Int24 b) => new(a.Value - b.Value);
 
-        public static Int24 operator *(Int24 a, Int24 b) => new Int24(a.Value * b.Value);
+        public static Int24 operator *(Int24 a, Int24 b) => new(a.Value * b.Value);
 
-        public static Int24 operator /(Int24 a, Int24 b) => new Int24(a.Value / b.Value);
+        public static Int24 operator /(Int24 a, Int24 b) => new(a.Value / b.Value);
 
-        public static Int24 operator %(Int24 a, Int24 b) => new Int24(a.Value % b.Value);
+        public static Int24 operator %(Int24 a, Int24 b) => new(a.Value % b.Value);
 
-        public static Int24 operator &(Int24 a, Int24 b) => new Int24(a.Value & b.Value);
+        public static Int24 operator &(Int24 a, Int24 b) => new(a.Value & b.Value);
 
-        public static Int24 operator |(Int24 a, Int24 b) => new Int24(a.Value | b.Value);
+        public static Int24 operator |(Int24 a, Int24 b) => new(a.Value | b.Value);
 
-        public static Int24 operator ^(Int24 a, Int24 b) => new Int24(a.Value ^ b.Value);
+        public static Int24 operator ^(Int24 a, Int24 b) => new(a.Value ^ b.Value);
 
         public static int operator >>(Int24 a, int b) => a.Value >> b;
 
         public static int operator <<(Int24 a, int b) => a.Value << b;
 
-        public static Int24 operator ~(Int24 a) => new Int24(~a.Value);
+        public static Int24 operator ~(Int24 a) => new(~a.Value);
 
-        public static Int24 operator ++(Int24 a) => new Int24(a.Value + 1);
+        public static Int24 operator ++(Int24 a) => new(a.Value + 1);
 
-        public static Int24 operator --(Int24 a) => new Int24(a.Value - 1);
+        public static Int24 operator --(Int24 a) => new(a.Value - 1);
 
         public static bool operator ==(Int24 l, Int24 r) => l.Value == r.Value;
 
@@ -135,41 +134,41 @@
 
         public static long operator +(long a, Int24 b) => a + b.Value;
 
-        public static explicit operator Int24(byte x) => new Int24(x);
+        public static implicit operator Int24(byte x) => new(x);
 
         public static explicit operator byte(Int24 x) => (byte)x.Value;
 
-        public static explicit operator Int24(sbyte x) => new Int24(x);
+        public static implicit operator Int24(sbyte x) => new(x);
 
         public static explicit operator sbyte(Int24 x) => (sbyte)x.Value;
 
-        public static explicit operator Int24(short x) => new Int24(x);
+        public static implicit operator Int24(short x) => new(x);
 
         public static explicit operator short(Int24 x) => (short)x.Value;
 
-        public static explicit operator Int24(ushort x) => new Int24(x);
+        public static implicit operator Int24(ushort x) => new(x);
 
         public static explicit operator ushort(Int24 x) => (ushort)x.Value;
 
-        public static explicit operator Int24(UInt24 x) => new Int24((int)x.Value);
+        public static explicit operator Int24(UInt24 x) => new((int)x.Value);
 
-        public static explicit operator UInt24(Int24 x) => new UInt24((uint)x.Value);
+        public static explicit operator UInt24(Int24 x) => new((uint)x.Value);
 
-        public static implicit operator Int24(int x) => new Int24(x);
+        public static implicit operator Int24(int x) => new(x);
 
         public static explicit operator int(Int24 x) => x.Value;
 
-        public static explicit operator Int24(uint x) => new Int24((int)x);
+        public static explicit operator Int24(uint x) => new((int)x);
 
-        public static explicit operator uint(Int24 x) => (uint)x.Value;
+        public static implicit operator uint(Int24 x) => (uint)x.Value;
 
-        public static explicit operator Int24(long x) => new Int24((int)x);
+        public static explicit operator Int24(long x) => new((int)x);
 
-        public static explicit operator long(Int24 x) => x.Value;
+        public static implicit operator long(Int24 x) => x.Value;
 
-        public static explicit operator Int24(ulong x) => new Int24((int)x);
+        public static explicit operator Int24(ulong x) => new((int)x);
 
-        public static explicit operator ulong(Int24 x) => (ulong)x.Value;
+        public static implicit operator ulong(Int24 x) => (ulong)x.Value;
 
         #endregion operators
 

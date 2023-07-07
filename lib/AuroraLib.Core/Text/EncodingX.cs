@@ -2,9 +2,12 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.Text
 {
-    public static class EncodingEX
+    /// <summary>
+    /// Encoding Extra functions
+    /// </summary>
+    public static class EncodingX
     {
         public static Encoding DefaultEncoding { get; set; } = Encoding.GetEncoding(28591);
 
@@ -90,7 +93,7 @@ namespace AuroraLib.Common
         public static string GetValidString(ReadOnlySpan<byte> bytes, Encoding encoding)
             => GetString(bytes[..ValidSize(bytes)], encoding);
 
-        internal static int ValidSize(ReadOnlySpan<byte> bytes)
+        public static int ValidSize(ReadOnlySpan<byte> bytes)
         {
             int end = bytes.Length;
             for (int i = 0; i < bytes.Length; i++)
@@ -127,7 +130,7 @@ namespace AuroraLib.Common
         public static string GetValidString(ReadOnlySpan<byte> bytes, Encoding encoding, Predicate<byte> invalidByte)
             => GetString(bytes[..ValidSize(bytes, invalidByte)], encoding);
 
-        internal static int ValidSize(ReadOnlySpan<byte> bytes, Predicate<byte> invalidByte)
+        public static int ValidSize(ReadOnlySpan<byte> bytes, Predicate<byte> invalidByte)
         {
             int end = bytes.Length;
             for (int i = 0; i < bytes.Length; i++)

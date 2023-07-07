@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.Text
 {
     public ref partial struct ValueStringBuilder
     {

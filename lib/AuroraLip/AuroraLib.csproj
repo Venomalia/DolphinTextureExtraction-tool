@@ -33,7 +33,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AFSLib\AFSLib.csproj" />
+    <ProjectReference Include="..\AuroraLib.Core\AuroraLib.Core.csproj" />
     <ProjectReference Include="..\LibCPK\LibCPK.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="AuroraLib.Core" />
+    <Using Include="AuroraLib.Core.Interfaces" />
+    <Using Include="AuroraLib.Core.IO" />
   </ItemGroup>
   
 </Project>

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Exceptions;
 using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.

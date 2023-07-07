@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
+﻿using AuroraLib.Core.Text;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace AuroraLib.Common
+namespace AuroraLib.Core.IO
 {
     public static partial class StreamEx
     {
@@ -15,7 +16,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream)
-            => EncodingEX.GetString(stream.ReadStringBytes(EncodingEX.InvalidByte));
+            => EncodingX.GetString(stream.ReadStringBytes(EncodingX.InvalidByte));
 
         /// <summary>
         /// Reads a string from the specified <paramref name="stream"/> using the specified <paramref name="encoding"/>.
@@ -27,7 +28,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Encoding Encoding)
-            => Encoding.GetString(ReadStringBytes(stream, EncodingEX.InvalidByte));
+            => Encoding.GetString(ReadStringBytes(stream, EncodingX.InvalidByte));
 
         /// <summary>
         /// Reads a string from the specified <paramref name="stream"/>.
@@ -39,7 +40,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, byte terminator)
-            => EncodingEX.GetString(ReadStringBytes(stream, s => s == terminator));
+            => EncodingX.GetString(ReadStringBytes(stream, s => s == terminator));
 
         /// <summary>
         /// Reads a string from the specified <paramref name="stream"/> using the specified <paramref name="encoding"/>.
@@ -63,7 +64,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReadString(this Stream stream, Predicate<byte> stopByte)
-            => EncodingEX.GetString(ReadStringBytes(stream, stopByte));
+            => EncodingX.GetString(ReadStringBytes(stream, stopByte));
 
         /// <summary>
         /// Reads a string from the <paramref name="stream"/> using the specified <paramref name="encoding"/> and stops reading when the specified <paramref name="stopByte"/> is encountered.
@@ -110,7 +111,7 @@ namespace AuroraLib.Common
         {
             Span<byte> bytes = stackalloc byte[length];
             FS.Read(bytes);
-            return EncodingEX.GetString(bytes, Padding);
+            return EncodingX.GetString(bytes, Padding);
         }
 
         /// <summary>
@@ -127,7 +128,7 @@ namespace AuroraLib.Common
         {
             Span<byte> bytes = stackalloc byte[length];
             FS.Read(bytes);
-            return EncodingEX.GetString(bytes, encoding, Padding);
+            return EncodingX.GetString(bytes, encoding, Padding);
         }
 
         #endregion
@@ -152,7 +153,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Write(this Stream stream, ReadOnlySpan<char> chars)
-            => stream.Write(chars, EncodingEX.DefaultEncoding);
+            => stream.Write(chars, EncodingX.DefaultEncoding);
 
         /// <summary>
         /// Writes a specified number of characters to the <paramref name="stream"/> using the specified <paramref name="encoding"/> and adds a <paramref name="terminator"/> <see cref="byte"/> at the end.
@@ -188,7 +189,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Write(this Stream stream, ReadOnlySpan<char> chars, int length, byte terminator = 0x0)
-            => stream.Write(chars, EncodingEX.DefaultEncoding, length, terminator);
+            => stream.Write(chars, EncodingX.DefaultEncoding, length, terminator);
 
         /// <inheritdoc cref="Write(Stream, ReadOnlySpan{char}, int, byte)"/>
         [DebuggerStepThrough]
@@ -225,7 +226,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Match(this Stream stream, ReadOnlySpan<char> chars)
-            => stream.Match(chars, EncodingEX.DefaultEncoding);
+            => stream.Match(chars, EncodingX.DefaultEncoding);
 
         #endregion
 
@@ -254,7 +255,7 @@ namespace AuroraLib.Common
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteAlign(this Stream stream, int boundary, ReadOnlySpan<char> chars)
-            => stream.WriteAlign(boundary,chars, EncodingEX.DefaultEncoding);
+            => stream.WriteAlign(boundary, chars, EncodingX.DefaultEncoding);
         #endregion
     }
 }

@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuroraLib.Core", "lib\AuroraLib.Core\AuroraLib.Core.csproj", "{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +59,10 @@ Global
 		{6D800FCD-CA7C-4A27-8177-2665332AA70F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D800FCD-CA7C-4A27-8177-2665332AA70F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D800FCD-CA7C-4A27-8177-2665332AA70F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +72,7 @@ Global
 		{CD2CA20A-E6AD-4B1E-9D04-FB98970B61D5} = {B407F63E-453B-4A21-8A29-D662F50A5B82}
 		{CE629181-0090-46D0-81BC-16682E497573} = {B407F63E-453B-4A21-8A29-D662F50A5B82}
 		{09C23352-8261-447B-9BB5-4C82DAF3CFFD} = {B407F63E-453B-4A21-8A29-D662F50A5B82}
+		{0E416A8B-1CC2-4966-AA43-DD1F657EDEC1} = {B407F63E-453B-4A21-8A29-D662F50A5B82}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B17AB52A-AB00-4067-B684-72DFCA802F89}

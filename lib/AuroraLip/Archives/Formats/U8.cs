@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
@@ -265,7 +264,7 @@ namespace AuroraLib.Archives.Formats
             public void Write(Stream stream)
             {
                 stream.WriteByte((byte)(IsDirectory ? 0x01 : 0x00));
-                stream.Write(NameOffset,Endian.Big);
+                stream.Write(NameOffset, Endian.Big);
                 stream.Write(DataOffset, Endian.Big);
                 stream.Write(Size, Endian.Big);
             }

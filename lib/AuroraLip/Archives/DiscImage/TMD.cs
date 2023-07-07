@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Text;
 
 namespace AuroraLib.Archives.DiscImage
 {
@@ -33,8 +34,8 @@ namespace AuroraLib.Archives.DiscImage
         public ushort MinorVersion;
         public List<CMD> CMDs;
 
-        public TitleFlags TitleFlag => (TitleFlags)BitConverter.ToUInt32(TitleID, 0).Swap();
-        public string TitleString => EncodingEX.GetValidString(TitleID.AsSpan()[..4]);
+        public TitleFlags TitleFlag => (TitleFlags)BitConverterX.Swap(BitConverter.ToUInt32(TitleID, 0));
+        public string TitleString => EncodingX.GetValidString(TitleID.AsSpan()[..4]);
 
         public TMD(Stream stream)
         {

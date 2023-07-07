@@ -1,8 +1,10 @@
-﻿using System.Diagnostics;
+﻿using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Text;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace AuroraLib.Common.Struct
+namespace AuroraLib.Core
 {
     /// <summary>
     /// Represents a 64-bit identifier that is not affected by the endian order.
@@ -79,7 +81,7 @@ namespace AuroraLib.Common.Struct
         public Identifier64(ulong value, Endian endian = Endian.Little)
         {
             if (endian == Endian.Big)
-                value = value.Swap();
+                value = BitConverterX.Swap(value);
 
             Lower = new Identifier32((uint)value);
             Higher = new Identifier32((uint)(value >> 32));
@@ -100,7 +102,6 @@ namespace AuroraLib.Common.Struct
 
         #endregion
 
-
         /// <inheritdoc />
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -111,13 +112,13 @@ namespace AuroraLib.Common.Struct
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string GetString()
-            => EncodingEX.GetString(AsSpan(), 0x0);
+            => EncodingX.GetString(AsSpan(), 0x0);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string GetString(Encoding encoding)
-            => EncodingEX.GetString(AsSpan(), encoding, 0x0);
+            => EncodingX.GetString(AsSpan(), encoding, 0x0);
 
         /// <inheritdoc />
         public bool Equals(string other) => other == GetString();
@@ -136,6 +137,6 @@ namespace AuroraLib.Common.Struct
 
         public override int GetHashCode() => (int)HashDepot.XXHash.Hash32(AsSpan());
 
-        public override string ToString() => EncodingEX.ValidSize(AsSpan()) > 2 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
+        public override string ToString() => EncodingX.ValidSize(AsSpan()) > 2 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
     }
 }

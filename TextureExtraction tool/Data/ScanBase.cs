@@ -2,6 +2,7 @@
 using AuroraLib.Common;
 using AuroraLib.Common.Extensions;
 using AuroraLib.Compression;
+using AuroraLib.Core.IO;
 using System.Collections.Specialized;
 using System.Configuration;
 using System.Text;

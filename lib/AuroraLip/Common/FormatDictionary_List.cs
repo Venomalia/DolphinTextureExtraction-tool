@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Archives.Formats;
-using AuroraLib.Common.Struct;
 using AuroraLib.Compression.Formats;
+using AuroraLib.Core.Text;
 using AuroraLib.Texture.Formats;
 using MuramasaTDB_Encoding;
 

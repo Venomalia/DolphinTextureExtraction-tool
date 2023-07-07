@@ -1,5 +1,4 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+﻿using AuroraLib.Common;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 

@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression.Formats;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {

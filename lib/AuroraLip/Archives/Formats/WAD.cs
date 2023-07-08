@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Archives.DiscImage;
 using AuroraLib.Common;
+using AuroraLib.Core.Interfaces;
 using System.Security.Cryptography;
 
 namespace AuroraLib.Archives.Formats

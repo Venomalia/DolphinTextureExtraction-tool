@@ -58,7 +58,7 @@ namespace DolphinTextureExtraction
                     case FormatType.Archive:
                         if (!TryExtract(so))
                         {
-                            Log.Write(FileAction.Unsupported, so.SubPath.ToString() + so.Extension + $" ~{MathEx.SizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+                            Log.Write(FileAction.Unsupported, so.SubPath.ToString() + so.Extension + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         }
                         break;
@@ -80,12 +80,12 @@ namespace DolphinTextureExtraction
         {
             if (FormatTypee.Identifier == null)
             {
-                Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
+                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
                     $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
             }
             else
             {
-                Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
+                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
                     $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{string.Join(",", FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
             }
         }

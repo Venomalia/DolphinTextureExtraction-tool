@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture.BlockFormats;
 using System.Runtime.InteropServices;
 

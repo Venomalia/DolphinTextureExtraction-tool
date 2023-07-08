@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Archives;
+using AuroraLib.Core.Interfaces;
 using AuroraLib.Common;
 
 namespace AuroraLib.Texture.Formats

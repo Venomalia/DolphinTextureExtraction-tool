@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Interfaces;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats

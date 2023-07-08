@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AuroraLib.Core\AuroraLib.Core.csproj" />
     <ProjectReference Include="..\AuroraLip\AuroraLib.csproj" />
   </ItemGroup>
 

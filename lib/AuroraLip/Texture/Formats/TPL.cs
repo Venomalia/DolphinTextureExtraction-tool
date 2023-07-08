@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using System.Runtime.CompilerServices;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {

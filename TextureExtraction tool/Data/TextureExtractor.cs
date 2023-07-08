@@ -71,9 +71,9 @@ namespace DolphinTextureExtraction
 
         public class ExtractorResult : Results
         {
-            public int MinExtractionRate => MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
+            public int MinExtractionRate => (int)Math.Round(100d / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
 
-            public int MaxExtractionRate => Extracted > 150 ? MathEx.RoundToInt(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
+            public int MaxExtractionRate => Extracted > 150 ? (int)Math.Round(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
 
             public int Extracted => Hash.Count;
 
@@ -395,7 +395,7 @@ namespace DolphinTextureExtraction
 
         private void AddResultUnsupported(Stream stream, string subdirectory, string Extension, FormatInfo FFormat)
         {
-            Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{MathEx.SizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
+            Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
             if (!Result.UnsupportedFormatType.Contains(FFormat)) Result.UnsupportedFormatType.Add(FFormat);
             Result.Unsupported++;
             Result.UnsupportedSize += stream.Length;
@@ -407,12 +407,12 @@ namespace DolphinTextureExtraction
             {
                 byte[] infoBytes = stream.Read(32 > stream.Length ? (int)stream.Length : 32);
 
-                Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
+                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
                     $"Bytes{infoBytes.Length}:[{BitConverter.ToString(infoBytes)}]");
             }
             else
             {
-                Log.Write(FileAction.Unknown, file + $" ~{MathEx.SizeSuffix(stream.Length, 2)}",
+                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
                     $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{BitConverter.ToString(FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
             }
 

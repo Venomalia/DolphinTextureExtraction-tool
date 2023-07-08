@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Extensions;
 
 namespace AuroraLib.Texture
 {

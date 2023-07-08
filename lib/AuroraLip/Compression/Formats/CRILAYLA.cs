@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Interfaces;
 using LibCPK;
 
 namespace AuroraLib.Compression.Formats

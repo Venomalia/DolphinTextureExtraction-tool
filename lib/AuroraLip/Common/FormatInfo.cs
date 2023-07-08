@@ -1,4 +1,5 @@
-﻿using AuroraLib.Core.Text;
+﻿using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Text;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -182,7 +183,7 @@ namespace AuroraLib.Common
         /// <returns>The name of the format.</returns>
         public string GetName()
         {
-            if (Identifier != null && EncodingX.ValidSize(Identifier.AsSpan()) >= 3)
+            if (Identifier != null && EncodingX.GetValidByteCount(Identifier.AsSpan()) >= 3)
             {
                 return EncodingX.GetValidString(Identifier.AsSpan());
             }

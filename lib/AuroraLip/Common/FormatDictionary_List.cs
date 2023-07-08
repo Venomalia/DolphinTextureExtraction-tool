@@ -376,6 +376,8 @@ namespace AuroraLib.Common
             //Neverland
             new FormatInfo(".bin", "FBTI", FormatType.Archive, "Rune Factory Archive", "Neverland",typeof(FBTI)),
             new FormatInfo(".bin", "NLCM", FormatType.Archive, "Rune Factory Archive Header", "Neverland",typeof(NLCM)),
+            new FormatInfo("", "NLCL", FormatType.Archive, "Rune Factory Archive 2", "Neverland",typeof(NLCL)),
+            new FormatInfo("", "MEDB", FormatType.Archive, "Rune Factory Archive 3", "Neverland",typeof(MEDB)),
             new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland",typeof(HXTB)),
 
             //Square Enix

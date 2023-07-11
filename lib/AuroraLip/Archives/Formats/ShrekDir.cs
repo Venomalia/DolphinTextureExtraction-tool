@@ -1,5 +1,4 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+﻿using AuroraLib.Common;
 using AuroraLib.Compression.Formats;
 
 namespace AuroraLib.Archives.Formats

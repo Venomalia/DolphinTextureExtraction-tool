@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Exceptions;
 using AuroraLib.Texture.Formats;
 using AuroraLib.Texture.J3D;
 

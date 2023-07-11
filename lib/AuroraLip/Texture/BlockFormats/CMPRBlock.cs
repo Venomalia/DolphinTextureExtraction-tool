@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Texture.PixelFormats;
+﻿using AuroraLib.Texture.PixelFormats;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -33,12 +32,12 @@ namespace AuroraLib.Texture.BlockFormats
                 RGB565 color1 = MemoryMarshal.AsRef<RGB565>(data.Slice(subblock * 8 + 2, 2));
 
                 // Swap byte order
-                color0.PackedValue = color0.PackedValue.Swap();
-                color1.PackedValue = color1.PackedValue.Swap();
+                color0.PackedValue = BitConverterX.Swap(color0.PackedValue);
+                color1.PackedValue = BitConverterX.Swap(color1.PackedValue);
 
                 GetInterpolatedColours(color0, color1, colors);
 
-                int colorIndexes = MemoryMarshal.AsRef<int>(data.Slice(subblock * 8 + 4, 4)).Swap();
+                int colorIndexes = BitConverterX.Swap(MemoryMarshal.AsRef<int>(data.Slice(subblock * 8 + 4, 4)));
 
                 for (int pixel = 0; pixel < 16; pixel++)
                 {
@@ -75,8 +74,8 @@ namespace AuroraLib.Texture.BlockFormats
                 GetInterpolatedColours(color0, color1, interpolatedColors);
 
                 // Swap byte order
-                color0.PackedValue = color0.PackedValue.Swap();
-                color1.PackedValue = color1.PackedValue.Swap();
+                color0.PackedValue = BitConverterX.Swap(color0.PackedValue);
+                color1.PackedValue = BitConverterX.Swap(color1.PackedValue);
 
                 MemoryMarshal.Write(data.Slice(subblock * 8, 2), ref color0);
                 MemoryMarshal.Write(data.Slice(subblock * 8 + 2, 2), ref color1);
@@ -91,7 +90,7 @@ namespace AuroraLib.Texture.BlockFormats
                     colorIndexes |= colorIndex << ((15 - pixel) * 2);
                 }
 
-                colorIndexes = colorIndexes.Swap();
+                colorIndexes = BitConverterX.Swap(colorIndexes);
                 MemoryMarshal.Write(data.Slice(subblock * 8 + 4, 4), ref colorIndexes);
             }
         }

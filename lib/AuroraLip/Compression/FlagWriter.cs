@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression
+﻿namespace AuroraLib.Compression
 {
     /// <summary>
     /// Represents a flag writer used for compressing data. It provides methods to write individual bits.

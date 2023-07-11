@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Archives
+﻿namespace AuroraLib.Archives
 {
     /*
     * Super Hackio Incorporated

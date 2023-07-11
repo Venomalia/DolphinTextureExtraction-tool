@@ -97,7 +97,7 @@ namespace AuroraLib.Texture.Formats
                 LODBias = this[0].LODBias,
                 ImageDataAddress = (uint)(DataOffset + this[0].Palettes.Sum(p => p.Length) - HeaderStart),
             };
-            stream.WriteObjekt(ImageHeader, Endian.Big);
+            stream.Write(ImageHeader, Endian.Big);
 
             long Pauseposition = stream.Position;
             stream.Position = DataOffset;

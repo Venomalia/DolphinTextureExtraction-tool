@@ -38,7 +38,7 @@ namespace DolphinTextureExtraction.Data
             {
                 CompressionRate = (CompressionRate + compressionRate) / 2;
             }
-            Log.Write(FileAction.Compress, string.Concat(so.SubPath, so.Extension) + $" ~{MathEx.SizeSuffix(destination.Length, 2)}", $"Algo:{algorithm.Name} Rate:{compressionRate:+#.##;-#.##;0.00}%");
+            Log.Write(FileAction.Compress, string.Concat(so.SubPath, so.Extension) + $" ~{PathX.AddSizeSuffix(destination.Length, 2)}", $"Algo:{algorithm.Name} Rate:{compressionRate:+#.##;-#.##;0.00}%");
         }
     }
 }

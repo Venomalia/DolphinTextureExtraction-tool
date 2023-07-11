@@ -22,4 +22,9 @@
     <ProjectReference Include="..\AuroraLip\AuroraLib.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="AuroraLib.Core" />
+    <Using Include="AuroraLib.Core.IO" />
+  </ItemGroup>
+
 </Project>

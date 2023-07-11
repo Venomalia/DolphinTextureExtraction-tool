@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
-using AuroraLib.Common.Extensions;
 using AuroraLib.Compression;
 using System.Collections.Specialized;
 using System.Configuration;
@@ -257,7 +256,7 @@ namespace DolphinTextureExtraction
         protected virtual void Scan(FileInfo file)
         {
             Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            var SubPath = PathEX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
+            var SubPath = PathX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
             ScanObjekt objekt = new(stream, SubPath, 0, file.Extension);
             if (objekt.Format.Typ != FormatType.Unknown)
             {
@@ -296,7 +295,7 @@ namespace DolphinTextureExtraction
                     double Length = file.FileData.Length;
 
                     //Checks all possible illegal characters and converts them to hex
-                    string path = PathEX.GetValidPath(file.FullPath);
+                    string path = PathX.GetValidPath(file.FullPath);
                     path = Path.Combine(subPath, path);
 
                     ScanObjekt objekt = new(file, path.AsSpan(), deep);
@@ -531,7 +530,7 @@ namespace DolphinTextureExtraction
                 Stream = stream;
                 Extension = extension;
                 Format = stream.Identify(Extension);
-                SubPath = PathEX.WithoutExtension(subPath);
+                SubPath = PathX.GetFileWithoutExtension(subPath);
                 Deep = deep;
                 File = null;
             }
@@ -541,7 +540,7 @@ namespace DolphinTextureExtraction
                 Stream = file.FileData;
                 Extension = file.Extension;
                 Format = Stream.Identify(Extension);
-                SubPath = PathEX.WithoutExtension(subPath);
+                SubPath = PathX.GetFileWithoutExtension(subPath);
                 Deep = deep;
                 File = file;
             }

@@ -1,6 +1,4 @@
-﻿using AuroraLib.Compression;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     //base on https://github.com/ShrekBoards/shrek-superslam/blob/master/src/compression.rs
     public class Shrek : ICompression

@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -28,7 +28,7 @@ namespace AuroraLib.Archives.Formats
                 file_data[i] = new FileData(stream);
             }
 
-            uint names_start = file_data[file_count-1].offset;
+            uint names_start = file_data[file_count - 1].offset;
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (uint i = 0; i < file_count; i++)

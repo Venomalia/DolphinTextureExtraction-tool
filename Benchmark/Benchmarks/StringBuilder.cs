@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Text;
 using BenchmarkDotNet.Attributes;
 using System.Text;
 

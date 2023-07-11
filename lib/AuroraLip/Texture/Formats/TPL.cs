@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 using System.Runtime.CompilerServices;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -115,7 +115,7 @@ namespace AuroraLib.Texture.Formats
                         Format = this[i].PaletteFormat,
                         PaletteDataAddress = (uint)(StreamEx.AlignPosition(stream.Position + Unsafe.SizeOf<PaletteHeader>(), 32) - HeaderStart)
                     };
-                    stream.WriteObjekt(paletteHeader, Endian.Big);
+                    stream.Write(paletteHeader, Endian.Big);
                     stream.WriteAlign(32);
                     foreach (var Palette in this[i].Palettes)
                         stream.Write(Palette);
@@ -140,7 +140,7 @@ namespace AuroraLib.Texture.Formats
                     MaxLOD = (byte)this[i].Count,
                     Unpacked = 0x00,
                 };
-                stream.WriteObjekt(imageHeader, Endian.Big);
+                stream.Write(imageHeader, Endian.Big);
                 stream.WriteAlign(32);
 
                 foreach (byte[] bytes in this[i].RawImages)

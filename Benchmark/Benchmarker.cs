@@ -8,7 +8,7 @@ namespace Benchmark
     {
         static void Main(string[] args)
         {
-            var Result = BenchmarkRunner.Run<ReadStruct>();
+            var Result = BenchmarkRunner.Run<CopyByte>();
         }
     }
 }

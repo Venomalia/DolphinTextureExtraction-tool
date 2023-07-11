@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common.Struct;
-using AuroraLib.Common;
+﻿using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Compression.Formats
 {

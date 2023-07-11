@@ -1,7 +1,7 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 using AuroraLib.Palette.Formats;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {

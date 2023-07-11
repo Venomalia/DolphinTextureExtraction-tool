@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// The PRS compression algorithm is based on LZ77 with run-length encoding emulation and extended matches.

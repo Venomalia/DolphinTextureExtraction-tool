@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture;
 using OpenTK.Graphics.OpenGL;
 

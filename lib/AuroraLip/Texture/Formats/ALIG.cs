@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -76,8 +76,8 @@ namespace AuroraLib.Texture.Formats
 
             private uint Size
             {
-                get => size.Swap();
-                set => size = value.Swap();
+                get => BitConverterX.Swap(size);
+                set => size = BitConverterX.Swap(value);
             }
         }
 

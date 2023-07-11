@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Data;
 using SixLabors.ImageSharp;
@@ -27,7 +27,6 @@ namespace DolphinTextureExtraction
 #endif
         static Program()
         {
-
             //link external classes
             if (FormatDictionary.TryGetValue(new Identifier64("J3D2bdl4"), out FormatInfo formatInfo))
             {
@@ -157,7 +156,7 @@ namespace DolphinTextureExtraction
 
                             if (Mode == Modes.Split)
                             {
-                                List<string> patternstrings = pattern.Select(s => EncodingEX.GetValidString(s)).ToList();
+                                List<string> patternstrings = pattern.Select(s => EncodingX.GetValidString(s)).ToList();
                                 do
                                 {
                                     if (patternstrings.Count > 0)
@@ -197,7 +196,7 @@ namespace DolphinTextureExtraction
                             Console.WriteLine($"Mode: {Mode.GetDescription()}");
                             Console.WriteLine($"Input Path: \"{InputPath}\"");
                             Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => EncodingEX.GetValidString(s)))}");
+                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => EncodingX.GetValidString(s)))}");
                             PrintOptions();
                             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
 

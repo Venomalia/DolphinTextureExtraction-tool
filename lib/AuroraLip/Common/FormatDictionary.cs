@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common.Struct;
+﻿using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Text;
 
 namespace AuroraLib.Common
 {
@@ -105,7 +106,7 @@ namespace AuroraLib.Common
                 stream.Read(temp);
                 stream.Seek(0, SeekOrigin.Begin);
 
-                int AsciiSize = EncodingEX.ValidSize(temp, b => b < 32 || b >= 127);
+                int AsciiSize = EncodingX.GetValidByteCount(temp, b => b < 32 || b >= 127);
                 if (AsciiSize == 3 || AsciiSize == 4)
                 {
                     formatInfo.Identifier = new Identifier32(temp[..4]);

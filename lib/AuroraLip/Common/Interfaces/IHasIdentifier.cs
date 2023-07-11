@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.Common
+﻿using AuroraLib.Core.Interfaces;
+
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Represents an object that has an identifier.

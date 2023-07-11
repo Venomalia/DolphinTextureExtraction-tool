@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression.Formats;
+using AuroraLib.Core.Exceptions;
 using IronCompress;
 
 namespace AuroraLib.Archives.Formats

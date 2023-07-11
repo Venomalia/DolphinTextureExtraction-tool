@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Exceptions;
 
 namespace AuroraLib.Texture.Formats
 {

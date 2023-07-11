@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Common.Struct;
 using System.Runtime.CompilerServices;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -37,9 +37,18 @@ namespace AuroraLib.Archives.Formats
 
         public struct RwHeader
         {
-            public uint Null;
+            public Typs typ;
             public uint FileSize;
             public RwVersion RwVersion;
+
+            public enum Typs
+            {
+                ONE = 0,
+                BSP = 11,
+                DIF = 16,
+                TXD = 22,
+                RG1 = 41,
+            }
         }
 
         public struct Header

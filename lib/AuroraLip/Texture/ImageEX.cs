@@ -278,13 +278,13 @@ namespace AuroraLib.Texture
             for (int i = 0; i < data16.Length; i += 4)
             {
                 //swap colors
-                data16[i] = data16[i].Swap();
-                data16[i + 1] = data16[i + 1].Swap();
+                data16[i] = BitConverterX.Swap(data16[i]);
+                data16[i + 1] = BitConverterX.Swap(data16[i + 1]);
                 //swap pixel sequence
-                data[(i + 2) * 2 + 0] = data[(i + 2) * 2 + 0].Swap().SwapAlternateBits();
-                data[(i + 2) * 2 + 1] = data[(i + 2) * 2 + 1].Swap().SwapAlternateBits();
-                data[(i + 2) * 2 + 2] = data[(i + 2) * 2 + 2].Swap().SwapAlternateBits();
-                data[(i + 2) * 2 + 3] = data[(i + 2) * 2 + 3].Swap().SwapAlternateBits();
+                data[(i + 2) * 2 + 0] = BitConverterX.SwapAlternateBits(BitConverterX.Swap(data[(i + 2) * 2 + 0]));
+                data[(i + 2) * 2 + 1] = BitConverterX.SwapAlternateBits(BitConverterX.Swap(data[(i + 2) * 2 + 1]));
+                data[(i + 2) * 2 + 2] = BitConverterX.SwapAlternateBits(BitConverterX.Swap(data[(i + 2) * 2 + 2]));
+                data[(i + 2) * 2 + 3] = BitConverterX.SwapAlternateBits(BitConverterX.Swap(data[(i + 2) * 2 + 3]));
             }
         }
 

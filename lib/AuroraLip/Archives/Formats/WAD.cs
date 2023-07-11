@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Archives.DiscImage;
 using AuroraLib.Common;
-using AuroraLib.Common.Struct;
+using AuroraLib.Core.Interfaces;
 using System.Security.Cryptography;
 
 namespace AuroraLib.Archives.Formats
@@ -13,7 +13,7 @@ namespace AuroraLib.Archives.Formats
 
         public virtual IIdentifier Identifier => Magic;
 
-        public static readonly Identifier32 Magic = new (0, 0, (byte)'s', (byte)'I');
+        public static readonly Identifier32 Magic = new(0, 0, (byte)'s', (byte)'I');
 
         public WADHeader Header;
 

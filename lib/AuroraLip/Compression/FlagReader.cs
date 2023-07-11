@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression
+﻿namespace AuroraLib.Compression
 {
     /// <summary>
     /// Reads individual bits from a stream and provides methods for interpreting the flag values.

@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Archives;
-using AuroraLib.Core.Interfaces;
 using AuroraLib.Common;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {

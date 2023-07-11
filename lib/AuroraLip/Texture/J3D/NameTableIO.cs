@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Texture.J3D
+﻿namespace AuroraLib.Texture.J3D
 {
     /*
     * Super Hackio Incorporated

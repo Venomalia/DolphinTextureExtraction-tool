@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Core;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using Hack.io;

@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// This LZSS header was used by Sega in early GC games like F-zero GX or Super Monkey Ball.

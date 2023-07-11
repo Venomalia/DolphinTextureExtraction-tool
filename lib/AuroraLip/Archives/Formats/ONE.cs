@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
-using System.Runtime.CompilerServices;
 using AuroraLib.Core.Interfaces;
+using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Archives.Formats
 {

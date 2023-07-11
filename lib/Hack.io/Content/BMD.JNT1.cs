@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Core.Exceptions;
+﻿using AuroraLib.Core.Exceptions;
 using AuroraLib.Texture.J3D;
 using OpenTK.Mathematics;
 

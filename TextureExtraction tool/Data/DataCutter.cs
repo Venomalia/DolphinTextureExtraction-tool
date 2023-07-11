@@ -1,7 +1,5 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
-using AuroraLib.Core;
-using AuroraLib.Core.IO;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;

@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Archives.Formats
+﻿namespace AuroraLib.Archives.Formats
 {
     public class CTM_FC : ARC_FS
     {

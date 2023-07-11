@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DolphinTextureExtraction
+﻿namespace DolphinTextureExtraction
 {
     internal enum Options
     {

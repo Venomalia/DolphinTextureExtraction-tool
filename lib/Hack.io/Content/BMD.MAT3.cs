@@ -1261,7 +1261,7 @@ namespace Hack.io
                         if (!m_TexMatrix2Block.Any(PostTexMat => PostTexMat == mat.PostTexMatrix[i].Value))
                             m_TexMatrix2Block.Add(mat.PostTexMatrix[i].Value);
                         writer.Write((short)m_TexMatrix2Block.IndexOf(mat.PostTexMatrix[i].Value), Endian.Big);
-            }
+                    }
                     else
                         writer.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
                 }

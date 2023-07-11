@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     /*
      * Puyo Tools

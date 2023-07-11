@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using IronCompress;
+﻿using IronCompress;
 
 namespace AuroraLib.Compression
 {

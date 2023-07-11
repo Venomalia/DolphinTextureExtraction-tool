@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Core.Exceptions;
+﻿using AuroraLib.Core.Exceptions;
 using System.Collections;
 
 //Heavily based on the SuperBMD Library.

@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Core.Text;
+﻿using AuroraLib.Core.Text;
 
 namespace AuroraLib.Archives.DiscImage
 {

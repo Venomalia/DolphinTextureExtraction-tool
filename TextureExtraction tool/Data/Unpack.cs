@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using static DolphinTextureExtraction.TextureExtractor;
 
 namespace DolphinTextureExtraction
 {

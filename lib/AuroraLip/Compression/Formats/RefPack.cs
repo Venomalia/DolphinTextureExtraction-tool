@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Compression.Formats
+﻿namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// RefPack is an LZ77/LZSS compression format made by Frank Barchard of EA Canada

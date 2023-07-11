@@ -1,6 +1,4 @@
-﻿using AuroraLib.Common;
-
-namespace AuroraLib.Texture.Formats
+﻿namespace AuroraLib.Texture.Formats
 {
     /// <summary>
     /// Extracts textures from a Scene in Pokémon XD Gale of Darkness (developed by Genius Sonority, hence the GS prefix).

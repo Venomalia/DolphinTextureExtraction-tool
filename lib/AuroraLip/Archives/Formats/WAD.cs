@@ -81,7 +81,7 @@ namespace AuroraLib.Archives.Formats
                 aes.IV = TMD.CMDs[i].GetContentIV();
 
                 byte[] buffer = new byte[Content.Length];
-                using (CryptoStream cs = new CryptoStream(Content, aes.CreateDecryptor(), CryptoStreamMode.Read, false))
+                using (CryptoStream cs = new(Content, aes.CreateDecryptor(), CryptoStreamMode.Read, false))
                 {
                     cs.Read(buffer, 0, buffer.Length);
                 }
@@ -92,7 +92,7 @@ namespace AuroraLib.Archives.Formats
                 if (!thishash.SequenceEqual(TMD.CMDs[i].Hash))
                     Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(WAD)} sha1 hash doesn't match in:'{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app'");
 
-                MemoryStream de = new MemoryStream(buffer);
+                MemoryStream de = new(buffer);
                 filesDirectory.AddArchiveFile(de, $"{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app");
             }
             Root.Items.Add(filesDirectory.Name, filesDirectory);

@@ -127,28 +127,28 @@ namespace Hack.io
             {
                 long start = stream.Position;
 
-                stream.Write("EVP1");
-                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
+                stream.WriteString("EVP1");
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }); // Placeholder for section size
                 stream.Write((short)Weights.Count, Endian.Big); ;
-                stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
+                stream.Write(new byte[2] { 0xFF, 0xFF });
 
                 if (Weights.Count == 0)
                 {
-                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4);
-                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4);
-                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4);
-                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 }, 0, 4);
+                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 });
+                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 });
+                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 });
+                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x00 });
                     stream.Position = start + 4;
-                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 }, 0, 4);
+                    stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x20 });
                     stream.Seek(0, SeekOrigin.End);
                     stream.WriteAlign(8, Padding);
                     return;
                 }
 
-                stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x1C }, 0, 4); // Offset to weight count data. Always 28
+                stream.Write(new byte[4] { 0x00, 0x00, 0x00, 0x1C }); // Offset to weight count data. Always 28
                 stream.Write(28 + Weights.Count, Endian.Big); // Offset to bone/weight indices. Always 28 + the number of weights
-                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for weight data offset
-                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for inverse bind matrix data offset
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }); // Placeholder for weight data offset
+                stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }); // Placeholder for inverse bind matrix data offset
 
                 foreach (Weight w in Weights)
                     stream.WriteByte((byte)w.Count);

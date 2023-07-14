@@ -46,11 +46,9 @@
         /// <returns>Compressed data</returns>
         public static byte[] Compress(this ICompression algorithm, in byte[] Data)
         {
-            using (var destination = new MemoryStream())
-            {
-                algorithm.Compress(in Data, destination);
-                return destination.ToArray();
-            }
+            using MemoryPoolStream destination = new();
+            algorithm.Compress(in Data, destination);
+            return destination.ToArray();
         }
 
         #endregion Compress

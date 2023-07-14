@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
+using System.Reflection.Emit;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -18,12 +19,15 @@ namespace AuroraLib.Compression.Formats
         public int Adler { get; private set; } = 0;
 
         public byte[] Decompress(Stream source)
-            => Decompress(source.ToArray(), 4096).ToArray();
+        {
+            using Stream stream = Decompress(source.ToArray(), 4096);
+            return stream.ToArray();
+        }
 
-        public MemoryStream Decompress(in byte[] Data, int bufferSize = 4096, bool noHeader = false)
-            => Decompress(Data, new MemoryStream(), bufferSize, noHeader);
+        public Stream Decompress(in byte[] Data, int bufferSize = 4096, bool noHeader = false)
+            => Decompress(Data, new MemoryPoolStream(), bufferSize, noHeader);
 
-        public MemoryStream Decompress(in byte[] Data, MemoryStream ms, int bufferSize = 4096, bool noHeader = false)
+        public Stream Decompress(in byte[] Data, Stream ms, int bufferSize = 4096, bool noHeader = false)
         {
             byte[] buffer = new byte[bufferSize];
 
@@ -57,14 +61,17 @@ namespace AuroraLib.Compression.Formats
         }
 
         public void Compress(in byte[] source, Stream destination)
-            => destination.Write(Compress(source, CompressionLevel.Optimal, 4096).ToArray());
+            => Compress(source, destination, CompressionLevel.Optimal, 4096);
 
         public byte[] Compress(byte[] Data, CompressionLevel level)
-            => Compress(Data, level, 4096).ToArray();
-
-        public MemoryStream Compress(byte[] Data, CompressionLevel level, int bufferSize = 4096, bool noHeader = false)
         {
-            MemoryStream ms = new();
+            using Stream stream = Compress(Data, level, 4096);
+            return stream.ToArray();
+        }
+
+        public Stream Compress(byte[] Data, CompressionLevel level, int bufferSize = 4096, bool noHeader = false)
+        {
+            MemoryPoolStream ms = new();
             Compress(Data, ms, level, bufferSize, noHeader);
             return ms;
         }

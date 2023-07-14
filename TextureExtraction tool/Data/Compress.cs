@@ -25,7 +25,7 @@ namespace DolphinTextureExtraction.Data
         protected override void Scan(ScanObjekt so)
         {
             ICompression algo = (ICompression)Activator.CreateInstance(algorithm);
-            Stream destination = new FileStream(GetFullSaveDirectory(so.SubPath.ToString()), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+            using FileStream destination = new(GetFullSaveDirectory(so.SubPath.ToString()), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
             algo.Compress(so.Stream.ToArray(), destination);
             AddResult(so, destination);
         }

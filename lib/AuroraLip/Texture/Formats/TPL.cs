@@ -152,7 +152,7 @@ namespace AuroraLib.Texture.Formats
             }
 
             //Write ImageOffsetTable
-            stream.At(OffsetLocation, s => s.WriteObjekt(ImageOffsetTable, Endian.Big));
+            stream.At(OffsetLocation, s => s.Write<ImageOffsetEntry>(ImageOffsetTable, Endian.Big));
         }
 
         public struct ImageOffsetEntry

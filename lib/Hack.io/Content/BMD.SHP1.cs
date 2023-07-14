@@ -186,7 +186,7 @@ namespace Hack.io
                 int RemapTableOffset = 0x2C + (0x28 * Shapes.Count), NameTableOffset = 0, AttributeTableOffset, DRW1IndexTableOffset, PrimitiveDataOffset, MatrixDataOffset, PrimitiveLocationDataOffset;
                 //In the event that a BMD/BDL with a Name Table for Shapes is found, the saving code will go here
 
-                stream.Write("SHP1");
+                stream.WriteString("SHP1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for Section Size
                 stream.Write((short)Shapes.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);

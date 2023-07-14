@@ -465,7 +465,7 @@ namespace Hack.io
             {
                 long start = stream.Position;
 
-                stream.Write("VTX1");
+                stream.WriteString("VTX1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
                 stream.Write(0x40, Endian.Big); // Offset to attribute data
 

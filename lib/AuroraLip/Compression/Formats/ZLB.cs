@@ -21,7 +21,7 @@ namespace AuroraLib.Compression.Formats
 
         public byte[] Decompress(Stream source)
         {
-            MemoryStream buffer = new();
+            using MemoryPoolStream buffer = new();
             do
             {
                 if (!IsMatch(source))

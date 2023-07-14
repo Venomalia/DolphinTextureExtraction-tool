@@ -81,7 +81,7 @@ namespace Hack.io
             {
                 long start = stream.Position;
 
-                stream.Write("JNT1");
+                stream.WriteString("JNT1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
                 stream.Write((short)FlatSkeleton.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);
@@ -256,7 +256,7 @@ namespace Hack.io
                 {
                     List<byte> outList = new List<byte>();
 
-                    using (MemoryStream stream = new MemoryStream())
+                    using (MemoryPoolStream stream = new())
                     {
                         stream.Write(m_MatrixType, Endian.Big);
                         stream.WriteByte((byte)(InheritParentScale ? 0x00 : 0x01));

@@ -24,7 +24,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AuroraLib.Core" Version="1.0.0" />
+    <PackageReference Include="AuroraLib.Core" Version="1.1.1" />
     <PackageReference Include="IronCompress" Version="1.4.0" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
     <PackageReference Include="SharpZipLib.NETStandard" Version="1.0.7" />

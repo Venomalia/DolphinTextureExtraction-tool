@@ -40,7 +40,7 @@ namespace AuroraLib.Compression.Formats
             //has chunks?
             if (source.Position != source.Length)
             {
-                var buffer = new MemoryStream();
+                using MemoryPoolStream buffer = new();
                 buffer.Write(Decom);
                 try
                 {
@@ -146,7 +146,7 @@ namespace AuroraLib.Compression.Formats
             dictionary.SetWindowSize(0x1000);
             dictionary.SetMaxMatchAmount(0x1000);
 
-            using (var buffer = new MemoryStream(32)) // Will never contain more than 32 bytes
+            using (MemoryPoolStream buffer = new(32)) // Will never contain more than 32 bytes
             {
                 // Write out the header
                 // Magic code & decompressed length

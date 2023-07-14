@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Exceptions;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -7,15 +8,15 @@ namespace AuroraLib.Texture.Formats
     // with a switch on subtypes (ex: 'FTEX')
     // but that would be more complicated
     // to deal with!
-    public class FIPAFTEX : JUTTexture, IFileAccess
+    public class FIPAFTEX : JUTTexture, IFileAccess, IHasIdentifier
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
-        public string Magic => magic;
+        public IIdentifier Identifier => magic;
 
-        private const string magic = "FIPAFTEX";
+        private static readonly Identifier64 magic = new("FIPAFTEX");
 
         public static bool Matcher(Stream stream, in string extension = "")
         {
@@ -30,8 +31,7 @@ namespace AuroraLib.Texture.Formats
 
         protected override void Read(Stream stream)
         {
-            if (!stream.Match(magic))
-                throw new InvalidIdentifierException(Magic);
+            stream.MatchThrow(magic);
 
             // These files contain one or more TPLs
             // so we use a helper function to parse the TPL

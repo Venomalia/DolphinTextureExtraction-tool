@@ -41,7 +41,7 @@ namespace AuroraLib.Archives.Formats
                 {
                     //<- 0x10 LZSS Header
                     stream.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
-                    MemoryStream DeStream = lZSS.Decompress(stream, (int)Info.DecompressedSize);
+                    Stream DeStream = lZSS.Decompress(stream, (int)Info.DecompressedSize);
                     Root.AddArchiveFile(DeStream, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
                 }
                 else

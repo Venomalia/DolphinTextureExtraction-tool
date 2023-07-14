@@ -56,7 +56,7 @@ namespace AuroraLib.Archives.Formats
                 Entry entry = new(stream, endian);
                 if (!Root.Items.ContainsKey(entry.Name))
                 {
-                    MemoryStream decomp = new(Shrek.Decompress_ALG(reference_stream.At(entry.Offset, s => s.Read((int)entry.CompSize)), (int)entry.DecompSize).ToArray());
+                    MemoryStream decomp = new(Shrek.Decompress_ALG(reference_stream.At(entry.Offset, s => s.Read((int)entry.CompSize)), (int)entry.DecompSize));
                     Root.AddArchiveFile(decomp, entry.Name);
                 }
             }

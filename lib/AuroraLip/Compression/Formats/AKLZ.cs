@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
+using System.Reflection.Emit;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -25,7 +26,9 @@ namespace AuroraLib.Compression.Formats
         {
             source.Position += 0xC;
             uint decompressedSize = source.ReadUInt32(Endian.Big);
-            return LZSS.Decompress(source, (int)decompressedSize).ToArray();
+
+            using Stream stream = LZSS.Decompress(source, (int)decompressedSize);
+            return stream.ToArray();
         }
 
         public void Compress(in byte[] source, Stream destination) => throw new NotImplementedException();

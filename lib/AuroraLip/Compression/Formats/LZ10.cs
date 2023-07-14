@@ -32,12 +32,12 @@ namespace AuroraLib.Compression.Formats
             source.Position += 1;
             int destinationLength = (int)source.ReadUInt24();
 
-            var Decom = Decompress_ALG(source, destinationLength);
+            byte[] Decom = Decompress_ALG(source, destinationLength);
 
             //has chunks?
             if (source.Position != source.Length)
             {
-                var buffer = new MemoryStream();
+                using MemoryPoolStream buffer = new();
                 buffer.Write(Decom);
                 try
                 {
@@ -123,48 +123,46 @@ namespace AuroraLib.Compression.Formats
             dictionary.SetWindowSize(0x1000);
             dictionary.SetMaxMatchAmount(0xF + 3);
 
-            using (var buffer = new MemoryStream(16)) // Will never contain more than 16 bytes
+            using MemoryStream buffer = new(16); // Will never contain more than 16 bytes
+                                                     // Start compression
+            while (sourcePointer < sourceLength)
             {
-                // Start compression
-                while (sourcePointer < sourceLength)
+                byte flag = 0;
+
+                for (int i = 7; i >= 0; i--)
                 {
-                    byte flag = 0;
+                    // Search for a match
+                    int[] match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
 
-                    for (int i = 7; i >= 0; i--)
+                    if (match[1] > 0) // There is a match
                     {
-                        // Search for a match
-                        int[] match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
+                        flag |= (byte)(1 << i);
 
-                        if (match[1] > 0) // There is a match
-                        {
-                            flag |= (byte)(1 << i);
+                        buffer.Write((ushort)((match[1] - 3) << 12 | ((match[0] - 1) & 0xFFF)), Endian.Big);
 
-                            buffer.Write((ushort)((match[1] - 3) << 12 | ((match[0] - 1) & 0xFFF)), Endian.Big);
+                        dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
 
-                            dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
+                        sourcePointer += match[1];
+                    }
+                    else // There is not a match
+                    {
+                        buffer.WriteByte(sourceArray[sourcePointer]);
 
-                            sourcePointer += match[1];
-                        }
-                        else // There is not a match
-                        {
-                            buffer.WriteByte(sourceArray[sourcePointer]);
+                        dictionary.AddEntry(sourceArray, sourcePointer);
 
-                            dictionary.AddEntry(sourceArray, sourcePointer);
-
-                            sourcePointer++;
-                        }
-
-                        // Check to see if we reached the end of the file
-                        if (sourcePointer >= sourceLength)
-                            break;
+                        sourcePointer++;
                     }
 
-                    // Flush the buffer and write it to the destination stream
-                    destination.WriteByte(flag);
-
-                    buffer.WriteTo(destination);
-                    buffer.SetLength(0);
+                    // Check to see if we reached the end of the file
+                    if (sourcePointer >= sourceLength)
+                        break;
                 }
+
+                // Flush the buffer and write it to the destination stream
+                destination.WriteByte(flag);
+
+                buffer.WriteTo(destination);
+                buffer.SetLength(0);
             }
         }
     }

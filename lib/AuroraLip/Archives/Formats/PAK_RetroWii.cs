@@ -107,7 +107,7 @@ namespace AuroraLib.Archives.Formats
                     CMPDEntry[] CMPD = stream.For((int)blocks, s => new CMPDEntry(stream));
 
                     //DKCR = Zlip & prime 3 = LZO1X-999
-                    Stream MS = new MemoryStream();
+                    MemoryPoolStream MS = new();
                     for (int i = 0; i < blocks; i++)
                     {
                         //Copy block if not compressed
@@ -117,10 +117,8 @@ namespace AuroraLib.Archives.Formats
                             continue;
                         }
                         // Decompress the data for this block
-                        using (MemoryStream memoryStream = Decompress(new SubStream(stream, (int)CMPD[i].CoSize), CMPD[i].DeSize))
-                        {
-                            MS.Write(memoryStream.ToArray().AsSpan());
-                        }
+                        using Stream temStream = Decompress(new SubStream(stream, (int)CMPD[i].CoSize), CMPD[i].DeSize);
+                        MS.Write(temStream.ToArray().AsSpan());
                     }
                     ArchiveFile Sub = new() { Parent = Root, Name = name, FileData = MS };
                     Root.Items.Add(Sub.Name, Sub);

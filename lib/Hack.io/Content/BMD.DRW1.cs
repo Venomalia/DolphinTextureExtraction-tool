@@ -46,7 +46,7 @@ namespace Hack.io
             {
                 long start = stream.Position;
 
-                stream.Write("DRW1");
+                stream.WriteString("DRW1");
                 stream.Write(new byte[4] { 0xDD, 0xDD, 0xDD, 0xDD }, 0, 4); // Placeholder for section size
                 stream.Write((short)IsPartialWeight.Count, Endian.Big);
                 stream.Write(new byte[2] { 0xFF, 0xFF }, 0, 2);

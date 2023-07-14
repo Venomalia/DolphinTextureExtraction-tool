@@ -33,7 +33,7 @@ namespace AuroraLib.Compression.Formats
 
             //var fileExtension = source is FileStream fs ? Path.GetExtension(fs.Name) : string.Empty;
             string fileExtension = "DEC";
-            destination.Write(fileExtension);
+            destination.WriteString(fileExtension);
 
             destination.WriteByte(0x10);
             destination.Write(0, Endian.Big); // Compressed length (will be filled in later)
@@ -139,95 +139,93 @@ namespace AuroraLib.Compression.Formats
                 sourcePointer = 0x0;
 
             // Initalize the LZ dictionary
-            LzWindowDictionary dictionary = new LzWindowDictionary();
+            LzWindowDictionary dictionary = new();
             dictionary.SetWindowSize(0x800);
             dictionary.SetMinMatchAmount(4);
             dictionary.SetMaxMatchAmount(0x1F + 4);
 
-            using (var buffer = new MemoryStream(256)) // Will never contain more than 256 bytes
+            using MemoryStream buffer = new(256); // Will never contain more than 256 bytes
+                                                  // Set the initial match
+            int[] match = new[] { 0, 0 };
+
+            // Start compression
+            while (sourcePointer < sourceLength)
             {
-                // Set the initial match
-                int[] match = new[] { 0, 0 };
+                byte flag = 0;
 
-                // Start compression
-                while (sourcePointer < sourceLength)
+                for (int i = 0; i < 4; i++)
                 {
-                    byte flag = 0;
-
-                    for (int i = 0; i < 4; i++)
+                    if (match[1] > 0) // There is a match
                     {
-                        if (match[1] > 0) // There is a match
+                        flag |= (byte)(2 << (i * 2));
+
+                        buffer.Write((ushort)((((match[0] - 1) & 0x7FF) << 5) | ((match[1] - 4) & 0x1F)), Endian.Big);
+
+                        dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
+
+                        sourcePointer += match[1];
+
+                        // Search for a match
+                        if (sourcePointer < sourceLength)
                         {
-                            flag |= (byte)(2 << (i * 2));
-
-                            buffer.Write((ushort)((((match[0] - 1) & 0x7FF) << 5) | ((match[1] - 4) & 0x1F)), Endian.Big);
-
-                            dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
-
-                            sourcePointer += match[1];
-
-                            // Search for a match
-                            if (sourcePointer < sourceLength)
-                            {
-                                match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
-                            }
+                            match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
                         }
-                        else // There is not a match
+                    }
+                    else // There is not a match
+                    {
+                        dictionary.AddEntry(sourceArray, sourcePointer);
+
+                        byte matchLength = 1;
+
+                        // Search for a match
+                        while (sourcePointer + matchLength < sourceLength
+                            && matchLength < 255
+                            && (match = dictionary.Search(sourceArray, (uint)(sourcePointer + matchLength), (uint)sourceLength))[1] == 0)
                         {
-                            dictionary.AddEntry(sourceArray, sourcePointer);
+                            dictionary.AddEntry(sourceArray, sourcePointer + matchLength);
 
-                            byte matchLength = 1;
-
-                            // Search for a match
-                            while (sourcePointer + matchLength < sourceLength
-                                && matchLength < 255
-                                && (match = dictionary.Search(sourceArray, (uint)(sourcePointer + matchLength), (uint)sourceLength))[1] == 0)
-                            {
-                                dictionary.AddEntry(sourceArray, sourcePointer + matchLength);
-
-                                matchLength++;
-                            }
-
-                            // Determine the type of flag to write based on the length of the match
-                            if (matchLength > 1)
-                            {
-                                flag |= (byte)(3 << (i * 2));
-                                buffer.WriteByte(matchLength);
-                            }
-                            else
-                            {
-                                flag |= (byte)(1 << (i * 2));
-                            }
-
-                            buffer.Write(sourceArray, sourcePointer, matchLength);
-
-                            sourcePointer += matchLength;
+                            matchLength++;
                         }
 
-                        // Check to see if we reached the end of the file
-                        if (sourcePointer >= sourceLength)
+                        // Determine the type of flag to write based on the length of the match
+                        if (matchLength > 1)
                         {
-                            break;
+                            flag |= (byte)(3 << (i * 2));
+                            buffer.WriteByte(matchLength);
                         }
+                        else
+                        {
+                            flag |= (byte)(1 << (i * 2));
+                        }
+
+                        buffer.Write(sourceArray, sourcePointer, matchLength);
+
+                        sourcePointer += matchLength;
                     }
 
                     // Check to see if we reached the end of the file
-                    if (sourcePointer >= sourceLength && ((flag >> 6) & 0x3) == 0)
+                    if (sourcePointer >= sourceLength)
                     {
-                        // Write out values for this flag
-                        buffer.WriteByte(0);
+                        break;
                     }
-
-                    // Flush the buffer and write it to the destination stream
-                    destination.WriteByte(flag);
-
-                    buffer.WriteTo(destination);
-                    buffer.SetLength(0);
                 }
 
-                // Write the final flag of 0
-                destination.WriteByte(0);
+                // Check to see if we reached the end of the file
+                if (sourcePointer >= sourceLength && ((flag >> 6) & 0x3) == 0)
+                {
+                    // Write out values for this flag
+                    buffer.WriteByte(0);
+                }
+
+                // Flush the buffer and write it to the destination stream
+                destination.WriteByte(flag);
+
+                buffer.WriteTo(destination);
+                buffer.SetLength(0);
             }
+
+            // Write the final flag of 0
+            destination.WriteByte(0);
         }
     }
 }

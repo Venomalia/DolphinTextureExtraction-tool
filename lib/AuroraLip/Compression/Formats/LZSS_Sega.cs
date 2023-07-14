@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.Compression.Formats
+﻿using System.Reflection.Emit;
+
+namespace AuroraLib.Compression.Formats
 {
     /// <summary>
     /// This LZSS header was used by Sega in early GC games like F-zero GX or Super Monkey Ball.
@@ -33,7 +35,8 @@
             uint compressedSize = source.ReadUInt32();
             uint decompressedSize = source.ReadUInt32();
 
-            return LZSS.Decompress(source, (int)decompressedSize).ToArray();
+            using Stream stream = LZSS.Decompress(source, (int)decompressedSize);
+            return stream.ToArray();
         }
     }
 }

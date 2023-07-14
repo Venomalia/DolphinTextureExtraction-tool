@@ -496,7 +496,7 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 0; i < FlatDirectoryList.Count; i++)
             {
-                stream.Write(FlatDirectoryList[i].Type);
+                stream.WriteString(FlatDirectoryList[i].Type);
                 stream.Write(StringLocations[FlatDirectoryList[i].Name], Endian.Big);
                 stream.Write(FlatDirectoryList[i].NameHash, Endian.Big);
                 stream.Write(FlatDirectoryList[i].FileCount, Endian.Big);

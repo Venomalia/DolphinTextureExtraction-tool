@@ -30,7 +30,7 @@ namespace AuroraLib.Archives.Formats
             long string_table_position = file_count * 24 + stream.Position;
             long current_file_data_position = data_pos;
 
-            var zlib = new ZLib();
+            ZLib zlib = new();
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < file_count; i++)
             {
@@ -52,7 +52,7 @@ namespace AuroraLib.Archives.Formats
                 else
                 {
                     stream.Seek(current_file_data_position, SeekOrigin.Begin);
-                    byte[] bytes = stream.Read((int)compressed_size).ToArray();
+                    byte[] bytes = stream.Read(compressed_size);
                     var decompressed_stream = zlib.Decompress(bytes, 4096, false);
                     Root.AddArchiveFile(decompressed_stream, file_name);
                 }

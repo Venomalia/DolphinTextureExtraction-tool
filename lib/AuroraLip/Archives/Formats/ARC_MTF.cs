@@ -25,7 +25,7 @@ namespace AuroraLib.Archives.Formats
             ushort version = stream.ReadUInt16(Endian.Big);
             ushort file_count = stream.ReadUInt16(Endian.Big);
 
-            var zlib = new ZLib();
+            ZLib zlib = new();
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < file_count; i++)
             {
@@ -35,7 +35,7 @@ namespace AuroraLib.Archives.Formats
                 uint flags = stream.ReadUInt32(Endian.Big);
                 uint offset = stream.ReadUInt32(Endian.Big);
 
-                var uncompressed_size = (flags & 0x1FFFFFFF) >> 0;
+                uint uncompressed_size = (flags & 0x1FFFFFFF) >> 0;
 
                 if (compressed_size == uncompressed_size)
                 {
@@ -43,16 +43,16 @@ namespace AuroraLib.Archives.Formats
                 }
                 else
                 {
-                    var pos = stream.Position;
+                    long pos = stream.Position;
                     stream.Seek(offset, SeekOrigin.Begin);
-                    byte[] bytes = stream.Read((int)compressed_size).ToArray();
-                    var decompressed_stream = zlib.Decompress(bytes, 4096, false);
-                    var decompressed_stream_pos = decompressed_stream.Position;
+                    byte[] bytes = stream.Read(compressed_size);
+                    Stream decompressed_stream = zlib.Decompress(bytes, 4096, false);
+                    long decompressed_stream_pos = decompressed_stream.Position;
                     decompressed_stream.Seek(0, SeekOrigin.Begin);
 
                     // The inner magic determines what the extension is
                     decompressed_stream.ReadByte();
-                    var inner_file_magic = decompressed_stream.ReadString(3);
+                    string inner_file_magic = decompressed_stream.ReadString(3);
                     uint data_skip = 0;
                     if (inner_file_magic == "XET")
                     {

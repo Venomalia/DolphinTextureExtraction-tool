@@ -25,6 +25,8 @@ namespace DolphinTextureExtraction
 #else
         private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit";
 #endif
+
+
         static Program()
         {
             //link external classes

@@ -33,7 +33,7 @@ namespace AuroraLib.Texture.Formats
 
             if (Properties.Format == LFXTFormat.BGRA32)
             {
-                MemoryStream ms = new();
+                using MemoryPoolStream ms = new();
                 // BGRA32 to GXImageFormat.RGBA32 No idea why anyone does that XD
                 for (int i = 0; i < Properties.Mipmaps + 1; i++)
                 {

@@ -49,17 +49,18 @@ namespace AuroraLib.Compression.Formats
             uint compressedSize = source.ReadUInt32(Endian.Big);
             uint unk = source.ReadUInt32(Endian.Big);
 
-            return Decompress(source, (int)decompressedSize).ToArray();
+            using Stream stream = Decompress(source, (int)decompressedSize);
+            return stream.ToArray();
         }
 
-        public MemoryStream Decompress(Stream inputStream, int decomLength)
+        public Stream Decompress(Stream inputStream, int decomLength)
         {
             int n = 1 << EI;
             int f = 1 << EJ;
 
             int flags = 0;
             Span<byte> slidingWindow = EI <= 14 ? stackalloc byte[n] : new byte[n];
-            MemoryStream outStream = new(decomLength);
+            MemoryPoolStream outStream = new(decomLength);
 
             int r = n - f - P;
             n--;

@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.IO;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -50,9 +51,13 @@ namespace AuroraLib.Archives.Formats
 
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Entry.Name };
                 stream.Position = Entry.DataOffset + EOH;
-                byte[] data = stream.Read((int)Entry.DataSize);
-                data.AsSpan().DataXor(0x55);
-                Sub.FileData = new MemoryStream(data);
+
+                MemoryPoolStream ms = new(Entry.DataSize);
+                ms.SetLength(Entry.DataSize);
+                Span<byte> msSpan = ms.UnsaveAsSpan();
+                stream.Read(msSpan);
+                msSpan.DataXor(0x55);
+                Sub.FileData = ms;
                 Root.Items.Add(Sub.Name, Sub);
             }
         }

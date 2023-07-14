@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
+using System.IO.Compression;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -136,60 +137,57 @@ namespace AuroraLib.Compression.Formats
                 sourcePointer = 0x0;
 
             // Initalize the LZ dictionary
-            LzBufferDictionary dictionary = new LzBufferDictionary();
+            LzBufferDictionary dictionary = new();
             dictionary.SetBufferSize(0x1000);
             dictionary.SetBufferStart(0xFEE);
             dictionary.SetMaxMatchAmount(0xF + 3);
-
-            using (var buffer = new MemoryStream(16)) // Will never contain more than 16 bytes
+            using MemoryStream buffer = new(16); // Will never contain more than 16 bytes
+                                                     // Start compression
+            while (sourcePointer < sourceLength)
             {
-                // Start compression
-                while (sourcePointer < sourceLength)
+                byte flag = 0;
+
+                for (int i = 0; i < 8; i++)
                 {
-                    byte flag = 0;
+                    // Search for a match
+                    int[] match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
 
-                    for (int i = 0; i < 8; i++)
+                    if (match[1] > 0) // There is a match
                     {
-                        // Search for a match
-                        int[] match = dictionary.Search(sourceArray, (uint)sourcePointer, (uint)sourceLength);
+                        buffer.Write((ushort)((match[0] & 0xFF) | (match[0] & 0xF00) << 4 | ((match[1] - 3) & 0xF) << 8));
 
-                        if (match[1] > 0) // There is a match
-                        {
-                            buffer.Write((ushort)((match[0] & 0xFF) | (match[0] & 0xF00) << 4 | ((match[1] - 3) & 0xF) << 8));
+                        dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
 
-                            dictionary.AddEntryRange(sourceArray, sourcePointer, match[1]);
+                        sourcePointer += match[1];
+                    }
+                    else // There is not a match
+                    {
+                        flag |= (byte)(1 << i);
 
-                            sourcePointer += match[1];
-                        }
-                        else // There is not a match
-                        {
-                            flag |= (byte)(1 << i);
+                        buffer.WriteByte(sourceArray[sourcePointer]);
 
-                            buffer.WriteByte(sourceArray[sourcePointer]);
+                        dictionary.AddEntry(sourceArray, sourcePointer);
 
-                            dictionary.AddEntry(sourceArray, sourcePointer);
-
-                            sourcePointer++;
-                        }
-
-                        // Check to see if we reached the end of the file
-                        if (sourcePointer >= sourceLength)
-                            break;
+                        sourcePointer++;
                     }
 
-                    // Flush the buffer and write it to the destination stream
-                    destination.WriteByte(Transform(flag, ref key));
-
-                    // Loop through the buffer and encrypt the contents before writing it to the destination
-                    var backingBuffer = buffer.GetBuffer();
-                    for (var i = 0; i < buffer.Length; i++)
-                    {
-                        backingBuffer[i] = Transform(backingBuffer[i], ref key);
-                    }
-
-                    buffer.WriteTo(destination);
-                    buffer.SetLength(0);
+                    // Check to see if we reached the end of the file
+                    if (sourcePointer >= sourceLength)
+                        break;
                 }
+
+                // Flush the buffer and write it to the destination stream
+                destination.WriteByte(Transform(flag, ref key));
+
+                // Loop through the buffer and encrypt the contents before writing it to the destination
+                var backingBuffer = buffer.GetBuffer();
+                for (var i = 0; i < buffer.Length; i++)
+                {
+                    backingBuffer[i] = Transform(backingBuffer[i], ref key);
+                }
+
+                buffer.WriteTo(destination);
+                buffer.SetLength(0);
             }
         }
 

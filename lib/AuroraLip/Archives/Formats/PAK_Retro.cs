@@ -85,7 +85,7 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        protected static MemoryStream Decompress(Stream input, uint decompressedSize)
+        protected static Stream Decompress(Stream input, uint decompressedSize)
         {
             //prime 1, DKCR = Zlip
             //prime 2,3 = LZO1X-999
@@ -103,11 +103,11 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        protected static MemoryStream DecompressSegmentedLZO(Stream input, uint decompressedSize)
+        protected static Stream DecompressSegmentedLZO(Stream input, uint decompressedSize)
         {
             const int segmentSize = 0x4000; // The decompressed size of each segment
             int numSegments = (int)Math.Ceiling((double)decompressedSize / segmentSize); // The number of segments in the file
-            MemoryStream output = new((int)decompressedSize); // A stream to hold the decompressed data
+            MemoryPoolStream output = new((int)decompressedSize); // A stream to hold the decompressed data
             Iron iron = new();
 
             for (int i = 0; i < numSegments; i++)

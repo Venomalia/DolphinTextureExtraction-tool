@@ -33,7 +33,7 @@
         {
             int lookBehindOffset, lookBehindLength;
 
-            Stream destination = new MemoryStream();
+            using MemoryPoolStream destination = new();
             FlagReader Flag = new(source, order);
 
             while (source.Position < source.Length)
@@ -89,7 +89,7 @@
             int currentLookBehindPosition, currentLookBehindLength;
             int lookBehindOffset, lookBehindLength;
 
-            MemoryStream buffer = new();
+            using MemoryStream buffer = new();
             FlagWriter flagWriter = new(destination, buffer, order);
 
             while (position < source.Length)

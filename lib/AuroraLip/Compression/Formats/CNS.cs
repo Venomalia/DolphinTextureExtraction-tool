@@ -95,7 +95,7 @@ namespace AuroraLib.Compression.Formats
             dictionary.SetWindowSize(255);
             dictionary.SetMaxMatchAmount(130);
 
-            using (MemoryStream buffer = new(255))
+            using (MemoryPoolStream buffer = new(255))
             {
                 // Start compression
                 while (sourcePointer < sourceLength)

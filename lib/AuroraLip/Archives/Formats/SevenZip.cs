@@ -83,9 +83,9 @@ namespace AuroraLib.Archives.Formats
                 foreach (Entry entry in archiveFile.Entries)
                 {
                     // extract to stream
-                    MemoryStream memoryStream = new MemoryStream();
-                    entry.Extract(memoryStream);
-                    Root.AddArchiveFile(memoryStream, entry.FileName);
+                    using MemoryPoolStream ms = new();
+                    entry.Extract(ms);
+                    Root.AddArchiveFile(ms, entry.FileName);
                 }
             }
         }

@@ -21,6 +21,7 @@
     <RepositoryUrl>https://github.com/Venomalia/DolphinTextureExtraction-tool</RepositoryUrl>
     <Title>Dolphin Texture Extraction Tool</Title>
     <Authors>Venomalia</Authors>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

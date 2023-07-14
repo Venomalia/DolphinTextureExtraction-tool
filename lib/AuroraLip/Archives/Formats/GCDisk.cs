@@ -78,7 +78,7 @@ namespace AuroraLib.Archives.Formats
             {
                 get
                 {
-                    MemoryStream stream = new MemoryStream();
+                    using MemoryPoolStream stream = new();
                     stream.Write(DebugMonitorSize, Endian.Big);
                     stream.Write(SimulatedMemorySize, Endian.Big);
                     stream.Write(ArgumentOffset, Endian.Big);
@@ -107,7 +107,7 @@ namespace AuroraLib.Archives.Formats
             {
                 if (Value.Length != 8192)
                     throw new ArgumentException($"A {nameof(Bi2Bin)} must consist of 8192 bytes");
-                MemoryStream stream = new MemoryStream(Value);
+                using MemoryStream stream = new(Value);
 
                 DebugMonitorSize = stream.ReadUInt32(Endian.Big);
                 SimulatedMemorySize = stream.ReadUInt32(Endian.Big);
@@ -131,8 +131,8 @@ namespace AuroraLib.Archives.Formats
             {
                 get
                 {
-                    MemoryStream stream = new MemoryStream();
-                    stream.Write((string)GameID);
+                    using MemoryPoolStream stream = new();
+                    stream.WriteString((string)GameID);
                     stream.WriteByte(DiskID);
                     stream.WriteByte(Version);
                     stream.WriteByte(streaming);
@@ -140,7 +140,7 @@ namespace AuroraLib.Archives.Formats
                     stream.Write(0, 14);
                     stream.Write(WiiMagicWord, Endian.Big);
                     stream.Write(GCMagicWord, Endian.Big);
-                    stream.Write(GameName);
+                    stream.WriteString(GameName);
                     stream.Write(0, 0x03e0 - GameName.Length);
                     stream.Write(debugMonitorOffset, Endian.Big);
                     stream.Write(debugMonitorAddress, Endian.Big);
@@ -182,7 +182,7 @@ namespace AuroraLib.Archives.Formats
             {
                 if (Value.Length != 1088)
                     throw new ArgumentException($"A {nameof(BootBin)} must consist of 1088 bytes");
-                MemoryStream stream = new MemoryStream(Value);
+                MemoryStream stream = new(Value);
                 GameID = (GameID)stream.ReadString(6);
                 DiskID = stream.ReadUInt8();
                 Version = stream.ReadUInt8();

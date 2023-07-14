@@ -14,6 +14,7 @@ namespace AuroraLib.Archives.Formats
         public static string Extension => ".bin";
 
         private static readonly LZSS lZSS = new(10, 6, 2);
+        private static readonly ZLib zlib = new();
 
         public bool IsMatch(Stream stream, in string extension = "")
             => Matcher(stream, extension);
@@ -90,7 +91,6 @@ namespace AuroraLib.Archives.Formats
                         break;
 
                     case CompressionType.LZSS:
-                        //DeStream = new MemoryStream(LZSS.Decompress(stream, (int)DeSize));
                         DeStream = lZSS.Decompress(stream, (int)DeSize);
                         break;
 
@@ -106,7 +106,7 @@ namespace AuroraLib.Archives.Formats
                     case CompressionType.INFLATE:
                         uint decompressed_size = stream.ReadUInt32(Endian.Big);
                         uint compressed_size = stream.ReadUInt32(Endian.Big);
-                        DeStream = new MemoryStream(Compression<ZLib>.Decompress(stream.Read((int)compressed_size)));
+                        DeStream = zlib.Decompress(stream.Read((int)compressed_size));
                         break;
 
                     default:

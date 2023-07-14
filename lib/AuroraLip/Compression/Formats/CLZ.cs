@@ -32,13 +32,11 @@ namespace AuroraLib.Compression.Formats
 
         public byte[] Decompress(Stream source)
         {
-            using (MemoryStream outfile = new MemoryStream())
-            {
-                Unpack(source, outfile);
-                if (source.Length > source.Position)
-                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(CLZ)} file steam contains {source.Length - source.Position} unread bytes, starting at position {source.Position}.");
-                return outfile.ToArray();
-            }
+            using MemoryPoolStream outfile = new();
+            Unpack(source, outfile);
+            if (source.Length > source.Position)
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(CLZ)} file steam contains {source.Length - source.Position} unread bytes, starting at position {source.Position}.");
+            return outfile.ToArray();
         }
 
         //https://github.com/sukharah/CLZ-Compression/blob/master/source/CLZ.cpp

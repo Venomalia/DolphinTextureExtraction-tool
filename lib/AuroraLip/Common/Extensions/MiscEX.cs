@@ -35,13 +35,11 @@ namespace AuroraLib.Common
 
         public static byte[] Decrypt(this ICryptoTransform algorithm, byte[] cipherData)
         {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                CryptoStream cs = new(ms, algorithm, CryptoStreamMode.Write);
-                cs.Write(cipherData, 0, cipherData.Length);
-                cs.Close();
-                return ms.ToArray();
-            }
+            using MemoryPoolStream ms = new();
+            using CryptoStream cs = new(ms, algorithm, CryptoStreamMode.Write);
+            cs.Write(cipherData, 0, cipherData.Length);
+            cs.Close();
+            return ms.ToArray();
         }
     }
 }

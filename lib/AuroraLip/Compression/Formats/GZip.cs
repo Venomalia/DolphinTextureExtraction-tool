@@ -13,20 +13,15 @@ namespace AuroraLib.Compression.Formats
 
         public void Compress(in byte[] source, Stream destination)
         {
-            using (GZipStream gZipStream = new GZipStream(new MemoryStream(source), System.IO.Compression.CompressionLevel.Optimal))
-            {
-                gZipStream.CopyTo(destination);
-            }
+            using GZipStream gZipStream = new(destination, System.IO.Compression.CompressionLevel.Optimal);
+            gZipStream.Write(source);
+
         }
 
         public byte[] Decompress(Stream source)
         {
-            MemoryStream memoryStream = new MemoryStream();
-            using (GZipStream gZipStream = new GZipStream(source, CompressionMode.Decompress))
-            {
-                gZipStream.CopyTo(memoryStream);
-            }
-            return memoryStream.ToArray();
+            using GZipStream gZipStream = new(source, CompressionMode.Decompress);
+            return gZipStream.ToArray();
         }
 
         public byte[] Compress(byte[] Data, CompressionLevel level)
@@ -47,12 +42,12 @@ namespace AuroraLib.Compression.Formats
                     gzlvel = System.IO.Compression.CompressionLevel.Fastest;
                     break;
             }
-            MemoryStream memoryStream = new MemoryStream();
-            using (GZipStream gZipStream = new GZipStream(memoryStream, gzlvel))
+            using (MemoryPoolStream ms = new())
+            using (GZipStream gZipStream = new(ms, gzlvel))
             {
-                (new MemoryStream(Data)).CopyTo(gZipStream);
+                gZipStream.Write(Data);
+                return ms.ToArray();
             }
-            return memoryStream.ToArray();
         }
 
         public bool IsMatch(Stream stream, in string extension = "")

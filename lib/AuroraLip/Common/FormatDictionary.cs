@@ -134,10 +134,15 @@ namespace AuroraLib.Common
                         IdentifierLOT.Add(key, formatInfo);
                     }
                 }
+#if DEBUG
                 else
                 {
-                    Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Identifier {formatInfo.Identifier} is already used!");
+                    if (formatInfo.IdentifierOffset == 0)
+                    {
+                        Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Identifier {formatInfo.Identifier} is already used!");
+                    }
                 }
+#endif
 
                 if (formatInfo.IdentifierOffset != 0 || formatInfo.Identifier is Identifier)
                 {

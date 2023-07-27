@@ -26,7 +26,7 @@ namespace AuroraLib.Texture.Formats
         }
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Match(_identifier) || (extension == string.Empty && stream.At(0x10, s => s.Match(_identifier)));
+            => stream.Match(_identifier) || stream.At(0x10, s => s.Match(_identifier));
 
         protected override void Read(Stream stream)
         {

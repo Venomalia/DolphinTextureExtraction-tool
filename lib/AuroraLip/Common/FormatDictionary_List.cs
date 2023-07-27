@@ -181,7 +181,8 @@ namespace AuroraLib.Common
             new FormatInfo(".STRG", FormatType.Text, "Retro String Table", Retro_),
 
             //Next Level Games
-            new FormatInfo(".rlt",new Identifier32("PTLG"),0x10, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
+            new FormatInfo(".rlt",new Identifier32("PTLG"),0, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
+            new FormatInfo(".wrlt",new Identifier32("PTLG"),0x10, FormatType.Texture, "Strikers Gameworld Texture","Next Level Games",typeof(PTLG)),
             new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games",typeof(RES_NLG)),
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),
@@ -416,6 +417,10 @@ namespace AuroraLib.Common
             //Red Fly Studios
             new FormatInfo("", FormatType.Texture, "Star Wars Force Unleashed 2", "Red Fly Studios",typeof(TEX_RFS)),
             new FormatInfo(".POD", "POD5", FormatType.Archive, "Star Wars Force Unleashed 2", "Red Fly Studios",typeof(POD5)),
+            
+            //Criterion
+            new FormatInfo(".PSW",0, new byte[] {0x30,0xAF,0x20}, FormatType.Texture, "Texture Palette Library v0"),
+            new FormatInfo(".TXD", FormatType.Texture, "TextureDictionary", "Criterion",typeof(TXD)),
 
             //H.a.n.d.
             new FormatInfo(".fbc", FormatType.Archive, "Fables Chocobo archive", "H.a.n.d.",typeof(FBC)),

@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
-using System.Reflection.Emit;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -32,10 +31,10 @@ namespace AuroraLib.Compression.Formats
             byte[] buffer = new byte[bufferSize];
 
             Inflater inflater = new(noHeader);
-            if (IsMatch(Data))
+            if (new Header(Data[0], Data[1]).Validate())
                 inflater.SetInput(Data);
             else
-                inflater.SetInput(Data.AsSpan().Slice(4).ToArray());
+                inflater.SetInput(Data.AsSpan()[4..].ToArray());
 
             while (!inflater.IsFinished)
             {
@@ -104,17 +103,11 @@ namespace AuroraLib.Compression.Formats
             deflater.Reset();
         }
 
-        private static bool IsMatch(in byte[] Data)
-        {
-            Header header = new(Data[0], Data[1]);
-            return header.Validate();
-        }
-
         public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == "zlib" && (IsMatch(stream.Read(4)) || IsMatch(stream.Read(4)));
+            => extension.ToLower() == ".zlib" && stream.Length > 16 && (stream.Read<Header>().Validate() || (stream.At(4, s => s.Read<Header>().Validate())));
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => IsMatch(stream.Read(4)) || IsMatch(stream.Read(4));
+            => stream.Length > 16 && (stream.Read<Header>().Validate() || (stream.At(4, s => s.Read<Header>().Validate())));
 
         public struct Header
         {

@@ -440,7 +440,7 @@ namespace AuroraLib.Common
             //From Software
             new FormatInfo(".gtx",new Identifier32("GTX1"),4, FormatType.Texture, "Graphics Texture Extension", "From Software",typeof(GTX1)),
             new FormatInfo(".tex", FormatType.Archive, "Texture archive", "From Software",typeof(ARC_FS)),
-            new FormatInfo(".ctm", FormatType.Archive, "Model Archive", "From Software",typeof(CTM_FC)),
+            new FormatInfo(".ctm", FormatType.Archive, "Model Archive", "From Software",typeof(ARC_FS)),
             new FormatInfo(".ptm", FormatType.Archive, "archive", "From Software",typeof(ARC_FS)),
 
             //Idea Factory

@@ -419,7 +419,7 @@ namespace AuroraLib.Common
             new FormatInfo(".POD", "POD5", FormatType.Archive, "Star Wars Force Unleashed 2", "Red Fly Studios",typeof(POD5)),
             
             //Criterion
-            new FormatInfo(".PSW",0, new byte[] {0x30,0xAF,0x20}, FormatType.Texture, "Texture Palette Library v0"),
+            new FormatInfo(".PSW",0, new byte[] {0x30,0xAF,0x20}, FormatType.Texture, "Texture Palette Library"),
             new FormatInfo(".TXD", FormatType.Texture, "TextureDictionary", "Criterion",typeof(TXD)),
 
             //H.a.n.d.
@@ -591,6 +591,7 @@ namespace AuroraLib.Common
             new FormatInfo(".efc", 0, new byte[] { 114, 117, 110, 108, 101, 110, 103, 116, 104, 32, 99, 111, 109, 112, 46 }, FormatType.Unknown),
 
             //dummys
+            new FormatInfo(".empty", FormatType.Dummy, "empty file"){IsMatch = Empty_Matcher},
             new FormatInfo(".zero", FormatType.Dummy, "dummy file"){IsMatch = Zero_Matcher},
             new FormatInfo(".dummy", "dummy", FormatType.Dummy, "dummy file"),
             new FormatInfo(".zzz", FormatType.Dummy, "place holder"),
@@ -634,6 +635,9 @@ namespace AuroraLib.Common
             }
             return false;
         }
+
+        private static bool Empty_Matcher(Stream stream, in string extension = "")
+            => stream.Length == 0;
 
         private static bool Zero_Matcher(Stream stream, in string extension = "")
         {

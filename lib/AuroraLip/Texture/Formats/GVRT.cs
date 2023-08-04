@@ -14,7 +14,7 @@ namespace AuroraLib.Texture.Formats
         private static readonly Identifier32 _identifier = new("GVRT");
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => stream.Match(_identifier);
+            => stream.Match(Identifier);
 
         protected override void Read(Stream stream)
         {

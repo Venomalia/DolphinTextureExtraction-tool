@@ -31,7 +31,7 @@ namespace AuroraLib.Archives.Formats
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < numEntries; i++)
             {
-                string entryFilename = stream.ReadString(32) + ".lz";
+                string entryFilename = stream.ReadString(32) + ".prs";
 
                 uint entryIndex = stream.ReadUInt32(Endian.Big);
                 uint entryOffset = stream.ReadUInt32(Endian.Big);

@@ -20,7 +20,7 @@
 
         public bool IsMatch(Stream stream, in string extension = "")
         {
-            return stream.Length > 6 & stream.PeekByte() > 17 && (stream.ReadByte() & 0x1) == 1;
+            return stream.Length > 6 & stream.PeekByte() > 12 && (stream.ReadByte() & 0x1) == 1;
         }
 
         public byte[] Decompress(Stream source)

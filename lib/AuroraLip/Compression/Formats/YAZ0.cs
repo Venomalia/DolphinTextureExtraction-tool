@@ -52,25 +52,22 @@ namespace AuroraLib.Compression.Formats
             byte[] destination = new byte[decomLength];
             int destinationPointer = 0;
 
+            FlagReader reader = new(source, Endian.Big);
+
             while (destinationPointer < decomLength)
             {
-                byte FlagByte = source.ReadUInt8();
-
-                for (int i = 7; i > -1 && (destinationPointer < decomLength); i--)
+                if (reader.Readbit())
+                    destination[destinationPointer++] = source.ReadUInt8();
+                else
                 {
-                    if (BitConverterX.GetBit(FlagByte) == true)
-                        destination[destinationPointer++] = source.ReadUInt8();
-                    else
-                    {
-                        byte Tmp = source.ReadUInt8();
-                        int Offset = (((byte)(Tmp & 0x0F) << 8) | source.ReadUInt8()) + 1,
-                            Length = (Tmp & 0xF0) == 0 ? source.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
+                    byte Tmp = source.ReadUInt8();
+                    int Offset = (((byte)(Tmp & 0x0F) << 8) | source.ReadUInt8()) + 1,
+                        Length = (Tmp & 0xF0) == 0 ? source.ReadByte() + 0x12 : (byte)((Tmp & 0xF0) >> 4) + 2;
 
-                        for (int j = 0; j < Length; j++)
-                        {
-                            destination[destinationPointer] = destination[destinationPointer - Offset];
-                            destinationPointer++;
-                        }
+                    for (int j = 0; j < Length; j++)
+                    {
+                        destination[destinationPointer] = destination[destinationPointer - Offset];
+                        destinationPointer++;
                     }
                 }
             }

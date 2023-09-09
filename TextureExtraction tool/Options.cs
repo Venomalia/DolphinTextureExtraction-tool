@@ -69,7 +69,8 @@
 
             foreach (var m in Enum.GetValues<Options>())
             {
-                if (name == m.GetAlias())
+                ReadOnlySpan<char> alias = m.GetAlias();
+                if (name.SequenceEqual(alias))
                 {
                     Option = m;
                     return true;

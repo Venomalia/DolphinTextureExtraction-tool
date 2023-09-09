@@ -3,6 +3,7 @@ using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Data;
 using SixLabors.ImageSharp;
+using System.Text;
 using static DolphinTextureExtraction.ScanBase;
 
 namespace DolphinTextureExtraction
@@ -651,11 +652,13 @@ namespace DolphinTextureExtraction
             {
 
                 int Separator = args[i].IndexOf(":");
-                if (Separator == -1) Separator = args[i].Length - 1;
+                ReadOnlySpan<char> arg2 = string.Empty;
+                if (Separator == -1)
+                    Separator = args[i].Length;
+                else
+                    arg2 = args[i].AsSpan(Separator + 1, args[i].Length - Separator - 1);
 
-                ReadOnlySpan<char> arg2 = args[i].AsSpan(Separator + 1, args[i].Length - Separator - 1);
-
-                if (args[i][0] != '-' && OptionsEX.TryParse(args[i].AsSpan(1, Separator), out Options option))
+                if (args[i][0] == '-' && OptionsEX.TryParse(args[i].AsSpan(1, Separator - 1), out Options option))
                 {
                     switch (option)
                     {
@@ -800,7 +803,24 @@ namespace DolphinTextureExtraction
         static void TextureUpdate(JUTTexture.TexEntry texture, Results result, in string subdirectory)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-            Console.WriteLine($"Prog:{Math.Round(ProgressPercentage, 2)}% Extract:{Path.Combine(subdirectory, texture.GetDolphinTextureHash()) + ".png"} mips:{texture.Count - 1} LODBias:{texture.LODBias} MinLOD:{texture.MinLOD} MaxLOD:{texture.MaxLOD}");
+            StringBuilder sb = new();
+            sb.Append("Prog:");
+            sb.Append(Math.Round(ProgressPercentage, 2));
+            sb.Append("% Extract:");
+            sb.Append(Path.Combine(subdirectory, texture.GetDolphinTextureHash()));
+            sb.Append(".png mips:");
+            sb.Append(texture.Count - 1);
+            sb.Append(" LODBias:");
+            sb.Append(texture.LODBias);
+            sb.Append(" MinLOD:");
+            sb.Append(texture.MinLOD);
+            sb.Append(" MaxLOD:");
+            sb.Append(texture.MinLOD);
+            sb.AppendLine();
+            lock (result)
+            {
+                Console.Out.Write(sb);
+            }
         }
     }
 

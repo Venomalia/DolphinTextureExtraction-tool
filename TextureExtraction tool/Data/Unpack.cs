@@ -74,20 +74,5 @@ namespace DolphinTextureExtraction
                     Save(so.Stream, so.SubPath.ToString(), so.Format);
             }
         }
-
-        private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
-        {
-            if (FormatTypee.Identifier == null)
-            {
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
-                    $"Bytes32:[{BitConverter.ToString(stream.Read(32))}]");
-            }
-            else
-            {
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{string.Join(",", FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
-            }
-        }
-
     }
 }

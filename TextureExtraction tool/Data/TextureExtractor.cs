@@ -400,20 +400,9 @@ namespace DolphinTextureExtraction
             Result.UnsupportedSize += stream.Length;
         }
 
-        private void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
+        protected override void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
         {
-            if (FormatTypee.Identifier == null)
-            {
-                byte[] infoBytes = stream.Read(32 > stream.Length ? (int)stream.Length : 32);
-
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
-                    $"Bytes{infoBytes.Length}:[{BitConverter.ToString(infoBytes)}]");
-            }
-            else
-            {
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{BitConverter.ToString(FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
-            }
+            base.AddResultUnknown(stream, FormatTypee, file);
 
             if (stream.Length > 130)
             {

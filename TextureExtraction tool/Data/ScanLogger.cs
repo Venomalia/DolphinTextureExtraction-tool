@@ -23,7 +23,7 @@ namespace DolphinTextureExtraction
             if (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename), "log")))
             {
                 int i = 2;
-                while (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename + "_" + i), "log")))
+                while (!File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename + "_" + i), "log")))
                 {
                     i++;
                 }

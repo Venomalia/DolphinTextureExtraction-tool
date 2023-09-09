@@ -246,7 +246,7 @@ namespace DolphinTextureExtraction
                                     break;
                             }
                             Console.WriteLine();
-                            Console.WriteLine("Done.");
+                            Console.WriteLine("Done!");
                             Console.CursorVisible = true;
                             #endregion
 
@@ -791,7 +791,16 @@ namespace DolphinTextureExtraction
             {
                 double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
                 if (result.Progress < result.Worke)
-                    Console.Title = $"{Title} | {ProgressPercentage:00.00}%";
+                {
+                    if (result is TextureExtractor.ExtractorResult exResult)
+                    {
+                        Console.Title = $"{Title} | {ProgressPercentage:00.00}% | Textures: {exResult.Extracted}";
+                    }
+                    else
+                    {
+                        Console.Title = $"{Title} | {ProgressPercentage:00.00}%";
+                    }
+                }
                 else
                     Console.Title = Title;
             }

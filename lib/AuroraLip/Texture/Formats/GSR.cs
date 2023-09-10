@@ -75,7 +75,7 @@ namespace AuroraLib.Texture.Formats
                 }
             }
 
-            byte[] palette_data = null;
+            Span<byte> palette_data = stackalloc byte[(int)palette_size];
             GXPaletteFormat palette_format = GXPaletteFormat.IA8;
             int palette_count = 0;
             if (palette_details_offset != 0)
@@ -87,8 +87,8 @@ namespace AuroraLib.Texture.Formats
                 if (palette_data_offset != 0)
                 {
                     stream.Seek(palette_data_offset, SeekOrigin.Begin);
-                    byte[] all_palette_data = stream.Read(palette_size);
-                    palette_data = new byte[all_palette_data.Length];
+                    Span<byte> all_palette_data = stackalloc byte[(int)palette_size];
+                    stream.Read(all_palette_data);
 
                     // Creators broke up the image into two palettes, interweaving
                     // the bytes of the two palettes
@@ -115,17 +115,17 @@ namespace AuroraLib.Texture.Formats
             {
                 stream.Seek(texture_details_offset, SeekOrigin.Begin);
                 ushort another_unknown = stream.ReadUInt16(Endian.Big);
-                ushort format = stream.ReadUInt16(Endian.Big);
+                GXImageFormat format = (GXImageFormat)stream.ReadUInt16(Endian.Big);
                 uint width = stream.ReadUInt32(Endian.Big);
                 uint height = stream.ReadUInt32(Endian.Big);
-                uint mipmap = stream.ReadUInt32(Endian.Big);
+                uint images = stream.ReadUInt32(Endian.Big);
                 uint texture_bytes = stream.ReadUInt32(Endian.Big);
 
                 if (texture_data_offset != 0)
                 {
                     stream.Seek(texture_data_offset, SeekOrigin.Begin);
 
-                    TexEntry current = new TexEntry(stream, palette_data, (GXImageFormat)format, palette_format, palette_count, (int)width, (int)height, (int)mipmap)
+                    TexEntry current = new TexEntry(stream, palette_data, format, palette_format, palette_count, (int)width, (int)height, (int)images-1)
                     {
                         LODBias = 0,
                         MagnificationFilter = GXFilterMode.Nearest,
@@ -134,7 +134,7 @@ namespace AuroraLib.Texture.Formats
                         WrapT = GXWrapMode.CLAMP,
                         EnableEdgeLOD = false,
                         MinLOD = 0,
-                        MaxLOD = 0
+                        MaxLOD = images - 1,
                     };
                     Add(current);
                 }

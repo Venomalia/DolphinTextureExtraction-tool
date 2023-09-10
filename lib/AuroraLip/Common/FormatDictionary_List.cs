@@ -541,6 +541,7 @@ namespace AuroraLib.Common
 
             //Tecmo
             new FormatInfo(".gsr", FormatType.Texture, "Pangya Texture","Tecmo",typeof(GSR)),
+            new FormatInfo(".gsb", FormatType.Audio, "Pangya Audio","Tecmo"),
 
             //mix
             //new FormatInfo(".cmpr","CMPR", FormatType.Archive, "compressed Data"),

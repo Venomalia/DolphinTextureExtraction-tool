@@ -429,7 +429,8 @@ namespace DolphinTextureExtraction
                             return true;
 
                         //Reduces problems with multithreading
-                        so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
+                        if (size < so.Stream.Length)
+                            so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
 
                         //checks if hidden files are present.
                         if (archive is IHasIdentifier identify)

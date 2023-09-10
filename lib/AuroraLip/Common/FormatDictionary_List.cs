@@ -317,6 +317,9 @@ namespace AuroraLib.Common
 
             #region Mixed
 
+            //BigBen Interactive
+            new FormatInfo(".PAC", FormatType.Archive, "Archive", "BigBen Interactive",typeof(PAC)),
+
             //CRIWARE
             new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE",typeof(CPK)),
             new FormatInfo(".CCRI", "CRILAYLA" , FormatType.Archive, "Compact Compressed", "CRIWARE",typeof(CRILAYLA)),

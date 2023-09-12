@@ -97,6 +97,7 @@ namespace AuroraLib.Texture.PixelFormats
             }
             else
             {
+                Result = AlphaMask;
                 Result |= (((R >> 3) & 0x1F) << 10);
                 Result |= (((G >> 3) & 0x1F) << 5);
                 Result |= (((B >> 3) & 0x1F) << 0);

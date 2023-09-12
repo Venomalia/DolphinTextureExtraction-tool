@@ -160,6 +160,14 @@ namespace AuroraLib.Texture
                                 break;
                             case AImageFormats.C14X2:
                                 throw new NotImplementedException();
+                            case AImageFormats.PS2RGBA32:
+                                //PS2 Alpha channel must be normalized. Used in Dokapon Kingdom maybe also in other ports but technically not correct.
+                                for (int w = 3; w < RawImages[i].Length; w += 4)
+                                {
+                                    if (RawImages[i][w] == 128) RawImages[i][w] = 255;
+                                }
+                                RawImages[i] = ((IBlock<Rgba32>)new RGBA32Block()).EncodePixel(RawImages[i], width, height);
+                                break;
                         }
                         width >>= 1;
                         height >>= 1;

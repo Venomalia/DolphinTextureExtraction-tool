@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Core.Text;
+using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using MuramasaTDB_Encoding;
 
@@ -317,8 +318,10 @@ namespace AuroraLib.Common
 
             #region Mixed
 
-            //BigBen Interactive
-            new FormatInfo(".PAC", FormatType.Archive, "Archive", "BigBen Interactive",typeof(PAC)),
+            //Sting Entertainment
+            new FormatInfo(".PAC", FormatType.Archive, "Archive", "Sting Entertainment",typeof(PAC)),
+            new FormatInfo(".PIM", FormatType.Texture, "Image", "Sting Entertainment",typeof(PIM)),
+            new FormatInfo(".PIL", FormatType.Texture, "Image Conteiner", "Sting Entertainment",typeof(PIL)),
 
             //CRIWARE
             new FormatInfo(".cpk", "CPK ", FormatType.Archive, "Compact Archive", "CRIWARE",typeof(CPK)),

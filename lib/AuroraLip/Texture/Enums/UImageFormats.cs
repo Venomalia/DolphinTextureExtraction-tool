@@ -69,5 +69,10 @@
         /// Compressed image format.
         /// </summary>
         DXT1 = 0xC000000E,
+
+        /// <summary>
+        /// 24 bit depth true color, with an 8 bit alpha channel. The PS2 uses 128 as maximum alpha value.
+        /// </summary>
+        PS2RGBA32 = 0xC1000006,
     }
 }

@@ -1,6 +1,8 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Texture.BlockFormats;
 using AuroraLib.Texture.Interfaces;
+using AuroraLib.Texture.PixelFormats;
 using System.Runtime.InteropServices;
 using Image = SixLabors.ImageSharp.Image;
 
@@ -105,7 +107,10 @@ namespace AuroraLib.Texture
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }
 
-
+            /// <summary>
+            /// Can be used for formats that do not correspond to the GXFormat.
+            /// </summary>
+            /// <exception cref="NotImplementedException"></exception>
             public TexEntry(Stream stream, AImageFormats format, int width, int height, int mipmaps = 0)
             {
                 Format = (GXImageFormat)format;
@@ -113,16 +118,52 @@ namespace AuroraLib.Texture
                 Width = width;
                 ReadHelper(stream, (GXImageFormat)format, width, height, mipmaps);
 
-                switch (format)
+
+                if ((uint)format >> 28 == 0x0C)
                 {
-                    case AImageFormats.DXT1:
-                        for (int i = 0; i < RawImages.Count; i++)
+                    for (int i = 0; i < RawImages.Count; i++)
+                    {
+                        switch (format)
                         {
-                            GXImageEX.ConvertDXT1ToCMPR(RawImages[i], width, height);
-                            width >>= 1;
-                            height >>= 1;
+                            case AImageFormats.DXT1:
+                                GXImageEX.ConvertDXT1ToCMPR(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.I4:
+                            case AImageFormats.C4:
+                                //convert int 4 to int8 to make it easier to work with.
+                                SpanBuffer<byte> bufferI8 = new(RawImages[i].Length * 2);
+                                for (int w = 0; w < RawImages[i].Length; w++)
+                                {
+                                    bufferI8[w * 2] = (byte)(RawImages[i][w] & 0xF);
+                                    bufferI8[w * 2 + 1] = (byte)(RawImages[i][w] >> 4);
+                                }
+                                RawImages[i] = ((IBlock<I8>)new I4Block()).EncodePixel(bufferI8, width, height);
+                                break;
+                            case AImageFormats.I8:
+                            case AImageFormats.C8:
+                                RawImages[i] = ((IBlock<I8>)new I8Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.IA4:
+                                RawImages[i] = ((IBlock<IA4>)new IA4Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.IA8:
+                                RawImages[i] = ((IBlock<IA8>)new IA8Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.RGB565:
+                                RawImages[i] = ((IBlock<RGB565>)new RGB565Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.RGB5A3:
+                                RawImages[i] = ((IBlock<RGB5A3>)new RGB5A3Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.RGBA32:
+                                RawImages[i] = ((IBlock<Rgba32>)new RGBA32Block()).EncodePixel(RawImages[i], width, height);
+                                break;
+                            case AImageFormats.C14X2:
+                                throw new NotImplementedException();
                         }
-                        break;
+                        width >>= 1;
+                        height >>= 1;
+                    }
                 }
                 Hash = HashDepot.XXHash.Hash64(RawImages[0]);
             }

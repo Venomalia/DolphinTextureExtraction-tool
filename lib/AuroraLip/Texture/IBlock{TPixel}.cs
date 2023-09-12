@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture
 {
@@ -98,6 +99,12 @@ namespace AuroraLib.Texture
             }
 
             return encodedData;
+        }
+
+        public byte[] EncodePixel(ReadOnlySpan<byte> data, int width, int height)
+        {
+            ReadOnlySpan<TPixel> pixel = MemoryMarshal.Cast<byte, TPixel>(data);
+            return EncodePixel(pixel, width, height);
         }
     }
 }

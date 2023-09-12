@@ -31,7 +31,7 @@ namespace AuroraLib.Texture.BlockFormats
         {
             for (int i = 0; i < data.Length; i++)
             {
-                byte highNibble = (byte)((pixels[i * 2].PackedValue >> 4) & 0x0F);
+                byte highNibble = (byte)(pixels[i * 2].PackedValue & 0x0F);
                 byte lowNibble = (byte)(pixels[i * 2 + 1].PackedValue & 0x0F);
                 data[i] = (byte)((highNibble << 4) | lowNibble);
             }

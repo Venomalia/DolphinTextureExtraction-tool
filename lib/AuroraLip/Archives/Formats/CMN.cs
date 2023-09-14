@@ -11,7 +11,7 @@ namespace AuroraLib.Archives.Formats
         public const string Extension = ".cmn";
 
         public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension && stream.ReadUInt32() < 200 && stream.ReadUInt32() != 0 && stream.ReadUInt32() == 1;
+            => extension.ToLower() == Extension && stream.ReadUInt32() < 2048 && stream.ReadUInt32() != 0;
 
         protected override void Read(Stream stream)
         {
@@ -21,7 +21,7 @@ namespace AuroraLib.Archives.Formats
             for (int i = 0; i < files; i++)
             {
                 FileEntrie entrie = stream.Read<FileEntrie>();
-                Root.AddArchiveFile(stream, entrie.Size, entrie.Offset, $"File_{i}_{entrie.hash}");
+                Root.AddArchiveFile(stream, entrie.Size, entrie.Offset, $"File_{i}_{entrie.Type}_{entrie.Hash}");
             }
         }
 
@@ -29,8 +29,8 @@ namespace AuroraLib.Archives.Formats
 
         private struct FileEntrie
         {
-            public uint hash; // ?
-            public uint Unknown; // 0x1
+            public uint Hash; // ?
+            public uint Type; //0x0 - 0x1
             public uint Offset;
             public uint Size;
         }

@@ -536,6 +536,9 @@ namespace AuroraLib.Common
             new FormatInfo(".texpack","TXPK", FormatType.Texture, "Shrek Texture","Shaba Games"),
             new FormatInfo(".cmn", FormatType.Archive,"","Treyarch",typeof(CMN)), //http://wiki.xentax.com/index.php/NHL_2K3_CMN
             new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture","Activision",typeof(GCNT)), //http://wiki.xentax.com/index.php/GCT_Image
+            new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture","Activision",typeof(GCNT)){ IdentifierOffset=8 },
+            new FormatInfo(".snd","SOND", FormatType.Audio, "Sond","Activision"),
+            new FormatInfo(".aud", FormatType.Audio, "GameCube Audio","Activision"),
 
             //Edge of Reality
             new FormatInfo(".lfxt","LFXT", FormatType.Texture, "Pitfall Texture","Edge of Reality",typeof(LFXT)),

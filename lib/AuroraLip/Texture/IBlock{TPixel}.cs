@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using AuroraLib.Core.Buffers;
+using SixLabors.ImageSharp.Advanced;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture
@@ -21,6 +23,13 @@ namespace AuroraLib.Texture
 
         public Image<TPixel> DecodeImage(ReadOnlySpan<byte> data, int width, int height)
             => Image.LoadPixelData<TPixel>(DecodePixel(data, width, height), width, height);
+
+        public byte[] EncodeImage(Image<TPixel> image)
+        {
+            using SpanBuffer<TPixel> pixel = new(image.Width * image.Height);
+            image.CopyPixelDataTo(pixel);
+            return EncodePixel(pixel, image.Width, image.Height);
+        }
 
         /// <summary>
         /// Decodes the given <paramref name="data"/> into an array of <typeparamref name="TPixel"/> with the specified <paramref name="width"/> and <paramref name="height"/>.

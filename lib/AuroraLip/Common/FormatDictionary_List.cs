@@ -260,7 +260,7 @@ namespace AuroraLib.Common
             new FormatInfo(".Gif", "GIF87a", FormatType.Texture, "Graphics Interchange Format"),
             new FormatInfo(".Gif", "GIF89a", FormatType.Texture, "Graphics Interchange Format"),
             new FormatInfo(".Jpg", 0,new byte[]{255,216,255,224}, FormatType.Texture, "Joint Photographic Group"),
-            new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision"){IsMatch = TGA_Matcher},
+            new FormatInfo(".tga", FormatType.Texture, "Truevision Graphic Advanced","Truevision", typeof(TGA)),
             new FormatInfo(".psd", new Identifier32("8BPS"), FormatType.Texture, "Photoshop Document file", "Adobe Inc."),
             
             //Common Audio
@@ -633,18 +633,6 @@ namespace AuroraLib.Common
 
         private static bool BIN_LM_Matcher(Stream stream, in string extension = "")
             => stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
-
-        private static bool TGA_Matcher(Stream stream, in string extension = "")
-        {
-            if (extension.ToLower() == ".tga" && stream.Length > 18)
-            {
-                Span<byte> header = stackalloc byte[18];
-                stream.Read(header);
-
-                return (header[1] == 0 || header[1] == 1) && (header[2] == 0 || header[2] == 1 || header[2] == 2 || header[2] == 3 || header[2] == 9 || header[2] == 10);
-            }
-            return false;
-        }
 
         private static bool Empty_Matcher(Stream stream, in string extension = "")
             => stream.Length == 0;

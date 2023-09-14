@@ -4,7 +4,6 @@ using AuroraLib.Texture.BlockFormats;
 using AuroraLib.Texture.Interfaces;
 using AuroraLib.Texture.PixelFormats;
 using System.Runtime.InteropServices;
-using Image = SixLabors.ImageSharp.Image;
 
 namespace AuroraLib.Texture
 {
@@ -82,6 +81,43 @@ namespace AuroraLib.Texture
             public TexEntry()
             { }
 
+
+            public TexEntry(Image image)
+            {
+                Height = image.Height;
+                Width = image.Width;
+                switch (image)
+                {
+                    case Image<I8>:
+                        Format = GXImageFormat.I8;
+                        RawImages.Add(((IBlock<I8>)new I8Block()).EncodeImage((Image<I8>)image));
+                        break;
+                    case Image<IA4>:
+                        Format = GXImageFormat.RGBA32;
+                        RawImages.Add(((IBlock<IA4>)new IA4Block()).EncodeImage((Image<IA4>)image));
+                        break;
+                    case Image<IA8>:
+                        Format = GXImageFormat.RGBA32;
+                        RawImages.Add(((IBlock<IA8>)new IA8Block()).EncodeImage((Image<IA8>)image));
+                        break;
+                    case Image<RGB565>:
+                        Format = GXImageFormat.RGBA32;
+                        RawImages.Add(((IBlock<RGB565>)new RGB565Block()).EncodeImage((Image<RGB565>)image));
+                        break;
+                    case Image<RGB5A3>:
+                        Format = GXImageFormat.RGBA32;
+                        RawImages.Add(((IBlock<RGB5A3>)new RGB5A3Block()).EncodeImage((Image<RGB5A3>)image));
+                        break;
+                    case Image<Rgba32>:
+                        Format = GXImageFormat.RGBA32;
+                        RawImages.Add(((IBlock<Rgba32>)new RGBA32Block()).EncodeImage((Image<Rgba32>)image));
+                        break;
+                    default:
+                        throw new NotImplementedException($"{nameof(TexEntry)} {image}.");
+                }
+                Hash = HashDepot.XXHash.Hash64(RawImages[0]);
+            }
+
             /// <summary>
             /// Creates an new <see cref="TexEntry"/>.
             /// </summary>
@@ -138,6 +174,7 @@ namespace AuroraLib.Texture
                                     bufferI8[w * 2 + 1] = (byte)(RawImages[i][w] >> 4);
                                 }
                                 RawImages[i] = ((IBlock<I8>)new I4Block()).EncodePixel(bufferI8, width, height);
+                                bufferI8.Dispose();
                                 break;
                             case AImageFormats.I8:
                             case AImageFormats.C8:

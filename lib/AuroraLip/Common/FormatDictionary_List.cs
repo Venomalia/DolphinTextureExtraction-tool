@@ -336,7 +336,10 @@ namespace AuroraLib.Common
             new FormatInfo("", FormatType.Archive, "MT Framework Archive", "Capcom"){ Class = typeof(ARC_MTF)},
 
             //Disney
-            new FormatInfo("", FormatType.Archive, "Junction Point Studios Archive", "Junction Point Studios"){ Class = typeof(PAK_JPS)},
+            new FormatInfo(".pak", FormatType.Archive, "Junction Point Studios Archive", "Junction Point Studios"){ Class = typeof(PAK_JPS)},
+
+            //Gamebase
+            new FormatInfo(".nif_wii", FormatType.Texture, "Gamebryo File Format", "Gamebase"),
 
             //UbiSoft
             new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft"),

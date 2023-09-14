@@ -45,16 +45,19 @@ namespace AuroraLib.Archives.Formats
                 stream.Seek(string_table_position + file_name_offset, SeekOrigin.Begin);
                 string file_name = stream.ReadString();
 
-                if (compressed_size == uncompressed_size)
+                if (!Root.Items.ContainsKey(file_name))
                 {
-                    Root.AddArchiveFile(stream, uncompressed_size, current_file_data_position, file_name);
-                }
-                else
-                {
-                    stream.Seek(current_file_data_position, SeekOrigin.Begin);
-                    byte[] bytes = stream.Read(compressed_size);
-                    var decompressed_stream = zlib.Decompress(bytes, 4096, false);
-                    Root.AddArchiveFile(decompressed_stream, file_name);
+                    if (compressed_size == uncompressed_size)
+                    {
+                        Root.AddArchiveFile(stream, uncompressed_size, current_file_data_position, file_name);
+                    }
+                    else
+                    {
+                        stream.Seek(current_file_data_position, SeekOrigin.Begin);
+                        byte[] bytes = stream.Read(compressed_size);
+                        var decompressed_stream = zlib.Decompress(bytes, 4096, false);
+                        Root.AddArchiveFile(decompressed_stream, file_name);
+                    }
                 }
                 current_file_data_position += aligned_size;
                 stream.Seek(pos, SeekOrigin.Begin);

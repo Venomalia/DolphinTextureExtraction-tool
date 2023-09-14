@@ -397,6 +397,7 @@ namespace AuroraLib.Common
             new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix",typeof(POSD)),
             new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix",typeof(FREB)),
             new FormatInfo(".MPD", 0, new byte[] {(byte) 'M',(byte) 'P',(byte) 'D', 0 }, FormatType.Archive, "Crystal Bearers data", "Square Enix",typeof(MPD)),
+            new FormatInfo(".FEFF", "FEFF", FormatType.Texture, "Crystal Bearers Model", "Square Enix"){IdentifierOffset = 0x10},
 
             //Grasshopper Manufacture
             new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture",typeof(RMHG)),

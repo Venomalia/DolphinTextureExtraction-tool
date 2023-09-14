@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 using System.Runtime.CompilerServices;
 
@@ -20,6 +21,24 @@ namespace AuroraLib.Texture.Formats
         public static bool Matcher(Stream stream, in string extension = "")
             => stream.Length > 12 && stream.Match(Magic);
 
+        public static int GetSize(Stream stream)
+        {
+            long HeaderStart = stream.Position;
+            if (!stream.Match(Magic))
+            {
+                return -1;
+            }
+
+            int TotalImageCount = stream.ReadInt32(Endian.Big);
+            int ImageOffsetTableOffset = stream.ReadInt32(Endian.Big);
+            stream.Seek(HeaderStart + ImageOffsetTableOffset + 8 * (TotalImageCount - 1), SeekOrigin.Begin);
+            ImageOffsetEntry lastImageOffset = stream.Read<ImageOffsetEntry>(Endian.Big);
+            stream.Seek(HeaderStart + lastImageOffset.ImageHeaderOffset, SeekOrigin.Begin);
+            ImageHeader imageHeader = stream.Read<ImageHeader>(Endian.Big);
+
+            return (int)imageHeader.ImageDataAddress + imageHeader.Format.GetCalculatedTotalDataSize(imageHeader.Width, imageHeader.Height, imageHeader.MaxLOD);
+        }
+
         public TPL() : base()
         {
         }
@@ -39,7 +58,9 @@ namespace AuroraLib.Texture.Formats
             int ImageOffsetTableOffset = stream.ReadInt32(Endian.Big);
 
             stream.Seek(HeaderStart + ImageOffsetTableOffset, SeekOrigin.Begin);
-            ImageOffsetEntry[] ImageOffsetTable = stream.For(TotalImageCount, s => s.Read<ImageOffsetEntry>(Endian.Big));
+
+            using SpanBuffer<ImageOffsetEntry> ImageOffsetTable = new(TotalImageCount);
+            stream.Read(ImageOffsetTable.Span, Endian.Big);
 
             for (int i = 0; i < ImageOffsetTable.Length; i++)
             {
@@ -96,7 +117,7 @@ namespace AuroraLib.Texture.Formats
             stream.Write(stream.Position + 4 - HeaderStart, Endian.Big); //ImageOffsetTableOffset
 
             long OffsetLocation = stream.Position;
-            ImageOffsetEntry[] ImageOffsetTable = new ImageOffsetEntry[Count];
+            using SpanBuffer<ImageOffsetEntry> ImageOffsetTable = new(Count);
             stream.Write(new byte[Count * 8]); //ImageOffsetTable Placeholders
 
             for (int i = 0; i < Count; i++)

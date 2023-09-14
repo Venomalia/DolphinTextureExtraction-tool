@@ -112,7 +112,7 @@ namespace AuroraLib.Archives.Formats
                 DYNB = 1310720,
                 FCAM = 262144,
                 SEDBSSCF = 1245184,
-                MODEL = 786432, // It seems to have several model related data
+                FEFF = 786432, // It seems to have several model related data
                 Bin3 = 327680,
                 Bin4 = 524288,
             }

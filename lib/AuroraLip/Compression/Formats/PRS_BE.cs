@@ -11,7 +11,7 @@
 
         public static Endian Order => Endian.Big;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 6 && (stream.ReadByte() & 128) == 128;
 
         public byte[] Decompress(Stream source)

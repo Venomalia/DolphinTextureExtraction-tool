@@ -11,7 +11,7 @@ namespace AuroraLib.Compression.Formats
 
         public bool CanWrite => true;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 16 && stream.ReadByte() == 16;
 
         public void Compress(in byte[] source, Stream destination)

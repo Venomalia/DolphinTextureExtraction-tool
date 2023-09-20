@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using RenderWareNET.Plugins;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -20,11 +21,11 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == ".pkx" && stream.At(0x1A, s => s.ReadUInt16(Endian.Big) == 0x0C);
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(".pkx", StringComparison.InvariantCultureIgnoreCase) && stream.At(0x1A, s => s.ReadUInt16(Endian.Big) == 0x0C);
 
         protected override void Read(Stream stream)
         {

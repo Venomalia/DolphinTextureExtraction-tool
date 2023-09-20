@@ -50,7 +50,7 @@ namespace AuroraLib.Compression.Formats
             }
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 9 && stream.ReadByte() == 31 && stream.ReadByte() == 139;
     }
 }

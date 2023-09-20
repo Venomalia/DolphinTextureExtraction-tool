@@ -10,12 +10,12 @@ namespace AuroraLib.Archives.Formats
 
         public const string Extension = ".pak";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if ((extension == Extension || extension == string.Empty || extension == ".cns") && stream.Length > 0x20)
+            if ((extension.SequenceEqual(Extension) || extension.Length == 0 || extension.SequenceEqual(".cns")) && stream.Length > 0x20)
             {
                 uint entryCount = stream.ReadUInt32(Endian.Big);
                 if (entryCount != 0 && entryCount < 1024 && stream.Position + entryCount * 8 < stream.Length)

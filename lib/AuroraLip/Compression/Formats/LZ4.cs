@@ -8,7 +8,7 @@ namespace AuroraLib.Compression.Formats
 
         public const string Extension = ".lz4";
 
-        public override bool IsMatch(Stream stream, in string extension = "")
-            => stream.Length > 0x10 && extension.ToLower() == Extension;
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.Length > 0x10 && extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
     }
 }

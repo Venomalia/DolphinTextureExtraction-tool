@@ -18,7 +18,7 @@ namespace AuroraLib.Archives.Formats
 
         private AFSLib.AFS AFSBase;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             Identifier32 identifier = stream.Read<Identifier32>();
             return identifier == _identifierA || identifier == _identifierB;

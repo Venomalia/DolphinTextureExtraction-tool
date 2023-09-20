@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.IO;
+using System;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -11,9 +12,19 @@ namespace AuroraLib.Archives.Formats
 
         public static readonly string[] Extension = new[] { ".tex", ".ptm", ".ctm", "" };
 
-        public virtual bool IsMatch(Stream stream, in string extension = "")
+        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (stream.Length > 0x20 && Extension.Contains(extension.ToLower()) && stream.ReadUInt32(Endian.Big) == stream.Length)
+            bool match = false;
+            for (int i = 0; i < Extension.Length; i++)
+            {
+                if (extension.Contains(Extension[i], StringComparison.InvariantCultureIgnoreCase))
+                {
+                    match = true;
+                    break;
+                }
+            }
+
+            if (stream.Length > 0x20 && match && stream.ReadUInt32(Endian.Big) == stream.Length)
             {
                 uint entrys = stream.ReadUInt32(Endian.Big);
                 uint[] pointers = stream.Read<uint>(entrys, Endian.Big);

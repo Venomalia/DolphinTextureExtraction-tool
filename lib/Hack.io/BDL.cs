@@ -11,7 +11,7 @@ namespace Hack.io
 
         private static readonly Identifier64 _identifier = new("J3D2bdl4");
 
-        public override bool IsMatch(Stream stream, in string extension = "")
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
         public MDL3 MatDisplayList { get; private set; }

@@ -30,11 +30,11 @@ namespace AuroraLib.Texture.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == ".gsfile11"
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(".gsfile11", StringComparison.InvariantCultureIgnoreCase)
                 && stream.At(0, s => s.ReadInt32(Endian.Big) == 0x7B1EE3F2);
 
         protected override void Read(Stream stream)

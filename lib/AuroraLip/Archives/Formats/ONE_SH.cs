@@ -15,7 +15,7 @@ namespace AuroraLib.Archives.Formats
 
         public static readonly Identifier32 Magic = new("One ");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x20 && stream.ReadUInt32() == 0 && stream.At(0xC, s => s.Match(Magic));
 
         protected override void Read(Stream stream)

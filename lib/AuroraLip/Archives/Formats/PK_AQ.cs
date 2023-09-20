@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using ICSharpCode.SharpZipLib.Checksum;
+using RenderWareNET.Plugins;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -17,12 +18,12 @@ namespace AuroraLib.Archives.Formats
 
         public static string DataExtension => ".pk";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.ToLower() == HeaderExtension)
+            if (extension.Contains(HeaderExtension, StringComparison.InvariantCultureIgnoreCase))
             {
                 uint Entrys = stream.ReadUInt32(Endian.Big);
                 return Entrys * 0x10 + 4 == stream.Length;

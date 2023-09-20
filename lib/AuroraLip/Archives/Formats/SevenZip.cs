@@ -57,7 +57,7 @@ namespace AuroraLib.Archives.Formats
                 Initialize7zipDLL(true);
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             Span<byte> id = stackalloc byte[8];
             stream.Read(id);

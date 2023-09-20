@@ -16,10 +16,10 @@ namespace AuroraLib.Texture.Formats
 
         public const string Extension = ".GSAGTX";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => extension == Extension && stream.Length > 128;
 
         public struct Header

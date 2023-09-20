@@ -18,11 +18,11 @@ namespace AuroraLib.Texture.Formats
         //public static readonly Identifier32 Platform = new(_identifierbyte.AsSpan().Slice(12, 4)); // Wii
         //public static readonly Identifier32 Type = new(_identifierbyte.AsSpan().Slice(16, 4)); // text
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() != ".pk" && stream.Length > 0x40 && stream.Match(_identifier);
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => !extension.Contains(".pk", StringComparison.InvariantCultureIgnoreCase) && stream.Length > 0x40 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

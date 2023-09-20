@@ -42,6 +42,6 @@ namespace AuroraLib.Compression
             }
         }
 
-        public abstract bool IsMatch(Stream stream, in string extension = "");
+        public abstract bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default);
     }
 }

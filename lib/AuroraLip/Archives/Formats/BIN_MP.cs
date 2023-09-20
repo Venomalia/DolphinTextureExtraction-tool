@@ -16,12 +16,12 @@ namespace AuroraLib.Archives.Formats
         private static readonly LZSS lZSS = new(10, 6, 2);
         private static readonly ZLib zlib = new();
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.ToLower().Equals(Extension))
+            if (extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
             {
                 uint files = stream.ReadUInt32(Endian.Big);
                 if (files > 1000 || files == 0)

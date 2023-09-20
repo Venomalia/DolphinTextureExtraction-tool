@@ -163,7 +163,7 @@ namespace DolphinTextureExtraction
                         if (TryForce(so))
                             break;
 
-                        AddResultUnknown(so.Stream, so.Format, so.SubPath.ToString() + so.Extension);
+                        AddResultUnknown(so.Stream, so.Format, string.Concat(so.SubPath, so.Extension));
 
                         //Exclude files that are too small, for calculation purposes only half the size.
                         if (so.Deep == 0)
@@ -200,7 +200,7 @@ namespace DolphinTextureExtraction
                         {
 
                             if (so.Format.Class == null)
-                                AddResultUnsupported(so.Stream, so.SubPath.ToString(), so.Extension, so.Format);
+                                AddResultUnsupported(so.Stream, so.SubPath.ToString(), so.Extension.ToString(), so.Format);
                             else
                             {
                                 switch (so.Format.Class.Name)
@@ -233,7 +233,7 @@ namespace DolphinTextureExtraction
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
+                Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
                 if (!Result.UnsupportedFormatType.Contains(so.Format))
                     Result.UnsupportedFormatType.Add(so.Format);
                 Result.Unsupported++;

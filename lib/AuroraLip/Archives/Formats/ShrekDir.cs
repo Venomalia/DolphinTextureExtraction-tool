@@ -12,12 +12,12 @@ namespace AuroraLib.Archives.Formats
 
         public const string Extension = ".DIR";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension == Extension)
+            if (extension.SequenceEqual(Extension))
             {
                 Endian endian = stream.DetectByteOrder<uint>();
                 uint firstOffset = stream.ReadUInt32(endian);

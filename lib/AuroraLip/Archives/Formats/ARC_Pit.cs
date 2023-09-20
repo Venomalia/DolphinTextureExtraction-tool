@@ -10,12 +10,12 @@ namespace AuroraLib.Archives.Formats
 
         public bool CanWrite => false;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.ToLower() == Extension)
+            if (extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
             {
                 try
                 {

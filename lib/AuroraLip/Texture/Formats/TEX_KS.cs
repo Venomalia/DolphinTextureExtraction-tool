@@ -8,7 +8,7 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public string Extension => ".tex";
+        public const string Extension = ".tex";
 
         public TEX_KS()
         { }
@@ -21,9 +21,9 @@ namespace AuroraLib.Texture.Formats
         {
         }
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (!extension.ToLower().StartsWith(".tex"))
+            if (!extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             uint Tex_Format = stream.ReadUInt32(Endian.Big);
@@ -36,8 +36,8 @@ namespace AuroraLib.Texture.Formats
             return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && TEX_ImageFormat[Tex_Format].CalculatedDataSize((int)ImageWidth, (int)ImageHeight) < stream.Length;
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => Matcher(stream, in extension);
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => Matcher(stream, extension);
 
         protected override void Read(Stream stream)
         {

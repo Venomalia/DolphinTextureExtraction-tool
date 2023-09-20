@@ -15,7 +15,7 @@ namespace AuroraLib.Texture.Formats
 
         private static readonly Identifier32 _identifier = new("LFXT");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x30 && stream.Match(_identifier) && stream.ReadString().Length > 3;
 
         protected override void Read(Stream stream)

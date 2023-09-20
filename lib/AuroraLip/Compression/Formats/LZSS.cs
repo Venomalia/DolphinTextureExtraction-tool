@@ -104,7 +104,7 @@ namespace AuroraLib.Compression.Formats
             return outStream;
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 112 && stream.Match(_identifier);
     }
 }

@@ -14,7 +14,7 @@ namespace NSMBWCompression
 
         public bool CanWrite => false;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x10 && stream.ReadUInt8() == 64;
 
         public void Compress(in byte[] source, Stream destination)

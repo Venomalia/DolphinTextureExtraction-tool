@@ -8,7 +8,7 @@ namespace AuroraLib.Archives.Formats
 
         public bool CanWrite => false;
 
-        public bool IsMatch(Stream stream, in string extension = "") => extension == ".NEP";
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => extension == ".NEP";
 
         protected override void Read(Stream stream)
         {

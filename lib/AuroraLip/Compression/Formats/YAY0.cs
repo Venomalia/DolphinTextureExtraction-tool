@@ -25,7 +25,7 @@ namespace AuroraLib.Compression.Formats
 
         private static readonly Identifier32 _identifier = new("Yay0");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 4 && stream.Match(_identifier);
 
         public void Compress(in byte[] source, Stream destination)

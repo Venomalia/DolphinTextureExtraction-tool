@@ -16,7 +16,7 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public abstract bool IsMatch(Stream stream, in string extension = "");
+        public abstract bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default);
 
         protected override void Read(Stream stream)
         {

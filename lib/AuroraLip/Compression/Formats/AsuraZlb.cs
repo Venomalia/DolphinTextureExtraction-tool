@@ -15,7 +15,7 @@ namespace AuroraLib.Compression.Formats
 
         private static readonly ZLib ZLib = new();
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 4 && stream.Match(_identifier);
 
         public byte[] Decompress(Stream source)

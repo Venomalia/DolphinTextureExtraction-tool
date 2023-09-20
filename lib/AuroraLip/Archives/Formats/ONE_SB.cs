@@ -13,11 +13,11 @@ namespace AuroraLib.Archives.Formats
 
         public static string Extension => ".one";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension && stream.At(4, SeekOrigin.Begin, S => S.ReadUInt32(Endian.Big)) == 16;
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.At(4, SeekOrigin.Begin, S => S.ReadUInt32(Endian.Big)) == 16;
 
         protected override void Read(Stream stream)
         {

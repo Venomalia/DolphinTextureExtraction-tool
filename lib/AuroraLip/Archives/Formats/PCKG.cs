@@ -24,7 +24,7 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
         private const string Bres = "bresþÿ";

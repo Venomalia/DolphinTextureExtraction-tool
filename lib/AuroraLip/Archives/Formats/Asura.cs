@@ -13,7 +13,7 @@ namespace AuroraLib.Archives.Formats
 
         private static readonly Identifier64 _identifier = new("Asura   ");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x20 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)

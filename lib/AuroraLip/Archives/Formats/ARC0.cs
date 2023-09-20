@@ -17,7 +17,7 @@ namespace AuroraLib.Archives.Formats
 
         private static readonly Identifier32 _identifier = new((byte)'A', (byte)'R', (byte)'C', 0);
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier) && stream.ReadByte() == 0;
 
         protected override void Read(Stream stream)

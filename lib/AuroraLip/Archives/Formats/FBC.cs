@@ -21,7 +21,7 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             return extension == Extension;
         }

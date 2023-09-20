@@ -45,7 +45,7 @@ namespace DolphinTextureExtraction
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, so.SubPath.ToString() + so.Extension);
+                Log.WriteEX(t,string.Concat(so.SubPath,so.Extension));
             }
         }
     }

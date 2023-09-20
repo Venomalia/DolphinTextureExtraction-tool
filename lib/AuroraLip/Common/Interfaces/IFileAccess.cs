@@ -21,6 +21,6 @@
         /// <param name="stream"></param>
         /// <param name="extension"></param>
         /// <returns>"True" if match.</returns>
-        bool IsMatch(Stream stream, in string extension = "");
+        bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default);
     }
 }

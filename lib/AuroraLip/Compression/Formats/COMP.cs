@@ -16,7 +16,7 @@ namespace AuroraLib.Compression.Formats
 
         private static readonly Identifier32 _identifier = new("COMP");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x10 && stream.Match(_identifier) && stream.ReadByte() == 17;
 
         public void Compress(in byte[] source, Stream destination)

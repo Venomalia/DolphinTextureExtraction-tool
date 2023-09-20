@@ -11,12 +11,12 @@ namespace AuroraLib.Texture.Formats
 
         public static string Extension => ".atb";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (stream.Length < 0x10 || extension.ToLower() != Extension)
+            if (stream.Length < 0x10 || !extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             stream.Seek(12, SeekOrigin.Begin);

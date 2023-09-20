@@ -18,7 +18,7 @@ namespace AuroraLib.Texture.Formats
 
         private static readonly Identifier64 magic = new("FIPAFTEX");
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (!stream.Match(magic))
                 return false;
@@ -26,7 +26,7 @@ namespace AuroraLib.Texture.Formats
             return true;
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         protected override void Read(Stream stream)

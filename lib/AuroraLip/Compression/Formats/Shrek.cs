@@ -89,7 +89,7 @@
 
         public void Compress(in byte[] source, Stream destination) => throw new NotImplementedException();
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => false;
     }
 

@@ -16,7 +16,7 @@ namespace AuroraLib.Texture.Formats
 
         private static readonly Identifier32 _identifier = new(22);
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             RWPluginHeader mainHeader = stream.Read<RWPluginHeader>();
             RWPluginHeader structHeader = stream.Read<RWPluginHeader>();

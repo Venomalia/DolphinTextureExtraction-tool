@@ -26,13 +26,11 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-        {
-            return extension.ToLower().StartsWith(Extension) && stream.ReadInt32(Endian.Big) == ((int)ChunkTyps.Header);
-        }
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadInt32(Endian.Big) == ((int)ChunkTyps.Header);
 
         protected override void Read(Stream stream)
         {

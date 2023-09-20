@@ -15,13 +15,11 @@ namespace AuroraLib.Texture.Formats
 
         public const string Extension = ".wzx";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-        {
-            return extension.ToLower() == Extension && stream.At(0x68, s => s.ReadInt32(Endian.Big) == 3);
-        }
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.At(0x68, s => s.ReadInt32(Endian.Big) == 3);
 
         protected override void Read(Stream stream)
         {

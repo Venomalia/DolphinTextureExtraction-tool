@@ -43,7 +43,7 @@ namespace AuroraLib.Common
         /// <param name="stream"></param>
         /// <param name="extension"></param>
         /// <returns></returns>
-        public static FormatInfo Identify(this Stream stream, in string extension = "")
+        public static FormatInfo Identify(this Stream stream, ReadOnlySpan<char> extension = default)
         {
             //Test for reliable Identifier32 & Identifier64
             if (stream.Length >= 0x10)
@@ -99,7 +99,7 @@ namespace AuroraLib.Common
             }
 
             //Create new identifier
-            FormatInfo formatInfo = new(extension, FormatType.Unknown);
+            FormatInfo formatInfo = new(extension.ToString(), FormatType.Unknown);
             if (stream.Length >= 0x20)
             {
                 Span<byte> temp = stackalloc byte[0x10];

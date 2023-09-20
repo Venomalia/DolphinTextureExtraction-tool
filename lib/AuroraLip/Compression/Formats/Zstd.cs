@@ -8,7 +8,7 @@ namespace AuroraLib.Compression.Formats
 
         public const string Extension = ".zs";
 
-        public override bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
     }
 }

@@ -11,8 +11,8 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => true;
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
 
         public JUTTransparency AlphaSetting { get; set; } = JUTTransparency.OPAQUE;
         public bool ClampLODBias { get; set; } = true;

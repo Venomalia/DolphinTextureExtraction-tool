@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression.Formats;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
@@ -17,7 +18,7 @@ namespace AuroraLib.Archives.Formats
 
         private static readonly LZSS lZSS = new LZSS(12, 4, 2);
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 112 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
@@ -26,7 +27,8 @@ namespace AuroraLib.Archives.Formats
             Header header = stream.Read<Header>(Endian.Big);
 
             stream.Seek(header.FileInfoOffset, SeekOrigin.Begin);
-            uint[] FileInfosOffsets = stream.For((int)header.Entries, s => s.ReadUInt32(Endian.Big));
+            using SpanBuffer<uint> FileInfosOffsets = new((int)header.Entries);
+            stream.Read(FileInfosOffsets.Span, Endian.Big);
 
             stream.Seek(header.StringTableOffset, SeekOrigin.Begin);
             string[] Filenames = stream.For((int)header.Entries, s => s.ReadString());

@@ -12,7 +12,8 @@ namespace AuroraLib.Texture
 
         public const string Extension = ".PIM";
 
-        public bool IsMatch(Stream stream, in string extension = "") => extension == Extension;
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.SequenceEqual(Extension);
 
         protected override void Read(Stream stream)
         {

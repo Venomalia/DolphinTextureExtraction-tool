@@ -10,9 +10,9 @@ namespace AuroraLib.Texture.Formats
 
         public static string Extension => ".s3g";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (stream.Length <= 0x20 || extension.ToLower() != extension)
+            if (stream.Length <= 0x20 || !extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
             {
                 return false;
             }

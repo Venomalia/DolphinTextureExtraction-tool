@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture.PixelFormats;
+using RenderWareNET.Plugins;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Tga;
 using System.Runtime.InteropServices;
@@ -13,12 +14,19 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public static string[] Extensions = new string[]{ ".tga", ".vda", ".icb", ".vst" };
+        public static readonly string[] Extensions = new string[]{ ".tga", ".vda", ".icb", ".vst" };
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            Header header = stream.Read<Header>();
-            return header.ColorMapType <=1 && header.Width != 0 && header.Height != 0 && header.Width != 20 && header.Height != 0 && Enum.IsDefined(header.ImageType) && header.PixelDepth != 0 && header.PixelDepth <= 32 && Extensions.Contains(extension.ToLower());
+            for (int i = 0; i < Extensions.Length; i++)
+            {
+                if (extension.Contains(Extensions[i], StringComparison.InvariantCultureIgnoreCase))
+                {
+                    Header header = stream.Read<Header>();
+                    return header.ColorMapType <= 1 && header.Width != 0 && header.Height != 0 && header.Width != 20 && header.Height != 0 && Enum.IsDefined(header.ImageType) && header.PixelDepth != 0 && header.PixelDepth <= 32;
+                }
+            }
+            return false;
         }
 
         protected override void Read(Stream stream)

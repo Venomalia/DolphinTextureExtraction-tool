@@ -9,7 +9,7 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public string Extension => ".txe";
+        public const string Extension = ".txe";
 
         public TXE()
         { }
@@ -24,9 +24,9 @@ namespace AuroraLib.Texture.Formats
 
         public TEXTyp Typ = TEXTyp.ModTEX;
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (stream.Length < 10 || !extension.ToLower().StartsWith(".txe"))
+            if (stream.Length < 10 || !extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
             ushort ImageWidth = stream.ReadUInt16(Endian.Big);
@@ -37,8 +37,8 @@ namespace AuroraLib.Texture.Formats
             return ImageWidth > 1 && ImageWidth <= 1024 && ImageHeight >= 1 && ImageHeight <= 1024 && (int)Tex_Format <= 7 && ((GXImageFormat)Enum.Parse(typeof(GXImageFormat), Tex_Format.ToString())).CalculatedDataSize(ImageWidth, ImageHeight) < stream.Length;
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => Matcher(stream, in extension);
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => Matcher(stream, extension);
 
         protected override void Read(Stream stream)
         {

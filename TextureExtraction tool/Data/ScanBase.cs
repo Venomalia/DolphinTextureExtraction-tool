@@ -534,16 +534,16 @@ namespace DolphinTextureExtraction
 
         #endregion
 
-        protected ref struct ScanObjekt
+        protected readonly ref struct ScanObjekt
         {
             public Stream Stream { get; }
             public FormatInfo Format { get; }
             public ReadOnlySpan<char> SubPath { get; }
             public int Deep { get; }
-            public string Extension { get; }
+            public ReadOnlySpan<char> Extension { get; }
             public ArchiveFile File { get; }
 
-            public ScanObjekt(Stream stream, ReadOnlySpan<char> subPath, int deep = 0, string extension = "")
+            public ScanObjekt(Stream stream, ReadOnlySpan<char> subPath, int deep = 0, ReadOnlySpan<char> extension = default)
             {
                 Stream = stream;
                 Extension = extension;

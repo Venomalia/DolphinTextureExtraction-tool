@@ -8,7 +8,7 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public string Extension => ".txtr";
+        public const string Extension = ".txtr";
 
         public TXTR()
         { }
@@ -21,8 +21,8 @@ namespace AuroraLib.Texture.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension;
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
 
         protected override void Read(Stream stream)
         {

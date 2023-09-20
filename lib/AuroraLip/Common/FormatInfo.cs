@@ -93,7 +93,7 @@ namespace AuroraLib.Common
         /// <param name="stream">The stream to check.</param>
         /// <param name="extension">The extension to check.</param>
         /// <returns> true if the stream and extension match the format; otherwise, false.</returns>
-        public delegate bool MatchAction(Stream stream, in string extension = "");
+        public delegate bool MatchAction(Stream stream, ReadOnlySpan<char> extension = default);
 
         /// <summary>
         /// Creates an instance of the class associated with this format.
@@ -141,7 +141,7 @@ namespace AuroraLib.Common
             _ => new Identifier(identifier),
         };
 
-        private bool Matcher(Stream stream, in string extension = "")
+        private bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (Identifier != null)
             {
@@ -153,7 +153,7 @@ namespace AuroraLib.Common
                 }
                 return false;
             }
-            return extension != string.Empty && Extension.ToLower() == extension.ToLower();
+            return extension.Length != 0 && extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
         }
         #endregion
 
@@ -209,7 +209,7 @@ namespace AuroraLib.Common
             }
             else
             {
-                return Extension.ToLower() == other.Extension.ToLower();
+                return Extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
             }
         }
 

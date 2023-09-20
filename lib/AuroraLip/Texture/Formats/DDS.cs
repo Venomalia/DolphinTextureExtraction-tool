@@ -13,7 +13,7 @@ namespace AuroraLib.Texture.Formats
 
         public static readonly Identifier32 Magic = new("DDS ");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 124 && stream.Match(Magic) && stream.ReadUInt32() == 124;
 
         protected override void Read(Stream stream)

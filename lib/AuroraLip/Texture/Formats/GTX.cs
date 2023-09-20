@@ -10,10 +10,10 @@ namespace AuroraLib.Texture.Formats
 
         public const string Extension = ".GTX";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => extension == Extension && stream.Length > 128 && stream.At(0x28, s => s.ReadUInt32(Endian.Big) == 128);
 
         protected override void Read(Stream stream)

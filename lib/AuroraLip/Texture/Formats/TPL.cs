@@ -15,10 +15,10 @@ namespace AuroraLib.Texture.Formats
 
         public static readonly Identifier32 Magic = new(0x00, 0x20, 0xAF, 0x30);
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 12 && stream.Match(Magic);
 
         public static int GetSize(Stream stream)

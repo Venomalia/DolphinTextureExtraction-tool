@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
+using RenderWareNET.Plugins;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -103,10 +104,10 @@ namespace AuroraLib.Compression.Formats
             deflater.Reset();
         }
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => extension.ToLower() == ".zlib" && stream.Length > 16 && (stream.Read<Header>().Validate() || (stream.At(4, s => s.Read<Header>().Validate())));
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(".zlib", StringComparison.InvariantCultureIgnoreCase) && stream.Length > 16 && (stream.Read<Header>().Validate() || (stream.At(4, s => s.Read<Header>().Validate())));
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 16 && (stream.Read<Header>().Validate() || (stream.At(4, s => s.Read<Header>().Validate())));
 
         public struct Header

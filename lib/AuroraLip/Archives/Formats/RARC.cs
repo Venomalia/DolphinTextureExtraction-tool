@@ -35,7 +35,7 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
         #region Fields and Properties

@@ -8,12 +8,12 @@ namespace AuroraLib.Archives.Formats
     // base https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime_3)#Header
     public class PAK_RetroWii : PAK_Retro
     {
-        public override bool IsMatch(Stream stream, in string extension = "")
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public new static bool Matcher(Stream stream, in string extension = "")
+        public new static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            return extension.ToLower().Equals(Extension) && stream.ReadUInt32(Endian.Big) == 2 && stream.ReadUInt32(Endian.Big) == 64 && stream.ReadUInt64(Endian.Big) != 0 && stream.ReadUInt64(Endian.Big) != 0;
+            return extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32(Endian.Big) == 2 && stream.ReadUInt32(Endian.Big) == 64 && stream.ReadUInt64(Endian.Big) != 0 && stream.ReadUInt64(Endian.Big) != 0;
         }
 
         protected override void Read(Stream stream)

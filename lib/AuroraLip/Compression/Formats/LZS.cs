@@ -102,7 +102,7 @@ namespace AuroraLib.Compression.Formats
             return Data.Length > 16 && Data[0] == 76 && Data[1] == 122 && Data[2] == 83;
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (stream.Length < 16 && stream.Match(_identifier))
             {

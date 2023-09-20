@@ -15,7 +15,7 @@ namespace AuroraLib.Compression.Formats
 
         private static readonly LZSS LZSS = new(12, 4, 2);
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (stream.Length < 0x10)
                 return false;

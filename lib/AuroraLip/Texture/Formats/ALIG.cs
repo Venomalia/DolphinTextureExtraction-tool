@@ -13,7 +13,7 @@ namespace AuroraLib.Texture.Formats
 
         private static readonly Identifier32 _identifier = new("ALIG");
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
         protected override void Read(Stream stream)

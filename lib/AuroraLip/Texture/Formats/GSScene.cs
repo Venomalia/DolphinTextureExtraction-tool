@@ -6,10 +6,19 @@
     /// </summary>
     public class GSScene : HALDAT
     {
-        public List<string> Extensions => new List<string>() { ".gsscene", ".floordat", ".modeldat" };
+        public static readonly string[] Extensions = new string[] { ".gsscene", ".floordat", ".modeldat" };
 
-        public override bool IsMatch(Stream stream, in string extension = "")
-            => Extensions.Contains(extension.ToLower());
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        {
+            for (int i = 0; i < Extensions.Length; i++)
+            {
+                if (extension.Contains(Extensions[i], StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public GSScene()
         { }

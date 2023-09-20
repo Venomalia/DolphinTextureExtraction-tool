@@ -11,11 +11,11 @@ namespace AuroraLib.Texture.Formats
         public const string Extension = ".res";
         public const string Extension2 = ".dmn";
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
-            => (extension.ToLower() == Extension || extension.ToLower() == Extension2) && stream.ReadInt32(Endian.Big) == 0x20 && stream.ReadInt32(Endian.Big) != 0 && stream.ReadInt32(Endian.Big) == 1;
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => (extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) || extension.Contains(Extension2, StringComparison.InvariantCultureIgnoreCase) && stream.ReadInt32(Endian.Big) == 0x20 && stream.ReadInt32(Endian.Big) != 0 && stream.ReadInt32(Endian.Big) == 1);
 
         protected override void Read(Stream stream)
         {

@@ -27,12 +27,12 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.ToLower().Equals(".iso") && stream.Length > 9280)
+            if (extension.Contains(".iso", StringComparison.InvariantCultureIgnoreCase) && stream.Length > 9280)
             {
                 GameID gameID = (GameID)stream.Read(6);
                 return Enum.IsDefined(typeof(SystemCode), gameID.SystemCode) && Enum.IsDefined(typeof(RegionCode), gameID.RegionCode) && stream.At(28, s => s.ReadUInt32(Endian.Big)) == MagicWord;

@@ -17,7 +17,7 @@ namespace Hack.io
 
         public virtual bool CanWrite => true;
 
-        public virtual bool IsMatch(Stream stream, in string extension = "")
+        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
 

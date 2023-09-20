@@ -43,7 +43,7 @@ namespace AuroraLib.Compression.Formats
             Compress_ALG(source, destination);
         }
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
 

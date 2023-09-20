@@ -4,6 +4,7 @@ using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using MuramasaTDB_Encoding;
+using RenderWareNET.Plugins;
 
 namespace AuroraLib.Common
 {
@@ -619,7 +620,7 @@ namespace AuroraLib.Common
         #region Help Matcher
 
         //Is needed to detect ADX files reliably.
-        private static bool ADX_Matcher(Stream stream, in string extension = "")
+        private static bool ADX_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (stream.ReadByte() != 128 || stream.ReadByte() != 0)
                 return false;
@@ -629,22 +630,22 @@ namespace AuroraLib.Common
             return stream.Match("(c)CRI");
         }
 
-        private static bool BZip_Matcher(Stream stream, in string extension = "")
+        private static bool BZip_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             byte[] Data = stream.Read(4);
             return stream.Length > 4 && Data[0] == 66 && Data[1] == 90 && (Data[2] == 104 || Data[2] == 0) && Data[3] >= 49 && Data[3] <= 57;
         }
 
-        private static bool LZH_Matcher(Stream stream, in string extension = "")
+        private static bool LZH_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 5 && stream.Match("-lz") && stream.ReadByte() > 32 && stream.Match("-");
 
-        private static bool BIN_LM_Matcher(Stream stream, in string extension = "")
-            => stream.ReadUInt8() == 2 && extension.ToLower() == ".bin" && stream.ReadString(2).Length == 2;
+        private static bool BIN_LM_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.ReadUInt8() == 2 && extension.Contains(".bin", StringComparison.InvariantCultureIgnoreCase) && stream.ReadString(2).Length == 2;
 
-        private static bool Empty_Matcher(Stream stream, in string extension = "")
+        private static bool Empty_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length == 0;
 
-        private static bool Zero_Matcher(Stream stream, in string extension = "")
+        private static bool Zero_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             while (stream.Length < 0x40)
             {

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using System;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -10,8 +11,8 @@ namespace AuroraLib.Archives.Formats
 
         public const string Extension = ".cmn";
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == Extension && stream.ReadUInt32() < 2048 && stream.ReadUInt32() != 0;
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32() < 2048 && stream.ReadUInt32() != 0;
 
         protected override void Read(Stream stream)
         {

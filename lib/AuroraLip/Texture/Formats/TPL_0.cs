@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using RenderWareNET.Plugins;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -11,13 +12,13 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
-        public static bool Matcher(Stream stream, in string extension = "")
+        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             uint ImageCount = stream.ReadUInt32(Endian.Big);
-            if (extension.ToLower().Equals(".tpl") && ImageCount >= 1 && ImageCount < 255)
+            if (extension.Contains(".tpl", StringComparison.InvariantCultureIgnoreCase) && ImageCount >= 1 && ImageCount < 255)
             {
                 for (int i = 0; i < ImageCount; i++)
                 {

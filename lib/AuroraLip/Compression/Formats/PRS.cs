@@ -18,7 +18,7 @@
 
         public static Endian Order => Endian.Little;
 
-        public bool IsMatch(Stream stream, in string extension = "")
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             return stream.Length > 6 & stream.PeekByte() > 12 && (stream.ReadByte() & 0x1) == 1;
         }

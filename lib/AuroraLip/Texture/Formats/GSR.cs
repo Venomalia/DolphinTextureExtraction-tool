@@ -22,8 +22,8 @@ namespace AuroraLib.Texture.Formats
 
         private static readonly Identifier32 _le_identifier = new(0x20, 0, 0, 0);
 
-        public bool IsMatch(Stream stream, in string extension = "")
-            => extension.ToLower() == ".gsr" && !stream.Match(_le_identifier);
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(".gsr", StringComparison.InvariantCultureIgnoreCase) && !stream.Match(_le_identifier);
 
         protected override void Read(Stream stream)
         {

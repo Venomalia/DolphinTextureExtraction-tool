@@ -809,14 +809,14 @@ namespace DolphinTextureExtraction
         }
 
         //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
-        static void TextureUpdate(JUTTexture.TexEntry texture, Results result, in string subdirectory)
+        static void TextureUpdate(JUTTexture.TexEntry texture, Results result, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
             StringBuilder sb = new();
             sb.Append("Prog:");
             sb.Append(Math.Round(ProgressPercentage, 2));
             sb.Append("% Extract:");
-            sb.Append(Path.Combine(subdirectory, texture.GetDolphinTextureHash()));
+            sb.Append(Path.Combine(subdirectory, texture.GetDolphinTextureHash(0, TlutHash, true, isArbitraryMipmap)));
             sb.Append(".png mips:");
             sb.Append(texture.Count - 1);
             sb.Append(" LODBias:");

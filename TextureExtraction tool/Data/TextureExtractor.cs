@@ -40,7 +40,7 @@ namespace DolphinTextureExtraction
             /// </summary>
             public TextureActionDelegate TextureAction;
 
-            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, Results results, in string subdirectory);
+            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, Results results, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap);
 
             public ExtractorOptions()
             {
@@ -321,7 +321,7 @@ namespace DolphinTextureExtraction
                         }
                     }
                     Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
-                    ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory);
+                    ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory, TlutHash, IsArbitraryMipmap == true);
                 }
             }
         }

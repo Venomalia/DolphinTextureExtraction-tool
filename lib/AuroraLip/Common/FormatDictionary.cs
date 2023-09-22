@@ -110,11 +110,13 @@ namespace AuroraLib.Common
                 if (AsciiSize == 3 || AsciiSize == 4)
                 {
                     formatInfo.Identifier = new Identifier32(temp[..4]);
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"New Identifier32 found:{formatInfo.Identifier}");
                     Add(formatInfo);
                 }
                 else if (AsciiSize == 7 || AsciiSize == 8)
                 {
                     formatInfo.Identifier = new Identifier64(temp[..8]);
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"New Identifier64 found:{formatInfo.Identifier}");
                     Add(formatInfo);
                 }
 

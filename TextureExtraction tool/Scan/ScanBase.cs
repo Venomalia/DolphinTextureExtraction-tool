@@ -19,13 +19,15 @@ namespace DolphinTextureExtraction.Scans
 
         protected ScanResults Result = new();
 
-        protected ScanBase(in string scanDirectory, in string saveDirectory, ScanOptions options)
+        protected ScanBase(in string scanDirectory, in string saveDirectory, ScanOptions options, string logDirectory = null)
         {
             Option = options ?? new ScanOptions();
             ScanPath = scanDirectory;
             SaveDirectory = Option.DryRun ? StringEx.ExePath : saveDirectory;
+            logDirectory ??= SaveDirectory;
             Directory.CreateDirectory(SaveDirectory);
-            Log = new ScanLogger(SaveDirectory, options);
+            Directory.CreateDirectory(logDirectory);
+            Log = new(logDirectory, options);
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
         }

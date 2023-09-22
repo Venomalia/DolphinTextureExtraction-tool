@@ -11,19 +11,17 @@ namespace DolphinTextureExtraction.Scans
 
         public double CompressionRate { get; private set; } = 0;
 
-        public static ScanResults StartScan(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options)
-            => StartScan_Async(meindirectory, savedirectory, Algorithm, options).Result;
+        public static ScanResults StartScan(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options, string logDirectory = null)
+            => StartScan_Async(meindirectory, savedirectory, Algorithm, options, logDirectory).Result;
 
-        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options)
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options, string logDirectory = null)
         {
-            Compress Extractor = new(meindirectory, savedirectory, Algorithm, options);
-            return await Task.Run(() => Extractor.StartScan());
+            Compress Extractor = new(meindirectory, savedirectory, Algorithm, options, logDirectory);
+            return await Extractor.StartScan_Async();
         }
 
-        internal Compress(string scanDirectory, string saveDirectory, Type Algorithm, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
-        {
-            algorithm = Algorithm;
-        }
+        internal Compress(string scanDirectory, string saveDirectory, Type Algorithm, ScanOptions options = null, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory)
+            => algorithm = Algorithm;
 
         protected override void Scan(ScanObjekt so)
         {

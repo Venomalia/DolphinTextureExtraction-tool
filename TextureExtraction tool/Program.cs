@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
-using DolphinTextureExtraction.Scans.Results;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -15,6 +14,8 @@ namespace DolphinTextureExtraction
         static string InputPath;
 
         static string OutputDirectory;
+
+        static string LogDirectory = null;
 
         static TextureExtractorOptions options;
         static Cleanup.Option cleanOptions;
@@ -288,7 +289,7 @@ namespace DolphinTextureExtraction
                                 ParseOptions(args.AsSpan(p));
                             }
 
-                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
+                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options, LogDirectory);
 
                             Console.WriteLine();
 
@@ -309,7 +310,7 @@ namespace DolphinTextureExtraction
                                 ParseOptions(args.AsSpan(p));
                             }
 
-                            Unpack.StartScan(InputPath, OutputDirectory, options);
+                            Unpack.StartScan(InputPath, OutputDirectory, options, LogDirectory);
                             Console.WriteLine();
                             Console.WriteLine("completed.");
                             #endregion
@@ -319,7 +320,7 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(args[p++]), options);
+                            Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(args[p++]), options, LogDirectory);
                             Console.WriteLine();
                             Console.WriteLine("completed.");
                             break;
@@ -339,7 +340,7 @@ namespace DolphinTextureExtraction
                                 }
                             }
 
-                            Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
+                            Cutter.StartScan(InputPath, OutputDirectory, pattern, options, LogDirectory);
                             Console.WriteLine();
                             Console.WriteLine("completed.");
                             #endregion
@@ -582,6 +583,9 @@ namespace DolphinTextureExtraction
                     case Options.ArbitraryMipmapDetection:
                         ConsoleEx.WriteLineBoolPrint(options.ArbitraryMipmapDetection, ConsoleColor.Green, ConsoleColor.Red);
                         break;
+                    case Options.Log:
+                        Console.CursorLeft = 0;
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -641,6 +645,10 @@ namespace DolphinTextureExtraction
                     case Options.ArbitraryMipmapDetection:
                         HelpPrintTrueFalse(options.ArbitraryMipmapDetection);
                         options.ArbitraryMipmapDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.ArbitraryMipmapDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                        break;
+                    case Options.Log:
+                        Console.CursorTop--;
+                        Console.CursorLeft = 0;
                         break;
                     default:
                         throw new NotImplementedException();
@@ -744,6 +752,15 @@ namespace DolphinTextureExtraction
                             break;
                         case Options.ArbitraryMipmapDetection:
                             options.ArbitraryMipmapDetection = true;
+                            break;
+                        case Options.Log:
+                            LogDirectory = args[++i].Trim('"');
+                            if (!PathIsValid(LogDirectory))
+                            {
+                                Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a path as second parameter.");
+                                Console.WriteLine("use h for help");
+                                Environment.Exit(-2);
+                            }
                             break;
                         default:
                             throw new NotImplementedException();

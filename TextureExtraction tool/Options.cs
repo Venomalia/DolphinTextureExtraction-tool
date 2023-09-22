@@ -12,6 +12,7 @@
         Dolphinmipdetection,
         ArbitraryMipmapDetection,
         Recursiv,
+        Log,
     }
 
     internal static class OptionsEX
@@ -28,6 +29,7 @@
             Options.Dolphinmipdetection => "Tries to imitate dolphin mipmap detection.",
             Options.Recursiv => "Extract recursiv.",
             Options.ArbitraryMipmapDetection => "use Arbitrary Mipmap Detection",
+            Options.Log => "Defines the directory in which the log file will be saved",
             _ => throw new NotImplementedException(),
         };
 
@@ -43,6 +45,7 @@
             Options.Dolphinmipdetection => "dmd",
             Options.Recursiv => "rc",
             Options.ArbitraryMipmapDetection => "amd",
+            Options.Log => "l",
             _ => throw new NotImplementedException(),
         };
 
@@ -59,6 +62,7 @@
             Options.Dolphinmipdetection => string.Empty,
             Options.Recursiv => string.Empty,
             Options.ArbitraryMipmapDetection => string.Empty,
+            Options.Log => $"{Options.Log} \"path\"",
             _ => throw new NotImplementedException(),
         };
 

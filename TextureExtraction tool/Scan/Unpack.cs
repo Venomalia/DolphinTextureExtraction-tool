@@ -7,17 +7,17 @@ namespace DolphinTextureExtraction.Scans
 {
     public class Unpack : ScanBase
     {
-        public Unpack(string scanDirectory, string saveDirectory, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
+        public Unpack(string scanDirectory, string saveDirectory, ScanOptions options = null, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory)
         {
         }
 
-        public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options)
-            => StartScan_Async(meindirectory, savedirectory, options).Result;
+        public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null)
+            => StartScan_Async(meindirectory, savedirectory, options, logDirectory).Result;
 
-        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, ScanOptions options)
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null)
         {
-            Unpack Extractor = new(meindirectory, savedirectory, options);
-            return Extractor.StartScan_Async().Result;
+            Unpack Extractor = new(meindirectory, savedirectory, options, logDirectory);
+            return await Extractor.StartScan_Async();
         }
 
         protected override void Scan(ScanObjekt so)

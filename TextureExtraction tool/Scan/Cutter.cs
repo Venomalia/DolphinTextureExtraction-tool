@@ -9,20 +9,18 @@ namespace DolphinTextureExtraction.Scans
     {
         private List<byte[]> Pattern;
 
-        internal Cutter(string scanDirectory, string saveDirectory, ScanOptions options = null) : base(scanDirectory, saveDirectory, options) { }
+        internal Cutter(string scanDirectory, string saveDirectory, ScanOptions options = null, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory) { }
 
-        internal Cutter(string scanDirectory, string saveDirectory, List<byte[]> pattern, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
+        internal Cutter(string scanDirectory, string saveDirectory, List<byte[]> pattern, ScanOptions options = null, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory)
+            => Pattern = pattern;
+
+        public static ScanResults StartScan(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options, string logDirectory = null)
+            => StartScan_Async(meindirectory, savedirectory, pattern, options, logDirectory).Result;
+
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options, string logDirectory = null)
         {
-            Pattern = pattern;
-        }
-
-        public static ScanResults StartScan(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options)
-            => StartScan_Async(meindirectory, savedirectory, pattern, options).Result;
-
-        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options)
-        {
-            Cutter Extractor = new Cutter(meindirectory, savedirectory, pattern, options);
-            return await Task.Run(() => Extractor.StartScan());
+            Cutter Extractor = new(meindirectory, savedirectory, pattern, options, logDirectory);
+            return await Extractor.StartScan_Async();
         }
         protected override void Scan(ScanObjekt so)
         {

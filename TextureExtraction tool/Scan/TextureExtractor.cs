@@ -19,21 +19,21 @@ namespace DolphinTextureExtraction.Scans
 
         private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new TextureExtractorOptions()) { }
 
-        private TextureExtractor(string meindirectory, string savedirectory, TextureExtractorOptions options) : base(meindirectory, savedirectory, options)
+        private TextureExtractor(string meindirectory, string savedirectory, TextureExtractorOptions options, string logDirectory = null) : base(meindirectory, savedirectory, options, logDirectory)
             => base.Result = new TextureExtractorResult() { LogFullPath = base.Result.LogFullPath };
 
         public static TextureExtractorResult StartScan(string meindirectory, string savedirectory)
             => StartScan_Async(meindirectory, savedirectory, new TextureExtractorOptions()).Result;
 
-        public static TextureExtractorResult StartScan(string meindirectory, string savedirectory, TextureExtractorOptions options)
-            => StartScan_Async(meindirectory, savedirectory, options).Result;
+        public static TextureExtractorResult StartScan(string meindirectory, string savedirectory, TextureExtractorOptions options, string logDirectory = null)
+            => StartScan_Async(meindirectory, savedirectory, options, logDirectory).Result;
 
         public static Task<TextureExtractorResult> StartScan_Async(string meindirectory, string savedirectory)
             => StartScan_Async(meindirectory, savedirectory, new TextureExtractorOptions());
 
-        public static async Task<TextureExtractorResult> StartScan_Async(string meindirectory, string savedirectory, TextureExtractorOptions options)
+        public static async Task<TextureExtractorResult> StartScan_Async(string meindirectory, string savedirectory, TextureExtractorOptions options, string logDirectory = null)
         {
-            TextureExtractor Extractor = new(meindirectory, savedirectory, options);
+            TextureExtractor Extractor = new(meindirectory, savedirectory, options, logDirectory);
 #if DEBUG
             if (Extractor.Option.Parallel.MaxDegreeOfParallelism == 1)
             {

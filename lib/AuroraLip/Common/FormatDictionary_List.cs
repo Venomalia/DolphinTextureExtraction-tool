@@ -355,6 +355,10 @@ namespace AuroraLib.Common
             new FormatInfo(".olk", 4,"olnk".GetBytes(), FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco",typeof(NUTC)),
 
+            //The Behemoth
+            new FormatInfo(".BREC", "RSND", FormatType.Archive,"Encrypted Shockwave Flash?", "The Behemoth"),
+            new FormatInfo(".BREC", "NREC", FormatType.Archive,"Encrypted Shockwave Flash", "The Behemoth"),
+
             //SEGA
             new FormatInfo(".one", FormatType.Archive, "Sonic Storybook Series Archive", "SEGA",typeof(ONE_SB)),
             new FormatInfo(".one","one.", FormatType.Archive, "Sonic Unleashed Archive", "SEGA",typeof(ONE_UN)),

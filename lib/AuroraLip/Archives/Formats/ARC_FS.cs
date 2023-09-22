@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.IO;
 using System;
 
@@ -27,7 +28,8 @@ namespace AuroraLib.Archives.Formats
             if (stream.Length > 0x20 && match && stream.ReadUInt32(Endian.Big) == stream.Length)
             {
                 uint entrys = stream.ReadUInt32(Endian.Big);
-                uint[] pointers = stream.Read<uint>(entrys, Endian.Big);
+                using SpanBuffer<uint> pointers = new((int)entrys);
+                stream.Read(pointers.Span, Endian.Big);
                 long pos = pointers[0];
                 for (int i = 0; i < pointers.Length; i++)
                 {
@@ -73,7 +75,8 @@ namespace AuroraLib.Archives.Formats
         {
             uint size = stream.ReadUInt32(Endian.Big);
             uint entrys = stream.ReadUInt32(Endian.Big);
-            uint[] pointers = stream.Read<uint>(entrys, Endian.Big);
+            using SpanBuffer<uint> pointers = new((int)entrys);
+            stream.Read(pointers.Span, Endian.Big);
 
             for (int i = 0; i < pointers.Length; i++)
             {

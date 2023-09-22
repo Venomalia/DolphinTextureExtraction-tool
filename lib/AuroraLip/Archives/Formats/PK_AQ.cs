@@ -1,4 +1,6 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
+using AuroraLib.Core.IO;
 using AuroraLib.Core.Text;
 using ICSharpCode.SharpZipLib.Checksum;
 using RenderWareNET.Plugins;
@@ -46,7 +48,8 @@ namespace AuroraLib.Archives.Formats
 
             //Read PKH
             uint Entrys = hStream.ReadUInt32(Endian.Big);
-            HEntry[] hEntries = hStream.For((int)Entrys, s => s.Read<HEntry>(Endian.Big));
+            using SpanBuffer<HEntry> hEntries = new((int)Entrys);
+            hStream.Read(hEntries.Span, Endian.Big);
 
             try
             {
@@ -55,9 +58,14 @@ namespace AuroraLib.Archives.Formats
 
                 //Read PFS
                 FSHeader header = fsStream.Read<FSHeader>(Endian.Big);
-                DirectoryEntry[] directories = fsStream.For((int)header.Directorys, s => s.Read<DirectoryEntry>(Endian.Big));
-                uint[] directoryNameOffsets = fsStream.For((int)header.Directorys, s => s.ReadUInt32(Endian.Big));
-                uint[] fileNameOffsets = fsStream.For((int)header.Files, s => s.ReadUInt32(Endian.Big));
+
+
+                using SpanBuffer<DirectoryEntry> directories = new((int)header.Directorys);
+                fsStream.Read(directories.Span, Endian.Big);
+                using SpanBuffer<uint> directoryNameOffsets = new((int)header.Directorys);
+                fsStream.Read(directoryNameOffsets.Span, Endian.Big);
+                using SpanBuffer<uint> fileNameOffsets = new((int)header.Files);
+                fsStream.Read(fileNameOffsets.Span, Endian.Big);
                 long nameTabelPos = fsStream.Position;
 
                 //Process
@@ -91,7 +99,16 @@ namespace AuroraLib.Archives.Formats
                         crc32.Reset();
                         crc32.Update(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').GetBytes());
                         uint test = (uint)crc32.Value;
-                        HEntry fileEntry = Array.Find(hEntries, e => e.CRC32 == crc32.Value);
+
+                        HEntry fileEntry = default;
+                        foreach (HEntry entry in hEntries)
+                        {
+                            if (entry.CRC32 == crc32.Value)
+                            {
+                                fileEntry = entry;
+                                break;
+                            }
+                        }
 
                         if (fileEntry.IsCompressed)
                             dir.AddArchiveFile(pkstream, fileEntry.ComprSize, fileEntry.Offset, filename + ".lz");

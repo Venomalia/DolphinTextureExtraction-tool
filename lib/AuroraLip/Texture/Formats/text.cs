@@ -22,7 +22,7 @@ namespace AuroraLib.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => !extension.Contains(".pk", StringComparison.InvariantCultureIgnoreCase) && stream.Length > 0x40 && stream.Match(_identifier);
+            => stream.Length > 0x40 && stream.Match(_identifier);
 
         protected override void Read(Stream stream)
         {

@@ -1,6 +1,8 @@
 ﻿using AuroraLib.Common;
 using ICSharpCode.SharpZipLib.Zip.Compression;
 using RenderWareNET.Plugins;
+using System;
+using System.Buffers;
 
 namespace AuroraLib.Compression.Formats
 {
@@ -20,8 +22,18 @@ namespace AuroraLib.Compression.Formats
 
         public byte[] Decompress(Stream source)
         {
-            using Stream stream = Decompress(source.ToArray(), 4096);
-            return stream.ToArray();
+            byte[] buffer = ArrayPool<byte>.Shared.Rent((int)(source.Length - source.Position));
+            try
+            {
+                source.Read(buffer);
+                using Stream stream = Decompress(buffer, 4096);
+                return stream.ToArray();
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(buffer);
+            }
+
         }
 
         public Stream Decompress(in byte[] Data, int bufferSize = 4096, bool noHeader = false)
@@ -29,32 +41,39 @@ namespace AuroraLib.Compression.Formats
 
         public Stream Decompress(in byte[] Data, Stream ms, int bufferSize = 4096, bool noHeader = false)
         {
-            byte[] buffer = new byte[bufferSize];
-
             Inflater inflater = new(noHeader);
             if (new Header(Data[0], Data[1]).Validate())
                 inflater.SetInput(Data);
             else
                 inflater.SetInput(Data.AsSpan()[4..].ToArray());
 
-            while (!inflater.IsFinished)
+            byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+            try
             {
-                if (inflater.IsNeedingDictionary)
+                while (!inflater.IsFinished)
                 {
-                    throw new Exception("Need a dictionary");
+                    if (inflater.IsNeedingDictionary)
+                    {
+                        throw new Exception("Need a dictionary");
+                    }
+                    if (inflater.IsNeedingInput)
+                    {
+                        throw new Exception("Need more Input");
+                    }
+                    int i = inflater.Inflate(buffer);
+                    ms.Write(buffer, 0, i);
                 }
-                if (inflater.IsNeedingInput)
+                Adler = inflater.Adler;
+                if (inflater.RemainingInput != 0)
                 {
-                    throw new Exception("Need more Input");
+                    Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(ZLib)} file contains {inflater.RemainingInput} unread bytes.");
                 }
-                int i = inflater.Inflate(buffer);
-                ms.Write(buffer, 0, i);
             }
-            Adler = inflater.Adler;
-            if (inflater.RemainingInput != 0)
+            finally
             {
-                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{typeof(ZLib)} file contains {inflater.RemainingInput} unread bytes.");
+                ArrayPool<byte>.Shared.Return(buffer);
             }
+
 
             inflater.Reset();
             return ms;

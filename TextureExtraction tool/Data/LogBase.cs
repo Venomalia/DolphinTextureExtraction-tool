@@ -6,7 +6,8 @@
 
         public string FullPath { get; private set; }
 
-        public LogBase(string FullPath) : this(FullPath, false) { }
+        public LogBase(string FullPath) : base(FullPath, new FileStreamOptions() { Access = FileAccess.Write, Mode = FileMode.Create, Share = FileShare.Read })
+        { }
 
         public LogBase(string FullPath, bool append) : base(FullPath, append)
             => this.FullPath = FullPath;

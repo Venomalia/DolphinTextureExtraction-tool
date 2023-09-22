@@ -1,6 +1,9 @@
 ﻿using AuroraLib.Compression;
+using DolphinTextureExtraction.Scans.Helper;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 
-namespace DolphinTextureExtraction.Data
+namespace DolphinTextureExtraction.Scans
 {
     public class Compress : ScanBase
     {
@@ -8,16 +11,16 @@ namespace DolphinTextureExtraction.Data
 
         public double CompressionRate { get; private set; } = 0;
 
-        public static Results StartScan(string meindirectory, string savedirectory, Type Algorithm, Options options)
+        public static ScanResults StartScan(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options)
             => StartScan_Async(meindirectory, savedirectory, Algorithm, options).Result;
 
-        public static async Task<Results> StartScan_Async(string meindirectory, string savedirectory, Type Algorithm, Options options)
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, Type Algorithm, ScanOptions options)
         {
             Compress Extractor = new(meindirectory, savedirectory, Algorithm, options);
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        internal Compress(string scanDirectory, string saveDirectory, Type Algorithm, Options options = null) : base(scanDirectory, saveDirectory, options)
+        internal Compress(string scanDirectory, string saveDirectory, Type Algorithm, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
         {
             algorithm = Algorithm;
         }

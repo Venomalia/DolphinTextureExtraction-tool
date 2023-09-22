@@ -1,11 +1,11 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
 using AuroraLib.Compression;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Text;
+using DolphinTextureExtraction.Scans.Helper;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 
-namespace DolphinTextureExtraction
+namespace DolphinTextureExtraction.Scans
 {
     public abstract class ScanBase
     {
@@ -15,170 +15,13 @@ namespace DolphinTextureExtraction
 
         internal readonly ScanLogger Log;
 
-        protected readonly Options Option;
+        protected readonly ScanOptions Option;
 
-        protected Results Result = new();
+        protected ScanResults Result = new();
 
-        public class Options
+        protected ScanBase(in string scanDirectory, in string saveDirectory, ScanOptions options)
         {
-            static NameValueCollection config;
-            public static NameValueCollection Config => config ??= ConfigurationManager.AppSettings;
-            static bool? useConfig = null;
-            public static bool UseConfig = (useConfig ??= Config.HasKeys() && bool.TryParse(Config.Get("UseConfig"), out bool value) && value);
-#if DEBUG
-            public ParallelOptions Parallel = new() { MaxDegreeOfParallelism = 1 };
-#else
-            public ParallelOptions Parallel = new() { MaxDegreeOfParallelism = 4 };
-#endif
-            internal ParallelOptions SubParallel => new()
-            {
-                MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
-                CancellationToken = Parallel.CancellationToken,
-                TaskScheduler = Parallel.TaskScheduler
-            };
-
-            /// <summary>
-            /// Tries to extract files from unknown files, may cause errors.
-            /// </summary>
-            public bool Force = false;
-
-            public Options()
-            {
-                if (!UseConfig) return;
-                if (bool.TryParse(Config.Get("DryRun"), out bool value)) DryRun = value;
-                if (bool.TryParse(Config.Get("Force"), out value)) Force = value;
-                if (uint.TryParse(Config.Get("Deep"), out uint deep)) Deep = deep;
-                if (int.TryParse(Config.Get("Tasks"), out int thing)) Parallel.MaxDegreeOfParallelism = thing <= 0 ? Environment.ProcessorCount : thing;
-            }
-
-            /// <summary>
-            /// Don't actually extract anything.
-            /// </summary>
-            public bool DryRun = false;
-
-            /// <summary>
-            /// Maximum file depth to search,
-            /// "0" for max.
-            /// </summary>
-            public uint Deep = 0;
-
-            /// <summary>
-            /// will be executed if progress was made
-            /// </summary>
-            public Action<Results> ProgressAction;
-
-            private double LastProgressLength = 0;
-
-            internal void ProgressUpdate(Results result)
-            {
-
-                if (result.Progress >= result.Worke)
-                {
-                    //we have to report the last progress!
-                    Monitor.Enter(result);
-                    try
-                    {
-                        LastProgressLength = 0;
-                        result.ProgressLength = result.WorkeLength;
-                        ProgressAction?.Invoke(result);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(result);
-                    }
-                }
-                else
-                {
-                    //Try to tell the Progress
-                    if (!Monitor.TryEnter(result))
-                        return;
-
-                    try
-                    {
-                        //is there really progress to report.
-                        if (result.ProgressLength < LastProgressLength)
-                            return;
-
-                        //when data has been compressed, we can achieve more than 100%... we prevent this.
-                        if (result.ProgressLength > result.WorkeLength)
-                            result.ProgressLength = result.WorkeLength;
-
-                        LastProgressLength = result.ProgressLength;
-
-                        ProgressAction?.Invoke(result);
-                    }
-                    finally
-                    {
-                        Monitor.Exit(result);
-                    }
-                }
-
-            }
-
-            public override string ToString()
-            {
-                StringBuilder sb = new();
-                ToString(sb);
-                return sb.ToString();
-            }
-
-            protected void ToString(StringBuilder sb)
-            {
-#if DEBUG
-                sb.Append($"Debug:True, ");
-#endif
-                sb.Append($"Tasks:");
-                sb.Append(Parallel.MaxDegreeOfParallelism);
-                sb.Append(", Force:");
-                sb.Append(Force);
-                sb.Append(", DryRun:");
-                sb.Append(DryRun);
-            }
-        }
-
-        public class Results
-        {
-            /// <summary>
-            /// the time the scan process has taken
-            /// </summary>
-            public TimeSpan TotalTime { get; internal set; }
-
-            /// <summary>
-            /// count of all files to be searched.
-            /// </summary>
-            public int Worke { get; internal set; }
-
-            /// <summary>
-            /// count of all files already searched.
-            /// </summary>
-            public int Progress { get; internal set; } = 0;
-
-            /// <summary>
-            /// Size of all files to be searched in bytes.
-            /// </summary>
-            public double WorkeLength { get; internal set; }
-
-            /// <summary>
-            /// Size of all already searched files in bytes.
-            /// </summary>
-            public double ProgressLength { get; internal set; } = 0;
-
-            /// <summary>
-            /// Full path to the log file.
-            /// </summary>
-            public string LogFullPath { get; internal set; }
-
-            public override string ToString()
-            {
-                StringBuilder sb = new();
-                sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
-                return sb.ToString();
-            }
-        }
-
-        protected ScanBase(in string scanDirectory, in string saveDirectory, Options options = null)
-        {
-            Option = options ?? new Options();
+            Option = options ?? new ScanOptions();
             ScanPath = scanDirectory;
             SaveDirectory = Option.DryRun ? StringEx.ExePath : saveDirectory;
             Directory.CreateDirectory(SaveDirectory);
@@ -187,14 +30,24 @@ namespace DolphinTextureExtraction
             Result.LogFullPath = Log.FullPath;
         }
 
-        public virtual Results StartScan()
+        public virtual async Task<ScanResults> StartScan_Async()
+        {
+#if DEBUG
+            if (Option.Parallel.MaxDegreeOfParallelism == 1)
+            {
+                ScanResults result = StartScan();
+                return await Task.Run(() => result);
+            }
+#endif
+            return await Task.Run(() => StartScan());
+        }
+
+        public virtual ScanResults StartScan()
         {
             DateTime starttime = DateTime.Now;
 
             if (Directory.Exists(ScanPath))
-            {
                 Scan(new DirectoryInfo(ScanPath));
-            }
             else if (File.Exists(ScanPath))
             {
                 var file = new FileInfo(ScanPath);
@@ -259,9 +112,7 @@ namespace DolphinTextureExtraction
             var SubPath = PathX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
             ScanObjekt objekt = new(stream, SubPath, 0, file.Extension);
             if (objekt.Format.Typ != FormatType.Unknown)
-            {
                 Log.WriteNotification(NotificationType.Info, $"Scan \"{SubPath}\" recognized as {objekt.Format.GetFullDescription()}");
-            }
             Scan(objekt);
             stream.Close();
         }
@@ -300,9 +151,7 @@ namespace DolphinTextureExtraction
 
                     ScanObjekt objekt = new(file, path.AsSpan(), deep);
                     if (objekt.Format.Typ != FormatType.Unknown)
-                    {
                         Log.WriteNotification(NotificationType.Info, $"Scan \"{path}\" recognized as {objekt.Format.GetFullDescription()}, Deep:{deep}");
-                    }
 
                     Scan(objekt);
                     lock (Result)
@@ -328,9 +177,7 @@ namespace DolphinTextureExtraction
                         files.Add(file);
                 }
                 if (item.Value is ArchiveDirectory directory)
-                {
                     ArchiveInitialize(directory, files, unkFiles);
-                }
             }
         }
 
@@ -409,18 +256,16 @@ namespace DolphinTextureExtraction
                 {
                     using (Archive archive = (Archive)Activator.CreateInstance(so.Format.Class))
                     {
+                        string subPath = so.SubPath.ToString();
                         // if the archive needs more files.
                         if (so.Deep == 0)
-                        {
-                            string subPath = so.SubPath.ToString();
                             archive.FileRequest = new Events.FileRequestDelegate(N => new FileStream(Path.Combine(Path.GetDirectoryName(Path.Combine(ScanPath, subPath)), N), FileMode.Open, FileAccess.Read, FileShare.Read));
-                        }
                         else
                         {
                             ArchiveFile file = so.File;
                             archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file?.Parent[N]).FileData);
                         }
-                        archive.Open(so.Stream, so.SubPath.ToString());
+                        archive.Open(so.Stream, subPath);
                         long size = archive.Root.Size;
                         //scan the archive file.
                         Scan(archive, so.SubPath, so.Deep + 1);
@@ -534,34 +379,6 @@ namespace DolphinTextureExtraction
 
         #endregion
 
-        protected readonly ref struct ScanObjekt
-        {
-            public Stream Stream { get; }
-            public FormatInfo Format { get; }
-            public ReadOnlySpan<char> SubPath { get; }
-            public int Deep { get; }
-            public ReadOnlySpan<char> Extension { get; }
-            public ArchiveFile File { get; }
 
-            public ScanObjekt(Stream stream, ReadOnlySpan<char> subPath, int deep = 0, ReadOnlySpan<char> extension = default)
-            {
-                Stream = stream;
-                Extension = extension;
-                Format = stream.Identify(Extension);
-                SubPath = PathX.GetFileWithoutExtension(subPath);
-                Deep = deep;
-                File = null;
-            }
-
-            public ScanObjekt(ArchiveFile file, ReadOnlySpan<char> subPath, int deep)
-            {
-                Stream = file.FileData;
-                Extension = file.Extension;
-                Format = Stream.Identify(Extension);
-                SubPath = PathX.GetFileWithoutExtension(subPath);
-                Deep = deep;
-                File = file;
-            }
-        }
     }
 }

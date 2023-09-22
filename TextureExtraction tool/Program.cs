@@ -1,10 +1,12 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
-using DolphinTextureExtraction.Data;
+using DolphinTextureExtraction.Scans.Results;
+using DolphinTextureExtraction.Scans;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 using SixLabors.ImageSharp;
 using System.Text;
-using static DolphinTextureExtraction.ScanBase;
 
 namespace DolphinTextureExtraction
 {
@@ -14,7 +16,7 @@ namespace DolphinTextureExtraction
 
         static string OutputDirectory;
 
-        static TextureExtractor.ExtractorOptions options;
+        static TextureExtractorOptions options;
         static Cleanup.Option cleanOptions;
 
         static string Algorithm;
@@ -30,6 +32,7 @@ namespace DolphinTextureExtraction
 
         static Program()
         {
+
             //link external classes
             if (FormatDictionary.TryGetValue(new Identifier64("J3D2bdl4"), out FormatInfo formatInfo))
             {
@@ -48,7 +51,7 @@ namespace DolphinTextureExtraction
             }
             catch (Exception) { }
 
-            options = new TextureExtractor.ExtractorOptions();
+            options = new TextureExtractorOptions();
             cleanOptions = new Cleanup.Option();
 
             //Do we have restricted access to the Console.Cursor?
@@ -279,7 +282,7 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
                             if (args.Length > p)
                             {
                                 ParseOptions(args.AsSpan(p));
@@ -300,7 +303,7 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            options = new TextureExtractor.ExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
                             if (args.Length > p)
                             {
                                 ParseOptions(args.AsSpan(p));
@@ -751,7 +754,7 @@ namespace DolphinTextureExtraction
         private static void HelpPrintTrueFalse(bool value)
             => Console.WriteLine(value ? "(True) or False" : "True or (False)");
 
-        static void PrintResult(TextureExtractor.ExtractorResult result)
+        static void PrintResult(TextureExtractorResult result)
         {
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             Console.WriteLine(result.ToString().LineBreak(20));
@@ -761,7 +764,7 @@ namespace DolphinTextureExtraction
 
         private static ConsoleBar ScanProgress;
 
-        static void ProgressUpdate(ScanBase.Results result)
+        static void ProgressUpdate(ScanResults result)
         {
 
             if (ScanProgress == null)
@@ -784,7 +787,7 @@ namespace DolphinTextureExtraction
             ProgressTitleUpdate(result);
         }
 
-        static void ProgressTitleUpdate(ScanBase.Results result)
+        static void ProgressTitleUpdate(ScanResults result)
         {
             //are we able to change the Title?
             try
@@ -792,7 +795,7 @@ namespace DolphinTextureExtraction
                 double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
                 if (result.Progress < result.Worke)
                 {
-                    if (result is TextureExtractor.ExtractorResult exResult)
+                    if (result is TextureExtractorResult exResult)
                     {
                         Console.Title = $"{Title} | {ProgressPercentage:00.00}% | Textures: {exResult.Extracted}";
                     }
@@ -809,7 +812,7 @@ namespace DolphinTextureExtraction
         }
 
         //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
-        static void TextureUpdate(JUTTexture.TexEntry texture, Results result, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap)
+        static void TextureUpdate(JUTTexture.TexEntry texture, ScanResults result, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
             StringBuilder sb = new();

@@ -1,27 +1,23 @@
 ﻿using AuroraLib.Common;
+using DolphinTextureExtraction.Scans.Helper;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 
-namespace DolphinTextureExtraction
+namespace DolphinTextureExtraction.Scans
 {
     public class Unpack : ScanBase
     {
-        public Unpack(string scanDirectory, string saveDirectory, Options options = null) : base(scanDirectory, saveDirectory, options)
+        public Unpack(string scanDirectory, string saveDirectory, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
         {
         }
 
-        public static Results StartScan(string meindirectory, string savedirectory, Options options)
+        public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options)
             => StartScan_Async(meindirectory, savedirectory, options).Result;
 
-        public static async Task<Results> StartScan_Async(string meindirectory, string savedirectory, Options options)
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, ScanOptions options)
         {
             Unpack Extractor = new(meindirectory, savedirectory, options);
-#if DEBUG
-            if (Extractor.Option.Parallel.MaxDegreeOfParallelism == 1)
-            {
-                Results result = Extractor.StartScan();
-                return await Task.Run(() => result);
-            }
-#endif
-            return await Task.Run(() => Extractor.StartScan());
+            return Extractor.StartScan_Async().Result;
         }
 
         protected override void Scan(ScanObjekt so)
@@ -49,7 +45,7 @@ namespace DolphinTextureExtraction
                         }
 
 
-                        AddResultUnknown(so.Stream, so.Format, string.Concat(so.SubPath,so.Extension));
+                        AddResultUnknown(so.Stream, so.Format, string.Concat(so.SubPath, so.Extension));
                         if (so.Deep != 0)
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;

@@ -1,7 +1,9 @@
 ﻿using AuroraLib.Common;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 using System.Text;
 
-namespace DolphinTextureExtraction
+namespace DolphinTextureExtraction.Scans.Helper
 {
     public enum FileAction
     {
@@ -12,7 +14,7 @@ namespace DolphinTextureExtraction
     {
         private const string separator = ": ";
 
-        public ScanLogger(string directory, ScanBase.Options Option) : base(GenerateFullPath(directory))
+        public ScanLogger(string directory, ScanOptions Option) : base(GenerateFullPath(directory))
             => WriteHeader(Option);
 
         private static string GenerateFullPath(string directory)
@@ -31,7 +33,7 @@ namespace DolphinTextureExtraction
             return FullPath;
         }
 
-        private void WriteHeader(ScanBase.Options Option)
+        private void WriteHeader(ScanOptions Option)
         {
             WriteDivider(64);
             WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} {IntPtr.Size * 8}bit v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}  {DateTime.Now}");
@@ -40,7 +42,7 @@ namespace DolphinTextureExtraction
             Flush();
         }
 
-        public void WriteFoot(ScanBase.Results result)
+        public void WriteFoot(ScanResults result)
         {
             WriteDivider(64);
             WriteLine($"~END  {DateTime.Now}");

@@ -1,148 +1,50 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
+using DolphinTextureExtraction.Scans.Helper;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 using Hack.io;
 using SixLabors.ImageSharp;
 using System.Runtime.CompilerServices;
-using System.Text;
 
-namespace DolphinTextureExtraction
+namespace DolphinTextureExtraction.Scans
 {
     public class TextureExtractor : ScanBase
     {
 
-        private new ExtractorResult Result => (ExtractorResult)base.Result;
-
-        public class ExtractorOptions : Options
-        {
-            /// <summary>
-            /// Should Mipmaps files be extracted?
-            /// </summary>
-            public bool Mips = false;
-
-            /// <summary>
-            /// use Arbitrary Mipmap Detection.
-            /// </summary>
-            public bool ArbitraryMipmapDetection = true;
-
-            /// <summary>
-            /// Extracts all raw images that are found
-            /// </summary>
-            public bool Raw = false;
-
-            /// <summary>
-            /// Tries to Imitate dolphin mipmap detection.
-            /// </summary>
-            public bool DolphinMipDetection = true;
-
-            /// <summary>
-            /// is executed when a texture is extracted
-            /// </summary>
-            public TextureActionDelegate TextureAction;
-
-            public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, Results results, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap);
-
-            public ExtractorOptions()
-            {
-                if (!UseConfig) return;
-
-                if (bool.TryParse(Config.Get("Mips"), out bool value)) Mips = value;
-                if (bool.TryParse(Config.Get("Raw"), out value)) Raw = value;
-                if (bool.TryParse(Config.Get("DolphinMipDetection"), out value)) DolphinMipDetection = value;
-                if (bool.TryParse(Config.Get("ArbitraryMipmapDetection"), out value)) ArbitraryMipmapDetection = value;
-            }
-
-            public override string ToString()
-            {
-                StringBuilder sb = new();
-                base.ToString(sb);
-                sb.Append(", Enable Mips:");
-                sb.Append(Mips);
-                sb.Append(", Raw:");
-                sb.Append(Raw);
-                sb.Append(", DolphinMipDetection:");
-                sb.Append(DolphinMipDetection);
-                sb.Append(", ArbitraryMipmapDetection:");
-                sb.Append(ArbitraryMipmapDetection);
-                return sb.ToString();
-            }
-        }
-
-        public class ExtractorResult : Results
-        {
-            public int MinExtractionRate => (int)Math.Round(100d / (ExtractedSize + SkippedSize + UnsupportedSize) * ExtractedSize);
-
-            public int MaxExtractionRate => Extracted > 150 ? (int)Math.Round(100d / (ExtractedSize + SkippedSize / (Extracted / 150) + UnsupportedSize) * ExtractedSize) : MinExtractionRate;
-
-            public int Extracted => Hash.Count;
-
-            public int Unknown { get; internal set; } = 0;
-
-            public int Unsupported { get; internal set; } = 0;
-
-            public int Skipped { get; internal set; } = 0;
-
-            internal long ExtractedSize = 0;
-
-            internal long UnsupportedSize = 0;
-
-            internal long SkippedSize = 0;
-
-            /// <summary>
-            /// List of hash values of the extracted textures
-            /// </summary>
-            public List<int> Hash = new();
-
-            public List<FormatInfo> UnsupportedFormatType = new();
-
-            public List<FormatInfo> UnknownFormatType = new();
-
-            public string GetExtractionSize() => MinExtractionRate + MinExtractionRate / 10 >= MaxExtractionRate ? $"{(MinExtractionRate + MaxExtractionRate) / 2}%" : $"{MinExtractionRate}% - {MaxExtractionRate}%";
-
-            public override string ToString()
-            {
-                StringBuilder sb = new();
-                sb.AppendLine($"Extracted textures: {Extracted}");
-                sb.AppendLine($"Unsupported files: {Unsupported}");
-                if (Unsupported != 0) sb.AppendLine($"Unsupported files Typs: {string.Join(", ", UnsupportedFormatType.Select(x => x.GetFullDescription()))}");
-                sb.AppendLine($"Unknown files: {Unknown}");
-                if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.GetTypName()))}");
-                sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
-                sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
-                return sb.ToString();
-            }
-        }
+        private new TextureExtractorResult Result => (TextureExtractorResult)base.Result;
 
         #region Constructor StartScan
 
-        private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new ExtractorOptions()) { }
+        private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new TextureExtractorOptions()) { }
 
-        private TextureExtractor(string meindirectory, string savedirectory, ExtractorOptions options) : base(meindirectory, savedirectory, options)
-            => base.Result = new ExtractorResult() { LogFullPath = base.Result.LogFullPath };
+        private TextureExtractor(string meindirectory, string savedirectory, TextureExtractorOptions options) : base(meindirectory, savedirectory, options)
+            => base.Result = new TextureExtractorResult() { LogFullPath = base.Result.LogFullPath };
 
-        public static ExtractorResult StartScan(string meindirectory, string savedirectory)
-            => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions()).Result;
+        public static TextureExtractorResult StartScan(string meindirectory, string savedirectory)
+            => StartScan_Async(meindirectory, savedirectory, new TextureExtractorOptions()).Result;
 
-        public static ExtractorResult StartScan(string meindirectory, string savedirectory, ExtractorOptions options)
+        public static TextureExtractorResult StartScan(string meindirectory, string savedirectory, TextureExtractorOptions options)
             => StartScan_Async(meindirectory, savedirectory, options).Result;
 
-        public static Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory)
-            => StartScan_Async(meindirectory, savedirectory, new ExtractorOptions());
+        public static Task<TextureExtractorResult> StartScan_Async(string meindirectory, string savedirectory)
+            => StartScan_Async(meindirectory, savedirectory, new TextureExtractorOptions());
 
-        public static async Task<ExtractorResult> StartScan_Async(string meindirectory, string savedirectory, ExtractorOptions options)
+        public static async Task<TextureExtractorResult> StartScan_Async(string meindirectory, string savedirectory, TextureExtractorOptions options)
         {
             TextureExtractor Extractor = new(meindirectory, savedirectory, options);
 #if DEBUG
             if (Extractor.Option.Parallel.MaxDegreeOfParallelism == 1)
             {
-                ExtractorResult result = Extractor.StartScan();
+                TextureExtractorResult result = Extractor.StartScan();
                 return await Task.Run(() => result);
             }
 #endif
             return await Task.Run(() => Extractor.StartScan());
         }
 
-        public new ExtractorResult StartScan()
+        public new TextureExtractorResult StartScan()
         {
             base.StartScan();
             return Result;
@@ -151,8 +53,6 @@ namespace DolphinTextureExtraction
         #endregion
 
         #region Scan
-
-        #region main
         protected override void Scan(ScanObjekt so)
         {
             try
@@ -178,10 +78,8 @@ namespace DolphinTextureExtraction
                         }
                         break;
                     case FormatType.Texture:
-                        if (((ExtractorOptions)Option).Raw)
-                        {
+                        if (((TextureExtractorOptions)Option).Raw)
                             Save(so.Stream, Path.Combine("~Raw", so.SubPath.ToString()), so.Format);
-                        }
                         if (so.Format.Class != null && so.Format.Class.GetMember(nameof(JUTTexture)) != null)
                         {
                             using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(so.Format.Class))
@@ -243,9 +141,6 @@ namespace DolphinTextureExtraction
         }
         #endregion
 
-
-        #endregion
-
         #region Extract
         /// <summary>
         /// Extract the texture
@@ -256,7 +151,7 @@ namespace DolphinTextureExtraction
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
-                bool? IsArbitraryMipmap = tex.Count > 1 ? ((ExtractorOptions)Option).ArbitraryMipmapDetection ? null : false : false;
+                bool? IsArbitraryMipmap = tex.Count > 1 ? ((TextureExtractorOptions)Option).ArbitraryMipmapDetection ? null : false : false;
                 float ArbitraryMipmapValue = 0f;
                 int tluts = tex.Palettes.Count == 0 ? 1 : tex.Palettes.Count;
                 for (int tlut = 0; tlut < tluts; tlut++)
@@ -268,7 +163,7 @@ namespace DolphinTextureExtraction
                         int hash = tex.Hash.GetHashCode();
 
                         //Dolphins only recognizes files with the correct mip flag
-                        hash -= (tex.MaxLOD == 0 && tex.Count == 1) ? 0 : 1;
+                        hash -= tex.MaxLOD == 0 && tex.Count == 1 ? 0 : 1;
 
                         //If it is a palleted format add TlutHash
                         if (tex.Format.IsPaletteFormat() && TlutHash != 0)
@@ -276,9 +171,7 @@ namespace DolphinTextureExtraction
 
                         //Skip duplicate textures
                         if (Result.Hash.Contains(hash))
-                        {
                             continue;
-                        }
                         Result.Hash.Add(hash);
                     }
 
@@ -301,10 +194,10 @@ namespace DolphinTextureExtraction
                             //Extract the main texture and mips
                             for (int i = 0; i < tex.Count; i++)
                             {
-                                string path = Path.Combine(SaveDirectory, tex.GetDolphinTextureHash(i, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true) + ".png");
+                                string path = Path.Combine(SaveDirectory, tex.GetDolphinTextureHash(i, TlutHash, ((TextureExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true) + ".png");
                                 image[i].SaveAsPng(path);
                                 //skip mips?
-                                if (IsArbitraryMipmap == false && !((ExtractorOptions)Option).Mips) break;
+                                if (IsArbitraryMipmap == false && !((TextureExtractorOptions)Option).Mips) break;
                             }
                         }
                         catch (Exception t)
@@ -320,8 +213,8 @@ namespace DolphinTextureExtraction
                             }
                         }
                     }
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((ExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
-                    ((ExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory, TlutHash, IsArbitraryMipmap == true);
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((TextureExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
+                    ((TextureExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory, TlutHash, IsArbitraryMipmap == true);
                 }
             }
         }
@@ -332,29 +225,27 @@ namespace DolphinTextureExtraction
         /// <param name="stream"></param>
         /// <param name="subdirectory"></param>
         /// <returns></returns>
-        private bool TryBTI(Stream stream, string subdirectory)
+        private bool TryBTI(Stream stream, ReadOnlySpan<char> subdirectory)
         {
             if (stream.Length - stream.Position <= Unsafe.SizeOf<BTI.ImageHeader>())
-            {
                 return false;
-            }
             var ImageHeader = stream.Read<BTI.ImageHeader>(Endian.Big);
             stream.Position -= Unsafe.SizeOf<BTI.ImageHeader>();
             if (
-                Enum.IsDefined<GXImageFormat>(ImageHeader.Format) &&
-                Enum.IsDefined<JUTTransparency>(ImageHeader.AlphaSetting) &&
-                Enum.IsDefined<GXPaletteFormat>(ImageHeader.PaletteFormat) &&
-                Enum.IsDefined<GXWrapMode>(ImageHeader.WrapS) &&
-                Enum.IsDefined<GXWrapMode>(ImageHeader.WrapT) &&
-                Enum.IsDefined<GXFilterMode>(ImageHeader.MagnificationFilter) &&
-                Enum.IsDefined<GXFilterMode>(ImageHeader.MinificationFilter) &&
+                Enum.IsDefined(ImageHeader.Format) &&
+                Enum.IsDefined(ImageHeader.AlphaSetting) &&
+                Enum.IsDefined(ImageHeader.PaletteFormat) &&
+                Enum.IsDefined(ImageHeader.WrapS) &&
+                Enum.IsDefined(ImageHeader.WrapT) &&
+                Enum.IsDefined(ImageHeader.MagnificationFilter) &&
+                Enum.IsDefined(ImageHeader.MinificationFilter) &&
                 ImageHeader.Width > 4 && ImageHeader.Width < 1024 &&
                 ImageHeader.Height > 4 && ImageHeader.Height < 1024
                 )
             {
                 try
                 {
-                    Save(new BTI(stream), Path.Combine("~Force", subdirectory));
+                    Save(new BTI(stream), Path.Combine("~Force", subdirectory.ToString()));
                     return true;
                 }
                 catch (Exception)
@@ -368,21 +259,21 @@ namespace DolphinTextureExtraction
         #region Helper
         protected override bool TryForce(ScanObjekt so)
         {
-            if (((ExtractorOptions)Option).Force)
+            if (((TextureExtractorOptions)Option).Force)
             {
                 if (base.TryForce(so))
                     return true;
 
                 so.Stream.Position = 0;
-                if (TryBTI(so.Stream, so.SubPath.ToString()))
+                if (TryBTI(so.Stream, so.SubPath))
                     return true;
                 so.Stream.Position = 0;
             }
             else
             {
-                if (so.Format.Extension.ToLower() == "")
+                if (so.Format.Extension == "")
                 {
-                    if (TryBTI(so.Stream, so.SubPath.ToString()))
+                    if (TryBTI(so.Stream, so.SubPath))
                         return true;
                     so.Stream.Position = 0;
                 }
@@ -405,9 +296,7 @@ namespace DolphinTextureExtraction
             base.AddResultUnknown(stream, FormatTypee, file);
 
             if (stream.Length > 130)
-            {
                 if (!Result.UnknownFormatType.Contains(FormatTypee)) Result.UnknownFormatType.Add(FormatTypee);
-            }
             Result.Unknown++;
         }
         #endregion

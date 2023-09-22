@@ -5,7 +5,7 @@
     /// </summary>
     static class Cleanup
     {
-        public static ParallelOptions ParallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+        public static ParallelOptions ParallelOptions = AppSettings.Parallel;
 
         public class Option
         {
@@ -22,7 +22,7 @@
 
             public Option()
             {
-                var config = ScanBase.Options.Config;
+                var config = AppSettings.Config;
                 if (Enum.TryParse<Type>(config.Get(nameof(CleanupType)), out Type type)) CleanupType = type;
                 if (Int32.TryParse(config.Get(nameof(MinGroupsSize)), out int value)) MinGroupsSize = value;
             }

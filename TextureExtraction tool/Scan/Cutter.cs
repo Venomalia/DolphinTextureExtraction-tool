@@ -1,22 +1,25 @@
 ﻿using AuroraLib.Archives;
+using DolphinTextureExtraction.Scans.Helper;
+using DolphinTextureExtraction.Scans.Options;
+using DolphinTextureExtraction.Scans.Results;
 
-namespace DolphinTextureExtraction
+namespace DolphinTextureExtraction.Scans
 {
     public class Cutter : ScanBase
     {
         private List<byte[]> Pattern;
 
-        internal Cutter(string scanDirectory, string saveDirectory, Options options = null) : base(scanDirectory, saveDirectory, options) { }
+        internal Cutter(string scanDirectory, string saveDirectory, ScanOptions options = null) : base(scanDirectory, saveDirectory, options) { }
 
-        internal Cutter(string scanDirectory, string saveDirectory, List<byte[]> pattern, Options options = null) : base(scanDirectory, saveDirectory, options)
+        internal Cutter(string scanDirectory, string saveDirectory, List<byte[]> pattern, ScanOptions options = null) : base(scanDirectory, saveDirectory, options)
         {
             Pattern = pattern;
         }
 
-        public static Results StartScan(string meindirectory, string savedirectory, List<byte[]> pattern, Options options)
+        public static ScanResults StartScan(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options)
             => StartScan_Async(meindirectory, savedirectory, pattern, options).Result;
 
-        public static async Task<Results> StartScan_Async(string meindirectory, string savedirectory, List<byte[]> pattern, Options options)
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, List<byte[]> pattern, ScanOptions options)
         {
             Cutter Extractor = new Cutter(meindirectory, savedirectory, pattern, options);
             return await Task.Run(() => Extractor.StartScan());
@@ -45,7 +48,7 @@ namespace DolphinTextureExtraction
             }
             catch (Exception t)
             {
-                Log.WriteEX(t,string.Concat(so.SubPath,so.Extension));
+                Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
             }
         }
     }

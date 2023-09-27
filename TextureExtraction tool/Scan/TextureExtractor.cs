@@ -91,7 +91,7 @@ namespace DolphinTextureExtraction.Scans
                             break;
                         }
                         goto case FormatType.Archive;
-                    case FormatType.Rom:
+                    case FormatType.Iso:
                     case FormatType.Archive:
 
                         if (!TryExtract(so))

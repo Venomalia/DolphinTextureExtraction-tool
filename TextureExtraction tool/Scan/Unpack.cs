@@ -49,7 +49,7 @@ namespace DolphinTextureExtraction.Scans
                         if (so.Deep != 0)
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
-                    case FormatType.Rom:
+                    case FormatType.Iso:
                     case FormatType.Archive:
                         if (!TryExtract(so))
                         {

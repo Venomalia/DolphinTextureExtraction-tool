@@ -22,6 +22,7 @@
         Effect,
         Shader,
         Rom,
+        Iso,
         Else,
         Dummy
     }

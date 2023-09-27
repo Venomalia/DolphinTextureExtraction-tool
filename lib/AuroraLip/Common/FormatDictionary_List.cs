@@ -4,7 +4,6 @@ using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using MuramasaTDB_Encoding;
-using RenderWareNET.Plugins;
 
 namespace AuroraLib.Common
 {
@@ -303,17 +302,17 @@ namespace AuroraLib.Common
             //Roms & Iso
             new FormatInfo(".gba", 0,new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}, FormatType.Rom, "GBA Rom", Nin_),
             new FormatInfo(".nes", 0,new byte[]{78,69,83,26} , FormatType.Rom, "Rom", Nin_),
-            new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Rom, "Dolphin Iso", "Dolphin Team"),
-            new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Rom, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'),4, FormatType.Rom, "Wii WAD",Nin_,typeof(WAD)),
-            new FormatInfo(".ciso", FormatType.Rom, "Compact ISO"),
-            new FormatInfo(".iso", FormatType.Rom, "Gamecube Mini Disc Image",Nin_,typeof(GCDisk)),
-            new FormatInfo(".iso", FormatType.Rom, "Wii Disc Image",Nin_,typeof(WiiDisk)),
-            new FormatInfo(".iso", "CD001", FormatType.Rom, "ISO-9660 table","",typeof(SevenZip)),
-            new FormatInfo(".nsp", "PFS0", FormatType.Rom, "Switch Partition",Nin_),
-            new FormatInfo(".WDF", FormatType.Rom, "Wii Disc Format","Wiimm"),
-            new FormatInfo(".GCZ", FormatType.Rom, "GameCube Zip"),
-            new FormatInfo(".wbfs", FormatType.Rom, "Wii Backup File System"),
+            new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Iso, "Dolphin Iso", "Dolphin Team"),
+            new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Iso, "Wii ISO Archive","Wiimm"),
+            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'),4, FormatType.Iso, "Wii WAD",Nin_,typeof(WAD)),
+            new FormatInfo(".ciso", FormatType.Iso, "Compact ISO"),
+            new FormatInfo(".iso", FormatType.Iso, "Gamecube Mini Disc Image",Nin_,typeof(GCDisk)),
+            new FormatInfo(".iso", FormatType.Iso, "Wii Disc Image",Nin_,typeof(WiiDisk)),
+            new FormatInfo(".iso", "CD001", FormatType.Iso, "ISO-9660 table","",typeof(SevenZip)),
+            new FormatInfo(".nsp", "PFS0", FormatType.Iso, "Switch Partition",Nin_),
+            new FormatInfo(".WDF", FormatType.Iso, "Wii Disc Format","Wiimm"),
+            new FormatInfo(".GCZ", FormatType.Iso, "GameCube Zip"),
+            new FormatInfo(".wbfs", FormatType.Iso, "Wii Backup File System"),
 
             #endregion Common
 

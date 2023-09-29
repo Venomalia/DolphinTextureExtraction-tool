@@ -101,12 +101,12 @@ namespace AuroraLib.Texture.Formats
                     for (int i = 0; i < all_palette_data.Length; i += 4)
                     {
                         // First pair goes into the first half of the outgoing palette memory
-                        palette_data[i / 2] = all_palette_data[i];
-                        palette_data[i / 2 + 1] = all_palette_data[i + 1];
+                        palette_data[i / 2] = all_palette_data[i + 2];
+                        palette_data[i / 2 + 1] = all_palette_data[i + 3];
 
                         // Second pair goes into the later half of hte outgoing palette memory
-                        palette_data[i / 2 + all_palette_data.Length / 2] = all_palette_data[i + 2];
-                        palette_data[i / 2 + 1 + all_palette_data.Length / 2] = all_palette_data[i + 3];
+                        palette_data[i / 2 + all_palette_data.Length / 2] = all_palette_data[i];
+                        palette_data[i / 2 + 1 + all_palette_data.Length / 2] = all_palette_data[i + 1];
                     }
                 }
             }

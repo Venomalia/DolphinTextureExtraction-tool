@@ -196,6 +196,8 @@ namespace DolphinTextureExtraction.Scans
             // Don't save anything if performing a dry run
             if (Option.DryRun) return;
 
+            if (File.Exists(destFileName)) return;
+
             string DirectoryName = Path.GetDirectoryName(destFileName);
             //We can't create a folder if a file with the same name exists.
             if (File.Exists(DirectoryName))
@@ -212,6 +214,9 @@ namespace DolphinTextureExtraction.Scans
 
         protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));
+
+        protected void Save(ScanObjekt so)
+            => Save(so.Stream, string.Concat(GetFullSaveDirectory(so.SubPath), so.Extension));
 
         protected virtual bool TryExtract(ScanObjekt so)
         {
@@ -246,7 +251,7 @@ namespace DolphinTextureExtraction.Scans
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
                         {
-                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(so.SubPath).ToString()));
+                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(so.SubPath)));
                             return true;
                         }
                         break;
@@ -359,8 +364,8 @@ namespace DolphinTextureExtraction.Scans
             return false;
         }
 
-        protected string GetFullSaveDirectory(in string directory)
-            => Path.Combine(SaveDirectory, directory).TrimEnd();
+        protected string GetFullSaveDirectory(ReadOnlySpan<char> directory)
+            => Path.Join(SaveDirectory, directory.TrimEnd());
 
 
         protected virtual void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)

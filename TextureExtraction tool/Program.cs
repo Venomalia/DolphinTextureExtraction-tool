@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
+using DolphinTextureExtraction.Scan;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -94,6 +95,7 @@ namespace DolphinTextureExtraction
                         case Modes.Split:
                         case Modes.Unpack:
                         case Modes.Extract:
+                        case Modes.SeparateRGBA:
                             #region Extract
 
                             #region User Set Input Path
@@ -248,6 +250,11 @@ namespace DolphinTextureExtraction
 
                                     Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
                                     break;
+                                case Modes.SeparateRGBA:
+                                    Console.WriteLine($"Separates combined RGBA textures from {InputPath}");
+
+                                    SeparateRGBA.StartScan(InputPath, OutputDirectory, options);
+                                    break;
                             }
                             Console.WriteLine();
                             Console.WriteLine("Done!");
@@ -347,6 +354,23 @@ namespace DolphinTextureExtraction
                             break;
                         case Modes.Formats:
                             PrintFormats();
+                            break;
+                        case Modes.SeparateRGBA:
+                            #region unpack
+                            p = GetPahts(args);
+                            if (p <= 0)
+                                goto default;
+
+                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            if (args.Length > p)
+                            {
+                                ParseOptions(args.AsSpan(p));
+                            }
+
+                            SeparateRGBA.StartScan(InputPath, OutputDirectory, options, LogDirectory);
+                            Console.WriteLine();
+                            Console.WriteLine("completed.");
+                            #endregion
                             break;
                         default:
                             throw new NotImplementedException();

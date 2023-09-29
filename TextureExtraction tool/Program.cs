@@ -586,6 +586,9 @@ namespace DolphinTextureExtraction
                     case Options.Log:
                         Console.CursorLeft = 0;
                         break;
+                    case Options.CombinedRGBA:
+                        ConsoleEx.WriteLineBoolPrint(options.CombinedRGBA, ConsoleColor.Green, ConsoleColor.Red);
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
@@ -649,6 +652,10 @@ namespace DolphinTextureExtraction
                     case Options.Log:
                         Console.CursorTop--;
                         Console.CursorLeft = 0;
+                        break;
+                    case Options.CombinedRGBA:
+                        HelpPrintTrueFalse(options.CombinedRGBA);
+                        options.CombinedRGBA = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.CombinedRGBA, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -762,6 +769,9 @@ namespace DolphinTextureExtraction
                                 Environment.Exit(-2);
                             }
                             break;
+                        case Options.CombinedRGBA:
+                            options.CombinedRGBA = true;
+                            break;
                         default:
                             throw new NotImplementedException();
                     }
@@ -829,14 +839,14 @@ namespace DolphinTextureExtraction
         }
 
         //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
-        static void TextureUpdate(JUTTexture.TexEntry texture, ScanResults result, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap)
+        static void TextureUpdate(JUTTexture.TexEntry texture, ScanResults result, in string subdirectory, in string fileName)
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
             StringBuilder sb = new();
             sb.Append("Prog:");
             sb.Append(Math.Round(ProgressPercentage, 2));
             sb.Append("% Extract:");
-            sb.Append(Path.Combine(subdirectory, texture.GetDolphinTextureHash(0, TlutHash, true, isArbitraryMipmap)));
+            sb.Append(Path.Combine(subdirectory, fileName));
             sb.Append(".png mips:");
             sb.Append(texture.Count - 1);
             sb.Append(" LODBias:");

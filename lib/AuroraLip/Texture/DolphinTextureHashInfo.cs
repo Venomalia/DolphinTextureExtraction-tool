@@ -7,39 +7,43 @@ namespace AuroraLib.Texture
     /// <summary>
     /// Represents a parsed Dolphin texture hash.
     /// </summary>
-    public struct DolphinTextureHashInfo : IImage, IDolphinHash
+    public readonly struct DolphinTextureHashInfo : IImage
     {
         /// <inheritdoc/>
-        public int Width { get; set; }
+        public int Width { get; }
 
         /// <inheritdoc/>
-        public int Height { get; set; }
+        public int Height { get; }
 
-        /// <inheritdoc/>
-        public ulong Hash { get; set; }
+        /// <summary>
+        /// The hash of the texture.
+        /// </summary>
+        public ulong Hash { get; }
 
-        /// <inheritdoc/>
-        public ulong TlutHash { get; set; }
+        /// <summary>
+        /// The hash of the texture look-up table (TLUT), also known as texture palette.
+        /// </summary>
+        public ulong TlutHash { get; }
 
         /// <summary>
         /// The mip-map level of the texture.
         /// </summary>
-        public int Mipmap { get; set; }
+        public int Mipmap { get; }
 
         /// <summary>
         /// A value indicating whether the texture uses an arbitrary mip-map level.
         /// </summary>
-        public bool IsArbitraryMipmap { get; set; }
+        public bool IsArbitraryMipmap { get; }
 
         /// <summary>
         /// A value indicating whether the texture has mip-maps.
         /// </summary>
-        public bool HasMips { get; set; }
+        public bool HasMips { get; }
 
         /// <summary>
         /// Format of the image data.
         /// </summary>
-        public GXImageFormat Format { get; set; }
+        public GXImageFormat Format { get; }
 
         public DolphinTextureHashInfo(int imageWidth, int imageHeight, ulong hash, GXImageFormat format, ulong tlutHash = 0, int mipmap = 0, bool hasMips = false, bool isArbitraryMipmap = false)
         {
@@ -62,6 +66,13 @@ namespace AuroraLib.Texture
         public string Build() => Build(Width, Height, Hash, Format, TlutHash, Mipmap, HasMips, IsArbitraryMipmap);
 
         /// <summary>
+        /// Builds a Dolphin texture hash with the set mip level.
+        /// </summary>
+        /// <param name="mipLevel"></param>
+        /// <returns>The Dolphin texture hash for this <see cref="DolphinTextureHashInfo"/>.</returns>
+        public string Build(int mipLevel) => Build(Width, Height, Hash, Format, TlutHash, mipLevel, HasMips, IsArbitraryMipmap);
+
+        /// <summary>
         /// Builds a Dolphin texture hash.
         /// </summary>
         /// <param name="ImageWidth">The width of the texture image.</param>
@@ -75,7 +86,7 @@ namespace AuroraLib.Texture
         /// <returns>The Dolphin texture hash for the provided texture parameters.</returns>
         public static string Build(int ImageWidth, int ImageHeight, ulong Hash, GXImageFormat Format, ulong TlutHash = 0, int mipmap = 0, bool hasMips = false, bool IsArbitraryMipmap = false)
         {
-            var builder = new ValueStringBuilder(stackalloc char[56]);
+            ValueStringBuilder builder = new(stackalloc char[56]);
 
             builder.Append("tex1_");
             builder.Append(ImageWidth.ToString());
@@ -151,7 +162,7 @@ namespace AuroraLib.Texture
         /// <returns>true if the parse operation succeeded; otherwise,
         public static bool TryParse(string dolphinHash, out int imageWidth, out int imageHeight, out ulong hash, out GXImageFormat format, out ulong tlutHash, out int mipmap, out bool hasMips, out bool isArbitraryMipmap)
         {
-            const string pattern = @"tex1_(\d+)x(\d+)(_m)?_((\$|[0-9a-fA-F]{16}))(_(\$|[0-9a-fA-F]{16}))?_(\d+)(_arb)?(._mip(\d+))?";
+            const string pattern = @"tex1_(\d+)x(\d+)(_m)?_(\$|[0-9a-fA-F]{16})(_(\$|[0-9a-fA-F]{16}))?_(\d+)(_arb)?(_mip(\d+))?";
 
             var match = Regex.Match(dolphinHash, pattern);
             if (!match.Success)
@@ -167,11 +178,11 @@ namespace AuroraLib.Texture
                 imageWidth = int.Parse(match.Groups[1].Value);
                 imageHeight = int.Parse(match.Groups[2].Value);
                 hasMips = match.Groups[3].Success;
-                hash = ulong.Parse(match.Groups[4].Value.Replace("_", ""), System.Globalization.NumberStyles.HexNumber);
-                tlutHash = match.Groups[5].Success && match.Groups[5].Value != "$" ? ulong.Parse(match.Groups[5].Value.Substring(1), System.Globalization.NumberStyles.HexNumber) : 0;
-                format = (GXImageFormat)int.Parse(match.Groups[6].Value);
-                isArbitraryMipmap = match.Groups[7].Success;
-                mipmap = match.Groups[8].Success ? int.Parse(match.Groups[8].Value) : 0;
+                hash = ulong.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.HexNumber);
+                tlutHash = match.Groups[5].Success && match.Groups[6].Value != "$" ? ulong.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber) : 0;
+                format = (GXImageFormat)int.Parse(match.Groups[7].Value);
+                isArbitraryMipmap = match.Groups[8].Success;
+                mipmap = match.Groups[9].Success ? int.Parse(match.Groups[10].Value) : 0;
                 return true;
             }
         }

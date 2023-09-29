@@ -24,6 +24,8 @@ namespace DolphinTextureExtraction
 
         public static bool DolphinMipDetection = true;
 
+        public static bool CombinedRGBA = false;
+
 #if DEBUG
         public static ParallelOptions Parallel = new() { MaxDegreeOfParallelism = 1 };
 #else
@@ -53,6 +55,8 @@ namespace DolphinTextureExtraction
                     DolphinMipDetection = value;
                 if (bool.TryParse(Config.Get("ArbitraryMipmapDetection"), out value))
                     ArbitraryMipmapDetection = value;
+                if (bool.TryParse(Config.Get("CombinedRGBA"), out value))
+                    CombinedRGBA = value;
             }
         }
     }

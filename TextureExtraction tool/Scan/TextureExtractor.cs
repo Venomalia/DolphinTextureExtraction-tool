@@ -15,6 +15,8 @@ namespace DolphinTextureExtraction.Scans
 
         private new TextureExtractorResult Result => (TextureExtractorResult)base.Result;
 
+        private new TextureExtractorOptions Option => (TextureExtractorOptions)base.Option;
+
         #region Constructor StartScan
 
         private TextureExtractor(string meindirectory, string savedirectory) : this(meindirectory, savedirectory, new TextureExtractorOptions()) { }
@@ -151,41 +153,45 @@ namespace DolphinTextureExtraction.Scans
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
-                bool? IsArbitraryMipmap = tex.Count > 1 ? ((TextureExtractorOptions)Option).ArbitraryMipmapDetection ? null : false : false;
+                bool? IsArbitraryMipmap = tex.Count > 1 ? Option.ArbitraryMipmapDetection ? null : false : false;
                 float ArbitraryMipmapValue = 0f;
+
                 int tluts = tex.Palettes.Count == 0 ? 1 : tex.Palettes.Count;
                 for (int tlut = 0; tlut < tluts; tlut++)
                 {
-                    ulong TlutHash = tex.GetTlutHash(tlut);
+                    string mainTextureHash = string.Empty;
+                    ulong tlutHash = tex.GetTlutHash(tlut);
 
-                    lock (Result.Hash)
-                    {
-                        int hash = tex.Hash.GetHashCode();
-
-                        //Dolphins only recognizes files with the correct mip flag
-                        hash -= tex.MaxLOD == 0 && tex.Count == 1 ? 0 : 1;
-
-                        //If it is a palleted format add TlutHash
-                        if (tex.Format.IsPaletteFormat() && TlutHash != 0)
-                            hash = hash * -1521134295 + TlutHash.GetHashCode();
-
-                        //Skip duplicate textures
-                        if (Result.Hash.Contains(hash))
-                            continue;
-                        Result.Hash.Add(hash);
-                    }
+                    // If we already have the texture we skip it
+                    if (TestTextureHashCode(tex, tlutHash))
+                        continue;
 
                     // Don't extract anything if performing a dry run
                     if (!Option.DryRun)
                     {
                         string SaveDirectory = GetFullSaveDirectory(subdirectory);
                         Directory.CreateDirectory(SaveDirectory);
+
+
                         Image[] image = new Image[tex.Count];
                         try
                         {
-                            for (int i = 0; i < tex.Count; i++)
+                            // Combined IA8 palette texture to RGBA?
+                            bool rgbaCombined = Option.CombinedRGBA && tluts == 2 && tex.PaletteFormat == GXPaletteFormat.IA8;
+                            if (rgbaCombined)
                             {
-                                image[i] = tex.GetImage(i, tlut);
+                                for (int i = 0; i < tex.Count; i++)
+                                {
+                                    image[i] = tex.GetFullImage(i);
+                                }
+                                tlut++;
+                            }
+                            else
+                            {
+                                for (int i = 0; i < tex.Count; i++)
+                                {
+                                    image[i] = tex.GetImage(i, tlut);
+                                }
                             }
 
                             //Is Arbitrary Mipmap?
@@ -194,10 +200,25 @@ namespace DolphinTextureExtraction.Scans
                             //Extract the main texture and mips
                             for (int i = 0; i < tex.Count; i++)
                             {
-                                string path = Path.Combine(SaveDirectory, tex.GetDolphinTextureHash(i, TlutHash, ((TextureExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true) + ".png");
+                                //If a combined texture we need a second TLUThash. 
+                                ulong tlutHash2 = 0;
+                                if (rgbaCombined)
+                                {
+                                    tlutHash2 = tex.GetTlutHash(tlut);
+                                    TestTextureHashCode(tex, tlutHash2);
+                                }
+
+                                //Create the path and save the texture.
+                                string textureHash = tex.GetDolphinTextureHash(i, tlutHash, Option.DolphinMipDetection, IsArbitraryMipmap == true, tlutHash2);
+                                string path = Path.Combine(SaveDirectory, textureHash) + ".png";
                                 image[i].SaveAsPng(path);
+
+                                //We save the main level texture path for later
+                                if (i == 0)
+                                    mainTextureHash = textureHash;
+
                                 //skip mips?
-                                if (IsArbitraryMipmap == false && !((TextureExtractorOptions)Option).Mips) break;
+                                if (IsArbitraryMipmap == false && !Option.Mips) break;
                             }
                         }
                         catch (Exception t)
@@ -213,10 +234,37 @@ namespace DolphinTextureExtraction.Scans
                             }
                         }
                     }
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, tex.GetDolphinTextureHash(0, TlutHash, ((TextureExtractorOptions)Option).DolphinMipDetection, IsArbitraryMipmap == true)) + ".png", $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
-                    ((TextureExtractorOptions)Option).TextureAction?.Invoke(tex, Result, subdirectory, TlutHash, IsArbitraryMipmap == true);
+                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, mainTextureHash), $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
+                    Option.TextureAction?.Invoke(tex, Result, subdirectory, mainTextureHash);
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks if a texture with a given hash code has already been added to the hash pool list and adds it if not.
+        /// </summary>
+        /// <param name="tex">The texture to be tested.</param>
+        /// <param name="TlutHash">The TLUT hash value to consider for palette formats.</param>
+        /// <returns> <c>true</c> if the texture should be skipped as a duplicate; otherwise, <c>false</c>.</returns>
+        private bool TestTextureHashCode(JUTTexture.TexEntry tex, ulong TlutHash)
+        {
+            int hashCode = tex.Hash.GetHashCode();
+
+            //Dolphins only recognizes files with the correct mip flag
+            hashCode -= tex.MaxLOD == 0 && tex.Count == 1 ? 0 : 1;
+
+            //If it is a palleted format add TlutHash
+            if (tex.Format.IsPaletteFormat() && TlutHash != 0)
+                hashCode = hashCode * -1521134295 + TlutHash.GetHashCode();
+
+            lock (Result.Hash)
+            {
+                //Skip duplicate textures
+                if (Result.Hash.Contains(hashCode))
+                    return true;
+                Result.Hash.Add(hashCode);
+            }
+            return false;
         }
 
         /// <summary>

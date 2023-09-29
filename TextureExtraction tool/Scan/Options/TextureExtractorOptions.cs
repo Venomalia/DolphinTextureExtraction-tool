@@ -27,11 +27,16 @@ namespace DolphinTextureExtraction.Scans.Options
         public bool DolphinMipDetection = AppSettings.DolphinMipDetection;
 
         /// <summary>
+        /// Combine texture pairs to get an RGBA texture.
+        /// </summary>
+        public bool CombinedRGBA = AppSettings.CombinedRGBA;
+
+        /// <summary>
         /// is executed when a texture is extracted
         /// </summary>
         public TextureActionDelegate TextureAction;
 
-        public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, ScanResults results, in string subdirectory, ulong TlutHash, bool isArbitraryMipmap);
+        public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, ScanResults results, in string subdirectory, in string fileName);
 
         public override string ToString()
         {

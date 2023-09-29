@@ -307,13 +307,33 @@ namespace AuroraLib.Texture
             public Image GetImage(int Mipmap, ReadOnlySpan<byte> Palette)
                 => Format.DecodeImage(RawImages[Mipmap], Width >> Mipmap, Height >> Mipmap, Palette, PaletteFormat);
 
+            public Image GetImage<TPixel>(int Mipmap, ReadOnlySpan<TPixel> Palette) where TPixel : unmanaged, IPixel<TPixel>
+                => Format.DecodeImage(RawImages[Mipmap], Width >> Mipmap, Height >> Mipmap, Palette);
+
+            public Image GetFullImage(int Mipmap = 0)
+            {
+                if (PaletteFormat == GXPaletteFormat.IA8 && Palettes.Count == 2)
+                {
+                    Span<byte> a = Palettes[0];
+                    Span<byte> b = Palettes[1];
+
+                    Span<Rgba32> rgbaPalette = stackalloc Rgba32[Palettes[0].Length / 2];
+                    for (int i = 0, p = 0; i < rgbaPalette.Length; i++, p += 2)
+                    {
+                        rgbaPalette[i] = new(a[p + 1], a[p], b[p + 1], b[p]);
+                    }
+                    return GetImage<Rgba32>(Mipmap, rgbaPalette);
+                }
+                return GetImage(Mipmap);
+            }
+
             /// <summary>
             /// calculated the 64-bit xxHash of the Tlut
             /// </summary>
             /// <param name="Palette"></param>
             /// <returns></returns>
             public ulong GetTlutHash(int Palette = 0)
-                => GetTlutHash(Palettes.Count == 0 ? null : Palettes[Palette]);
+                => Palettes.Count == 0 ? 0 : GetTlutHash(Palettes[Palette]);
 
             /// <summary>
             /// calculated the 64-bit xxHash of the Tlut
@@ -333,7 +353,7 @@ namespace AuroraLib.Texture
                 return HashDepot.XXHash.Hash64(Palette.Slice(start, length));
             }
 
-            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = false)
+            public string GetDolphinTextureHash(int mipmap = 0, ulong TlutHash = 0, bool DolphinMipDetection = true, bool IsArbitraryMipmap = false, ulong TlutHash2 = 0)
             {
                 bool HasMips = this.Count != 1;
                 //dolphin seems to use the MaxLOD value to decide if it is a mipmap Texture.
@@ -341,6 +361,10 @@ namespace AuroraLib.Texture
                 if (!HasMips && DolphinMipDetection)
                     HasMips = MaxLOD != 0;
 
+                if (TlutHash2 != 0)
+                {
+                    return SplitTextureHashInfo.Build(this.Width, this.Height, Hash, Format, TlutHash, TlutHash2, mipmap, HasMips, IsArbitraryMipmap);
+                }
                 return DolphinTextureHashInfo.Build(this.Width, this.Height, Hash, Format, TlutHash, mipmap, HasMips, IsArbitraryMipmap);
             }
 

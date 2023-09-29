@@ -13,6 +13,7 @@
         ArbitraryMipmapDetection,
         Recursiv,
         Log,
+        CombinedRGBA,
     }
 
     internal static class OptionsEX
@@ -28,8 +29,9 @@
             Options.Cleanup => "Folder cleanup typ.",
             Options.Dolphinmipdetection => "Tries to imitate dolphin mipmap detection.",
             Options.Recursiv => "Extract recursiv.",
-            Options.ArbitraryMipmapDetection => "use Arbitrary Mipmap Detection",
-            Options.Log => "Defines the directory in which the log file will be saved",
+            Options.ArbitraryMipmapDetection => "use Arbitrary Mipmap Detection.",
+            Options.Log => "Defines the directory in which the log file will be saved.",
+            Options.CombinedRGBA => "Combine IA8 palette texture pairs into one RGBA texture.",
             _ => throw new NotImplementedException(),
         };
 
@@ -46,6 +48,7 @@
             Options.Recursiv => "rc",
             Options.ArbitraryMipmapDetection => "amd",
             Options.Log => "l",
+            Options.CombinedRGBA => "rgba",
             _ => throw new NotImplementedException(),
         };
 
@@ -63,6 +66,7 @@
             Options.Recursiv => string.Empty,
             Options.ArbitraryMipmapDetection => string.Empty,
             Options.Log => $"{Options.Log} \"path\"",
+            Options.CombinedRGBA => string.Empty,
             _ => throw new NotImplementedException(),
         };
 

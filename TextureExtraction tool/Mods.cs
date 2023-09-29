@@ -37,7 +37,7 @@
         public static ReadOnlySpan<Options> GetOptions(this Modes mode) => mode switch
         {
             Modes.Help => Array.Empty<Options>(),
-            Modes.Extract => new[] { Options.Force, Options.Tasks, Options.Dryrun, Options.Progress, Options.Mip, Options.Raw, Options.Cleanup, Options.Dolphinmipdetection, Options.ArbitraryMipmapDetection, Options.Log },
+            Modes.Extract => new[] { Options.Force, Options.Tasks, Options.Dryrun, Options.Progress, Options.Mip, Options.Raw, Options.Cleanup, Options.Dolphinmipdetection, Options.ArbitraryMipmapDetection, Options.CombinedRGBA, Options.Log },
             Modes.Unpack => new[] { Options.Force, Options.Tasks, Options.Dryrun, Options.Progress, Options.Recursiv, Options.Log },
             Modes.Compress => new[] { Options.Tasks, Options.Progress, Options.Log },
             Modes.Split => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },

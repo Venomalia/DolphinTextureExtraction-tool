@@ -175,7 +175,7 @@ namespace AuroraLib.Common
             new FormatInfo(".DCLN", FormatType.Collision, "Retro Dynamic Collision", Retro_),
             new FormatInfo(".RULE", "RULE", FormatType.Parameter, "Retro Studios Rule Set", Retro_),
             new FormatInfo(".SCAN", "SCAN", FormatType.Else, "Metroid Scan", Retro_),
-            new FormatInfo(".FONT", "FONT", FormatType.Font, "Retro Font", Retro_),
+            new FormatInfo(".FONT", FormatType.Font, "Retro Font", Retro_),
             new FormatInfo(".MLVL", "Þ¯º¾", FormatType.Font, "Retro World Data", Retro_),
             new FormatInfo(".ANIM", FormatType.Animation, "Retro animation", Retro_),
             new FormatInfo(".CSKR", FormatType.Parameter, "Retro Skin Rules", Retro_),
@@ -397,11 +397,30 @@ namespace AuroraLib.Common
             new FormatInfo("", "MEDB", FormatType.Archive, "Rune Factory Archive 3", "Neverland",typeof(MEDB)),
             new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland",typeof(HXTB)),
 
-            //Square Enix
+            //Square Enix FFCC Crystal Bearers
             new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix",typeof(POSD)),
             new FormatInfo(".FREB","FREB", FormatType.Archive, "Crystal Bearers Archive", "Square Enix",typeof(FREB)),
             new FormatInfo(".MPD", 0, new byte[] {(byte) 'M',(byte) 'P',(byte) 'D', 0 }, FormatType.Archive, "Crystal Bearers data", "Square Enix",typeof(MPD)),
             new FormatInfo(".FEFF", "FEFF", FormatType.Texture, "Crystal Bearers Model", "Square Enix"){IdentifierOffset = 0x10},
+            //Square Enix FINAL FANTASY Crystal Chronicles
+            new FormatInfo(".cmd", "CAM ", FormatType.Parameter, "FFCC Camera data","Square Enix"),
+            new FormatInfo(".cha", "CHA ", FormatType.Parameter, "FFCC Character data","Square Enix"),
+            new FormatInfo(".chm", "CHM ", FormatType.Parameter, "FFCC Object data","Square Enix"),
+            new FormatInfo(".tex", "TEX ", FormatType.Archive, "FFCC Texture Archive","Square Enix", typeof(TSET)),
+            new FormatInfo(".otm", "OTM ", FormatType.Archive, "FFCC Camera data","Square Enix", typeof(TSET)),
+            new FormatInfo(".ptx", "TSET", FormatType.Archive, "FFCC Texture Table","Square Enix", typeof(TSET)),
+            new FormatInfo(".txtr", "TXTR", FormatType.Texture, "FFCC Texture data","Square Enix", typeof(TXTRCC)),
+            new FormatInfo(".mid", "MID ", FormatType.Unknown, "FFCC mid data","Square Enix"),
+            new FormatInfo(".mpl", "MESH", FormatType.Model, "FFCC Model data","Square Enix"),
+            new FormatInfo(".pdt", "PDT ", FormatType.Collision, "FFCC Collision data","Square Enix"),
+            new FormatInfo(".bgm", "BGM ", FormatType.Audio, "FFCC Background music data","Square Enix"),
+            new FormatInfo(".mcd", "MCD ", FormatType.Skript, "FFCC GBA data","Square Enix"),
+            new FormatInfo(".cfd", "CFLD", FormatType.Text, "FFCC String Table data","Square Enix"),
+            new FormatInfo(".fnt", "FONT", FormatType.Archive, "FFCC Font data","Square Enix",typeof(FONT)),
+            new FormatInfo(".sep",0, new byte[] {0x53, 0x65, 0x53, 0x65, 0x70, 0x00, 0x00, 0x00, 0x00}, FormatType.Audio, "Sound Effect data","Square Enix"),
+            new FormatInfo(".seb",0, new byte[] {0x53, 0x65, 0x42, 0x6C, 0x6F, 0x63, 0x6B, 0x00, 0x00}, FormatType.Audio, "Sound Block data","Square Enix"),
+            new FormatInfo(".str",0, new byte[] {0x53, 0x54, 0x52, 0x00}, FormatType.Audio, "Audio Stream","Square Enix"),
+            new FormatInfo(".wd",0, new byte[] {0x57, 0x44, 0x00, 0x00}, FormatType.Audio, "Wav Audio","Square Enix"),
 
             //Grasshopper Manufacture
             new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture",typeof(RMHG)),
@@ -604,7 +623,6 @@ namespace AuroraLib.Common
             new FormatInfo(".bas", FormatType.Animation, "Sound Animation"),
             new FormatInfo(".blight", "LGHT", FormatType.Effect, "Light"),
             new FormatInfo(".bfog", "FOGM", FormatType.Else, "Fog"),
-            new FormatInfo(".cmd", "CAM ", FormatType.Else, "Camera data"),
             new FormatInfo(".cam", FormatType.Else, "Camera data"),
             new FormatInfo(".bin", "BTGN", FormatType.Else, "Materials"),
             new FormatInfo(".pac", "NPAC", FormatType.Else, "Star Fox Assault"),

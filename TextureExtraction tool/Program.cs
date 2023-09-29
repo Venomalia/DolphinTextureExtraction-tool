@@ -283,7 +283,7 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
+                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, DolphinMipDetection = false, ArbitraryMipmapDetection = false, ProgressAction = options.ProgressAction };
                             if (args.Length > p)
                             {
                                 ParseOptions(args.AsSpan(p));

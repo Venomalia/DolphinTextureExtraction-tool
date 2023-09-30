@@ -383,9 +383,7 @@ namespace DolphinTextureExtraction
                     OutputDirectory = GetGenOutputPath(InputPath);
                     TextureExtractor.StartScan(InputPath, OutputDirectory);
                 }
-                Console.Error.WriteLine("Wrong syntax.");
-                Console.WriteLine("use h for help");
-                Environment.Exit(-2);
+                ExitWrongSyntax(args[0]);
             }
         }
 
@@ -711,7 +709,7 @@ namespace DolphinTextureExtraction
                             options.DryRun = true;
                             break;
                         case Options.Progress:
-                            switch (arg2.ToString())
+                            switch (arg2.ToString().ToLower())
                             {
 
                                 case "none":
@@ -729,15 +727,15 @@ namespace DolphinTextureExtraction
                                     options.ProgressAction = null;
                                     options.TextureAction = TextureUpdate;
                                     break;
+                                default:
+                                    ExitWrongSyntax(arg2.ToString());
+                                    break;
                             }
                             break;
                         case Options.Tasks:
                             if (!int.TryParse(args[++i], out int parse))
                             {
-                                Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
-                                Console.WriteLine("use h for help");
-                                Environment.Exit(-2);
-                                break;
+                                ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a second parameter");
                             }
                             options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
                             break;
@@ -748,7 +746,7 @@ namespace DolphinTextureExtraction
                             options.Raw = true;
                             break;
                         case Options.Cleanup:
-                            switch (arg2.ToString())
+                            switch (arg2.ToString().ToLower())
                             {
                                 case "none":
                                 case "n":
@@ -766,12 +764,13 @@ namespace DolphinTextureExtraction
                                 case "gs":
                                     if (!int.TryParse(args[++i], out int groupparse))
                                     {
-                                        Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a second parameter.");
-                                        Console.WriteLine("use h for help");
-                                        Environment.Exit(-2);
+                                        ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
                                         break;
                                     }
                                     cleanOptions.MinGroupsSize = groupparse <= 0 ? 1 : groupparse;
+                                    break;
+                                default:
+                                    ExitWrongSyntax(arg2.ToString());
                                     break;
                             }
                             break;
@@ -788,9 +787,7 @@ namespace DolphinTextureExtraction
                             LogDirectory = args[++i].Trim('"');
                             if (!PathIsValid(LogDirectory))
                             {
-                                Console.Error.WriteLine($"Wrong syntax: \"{args[i - 1]} {args[i]}\" Task needs a path as second parameter.");
-                                Console.WriteLine("use h for help");
-                                Environment.Exit(-2);
+                                ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
                             }
                             break;
                         case Options.CombinedRGBA:
@@ -800,8 +797,27 @@ namespace DolphinTextureExtraction
                             throw new NotImplementedException();
                     }
                 }
+                else
+                {
+                    ExitWrongSyntax(args[i]);
+                }
             }
         }
+
+        private static void ExitWrongSyntax(string syntax)
+        {
+            Console.Error.WriteLine($"Wrong syntax: \"{syntax}\".");
+            Console.WriteLine("use h for help");
+            Environment.Exit(-2);
+        }
+
+        private static void ExitWrongSyntax(string syntax, string reason)
+        {
+            Console.Error.WriteLine($"Wrong syntax: \"{syntax}\" {reason}.");
+            Console.WriteLine("use h for help");
+            Environment.Exit(-2);
+        }
+
         private static void HelpPrintTrueFalse(bool value)
             => Console.WriteLine(value ? "(True) or False" : "True or (False)");
 

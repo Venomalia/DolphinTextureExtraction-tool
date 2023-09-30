@@ -46,7 +46,7 @@
 
         public static bool Start(DirectoryInfo directory, Option options = null)
         {
-            options = options ?? new Option();
+            options ??= new Option();
 
             try
             {
@@ -100,11 +100,21 @@
         }
 
         private static void Simple(DirectoryInfo directory)
+            => Simple(directory, directory);
+
+
+        private static void Simple(DirectoryInfo directory,DirectoryInfo root)
         {
             Parallel.ForEach(directory.GetDirectories(), ParallelOptions, (DirectoryInfo subdirectory) =>
             {
-                Simple(directory);
-                subdirectory.Merge(directory.FullName);
+                Simple(subdirectory, root);
+
+                foreach (FileInfo file in subdirectory.GetFiles())
+                {
+                    string filePath = Path.Combine(root.FullName, file.Name);
+                    file.MoveTo(filePath);
+                }
+                subdirectory.Delete();
             });
         }
 
@@ -131,7 +141,8 @@
 
             foreach (FileInfo file in directory.GetFiles())
             {
-                file.MoveTo(Path.Combine(destDirName, file.Name));
+                string filePath = Path.Combine(destDirName, file.Name);
+                file.MoveTo(filePath);
             }
             directory.Delete();
         }

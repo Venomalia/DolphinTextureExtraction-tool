@@ -93,7 +93,8 @@
 
             foreach (var m in Enum.GetValues<Modes>())
             {
-                if (name == m.GetAlias())
+                ReadOnlySpan<char> alias = m.GetAlias();
+                if (name.SequenceEqual(alias))
                 {
                     mode = m;
                     return true;

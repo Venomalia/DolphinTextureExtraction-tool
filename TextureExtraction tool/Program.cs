@@ -224,15 +224,7 @@ namespace DolphinTextureExtraction
                                     Console.WriteLine();
                                     var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
                                     PrintResult(result);
-
-                                    if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
-                                    {
-                                        Console.WriteLine("Start Cleanup...");
-                                        if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
-                                            Console.WriteLine("Cleanup Completed");
-                                        else
-                                            Console.WriteLine("Error! Cleanup failed");
-                                    }
+                                    StartCleanup();
                                     break;
                                 case Modes.Unpack:
                                     Console.WriteLine($"Unpacks all files from {InputPath}");
@@ -302,6 +294,7 @@ namespace DolphinTextureExtraction
 
                             if (options.TextureAction == null)
                                 PrintResult(result);
+                            StartCleanup();
 
                             #endregion
                             break;
@@ -384,6 +377,18 @@ namespace DolphinTextureExtraction
                     TextureExtractor.StartScan(InputPath, OutputDirectory);
                 }
                 ExitWrongSyntax(args[0]);
+            }
+        }
+
+        private static void StartCleanup()
+        {
+            if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
+            {
+                Console.WriteLine("Start Cleanup...");
+                if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
+                    Console.WriteLine("Cleanup Completed");
+                else
+                    Console.WriteLine("Error! Cleanup failed");
             }
         }
 

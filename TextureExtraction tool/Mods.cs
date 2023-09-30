@@ -8,7 +8,7 @@
         Compress,
         Split,
         Formats,
-        SeparateRGBA,
+        Finalize,
     }
 
     internal static class ModesEX
@@ -21,7 +21,7 @@
             Modes.Compress => "Compress files.",
             Modes.Split => "Splits files by identifier.",
             Modes.Formats => "Displays known formats.",
-            Modes.SeparateRGBA => "Separates combined RGBA textures into its texture pairs.",
+            Modes.Finalize => "Separates combined RGBA textures & fixes texture issues.",
             _ => throw new NotImplementedException(),
         };
 
@@ -33,7 +33,7 @@
             Modes.Compress => "c",
             Modes.Split => "s",
             Modes.Formats => "f",
-            Modes.SeparateRGBA => "RGBA",
+            Modes.Finalize => "z",
             _ => throw new NotImplementedException(),
         };
 
@@ -45,7 +45,7 @@
             Modes.Compress => new[] { Options.Tasks, Options.Progress, Options.Log },
             Modes.Split => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
             Modes.Formats => Array.Empty<Options>(),
-            Modes.SeparateRGBA => Array.Empty<Options>(),
+            Modes.Finalize => Array.Empty<Options>(),
             _ => throw new NotImplementedException(),
         };
 
@@ -57,7 +57,7 @@
             Modes.Compress => $"{Modes.Compress} \"Input\" \"Output\" Algorithm",
             Modes.Split => $"{Modes.Split} \"Input\" \"Output\" Patterns",
             Modes.Formats => string.Empty,
-            Modes.SeparateRGBA => $"{Modes.Split} \"Input\" \"Output\"",
+            Modes.Finalize => $"{Modes.Split} \"Input\" \"Output\"",
             _ => throw new NotImplementedException(),
         };
 

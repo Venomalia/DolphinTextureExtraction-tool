@@ -95,7 +95,7 @@ namespace DolphinTextureExtraction
                         case Modes.Split:
                         case Modes.Unpack:
                         case Modes.Extract:
-                        case Modes.SeparateRGBA:
+                        case Modes.Finalize:
                             #region Extract
 
                             #region User Set Input Path
@@ -242,10 +242,10 @@ namespace DolphinTextureExtraction
 
                                     Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
                                     break;
-                                case Modes.SeparateRGBA:
+                                case Modes.Finalize:
                                     Console.WriteLine($"Separates combined RGBA textures from {InputPath}");
 
-                                    SeparateRGBA.StartScan(InputPath, OutputDirectory, options);
+                                    Scan.Finalize.StartScan(InputPath, OutputDirectory, options);
                                     break;
                             }
                             Console.WriteLine();
@@ -348,7 +348,7 @@ namespace DolphinTextureExtraction
                         case Modes.Formats:
                             PrintFormats();
                             break;
-                        case Modes.SeparateRGBA:
+                        case Modes.Finalize:
                             #region unpack
                             p = GetPahts(args);
                             if (p <= 0)
@@ -360,7 +360,7 @@ namespace DolphinTextureExtraction
                                 ParseOptions(args.AsSpan(p));
                             }
 
-                            SeparateRGBA.StartScan(InputPath, OutputDirectory, options, LogDirectory);
+                            Scan.Finalize.StartScan(InputPath, OutputDirectory, options, LogDirectory);
                             Console.WriteLine();
                             Console.WriteLine("completed.");
                             #endregion

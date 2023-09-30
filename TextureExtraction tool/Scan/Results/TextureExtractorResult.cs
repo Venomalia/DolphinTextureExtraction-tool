@@ -48,6 +48,7 @@ namespace DolphinTextureExtraction.Scans.Results
             if (UnknownFormatType.Count != 0) sb.AppendLine($"Unknown files Typs: {string.Join(", ", UnknownFormatType.Select(x => x.GetTypName()))}");
             sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
             sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
+            sb.AppendLine($"Log saved: \"{LogFullPath}\"");
             return sb.ToString();
         }
     }

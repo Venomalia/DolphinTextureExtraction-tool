@@ -835,11 +835,10 @@ namespace DolphinTextureExtraction
         private static void HelpPrintTrueFalse(bool value)
             => Console.WriteLine(value ? "(True) or False" : "True or (False)");
 
-        static void PrintResult(TextureExtractorResult result)
+        static void PrintResult(ScanResults result)
         {
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             Console.WriteLine(result.ToString().LineBreak(20));
-            Console.WriteLine($"Log saved: \"{result.LogFullPath}\"");
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
         }
 

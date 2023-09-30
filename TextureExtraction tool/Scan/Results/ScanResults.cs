@@ -42,6 +42,7 @@ namespace DolphinTextureExtraction.Scans.Results
         {
             StringBuilder sb = new();
             sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
+            sb.AppendLine($"Log saved: \"{LogFullPath}\"");
             return sb.ToString();
         }
     }

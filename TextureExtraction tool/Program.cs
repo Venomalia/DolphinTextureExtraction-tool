@@ -294,7 +294,7 @@ namespace DolphinTextureExtraction
 
                             if (options.TextureAction == null)
                                 PrintResult(result);
-                            StartCleanup();
+                             StartCleanup();
 
                             #endregion
                             break;
@@ -533,9 +533,12 @@ namespace DolphinTextureExtraction
                             break;
                         case Options.Cleanup:
                             ConsoleEx.WriteLineColoured("\tModes: ", ConsoleColor.Cyan);
-                            Console.WriteLine("\t\tnone\tRetains the original folder structure.");
-                            Console.WriteLine("\t\tsimple\tMove all files to a single folder.");
-                            Console.WriteLine("\t\tdefault\tShortens the path by deleting unnecessary folders.");
+                            Console.WriteLine("\t\tnone\t\tRetains the original folder structure.");
+                            Console.WriteLine("\t\tsimple\t\tMove all files to a single folder.");
+                            Console.WriteLine("\t\tdefault\t\tShortens the path by deleting unnecessary folders.");
+                            Console.WriteLine("\t\tcompact\t\tShortens the path significantly by deleting unnecessary folders.");
+                            Console.WriteLine("\t\tgroup \"i\"\tShortens the path until a specified folder size is reached.");
+                            Console.WriteLine();
                             break;
                     }
                 }
@@ -765,13 +768,19 @@ namespace DolphinTextureExtraction
                                 case "s":
                                     cleanOptions.CleanupType = Cleanup.Type.Simple;
                                     break;
-                                case "groupsize":
-                                case "gs":
+                                case "compact":
+                                case "c":
+                                    cleanOptions.CleanupType = Cleanup.Type.Default;
+                                    cleanOptions.MinGroupsSize = 10;
+                                    break;
+                                case "group":
+                                case "g":
                                     if (!int.TryParse(args[++i], out int groupparse))
                                     {
                                         ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
                                         break;
                                     }
+                                    cleanOptions.CleanupType = Cleanup.Type.Default;
                                     cleanOptions.MinGroupsSize = groupparse <= 0 ? 1 : groupparse;
                                     break;
                                 default:

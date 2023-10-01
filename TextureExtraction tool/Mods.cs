@@ -57,7 +57,7 @@
             Modes.Compress => $"{Modes.Compress} \"Input\" \"Output\" Algorithm",
             Modes.Split => $"{Modes.Split} \"Input\" \"Output\" Patterns",
             Modes.Formats => string.Empty,
-            Modes.Finalize => $"{Modes.Split} \"Input\" \"Output\"",
+            Modes.Finalize => $"{Modes.Finalize} \"Input\" \"Output\"",
             _ => throw new NotImplementedException(),
         };
 

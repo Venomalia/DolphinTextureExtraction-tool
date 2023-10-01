@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
-using DolphinTextureExtraction.Scan;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -18,12 +17,14 @@ namespace DolphinTextureExtraction
 
         static string LogDirectory = null;
 
-        static TextureExtractorOptions options;
-        static Cleanup.Option cleanOptions;
+        static TextureExtractorOptions Options;
+        static Cleanup.Option CleanupOptions;
 
         static string Algorithm;
 
         static Modes Mode;
+
+        static List<byte[]> Pattern = new();
 
 #if DEBUG
         private static readonly string Title = $"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit *DEBUG";
@@ -53,18 +54,18 @@ namespace DolphinTextureExtraction
             }
             catch (Exception) { }
 
-            options = new TextureExtractorOptions();
-            cleanOptions = new Cleanup.Option();
+            Options = new TextureExtractorOptions();
+            CleanupOptions = new Cleanup.Option();
 
             //Do we have restricted access to the Console.Cursor?
             try
             {
                 Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop);
-                options.ProgressAction = ProgressUpdate;
+                Options.ProgressAction = ProgressUpdate;
             }
             catch (Exception)
             {
-                options.ProgressAction = ProgressTitleUpdate;
+                Options.ProgressAction = ProgressTitleUpdate;
             }
         }
 
@@ -161,11 +162,10 @@ namespace DolphinTextureExtraction
                             #endregion
 
                             #region Split Pattern
-                            List<byte[]> pattern = new();
 
                             if (Mode == Modes.Split)
                             {
-                                List<string> patternstrings = pattern.Select(s => EncodingX.GetValidString(s)).ToList();
+                                List<string> patternstrings = Pattern.Select(s => EncodingX.GetValidString(s)).ToList();
                                 do
                                 {
                                     if (patternstrings.Count > 0)
@@ -174,7 +174,7 @@ namespace DolphinTextureExtraction
                                         Console.WriteLine("Edit identifiers? Yes or (No)");
                                         if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
                                         {
-                                            pattern = patternstrings.Select(s => s.GetBytes()).ToList();
+                                            Pattern = patternstrings.Select(s => s.GetBytes()).ToList();
                                             break;
                                         }
                                     }
@@ -205,7 +205,7 @@ namespace DolphinTextureExtraction
                             Console.WriteLine($"Mode: {Mode.GetDescription()}");
                             Console.WriteLine($"Input Path: \"{InputPath}\"");
                             Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", pattern.Select(s => EncodingX.GetValidString(s)))}");
+                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", Pattern.Select(s => EncodingX.GetValidString(s)))}");
                             PrintOptions();
                             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
 
@@ -214,45 +214,10 @@ namespace DolphinTextureExtraction
                             if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(true), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red)) continue;
                             #endregion
 
-                            #region Start
                             Console.CursorVisible = false;
-                            switch (Mode)
-                            {
-                                case Modes.Extract:
-                                    Console.WriteLine($"Search and extract textures from {InputPath}");
-                                    Console.WriteLine("This may take a few seconds...");
-                                    Console.WriteLine();
-                                    var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options);
-                                    PrintResult(result);
-                                    StartCleanup();
-                                    break;
-                                case Modes.Unpack:
-                                    Console.WriteLine($"Unpacks all files from {InputPath}");
-                                    Console.WriteLine("This may take a few seconds...");
-                                    Console.WriteLine();
-                                    Unpack.StartScan(InputPath, OutputDirectory, options);
-
-                                    break;
-                                case Modes.Compress:
-                                    Console.WriteLine($"Compress data from {InputPath}");
-                                    Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), options);
-                                    break;
-                                case Modes.Split:
-                                    Console.WriteLine($"Split data from {InputPath}");
-
-                                    Cutter.StartScan(InputPath, OutputDirectory, pattern, options);
-                                    break;
-                                case Modes.Finalize:
-                                    Console.WriteLine($"Separates combined RGBA textures from {InputPath}");
-
-                                    Scan.Finalize.StartScan(InputPath, OutputDirectory, options);
-                                    break;
-                            }
                             Console.WriteLine();
-                            Console.WriteLine("Done!");
+                            StartScanMode();
                             Console.CursorVisible = true;
-                            #endregion
-
                             #endregion
                             break;
                         case Modes.Formats:
@@ -277,42 +242,19 @@ namespace DolphinTextureExtraction
                             PrintHelp();
                             break;
                         case Modes.Extract:
+                        case Modes.Unpack:
+                        case Modes.Finalize:
                             #region extract
                             p = GetPahts(args);
                             if (p <= 0)
                                 goto default;
 
-                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, DolphinMipDetection = false, ArbitraryMipmapDetection = false, ProgressAction = options.ProgressAction };
+                            Options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, DolphinMipDetection = false, ArbitraryMipmapDetection = false, ProgressAction = Options.ProgressAction };
                             if (args.Length > p)
                             {
                                 ParseOptions(args.AsSpan(p));
                             }
-
-                            var result = TextureExtractor.StartScan(InputPath, OutputDirectory, options, LogDirectory);
-
-                            Console.WriteLine();
-
-                            if (options.TextureAction == null)
-                                PrintResult(result);
-                             StartCleanup();
-
-                            #endregion
-                            break;
-                        case Modes.Unpack:
-                            #region unpack
-                            p = GetPahts(args);
-                            if (p <= 0)
-                                goto default;
-
-                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
-                            if (args.Length > p)
-                            {
-                                ParseOptions(args.AsSpan(p));
-                            }
-
-                            Unpack.StartScan(InputPath, OutputDirectory, options, LogDirectory);
-                            Console.WriteLine();
-                            Console.WriteLine("completed.");
+                            StartScanMode();
                             #endregion
                             break;
                         case Modes.Compress:
@@ -320,9 +262,8 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(args[p++]), options, LogDirectory);
-                            Console.WriteLine();
-                            Console.WriteLine("completed.");
+                            Algorithm = args[p++];
+                            StartScanMode();
                             break;
                         case Modes.Split:
                             #region cut
@@ -330,40 +271,22 @@ namespace DolphinTextureExtraction
                             if (p <= 0)
                                 goto default;
 
-                            List<byte[]> pattern = null;
                             if (args.Length > p)
                             {
-                                pattern = new List<byte[]>();
                                 while (args.Length > p)
                                 {
-                                    pattern.Add(args[p++].GetBytes());
+                                    Pattern.Add(args[p++].GetBytes());
                                 }
                             }
-
-                            Cutter.StartScan(InputPath, OutputDirectory, pattern, options, LogDirectory);
-                            Console.WriteLine();
-                            Console.WriteLine("completed.");
+                            else
+                            {
+                                Pattern = null;
+                            }
+                            StartScanMode();
                             #endregion
                             break;
                         case Modes.Formats:
                             PrintFormats();
-                            break;
-                        case Modes.Finalize:
-                            #region unpack
-                            p = GetPahts(args);
-                            if (p <= 0)
-                                goto default;
-
-                            options = new TextureExtractorOptions() { Mips = false, Raw = false, Force = false, ProgressAction = options.ProgressAction };
-                            if (args.Length > p)
-                            {
-                                ParseOptions(args.AsSpan(p));
-                            }
-
-                            Scan.Finalize.StartScan(InputPath, OutputDirectory, options, LogDirectory);
-                            Console.WriteLine();
-                            Console.WriteLine("completed.");
-                            #endregion
                             break;
                         default:
                             throw new NotImplementedException();
@@ -380,12 +303,54 @@ namespace DolphinTextureExtraction
             }
         }
 
+        private static void StartScanMode()
+        {
+
+            bool isSilent = Options.TextureAction != null;
+
+            if (!isSilent)
+            {
+                Console.WriteLine($"Start {Mode} mode: {Mode.GetDescription()}");
+                Console.WriteLine("This may take a few seconds...");
+                Console.WriteLine();
+            }
+
+            ScanResults result = Mode switch
+            {
+                Modes.Extract => TextureExtractor.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                Modes.Unpack => Unpack.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                Modes.Compress => Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), Options, LogDirectory),
+                Modes.Split => Cutter.StartScan(InputPath, OutputDirectory, Pattern, Options, LogDirectory),
+                Modes.Finalize => Scan.Finalize.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                _ => throw new NotImplementedException($"Mode type {Mode}."),
+            };
+
+            if (!isSilent)
+            {
+                Console.WriteLine();
+                PrintResult(result);
+                if (result is TextureExtractorResult)
+                {
+                    StartCleanup();
+                }
+                Console.WriteLine();
+                Console.WriteLine("Done!");
+            }
+            else
+            {
+                if (result is TextureExtractorResult)
+                {
+                    StartCleanup();
+                }
+            }
+        }
+
         private static void StartCleanup()
         {
-            if (options.DryRun == false || cleanOptions.CleanupType != Cleanup.Type.None)
+            if (Options.DryRun == false || CleanupOptions.CleanupType != Cleanup.Type.None)
             {
                 Console.WriteLine("Start Cleanup...");
-                if (Cleanup.Start(new DirectoryInfo(OutputDirectory), cleanOptions))
+                if (Cleanup.Start(new DirectoryInfo(OutputDirectory), CleanupOptions))
                     Console.WriteLine("Cleanup Completed");
                 else
                     Console.WriteLine("Error! Cleanup failed");
@@ -521,17 +486,17 @@ namespace DolphinTextureExtraction
 
                     switch (Option)
                     {
-                        case Options.Tasks:
+                        case DolphinTextureExtraction.Options.Tasks:
                             ConsoleEx.WriteColoured("\ti: ", ConsoleColor.Cyan);
                             Console.WriteLine("a number that determines the maximum number of tasks.");
                             break;
-                        case Options.Progress:
+                        case DolphinTextureExtraction.Options.Progress:
                             ConsoleEx.WriteLineColoured("\tModes: ", ConsoleColor.Cyan);
                             Console.WriteLine("\t\tnone\toutputs only important events in the console.");
                             Console.WriteLine("\t\tbar\tshows the progress as a progress bar in the console.");
                             Console.WriteLine("\t\tlist\toutputs the extracted textures as a list in the console.");
                             break;
-                        case Options.Cleanup:
+                        case DolphinTextureExtraction.Options.Cleanup:
                             ConsoleEx.WriteLineColoured("\tModes: ", ConsoleColor.Cyan);
                             Console.WriteLine("\t\tnone\t\tRetains the original folder structure.");
                             Console.WriteLine("\t\tsimple\t\tMove all files to a single folder.");
@@ -574,50 +539,50 @@ namespace DolphinTextureExtraction
                 Console.Write($"{option.GetDescription()} : ");
                 switch (option)
                 {
-                    case Options.Force:
-                        ConsoleEx.WriteLineBoolPrint(options.Force, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Force:
+                        ConsoleEx.WriteLineBoolPrint(Options.Force, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Dryrun:
-                        ConsoleEx.WriteLineBoolPrint(options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Dryrun:
+                        ConsoleEx.WriteLineBoolPrint(Options.DryRun, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Progress:
+                    case DolphinTextureExtraction.Options.Progress:
                         Console.CursorLeft = 0;
                         break;
-                    case Options.Tasks:
+                    case DolphinTextureExtraction.Options.Tasks:
                         Console.CursorLeft = 0;
                         Console.Write($"High performance mode. (Multithreading) : ");
-                        ConsoleEx.WriteLineBoolPrint(options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
+                        ConsoleEx.WriteLineBoolPrint(Options.Parallel.MaxDegreeOfParallelism != 1, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Mip:
-                        ConsoleEx.WriteLineBoolPrint(options.Mips, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Mip:
+                        ConsoleEx.WriteLineBoolPrint(Options.Mips, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Raw:
-                        ConsoleEx.WriteLineBoolPrint(options.Raw, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Raw:
+                        ConsoleEx.WriteLineBoolPrint(Options.Raw, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Cleanup:
-                        if (cleanOptions.CleanupType == Cleanup.Type.None)
-                            ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Cleanup:
+                        if (CleanupOptions.CleanupType == Cleanup.Type.None)
+                            ConsoleEx.WriteLineColoured(CleanupOptions.CleanupType.ToString(), ConsoleColor.Red);
                         else
                         {
-                            ConsoleEx.WriteLineColoured(cleanOptions.CleanupType.ToString(), ConsoleColor.Green);
+                            ConsoleEx.WriteLineColoured(CleanupOptions.CleanupType.ToString(), ConsoleColor.Green);
                             Console.Write($"Clean minimum files per foldere: ");
-                            ConsoleEx.WriteLineColoured(cleanOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
+                            ConsoleEx.WriteLineColoured(CleanupOptions.MinGroupsSize.ToString(), ConsoleColor.Green);
                         }
                         break;
-                    case Options.Dolphinmipdetection:
-                        ConsoleEx.WriteLineBoolPrint(options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Dolphinmipdetection:
+                        ConsoleEx.WriteLineBoolPrint(Options.DolphinMipDetection, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Recursiv:
-                        ConsoleEx.WriteLineBoolPrint(options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Recursiv:
+                        ConsoleEx.WriteLineBoolPrint(Options.Deep == 0, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.ArbitraryMipmapDetection:
-                        ConsoleEx.WriteLineBoolPrint(options.ArbitraryMipmapDetection, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.ArbitraryMipmapDetection:
+                        ConsoleEx.WriteLineBoolPrint(Options.ArbitraryMipmapDetection, ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Log:
+                    case DolphinTextureExtraction.Options.Log:
                         Console.CursorLeft = 0;
                         break;
-                    case Options.CombinedRGBA:
-                        ConsoleEx.WriteLineBoolPrint(options.CombinedRGBA, ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.CombinedRGBA:
+                        ConsoleEx.WriteLineBoolPrint(Options.CombinedRGBA, ConsoleColor.Green, ConsoleColor.Red);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -633,59 +598,59 @@ namespace DolphinTextureExtraction
                 Console.Write($"{option.GetDescription()} \t");
                 switch (option)
                 {
-                    case Options.Force:
-                        HelpPrintTrueFalse(options.Force);
-                        options.Force = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Force, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Force:
+                        HelpPrintTrueFalse(Options.Force);
+                        Options.Force = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.Force, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Dryrun:
-                        HelpPrintTrueFalse(options.DryRun);
-                        options.DryRun = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.DryRun, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Dryrun:
+                        HelpPrintTrueFalse(Options.DryRun);
+                        Options.DryRun = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.DryRun, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Progress:
+                    case DolphinTextureExtraction.Options.Progress:
                         Console.CursorLeft = 0;
                         break;
-                    case Options.Tasks:
+                    case DolphinTextureExtraction.Options.Tasks:
                         Console.CursorLeft = 0;
                         Console.Write($"High performance mode.(Multithreading) \t");
-                        HelpPrintTrueFalse(options.Parallel.MaxDegreeOfParallelism != 0);
-                        options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Parallel.MaxDegreeOfParallelism != 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
+                        HelpPrintTrueFalse(Options.Parallel.MaxDegreeOfParallelism != 0);
+                        Options.Parallel.MaxDegreeOfParallelism = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.Parallel.MaxDegreeOfParallelism != 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? 4 : 1;
                         break;
-                    case Options.Mip:
-                        HelpPrintTrueFalse(options.Mips);
-                        options.Mips = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Mips, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Mip:
+                        HelpPrintTrueFalse(Options.Mips);
+                        Options.Mips = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.Mips, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Raw:
-                        HelpPrintTrueFalse(options.Raw);
-                        options.Raw = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Raw, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Raw:
+                        HelpPrintTrueFalse(Options.Raw);
+                        Options.Raw = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.Raw, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Cleanup:
+                    case DolphinTextureExtraction.Options.Cleanup:
                         Console.WriteLine($"0={Cleanup.Type.None} 1={Cleanup.Type.Default} 2={Cleanup.Type.Simple}");
-                        cleanOptions.CleanupType = ConsoleEx.ReadEnum<Cleanup.Type>(cleanOptions.CleanupType);
-                        if (cleanOptions.CleanupType == Cleanup.Type.Default)
+                        CleanupOptions.CleanupType = ConsoleEx.ReadEnum<Cleanup.Type>(CleanupOptions.CleanupType);
+                        if (CleanupOptions.CleanupType == Cleanup.Type.Default)
                         {
                             Console.WriteLine($"CleanUp, minimum files per folder. \t(3)");
-                            cleanOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
+                            CleanupOptions.MinGroupsSize = ConsoleEx.ReadInt32(3);
                         }
                         break;
-                    case Options.Dolphinmipdetection:
-                        HelpPrintTrueFalse(options.DolphinMipDetection);
-                        options.DolphinMipDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.DolphinMipDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.Dolphinmipdetection:
+                        HelpPrintTrueFalse(Options.DolphinMipDetection);
+                        Options.DolphinMipDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.DolphinMipDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Recursiv:
-                        HelpPrintTrueFalse(options.Deep == 0);
-                        options.Deep = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.Deep == 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
+                    case DolphinTextureExtraction.Options.Recursiv:
+                        HelpPrintTrueFalse(Options.Deep == 0);
+                        Options.Deep = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.Deep == 0, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red) ? (uint)0 : (uint)1;
                         break;
-                    case Options.ArbitraryMipmapDetection:
-                        HelpPrintTrueFalse(options.ArbitraryMipmapDetection);
-                        options.ArbitraryMipmapDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.ArbitraryMipmapDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.ArbitraryMipmapDetection:
+                        HelpPrintTrueFalse(Options.ArbitraryMipmapDetection);
+                        Options.ArbitraryMipmapDetection = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.ArbitraryMipmapDetection, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
-                    case Options.Log:
+                    case DolphinTextureExtraction.Options.Log:
                         Console.CursorTop--;
                         Console.CursorLeft = 0;
                         break;
-                    case Options.CombinedRGBA:
-                        HelpPrintTrueFalse(options.CombinedRGBA);
-                        options.CombinedRGBA = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(options.CombinedRGBA, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
+                    case DolphinTextureExtraction.Options.CombinedRGBA:
+                        HelpPrintTrueFalse(Options.CombinedRGBA);
+                        Options.CombinedRGBA = ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(Options.CombinedRGBA, ConsoleKey.T, ConsoleKey.F), "True", "\tFalse", ConsoleColor.Green, ConsoleColor.Red);
                         break;
                     default:
                         throw new NotImplementedException();
@@ -710,68 +675,68 @@ namespace DolphinTextureExtraction
                 {
                     switch (option)
                     {
-                        case Options.Force:
-                            options.Force = true;
+                        case DolphinTextureExtraction.Options.Force:
+                            Options.Force = true;
                             break;
-                        case Options.Dryrun:
-                            options.DryRun = true;
+                        case DolphinTextureExtraction.Options.Dryrun:
+                            Options.DryRun = true;
                             break;
-                        case Options.Progress:
+                        case DolphinTextureExtraction.Options.Progress:
                             switch (arg2.ToString().ToLower())
                             {
 
                                 case "none":
                                 case "n":
-                                    options.ProgressAction = ProgressTitleUpdate;
-                                    options.TextureAction = null;
+                                    Options.ProgressAction = ProgressTitleUpdate;
+                                    Options.TextureAction = null;
                                     break;
                                 case "bar":
                                 case "b":
-                                    options.ProgressAction = ProgressUpdate;
-                                    options.TextureAction = null;
+                                    Options.ProgressAction = ProgressUpdate;
+                                    Options.TextureAction = null;
                                     break;
                                 case "list":
                                 case "l":
-                                    options.ProgressAction = null;
-                                    options.TextureAction = TextureUpdate;
+                                    Options.ProgressAction = null;
+                                    Options.TextureAction = TextureUpdate;
                                     break;
                                 default:
                                     ExitWrongSyntax(arg2.ToString());
                                     break;
                             }
                             break;
-                        case Options.Tasks:
+                        case DolphinTextureExtraction.Options.Tasks:
                             if (!int.TryParse(args[++i], out int parse))
                             {
                                 ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a second parameter");
                             }
-                            options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
+                            Options.Parallel.MaxDegreeOfParallelism = parse <= 0 ? -1 : parse;
                             break;
-                        case Options.Mip:
-                            options.Mips = true;
+                        case DolphinTextureExtraction.Options.Mip:
+                            Options.Mips = true;
                             break;
-                        case Options.Raw:
-                            options.Raw = true;
+                        case DolphinTextureExtraction.Options.Raw:
+                            Options.Raw = true;
                             break;
-                        case Options.Cleanup:
+                        case DolphinTextureExtraction.Options.Cleanup:
                             switch (arg2.ToString().ToLower())
                             {
                                 case "none":
                                 case "n":
-                                    cleanOptions.CleanupType = Cleanup.Type.None;
+                                    CleanupOptions.CleanupType = Cleanup.Type.None;
                                     break;
                                 case "default":
                                 case "d":
-                                    cleanOptions.CleanupType = Cleanup.Type.Default;
+                                    CleanupOptions.CleanupType = Cleanup.Type.Default;
                                     break;
                                 case "simple":
                                 case "s":
-                                    cleanOptions.CleanupType = Cleanup.Type.Simple;
+                                    CleanupOptions.CleanupType = Cleanup.Type.Simple;
                                     break;
                                 case "compact":
                                 case "c":
-                                    cleanOptions.CleanupType = Cleanup.Type.Default;
-                                    cleanOptions.MinGroupsSize = 10;
+                                    CleanupOptions.CleanupType = Cleanup.Type.Default;
+                                    CleanupOptions.MinGroupsSize = 10;
                                     break;
                                 case "group":
                                 case "g":
@@ -780,32 +745,32 @@ namespace DolphinTextureExtraction
                                         ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
                                         break;
                                     }
-                                    cleanOptions.CleanupType = Cleanup.Type.Default;
-                                    cleanOptions.MinGroupsSize = groupparse <= 0 ? 1 : groupparse;
+                                    CleanupOptions.CleanupType = Cleanup.Type.Default;
+                                    CleanupOptions.MinGroupsSize = groupparse <= 0 ? 1 : groupparse;
                                     break;
                                 default:
                                     ExitWrongSyntax(arg2.ToString());
                                     break;
                             }
                             break;
-                        case Options.Dolphinmipdetection:
-                            options.DolphinMipDetection = true;
+                        case DolphinTextureExtraction.Options.Dolphinmipdetection:
+                            Options.DolphinMipDetection = true;
                             break;
-                        case Options.Recursiv:
-                            options.Deep = 1;
+                        case DolphinTextureExtraction.Options.Recursiv:
+                            Options.Deep = 1;
                             break;
-                        case Options.ArbitraryMipmapDetection:
-                            options.ArbitraryMipmapDetection = true;
+                        case DolphinTextureExtraction.Options.ArbitraryMipmapDetection:
+                            Options.ArbitraryMipmapDetection = true;
                             break;
-                        case Options.Log:
+                        case DolphinTextureExtraction.Options.Log:
                             LogDirectory = args[++i].Trim('"');
                             if (!PathIsValid(LogDirectory))
                             {
                                 ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
                             }
                             break;
-                        case Options.CombinedRGBA:
-                            options.CombinedRGBA = true;
+                        case DolphinTextureExtraction.Options.CombinedRGBA:
+                            Options.CombinedRGBA = true;
                             break;
                         default:
                             throw new NotImplementedException();

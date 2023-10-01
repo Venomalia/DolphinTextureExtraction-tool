@@ -14,18 +14,18 @@ namespace DolphinTextureExtraction.Scans.Helper
     {
         private const string separator = ": ";
 
-        public ScanLogger(string directory, ScanOptions Option) : base(GenerateFullPath(directory))
+        public ScanLogger(string directory, string mode, ScanOptions Option) : base(GenerateFullPath(directory, mode))
             => WriteHeader(Option);
 
-        private static string GenerateFullPath(string directory)
+        private static string GenerateFullPath(string directory, string mode)
         {
-            string basename = directory == StringEx.ExePath ? StringEx.SimpleDate : System.Diagnostics.Process.GetCurrentProcess().ProcessName;
+            string basename = $"DTE-{mode} {DateTime.Now:yy-MM-dd_HH-mm-ss}";
 
-            string FullPath;
-            if (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename), "log")))
+            string FullPath = Path.ChangeExtension(Path.Combine(directory, basename), "log");
+            if (File.Exists(FullPath))
             {
                 int i = 2;
-                while (!File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename + "_" + i), "log")))
+                while (File.Exists(FullPath = Path.ChangeExtension(Path.Combine(directory, basename + "_" + i), "log")))
                 {
                     i++;
                 }

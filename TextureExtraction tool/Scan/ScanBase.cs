@@ -27,7 +27,7 @@ namespace DolphinTextureExtraction.Scans
             logDirectory ??= SaveDirectory;
             Directory.CreateDirectory(SaveDirectory);
             Directory.CreateDirectory(logDirectory);
-            Log = new(logDirectory, options);
+            Log = new(logDirectory, this.GetType().Name, options);
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
         }

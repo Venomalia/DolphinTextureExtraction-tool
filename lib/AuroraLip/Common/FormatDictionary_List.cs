@@ -180,6 +180,8 @@ namespace AuroraLib.Common
             new FormatInfo(".ANIM", FormatType.Animation, "Retro animation", Retro_),
             new FormatInfo(".CSKR", FormatType.Parameter, "Retro Skin Rules", Retro_),
             new FormatInfo(".STRG", FormatType.Text, "Retro String Table", Retro_),
+            //Retro Studios WiiU & Switch 
+            new FormatInfo("", "RFRM", FormatType.Texture, "Retro Format Descriptor", Retro_),
 
             //Next Level Games
             new FormatInfo(".rlt",new Identifier32("PTLG"),0, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),

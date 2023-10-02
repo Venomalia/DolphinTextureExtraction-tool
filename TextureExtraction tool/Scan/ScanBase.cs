@@ -26,8 +26,18 @@ namespace DolphinTextureExtraction.Scans
             SaveDirectory = Option.DryRun ? StringEx.ExePath : saveDirectory;
             logDirectory ??= SaveDirectory;
             Directory.CreateDirectory(SaveDirectory);
-            Directory.CreateDirectory(logDirectory);
-            Log = new(logDirectory, this.GetType().Name, options);
+
+            //do we need a dummy log?
+            if (logDirectory == string.Empty)
+            {
+                Log = new(options); // dummy
+            }
+            else
+            {
+                Directory.CreateDirectory(logDirectory);
+                Log = new(logDirectory, this.GetType().Name, options);
+            }
+
             Events.NotificationEvent = Log.WriteNotification;
             Result.LogFullPath = Log.FullPath;
         }

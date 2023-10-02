@@ -6,6 +6,9 @@
 
         public string FullPath { get; private set; }
 
+        public LogBase(Stream FullPath) : base(FullPath)
+            => this.FullPath = string.Empty;
+
         public LogBase(string FullPath) : base(FullPath, new FileStreamOptions() { Access = FileAccess.Write, Mode = FileMode.Create, Share = FileShare.Read })
             => this.FullPath = FullPath;
 

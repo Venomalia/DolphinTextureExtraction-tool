@@ -353,7 +353,7 @@ namespace DolphinTextureExtraction
                 if (Cleanup.Start(new DirectoryInfo(OutputDirectory), CleanupOptions))
                     Console.WriteLine("Cleanup Completed");
                 else
-                    Console.WriteLine("Error! Cleanup failed");
+                    Console.Error.WriteLine("Error! Cleanup failed");
             }
         }
 
@@ -764,9 +764,13 @@ namespace DolphinTextureExtraction
                             break;
                         case DolphinTextureExtraction.Options.Log:
                             LogDirectory = args[++i].Trim('"');
-                            if (!PathIsValid(LogDirectory))
+                            if (LogDirectory.ToLower() == "none" || LogDirectory == string.Empty)
                             {
-                                ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path as second parameter");
+                                LogDirectory = string.Empty;
+                            }
+                            else if (!PathIsValid(LogDirectory))
+                            {
+                                ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a path or none as second parameter");
                             }
                             break;
                         case DolphinTextureExtraction.Options.CombinedRGBA:

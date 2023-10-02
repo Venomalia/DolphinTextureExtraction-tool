@@ -14,6 +14,12 @@ namespace DolphinTextureExtraction.Scans.Helper
     {
         private const string separator = ": ";
 
+        public ScanLogger(ScanOptions Option) : this(new MemoryPoolStream(4096), Option)
+        { }
+
+        public ScanLogger(Stream stream, ScanOptions Option) : base(stream)
+            => WriteHeader(Option);
+
         public ScanLogger(string directory, string mode, ScanOptions Option) : base(GenerateFullPath(directory, mode))
             => WriteHeader(Option);
 

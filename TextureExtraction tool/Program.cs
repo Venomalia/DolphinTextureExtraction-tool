@@ -809,6 +809,15 @@ namespace DolphinTextureExtraction
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             Console.WriteLine(result.ToString().LineBreak(20));
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            if (result.LogFullPath != string.Empty)
+            {
+                Console.WriteLine($"Log path: \"{result.LogFullPath}\"");
+            }
+            if (!Options.DryRun)
+            {
+                Console.WriteLine($"Output path: \"{OutputDirectory}\"");
+            }
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
         }
 
         private static ConsoleBar ScanProgress;

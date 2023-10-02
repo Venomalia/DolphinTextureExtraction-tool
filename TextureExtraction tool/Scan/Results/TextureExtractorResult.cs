@@ -1,9 +1,6 @@
 ﻿using AuroraLib.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using DolphinTextureExtraction.Scans.Helper;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace DolphinTextureExtraction.Scans.Results
 {
@@ -15,15 +12,13 @@ namespace DolphinTextureExtraction.Scans.Results
 
         public int Extracted => Hash.Count;
 
-        public int Unknown { get; internal set; } = 0;
+        public int Unknown { get; private set; } = 0;
 
-        public int Unsupported { get; internal set; } = 0;
-
-        public int Skipped { get; internal set; } = 0;
+        public int Unsupported { get; private set; } = 0;
 
         internal long ExtractedSize = 0;
 
-        internal long UnsupportedSize = 0;
+        private long UnsupportedSize = 0;
 
         internal long SkippedSize = 0;
 
@@ -49,6 +44,39 @@ namespace DolphinTextureExtraction.Scans.Results
             sb.AppendLine($"Extraction rate: ~ {GetExtractionSize()}");
             sb.AppendLine($"Scan time: {TotalTime.TotalSeconds:.000}s");
             return sb.ToString();
+        }
+
+        internal void AddUnsupported(ScanObjekt so)
+        {
+            if (!UnsupportedFormatType.Contains(so.Format))
+            {
+                UnsupportedFormatType.Add(so.Format);
+            }
+            Unsupported++;
+            UnsupportedSize += so.Stream.Length;
+        }
+
+        internal void AddUnknown(ScanObjekt so)
+        {
+            if (so.Stream.Length > 128)
+            {
+                if (!UnknownFormatType.Contains(so.Format))
+                {
+                    UnknownFormatType.Add(so.Format);
+                }
+            }
+
+            if (so.Deep == 0)
+            {
+                if (so.Stream.Length > 300)
+                    SkippedSize += so.Stream.Length >> 1;
+            }
+            else
+            {
+                if (so.Stream.Length > 512)
+                    SkippedSize += so.Stream.Length >> 6;
+            }
+            Unknown++;
         }
     }
 }

@@ -31,5 +31,8 @@ namespace DolphinTextureExtraction.Scans.Helper
             Deep = deep;
             File = file;
         }
+
+        public string GetFullSubPath()
+         => string.Concat(SubPath, Extension);
     }
 }

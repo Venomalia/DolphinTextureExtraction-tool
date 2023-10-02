@@ -65,29 +65,17 @@ namespace DolphinTextureExtraction.Scans
                         if (TryForce(so))
                             break;
 
-                        AddResultUnknown(so.Stream, so.Format, string.Concat(so.SubPath, so.Extension));
-
-                        //Exclude files that are too small, for calculation purposes only half the size.
-                        if (so.Deep == 0)
-                        {
-                            if (so.Stream.Length > 300)
-                                Result.SkippedSize += so.Stream.Length >> 1;
-                        }
-                        else
-                        {
-                            if (so.Stream.Length > 512)
-                                Result.SkippedSize += so.Stream.Length >> 6;
-                        }
+                        AddResultUnknown(so);
                         break;
                     case FormatType.Texture:
-                        if (((TextureExtractorOptions)Option).Raw)
+                        if (Option.Raw)
                             Save(so.Stream, Path.Combine("~Raw", so.SubPath.ToString()), so.Format);
                         if (so.Format.Class != null && so.Format.Class.GetMember(nameof(JUTTexture)) != null)
                         {
                             using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(so.Format.Class))
                             {
                                 Texture.Open(so.Stream);
-                                Save(Texture, so.SubPath.ToString());
+                                Save(Texture, so);
                             }
                             Result.ExtractedSize += so.Stream.Length;
                             break;
@@ -100,29 +88,29 @@ namespace DolphinTextureExtraction.Scans
                         {
 
                             if (so.Format.Class == null)
-                                AddResultUnsupported(so.Stream, so.SubPath.ToString(), so.Extension.ToString(), so.Format);
+                                AddResultUnsupported(so);
                             else
                             {
                                 switch (so.Format.Class.Name)
                                 {
                                     case "BDL":
-                                        BDL bdlmodel = new BDL(so.Stream);
+                                        BDL bdlmodel = new(so.Stream);
                                         foreach (var item in bdlmodel.Textures.Textures)
                                         {
-                                            Save(item, so.SubPath.ToString());
+                                            Save(item, so);
                                         }
                                         Result.ExtractedSize += so.Stream.Length;
                                         break;
                                     case "BMD":
-                                        BMD bmdmodel = new BMD(so.Stream);
+                                        BMD bmdmodel = new(so.Stream);
                                         foreach (var item in bmdmodel.Textures.Textures)
                                         {
-                                            Save(item, so.SubPath.ToString());
+                                            Save(item, so);
                                         }
                                         Result.ExtractedSize += so.Stream.Length;
                                         break;
                                     case "TEX0":
-                                        using (JUTTexture Texture = new TEX0(so.Stream)) Save(Texture, so.SubPath.ToString());
+                                        using (JUTTexture Texture = new TEX0(so.Stream)) Save(Texture, so);
                                         Result.ExtractedSize += so.Stream.Length;
                                         break;
                                 }
@@ -134,10 +122,7 @@ namespace DolphinTextureExtraction.Scans
             catch (Exception t)
             {
                 Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
-                if (!Result.UnsupportedFormatType.Contains(so.Format))
-                    Result.UnsupportedFormatType.Add(so.Format);
-                Result.Unsupported++;
-                Result.UnsupportedSize += so.Stream.Length;
+                Result.AddUnsupported(so);
             }
 
         }
@@ -149,7 +134,7 @@ namespace DolphinTextureExtraction.Scans
         /// </summary>
         /// <param name="texture"></param>
         /// <param name="subdirectory"></param>
-        private void Save(JUTTexture texture, in string subdirectory)
+        private void Save(JUTTexture texture, ScanObjekt so)
         {
             foreach (JUTTexture.TexEntry tex in texture)
             {
@@ -169,7 +154,7 @@ namespace DolphinTextureExtraction.Scans
                     // Don't extract anything if performing a dry run
                     if (!Option.DryRun)
                     {
-                        string SaveDirectory = GetFullSaveDirectory(subdirectory);
+                        string SaveDirectory = GetFullSaveDirectory(so.SubPath);
                         Directory.CreateDirectory(SaveDirectory);
 
 
@@ -223,8 +208,8 @@ namespace DolphinTextureExtraction.Scans
                         }
                         catch (Exception t)
                         {
-                            Log.WriteEX(t, subdirectory + tex.ToString());
-                            Result.Unsupported++;
+                            Log.WriteEX(t, string.Concat(so.SubPath, tex.ToString()));
+                            Result.AddUnsupported(so);
                         }
                         finally
                         {
@@ -233,9 +218,11 @@ namespace DolphinTextureExtraction.Scans
                                 image[i]?.Dispose();
                             }
                         }
+
+                        string subdirectory = so.SubPath.ToString();
+                        Log.Write(FileAction.Extract, Path.Combine(subdirectory, mainTextureHash), $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
+                        Option.TextureAction?.Invoke(tex, Result, subdirectory, mainTextureHash);
                     }
-                    Log.Write(FileAction.Extract, Path.Combine(subdirectory, mainTextureHash), $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
-                    Option.TextureAction?.Invoke(tex, Result, subdirectory, mainTextureHash);
                 }
             }
         }
@@ -273,7 +260,7 @@ namespace DolphinTextureExtraction.Scans
         /// <param name="stream"></param>
         /// <param name="subdirectory"></param>
         /// <returns></returns>
-        private bool TryBTI(Stream stream, ReadOnlySpan<char> subdirectory)
+        private bool TryBTI(Stream stream, ScanObjekt so)
         {
             if (stream.Length - stream.Position <= Unsafe.SizeOf<BTI.ImageHeader>())
                 return false;
@@ -293,7 +280,10 @@ namespace DolphinTextureExtraction.Scans
             {
                 try
                 {
-                    Save(new BTI(stream), Path.Combine("~Force", subdirectory.ToString()));
+                    string paht = Path.Combine("~Force", so.SubPath.ToString());
+                    so = new ScanObjekt(so.Stream, paht, so.Deep, so.Extension);
+                    using BTI bit = new(stream);
+                    Save(bit, so);
                     return true;
                 }
                 catch (Exception)
@@ -313,7 +303,7 @@ namespace DolphinTextureExtraction.Scans
                     return true;
 
                 so.Stream.Position = 0;
-                if (TryBTI(so.Stream, so.SubPath))
+                if (TryBTI(so.Stream, so))
                     return true;
                 so.Stream.Position = 0;
             }
@@ -321,7 +311,7 @@ namespace DolphinTextureExtraction.Scans
             {
                 if (so.Format.Extension == "")
                 {
-                    if (TryBTI(so.Stream, so.SubPath))
+                    if (TryBTI(so.Stream, so))
                         return true;
                     so.Stream.Position = 0;
                 }
@@ -331,21 +321,16 @@ namespace DolphinTextureExtraction.Scans
             return false;
         }
 
-        private void AddResultUnsupported(Stream stream, string subdirectory, string Extension, FormatInfo FFormat)
+        private void AddResultUnsupported(ScanObjekt so)
         {
-            Log.Write(FileAction.Unsupported, subdirectory + Extension + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}", $"Description: {FFormat.GetFullDescription()}");
-            if (!Result.UnsupportedFormatType.Contains(FFormat)) Result.UnsupportedFormatType.Add(FFormat);
-            Result.Unsupported++;
-            Result.UnsupportedSize += stream.Length;
+            Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+            Result.AddUnsupported(so);
         }
 
-        protected override void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
+        protected override void AddResultUnknown(ScanObjekt so)
         {
-            base.AddResultUnknown(stream, FormatTypee, file);
-
-            if (stream.Length > 130)
-                if (!Result.UnknownFormatType.Contains(FormatTypee)) Result.UnknownFormatType.Add(FormatTypee);
-            Result.Unknown++;
+            base.AddResultUnknown(so);
+            Result.AddUnknown(so);
         }
         #endregion
 

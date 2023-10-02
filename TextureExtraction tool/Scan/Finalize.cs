@@ -27,6 +27,13 @@ namespace DolphinTextureExtraction.Scan
 
         protected override void Scan(ScanObjekt so)
         {
+            //in case it's not a supported image format we just copy the file.
+            if (!so.Extension.Contains(".png",StringComparison.InvariantCultureIgnoreCase))
+            {
+                Save(so);
+                return;
+            }
+
             ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
 
             //create a new folder
@@ -42,6 +49,7 @@ namespace DolphinTextureExtraction.Scan
 
                 //load the RGBA image
                 using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
+                AlphaThreshold(image);
                 int width = image.Width;
                 int height = image.Height;
 
@@ -71,7 +79,7 @@ namespace DolphinTextureExtraction.Scan
             }
 
             //if DolphinTextureHashInfo?
-            if (name.Length > 28 && name[..4].SequenceEqual("tex1") && so.Extension.SequenceEqual(".png") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
+            if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
             {
                 using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
 
@@ -92,6 +100,7 @@ namespace DolphinTextureExtraction.Scan
                 image.Save(Path.Combine(savePath, dolphinHash.Build() + ".png"));
                 return;
             }
+
             Save(so);
         }
 

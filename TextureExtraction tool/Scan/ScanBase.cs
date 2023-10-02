@@ -222,7 +222,7 @@ namespace DolphinTextureExtraction.Scans
             stream.Seek(0, SeekOrigin.Begin);
         }
 
-        protected void Save(Stream stream, string subdirectory, FormatInfo FFormat)
+        protected void Save(Stream stream, ReadOnlySpan<char> subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));
 
         protected void Save(ScanObjekt so)
@@ -377,20 +377,19 @@ namespace DolphinTextureExtraction.Scans
         protected string GetFullSaveDirectory(ReadOnlySpan<char> directory)
             => Path.Join(SaveDirectory, directory.TrimEnd());
 
-
-        protected virtual void AddResultUnknown(Stream stream, FormatInfo FormatTypee, in string file)
+        protected virtual void AddResultUnknown(ScanObjekt so)
         {
-            if (FormatTypee.Identifier == null)
+            if (so.Format.Identifier == null)
             {
-                byte[] infoBytes = stream.Read(32 > stream.Length ? (int)stream.Length : 32);
+                byte[] infoBytes = so.Stream.Read(32 > so.Stream.Length ? (int)so.Stream.Length : 32);
 
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
+                Log.Write(FileAction.Unknown, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}",
                     $"Bytes{infoBytes.Length}:[{BitConverter.ToString(infoBytes)}]");
             }
             else
             {
-                Log.Write(FileAction.Unknown, file + $" ~{PathX.AddSizeSuffix(stream.Length, 2)}",
-                    $"Magic:[{FormatTypee.Identifier.GetString()}] Bytes:[{string.Join(",", FormatTypee.Identifier.AsSpan().ToArray())}] Offset:{FormatTypee.IdentifierOffset}");
+                Log.Write(FileAction.Unknown, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}",
+                    $"Magic:[{so.Format.Identifier.GetString()}] Bytes:[{string.Join(",", so.Format.Identifier.AsSpan().ToArray())}] Offset:{so.Format.IdentifierOffset}");
             }
         }
 

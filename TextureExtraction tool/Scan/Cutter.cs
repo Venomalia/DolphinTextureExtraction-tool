@@ -7,7 +7,7 @@ namespace DolphinTextureExtraction.Scans
 {
     public class Cutter : ScanBase
     {
-        private List<byte[]> Pattern;
+        private readonly List<byte[]> Pattern;
 
         internal Cutter(string scanDirectory, string saveDirectory, ScanOptions options = null, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory) { }
 
@@ -24,29 +24,34 @@ namespace DolphinTextureExtraction.Scans
         }
         protected override void Scan(ScanObjekt so)
         {
+
             if (so.Deep != 0)
-                Save(so.Stream, so.SubPath.ToString(), so.Format);
-
-            try
             {
-                Archive archive;
-                if (Pattern == null)
-                    archive = new DataCutter(so.Stream);
-                else
-                    archive = new DataCutter(so.Stream, Pattern);
-
-                if (archive.Root.Count > 0)
-                {
-                    if (archive.Root.Count == 1)
-                        foreach (var item in archive.Root.Items)
-                            Save(((ArchiveFile)item.Value).FileData, so.SubPath.ToString(), so.Format);
-                    else
-                        Scan(archive, so.SubPath, so.Deep + 1);
-                }
+                Save(so);
             }
-            catch (Exception t)
+            else
             {
-                Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
+                try
+                {
+                    Archive archive;
+                    if (Pattern == null)
+                        archive = new DataCutter(so.Stream);
+                    else
+                        archive = new DataCutter(so.Stream, Pattern);
+
+                    if (archive.Root.Count > 0)
+                    {
+                        if (archive.Root.Count == 1)
+                            foreach (var item in archive.Root.Items)
+                                Save(((ArchiveFile)item.Value).FileData, so.SubPath, so.Format);
+                        else
+                            Scan(archive, so.SubPath, so.Deep + 1);
+                    }
+                }
+                catch (Exception t)
+                {
+                    Log.WriteEX(t, so.GetFullSubPath());
+                }
             }
         }
     }

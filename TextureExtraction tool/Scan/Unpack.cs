@@ -45,7 +45,7 @@ namespace DolphinTextureExtraction.Scans
                         }
 
 
-                        AddResultUnknown(so.Stream, so.Format, string.Concat(so.SubPath, so.Extension));
+                        AddResultUnknown(so);
                         if (so.Deep != 0)
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;
@@ -53,7 +53,7 @@ namespace DolphinTextureExtraction.Scans
                     case FormatType.Archive:
                         if (!TryExtract(so))
                         {
-                            Log.Write(FileAction.Unsupported, string.Concat(so.SubPath, so.Extension) + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+                            Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         }
                         break;
@@ -65,7 +65,7 @@ namespace DolphinTextureExtraction.Scans
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
+                Log.WriteEX(t, so.GetFullSubPath());
                 if (so.Deep != 0)
                     Save(so.Stream, so.SubPath.ToString(), so.Format);
             }

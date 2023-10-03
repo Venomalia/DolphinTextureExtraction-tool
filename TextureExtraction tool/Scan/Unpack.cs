@@ -24,6 +24,7 @@ namespace DolphinTextureExtraction.Scans
         {
             try
             {
+                LogScanObjekt(so);
                 if (Option.Deep != 0 && so.Deep >= Option.Deep)
                 {
                     Save(so.Stream, so.SubPath.ToString(), so.Format);
@@ -45,7 +46,7 @@ namespace DolphinTextureExtraction.Scans
                         }
 
 
-                        AddResultUnknown(so);
+                        LogResultUnknown(so);
                         if (so.Deep != 0)
                             Save(so.Stream, so.SubPath.ToString(), so.Format);
                         break;

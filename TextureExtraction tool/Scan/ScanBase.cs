@@ -123,8 +123,6 @@ namespace DolphinTextureExtraction.Scans
             Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
             var SubPath = PathX.GetRelativePath(file.FullName.AsSpan(), ScanPath.AsSpan());
             ScanObjekt objekt = new(stream, SubPath, 0, file.Extension);
-            if (objekt.Format.Typ != FormatType.Unknown)
-                Log.WriteNotification(NotificationType.Info, $"Scan \"{SubPath}\" recognized as {objekt.Format.GetFullDescription()}");
             Scan(objekt);
             stream.Close();
         }
@@ -162,8 +160,6 @@ namespace DolphinTextureExtraction.Scans
                     path = Path.Combine(subPath, path);
 
                     ScanObjekt objekt = new(file, path.AsSpan(), deep);
-                    if (objekt.Format.Typ != FormatType.Unknown)
-                        Log.WriteNotification(NotificationType.Info, $"Scan \"{path}\" recognized as {objekt.Format.GetFullDescription()}, Deep:{deep}");
 
                     Scan(objekt);
                     lock (Result)
@@ -261,6 +257,7 @@ namespace DolphinTextureExtraction.Scans
                     case ".cmpres":
                         if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
                         {
+                            Log.Write(FileAction.Extract, $"\"{so.SubPath}{so.Extension}\"", $"Decompressed with {type.Name}");
                             Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(so.SubPath)));
                             return true;
                         }
@@ -271,45 +268,44 @@ namespace DolphinTextureExtraction.Scans
             {
                 if (so.Format.Class.IsSubclassOf(typeof(Archive)))
                 {
-                    using (Archive archive = (Archive)Activator.CreateInstance(so.Format.Class))
+                    using Archive archive = (Archive)Activator.CreateInstance(so.Format.Class);
+                    string subPath = so.SubPath.ToString();
+                    // if the archive needs more files.
+                    if (so.Deep == 0)
+                        archive.FileRequest = new Events.FileRequestDelegate(N => new FileStream(Path.Combine(Path.GetDirectoryName(Path.Combine(ScanPath, subPath)), N), FileMode.Open, FileAccess.Read, FileShare.Read));
+                    else
                     {
-                        string subPath = so.SubPath.ToString();
-                        // if the archive needs more files.
-                        if (so.Deep == 0)
-                            archive.FileRequest = new Events.FileRequestDelegate(N => new FileStream(Path.Combine(Path.GetDirectoryName(Path.Combine(ScanPath, subPath)), N), FileMode.Open, FileAccess.Read, FileShare.Read));
-                        else
+                        ArchiveFile file = so.File;
+                        archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file?.Parent[N]).FileData);
+                    }
+                    archive.Open(so.Stream, subPath);
+                    long size = archive.Root.Size;
+                    //scan the archive file.
+                    Scan(archive, so.SubPath, so.Deep + 1);
+
+                    if (so.Stream.Length > 104857600 * 5) //100MB*5
+                        return true;
+
+                    //Reduces problems with multithreading
+                    if (size < so.Stream.Length)
+                        so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
+
+                    //checks if hidden files are present.
+                    if (archive is IHasIdentifier identify)
+                    {
+                        if (so.Stream.Search(identify.Identifier.AsSpan().ToArray()))
                         {
-                            ArchiveFile file = so.File;
-                            archive.FileRequest = new Events.FileRequestDelegate(N => ((ArchiveFile)file?.Parent[N]).FileData);
-                        }
-                        archive.Open(so.Stream, subPath);
-                        long size = archive.Root.Size;
-                        //scan the archive file.
-                        Scan(archive, so.SubPath, so.Deep + 1);
-
-                        if (so.Stream.Length > 104857600 * 5) //100MB*5
-                            return true;
-
-                        //Reduces problems with multithreading
-                        if (size < so.Stream.Length)
-                            so.Stream.Seek(size < so.Stream.Position ? so.Stream.Position : size, SeekOrigin.Begin);
-
-                        //checks if hidden files are present.
-                        if (archive is IHasIdentifier identify)
-                        {
-                            if (so.Stream.Search(identify.Identifier.AsSpan().ToArray()))
-                            {
-                                List<byte[]> ident = new()
+                            List<byte[]> ident = new()
                                 {
                                     identify.Identifier.AsSpan().ToArray(),
                                 };
-                                using (Archive Cut = new DataCutter(so.Stream, ident))
-                                {
-                                    foreach (var item in Cut.Root.Items)
-                                        ((ArchiveFile)item.Value).Name = ((ArchiveFile)item.Value).Extension;
+                            using (Archive Cut = new DataCutter(so.Stream, ident))
+                            {
+                                Log.WriteNotification(NotificationType.Info, $"{Cut.Root.Items.Count} hidden {so.Format.Class.Name} files found in\"{so.SubPath}{so.Extension}\".");
+                                foreach (var item in Cut.Root.Items)
+                                    ((ArchiveFile)item.Value).Name = ((ArchiveFile)item.Value).Extension;
 
-                                    Scan(Cut, so.SubPath, so.Deep + 1);
-                                }
+                                Scan(Cut, so.SubPath, so.Deep + 1);
                             }
                         }
                     }
@@ -377,7 +373,7 @@ namespace DolphinTextureExtraction.Scans
         protected string GetFullSaveDirectory(ReadOnlySpan<char> directory)
             => Path.Join(SaveDirectory, directory.TrimEnd());
 
-        protected virtual void AddResultUnknown(ScanObjekt so)
+        protected virtual void LogResultUnknown(ScanObjekt so)
         {
             if (so.Format.Identifier == null)
             {
@@ -390,6 +386,16 @@ namespace DolphinTextureExtraction.Scans
             {
                 Log.Write(FileAction.Unknown, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}",
                     $"Magic:[{so.Format.Identifier.GetString()}] Bytes:[{string.Join(",", so.Format.Identifier.AsSpan().ToArray())}] Offset:{so.Format.IdentifierOffset}");
+            }
+        }
+
+
+        protected virtual void LogScanObjekt(ScanObjekt so)
+        {
+            if (so.Format.Typ != FormatType.Unknown)
+            {
+                string deep = so.Deep == 0 ? string.Empty : $", Deep:{so.Deep}";
+                Log.WriteNotification(NotificationType.Info, $"Scan \"{so.SubPath}{so.Extension}\" recognized as {so.Format.GetFullDescription()}{deep}.");
             }
         }
 

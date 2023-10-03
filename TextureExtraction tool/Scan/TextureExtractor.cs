@@ -59,13 +59,14 @@ namespace DolphinTextureExtraction.Scans
         {
             try
             {
+                LogScanObjekt(so);
                 switch (so.Format.Typ)
                 {
                     case FormatType.Unknown:
                         if (TryForce(so))
                             break;
 
-                        AddResultUnknown(so);
+                        LogResultUnknown(so);
                         break;
                     case FormatType.Texture:
                         if (Option.Raw)
@@ -88,7 +89,7 @@ namespace DolphinTextureExtraction.Scans
                         {
 
                             if (so.Format.Class == null)
-                                AddResultUnsupported(so);
+                                LogResultUnsupported(so);
                             else
                             {
                                 switch (so.Format.Class.Name)
@@ -321,15 +322,15 @@ namespace DolphinTextureExtraction.Scans
             return false;
         }
 
-        private void AddResultUnsupported(ScanObjekt so)
+        private void LogResultUnsupported(ScanObjekt so)
         {
             Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
             Result.AddUnsupported(so);
         }
 
-        protected override void AddResultUnknown(ScanObjekt so)
+        protected override void LogResultUnknown(ScanObjekt so)
         {
-            base.AddResultUnknown(so);
+            base.LogResultUnknown(so);
             Result.AddUnknown(so);
         }
         #endregion

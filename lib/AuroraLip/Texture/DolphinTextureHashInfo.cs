@@ -60,6 +60,12 @@ namespace AuroraLib.Texture
         public override string ToString() => Build();
 
         /// <summary>
+        /// Determines the image size with taking the mipmap level into account.
+        /// </summary>
+        /// <returns>The size of the image.</returns>
+        public Size GetImageSize() => new(Math.Max(Width >> Mipmap, 1), Math.Max(Height >> Mipmap, 1));
+
+        /// <summary>
         /// Builds a Dolphin texture hash.
         /// </summary>
         /// <returns>The Dolphin texture hash for this <see cref="DolphinTextureHashInfo"/>.</returns>

@@ -8,6 +8,9 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System.Reflection.Emit;
+using System.Security.Principal;
 
 namespace DolphinTextureExtraction.Scan
 {
@@ -55,6 +58,13 @@ namespace DolphinTextureExtraction.Scan
                 int width = image.Width;
                 int height = image.Height;
                 PngEncoder encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+
+                if (FixImageResolutionIfNeeded(image, hashRG))
+                {
+                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Resize {new Size(width, height)} => {image.Size}.");
+                    width = image.Width;
+                    height = image.Height;
+                }
 
                 // Create two new images.
                 using (Image<La16> imageRG = new(width, height))
@@ -138,6 +148,12 @@ namespace DolphinTextureExtraction.Scan
                     }
 
                     image ??= Image.Load(so.Stream);
+
+                    if (FixImageResolutionIfNeeded(image, dolphinHash))
+                    {
+                        Log.WriteNotification(NotificationType.Info, $"\"{name}\" Resize {info.Size} => {image.Size}.");
+                    }
+
                     string imagePath = Path.Combine(savePath, dolphinHash.Build() + ".png");
                     image.SaveAsPng(imagePath, encoder);
                     return;
@@ -153,6 +169,33 @@ namespace DolphinTextureExtraction.Scan
             }
 
             Save(so);
+        }
+
+        public static bool FixImageResolutionIfNeeded(Image image, DolphinTextureHashInfo hash)
+        {
+            Size hSize = hash.GetImageSize();
+
+            int dividend = image.Width % hSize.Width;
+            if (dividend != 0 || image.Height % hSize.Height != 0)
+            {
+                int width = image.Width;
+                if (dividend > hSize.Width / 2)
+                {
+                    width += hSize.Width - dividend;
+                }
+                else
+                {
+                    width -= dividend;
+                }
+                width = Math.Max(width, hSize.Width);
+                int height = hSize.Height * (width / hSize.Width);
+
+                ResizeOptions options = new() { Size = new(width, height), Mode = ResizeMode.Stretch, Sampler = KnownResamplers.Lanczos3 };
+                image.Mutate(x => x.Resize(options));
+
+                return true;
+            }
+            return false;
         }
 
         private static void FixIntensityTexturs(Image<La16> image)

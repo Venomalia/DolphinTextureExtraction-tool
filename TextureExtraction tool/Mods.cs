@@ -21,7 +21,7 @@
             Modes.Compress => "Compress files.",
             Modes.Split => "Splits files by identifier.",
             Modes.Formats => "Displays known formats.",
-            Modes.Finalize => "Separates combined RGBA textures & fixes texture issues.",
+            Modes.Finalize => "Separates combined RGBA textures & optimizes textures for dolphin.",
             _ => throw new NotImplementedException(),
         };
 
@@ -45,7 +45,7 @@
             Modes.Compress => new[] { Options.Tasks, Options.Progress, Options.Log },
             Modes.Split => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
             Modes.Formats => Array.Empty<Options>(),
-            Modes.Finalize => Array.Empty<Options>(),
+            Modes.Finalize => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
             _ => throw new NotImplementedException(),
         };
 

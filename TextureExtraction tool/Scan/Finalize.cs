@@ -1,11 +1,12 @@
-﻿using AuroraLib.Texture;
-using AuroraLib.Texture.PixelFormats;
+﻿using AuroraLib.Common;
+using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 
 namespace DolphinTextureExtraction.Scan
@@ -28,7 +29,7 @@ namespace DolphinTextureExtraction.Scan
         protected override void Scan(ScanObjekt so)
         {
             //in case it's not a supported image format we just copy the file.
-            if (!so.Extension.Contains(".png",StringComparison.InvariantCultureIgnoreCase))
+            if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".Tiff", StringComparison.InvariantCultureIgnoreCase))
             {
                 Save(so);
                 return;
@@ -43,19 +44,21 @@ namespace DolphinTextureExtraction.Scan
             //if SplitTextureHashInfo?
             if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
             {
+                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Detected as RGBA combined texture.");
                 // get Dolphin Texture Hashs
                 DolphinTextureHashInfo hashRG, hashBA;
                 (hashRG, hashBA) = splitHash.ToDolphinTextureHashInfo();
 
                 //load the RGBA image
                 using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
-                AlphaThreshold(image);
+                AlphaThreshold(image, 2, 253);
                 int width = image.Width;
                 int height = image.Height;
+                PngEncoder encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
 
                 // Create two new images.
-                using (Image<Rgba32> imageRG = new(width, height))
-                using (Image<Rgba32> imageBA = new(width, height))
+                using (Image<La16> imageRG = new(width, height))
+                using (Image<La16> imageBA = new(width, height))
                 {
                     for (int y = 0; y < height; y++)
                     {
@@ -63,17 +66,25 @@ namespace DolphinTextureExtraction.Scan
                         {
                             Rgba32 pixel = image[x, y];
 
-                            // RRRG channel
-                            imageRG[x, y] = new(pixel.R, pixel.R, pixel.R, pixel.G);
+                            // RG channel
+                            imageRG[x, y] = new(pixel.R, pixel.G);
 
-                            // BBBA channel
-                            imageBA[x, y] = new(pixel.B, pixel.B, pixel.B, pixel.A);
+                            // BA channel
+                            imageBA[x, y] = new(pixel.B, pixel.A);
                         }
                     }
 
-                    // Save the images for RG and BA channels
-                    imageRG.Save(Path.Combine(savePath, hashRG.Build() + ".png"));
-                    imageBA.Save(Path.Combine(savePath, hashBA.Build() + ".png"));
+                    // Save the RG channel image.
+                    string hash = hashRG.Build();
+                    string imagePath = Path.Combine(savePath, hash + ".png");
+                    imageRG.SaveAsPng(imagePath, encoder);
+                    Log.Write(FileAction.Extract, hash, $"RGBA Split type:RG");
+                    // Save the BA channel image.
+                    hash = hashBA.Build();
+                    imagePath = Path.Combine(savePath, hashBA.Build() + ".png");
+                    imageBA.SaveAsPng(imagePath, encoder);
+                    Log.Write(FileAction.Extract, hash, $"RGBA Split type:BA");
+
                 }
                 return;
             }
@@ -81,62 +92,85 @@ namespace DolphinTextureExtraction.Scan
             //if DolphinTextureHashInfo?
             if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
             {
-                using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
 
-                //Fixes color imprecision that may have occurred through AI upscaling.
-                AlphaThreshold(image);
-                switch (dolphinHash.Format)
+                ImageInfo info = Image.Identify(so.Stream);
+                so.Stream.Position = 0;
+                Image image = null;
+                PngEncoder encoder = null;
+                try
                 {
-                    case GXImageFormat.I4:
-                    case GXImageFormat.I8:
-                        FixIntensityTexturs(image);
-                        break;
-                    case GXImageFormat.IA4:
-                    case GXImageFormat.IA8:
-                        FixIntensityAlphaTexturs(image);
-                        break;
-                }
+                    switch (dolphinHash.Format)
+                    {
+                        case GXImageFormat.I4:
+                        case GXImageFormat.I8:
+                            if (info.PixelType.BitsPerPixel > 16)
+                            {
+                                Image<La16> imageRGBA = Image.Load<La16>(so.Stream);
+                                image = imageRGBA;
+                                FixIntensityTexturs(imageRGBA);
+                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel removed.");
+                                encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                            }
+                            break;
+                        case GXImageFormat.IA4:
+                        case GXImageFormat.IA8:
+                            encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                            if (info.PixelType.BitsPerPixel > 16)
+                            {
+                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel merged.");
+                            }
+                            break;
+                        case GXImageFormat.RGB565:
+                            encoder = new() { ColorType = PngColorType.Rgb };
+                            if (info.PixelType.BitsPerPixel > 24)
+                            {
+                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Alpha channel removed.");
+                            }
+                            break;
+                        case GXImageFormat.CMPR:
+                            Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
+                            image = imageCMPR;
+                            if (AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                            {
+                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Set alpha Threshold.");
+                            }
+                            break;
+                    }
 
-                image.Save(Path.Combine(savePath, dolphinHash.Build() + ".png"));
-                return;
+                    image ??= Image.Load(so.Stream);
+                    string imagePath = Path.Combine(savePath, dolphinHash.Build() + ".png");
+                    image.SaveAsPng(imagePath, encoder);
+                    return;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    image?.Dispose();
+                }
             }
 
             Save(so);
         }
 
-        private static void FixIntensityTexturs(Image<Rgba32> image)
+        private static void FixIntensityTexturs(Image<La16> image)
         {
-            I8 pixel = default;
             var mem = image.GetPixelMemoryGroup();
             for (int i = 0; i < mem.Count; i++)
             {
-                Span<Rgba32> pixeldata = mem[i].Span;
+                Span<La16> pixeldata = mem[i].Span;
                 for (int j = 0; j < pixeldata.Length; j++)
                 {
-                    pixel.PackedValue = pixeldata[j].A;
-                    pixel.ToRgba32(ref pixeldata[j]);
+                    pixeldata[j].L = pixeldata[j].A;
                 }
             }
         }
 
-        private static void FixIntensityAlphaTexturs(Image<Rgba32> image)
+        private static bool AlphaThreshold(Image<Rgba32> image, int low = 3, int high = 252)
         {
-            IA8 pixel = default;
-            var mem = image.GetPixelMemoryGroup();
-            for (int i = 0; i < mem.Count; i++)
-            {
-                Span<Rgba32> pixeldata = mem[i].Span;
-                for (int j = 0; j < pixeldata.Length; j++)
-                {
-                    pixel.FromRgba32(pixeldata[j]);
-                    pixel.ToRgba32(ref pixeldata[j]);
-                }
-            }
-        }
-
-
-        private static void AlphaThreshold(Image<Rgba32> image, int low = 3, int high = 252)
-        {
+            bool setAlpha = false;
             var mem = image.GetPixelMemoryGroup();
             for (int i = 0; i < mem.Count; i++)
             {
@@ -146,13 +180,16 @@ namespace DolphinTextureExtraction.Scan
                     if (pixeldata[j].A < low)
                     {
                         pixeldata[j].A = byte.MinValue;
+                        setAlpha = true;
                     }
-                    else if (pixeldata[j].A > high)
+                    else if (pixeldata[j].A > high && pixeldata[j].A != byte.MaxValue)
                     {
                         pixeldata[j].A = byte.MaxValue;
+                        setAlpha = true;
                     }
                 }
             }
+            return setAlpha;
         }
     }
 }

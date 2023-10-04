@@ -321,7 +321,7 @@ namespace DolphinTextureExtraction
                 Modes.Unpack => Unpack.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
                 Modes.Compress => Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), Options, LogDirectory),
                 Modes.Split => Cutter.StartScan(InputPath, OutputDirectory, Pattern, Options, LogDirectory),
-                Modes.Finalize => Scan.Finalize.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                Modes.Finalize => Scans.Finalize.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
                 _ => throw new NotImplementedException($"Mode type {Mode}."),
             };
 

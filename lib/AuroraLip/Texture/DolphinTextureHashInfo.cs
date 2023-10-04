@@ -192,5 +192,19 @@ namespace AuroraLib.Texture
                 return true;
             }
         }
+
+        public override int GetHashCode()
+        {
+            HashCode hash = new();
+            hash.Add(Width);
+            hash.Add(Height);
+            hash.Add(HasMips);
+            hash.Add(Hash);
+            hash.Add(Hash);
+            hash.Add(TlutHash);
+            hash.Add(Format);
+            hash.Add(Mipmap);
+            return hash.ToHashCode();
+        }
     }
 }

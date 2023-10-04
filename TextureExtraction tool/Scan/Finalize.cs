@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture;
-using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -9,13 +8,14 @@ using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System.Reflection.Emit;
-using System.Security.Principal;
+using SixLabors.ImageSharp.Processing.Processors.Quantization;
 
-namespace DolphinTextureExtraction.Scan
+namespace DolphinTextureExtraction.Scans
 {
     public class Finalize : ScanBase
     {
+
+        private new FinalizeResults Result => (FinalizeResults)base.Result;
 
         public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null)
             => StartScan_Async(meindirectory, savedirectory, options, logDirectory).Result;
@@ -27,22 +27,18 @@ namespace DolphinTextureExtraction.Scan
         }
 
         internal Finalize(in string scanDirectory, in string saveDirectory, ScanOptions options, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory)
-        { }
+            => base.Result = new FinalizeResults() { LogFullPath = base.Result.LogFullPath };
 
         protected override void Scan(ScanObjekt so)
         {
             //in case it's not a supported image format we just copy the file.
-            if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".Tiff", StringComparison.InvariantCultureIgnoreCase))
+            if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
             {
                 Save(so);
                 return;
             }
 
             ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
-
-            //create a new folder
-            string savePath = GetFullSaveDirectory(Path.GetDirectoryName(so.SubPath));
-            Directory.CreateDirectory(savePath);
 
             //if SplitTextureHashInfo?
             if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
@@ -85,15 +81,11 @@ namespace DolphinTextureExtraction.Scan
                     }
 
                     // Save the RG channel image.
-                    string hash = hashRG.Build();
-                    string imagePath = Path.Combine(savePath, hash + ".png");
-                    imageRG.SaveAsPng(imagePath, encoder);
-                    Log.Write(FileAction.Extract, hash, $"RGBA Split type:RG");
+                    using Stream fileRG = Save(image, so.SubPath, hashRG, encoder);
+                    Log.Write(FileAction.Extract, hashRG.ToString(), $"RGBA Split type:RG");
                     // Save the BA channel image.
-                    hash = hashBA.Build();
-                    imagePath = Path.Combine(savePath, hashBA.Build() + ".png");
-                    imageBA.SaveAsPng(imagePath, encoder);
-                    Log.Write(FileAction.Extract, hash, $"RGBA Split type:BA");
+                    using Stream fileBA = Save(image, so.SubPath, hashRG, encoder);
+                    Log.Write(FileAction.Extract, hashRG.ToString(), $"RGBA Split type:BA");
 
                 }
                 return;
@@ -109,42 +101,82 @@ namespace DolphinTextureExtraction.Scan
                 PngEncoder encoder = null;
                 try
                 {
-                    switch (dolphinHash.Format)
+                    //textures a not quantized?
+                    if (info.PixelType.BitsPerPixel > 8)
                     {
-                        case GXImageFormat.I4:
-                        case GXImageFormat.I8:
-                            if (info.PixelType.BitsPerPixel > 16)
-                            {
-                                Image<La16> imageRGBA = Image.Load<La16>(so.Stream);
-                                image = imageRGBA;
-                                FixIntensityTexturs(imageRGBA);
-                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel removed.");
+                        switch (dolphinHash.Format)
+                        {
+                            case GXImageFormat.I4:
+                            case GXImageFormat.I8:
+                                if (info.PixelType.BitsPerPixel > 16)
+                                {
+                                    Image<La16> imageI = Image.Load<La16>(so.Stream);
+                                    image = imageI;
+                                    FixIntensityTexturs(imageI);
+                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel removed.");
+                                    encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                                    Result.AddOptimization();
+                                }
+                                break;
+                            case GXImageFormat.IA4:
+                            case GXImageFormat.IA8:
                                 encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                            }
-                            break;
-                        case GXImageFormat.IA4:
-                        case GXImageFormat.IA8:
-                            encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                            if (info.PixelType.BitsPerPixel > 16)
-                            {
-                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel merged.");
-                            }
-                            break;
-                        case GXImageFormat.RGB565:
-                            encoder = new() { ColorType = PngColorType.Rgb };
-                            if (info.PixelType.BitsPerPixel > 24)
-                            {
-                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Alpha channel removed.");
-                            }
-                            break;
-                        case GXImageFormat.CMPR:
-                            Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
-                            image = imageCMPR;
-                            if (AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
-                            {
-                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Set alpha Threshold.");
-                            }
-                            break;
+                                if (info.PixelType.BitsPerPixel > 16)
+                                {
+                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel merged.");
+                                    Result.AddOptimization();
+                                }
+                                break;
+                            case GXImageFormat.RGB565:
+                                encoder = new() { ColorType = PngColorType.Rgb };
+                                if (info.PixelType.BitsPerPixel > 24)
+                                {
+                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Alpha channel removed.");
+                                    Result.AddOptimization();
+                                }
+                                break;
+                            case GXImageFormat.C4:
+                                IQuantizer quantizer = KnownQuantizers.Wu;
+                                quantizer.Options.Dither = KnownDitherings.Stucki;
+                                encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
+                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Quantized.");
+                                Result.AddOptimization();
+                                break;
+                            case GXImageFormat.CMPR:
+
+                                if (info.PixelType.BitsPerPixel > 24)
+                                {
+                                    Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
+                                    image = imageCMPR;
+
+                                    if (IsAlphaNeeded(imageCMPR, 160))
+                                    {
+                                        if (AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                        {
+                                            Log.WriteNotification(NotificationType.Info, $"\"{name}\" Set alpha Threshold.");
+                                            Result.AddOptimization();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        goto case GXImageFormat.RGB565;
+                                    }
+                                }
+                                break;
+                            default:
+                                if (info.PixelType.BitsPerPixel > 24)
+                                {
+                                    Image<Rgba32> imageRGBA = Image.Load<Rgba32>(so.Stream);
+                                    image = imageRGBA;
+
+                                    if (!IsAlphaNeeded(imageRGBA))
+                                    {
+                                        goto case GXImageFormat.RGB565;
+                                    }
+                                }
+                                break;
+                        }
+
                     }
 
                     image ??= Image.Load(so.Stream);
@@ -152,10 +184,11 @@ namespace DolphinTextureExtraction.Scan
                     if (FixImageResolutionIfNeeded(image, dolphinHash))
                     {
                         Log.WriteNotification(NotificationType.Info, $"\"{name}\" Resize {info.Size} => {image.Size}.");
+                        Result.AddOptimization();
                     }
 
-                    string imagePath = Path.Combine(savePath, dolphinHash.Build() + ".png");
-                    image.SaveAsPng(imagePath, encoder);
+                    using Stream file = Save(image, so.SubPath, dolphinHash, encoder);
+                    Result.AddSize(so.Stream.Length, file.Length);
                     return;
                 }
                 catch (Exception)
@@ -169,6 +202,38 @@ namespace DolphinTextureExtraction.Scan
             }
 
             Save(so);
+        }
+
+        private Stream Save(Image image, ReadOnlySpan<char> subSavePath, DolphinTextureHashInfo hash, PngEncoder encoder)
+        {
+            string saveDirectory, savePath;
+            bool isDuplicat = Result.AddHashIfNeeded(hash);
+            Stream file;
+
+            //In case of a DryRun we do not save the file.
+            if (Option.DryRun)
+            {
+                file = new MemoryPoolStream(512);
+            }
+            else
+            {
+
+                if (isDuplicat)
+                {
+                    saveDirectory = GetFullSaveDirectory(Path.Join("~Duplicates", Path.GetDirectoryName(subSavePath)));
+                }
+                else
+                {
+                    saveDirectory = GetFullSaveDirectory(Path.GetDirectoryName(subSavePath));
+                }
+                savePath = Path.Combine(saveDirectory, hash.Build() + ".png");
+                Directory.CreateDirectory(saveDirectory);
+                file = new FileStream(savePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None); ;
+            }
+
+            image.SaveAsPng(file, encoder);
+
+            return file;
         }
 
         public static bool FixImageResolutionIfNeeded(Image image, DolphinTextureHashInfo hash)
@@ -233,6 +298,23 @@ namespace DolphinTextureExtraction.Scan
                 }
             }
             return setAlpha;
+        }
+
+        private static bool IsAlphaNeeded(Image<Rgba32> image, int min = 252)
+        {
+            var mem = image.GetPixelMemoryGroup();
+            for (int i = 0; i < mem.Count; i++)
+            {
+                Span<Rgba32> pixeldata = mem[i].Span;
+                for (int j = 0; j < pixeldata.Length; j++)
+                {
+                    if (pixeldata[j].A < min)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

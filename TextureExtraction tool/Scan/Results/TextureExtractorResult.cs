@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans.Helper;
 using System.Text;
 
@@ -20,16 +21,16 @@ namespace DolphinTextureExtraction.Scans.Results
 
         private long UnsupportedSize = 0;
 
-        internal long SkippedSize = 0;
+        private long SkippedSize = 0;
 
         /// <summary>
         /// List of hash values of the extracted textures
         /// </summary>
-        public List<int> Hash = new();
+        private readonly List<int> Hash = new();
 
-        public List<FormatInfo> UnsupportedFormatType = new();
+        public readonly List<FormatInfo> UnsupportedFormatType = new();
 
-        public List<FormatInfo> UnknownFormatType = new();
+        public readonly List<FormatInfo> UnknownFormatType = new();
 
         public string GetExtractionSize() => MinExtractionRate + MinExtractionRate / 10 >= MaxExtractionRate ? $"{(MinExtractionRate + MaxExtractionRate) / 2}%" : $"{MinExtractionRate}% - {MaxExtractionRate}%";
 
@@ -77,6 +78,27 @@ namespace DolphinTextureExtraction.Scans.Results
                     SkippedSize += so.Stream.Length >> 6;
             }
             Unknown++;
+        }
+
+        internal bool AddHashIfNeeded(JUTTexture.TexEntry tex, ulong TlutHash)
+        {
+            int hashCode = tex.Hash.GetHashCode();
+
+            //Dolphins only recognizes files with the correct mip flag
+            hashCode -= tex.MaxLOD == 0 && tex.Count == 1 ? 0 : 1;
+
+            //If it is a palleted format add TlutHash
+            if (tex.Format.IsPaletteFormat() && TlutHash != 0)
+                hashCode = hashCode * -1521134295 + TlutHash.GetHashCode();
+
+            lock (Hash)
+            {
+                //Skip duplicate textures
+                if (Hash.Contains(hashCode))
+                    return true;
+                Hash.Add(hashCode);
+            }
+            return false;
         }
     }
 }

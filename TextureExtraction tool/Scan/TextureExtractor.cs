@@ -149,7 +149,7 @@ namespace DolphinTextureExtraction.Scans
                     ulong tlutHash = tex.GetTlutHash(tlut);
 
                     // If we already have the texture we skip it
-                    if (TestTextureHashCode(tex, tlutHash))
+                    if (Result.AddHashIfNeeded(tex, tlutHash))
                         continue;
 
                     // Don't extract anything if performing a dry run
@@ -191,7 +191,7 @@ namespace DolphinTextureExtraction.Scans
                                 if (rgbaCombined)
                                 {
                                     tlutHash2 = tex.GetTlutHash(tlut);
-                                    TestTextureHashCode(tex, tlutHash2);
+                                    Result.AddHashIfNeeded(tex, tlutHash2);
                                 }
 
                                 //Create the path and save the texture.
@@ -226,33 +226,6 @@ namespace DolphinTextureExtraction.Scans
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Checks if a texture with a given hash code has already been added to the hash pool list and adds it if not.
-        /// </summary>
-        /// <param name="tex">The texture to be tested.</param>
-        /// <param name="TlutHash">The TLUT hash value to consider for palette formats.</param>
-        /// <returns> <c>true</c> if the texture should be skipped as a duplicate; otherwise, <c>false</c>.</returns>
-        private bool TestTextureHashCode(JUTTexture.TexEntry tex, ulong TlutHash)
-        {
-            int hashCode = tex.Hash.GetHashCode();
-
-            //Dolphins only recognizes files with the correct mip flag
-            hashCode -= tex.MaxLOD == 0 && tex.Count == 1 ? 0 : 1;
-
-            //If it is a palleted format add TlutHash
-            if (tex.Format.IsPaletteFormat() && TlutHash != 0)
-                hashCode = hashCode * -1521134295 + TlutHash.GetHashCode();
-
-            lock (Result.Hash)
-            {
-                //Skip duplicate textures
-                if (Result.Hash.Contains(hashCode))
-                    return true;
-                Result.Hash.Add(hashCode);
-            }
-            return false;
         }
 
         /// <summary>

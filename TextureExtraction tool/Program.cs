@@ -857,6 +857,10 @@ namespace DolphinTextureExtraction
                     {
                         Console.Title = $"{Title} | {ProgressPercentage:00.00}% | Textures: {exResult.Extracted}";
                     }
+                    else if (result is FinalizeResults feResult)
+                    {
+                        Console.Title = $"{Title} | {ProgressPercentage:00.00}% | Optimizations: {feResult.Optimizations}";
+                    }
                     else
                     {
                         Console.Title = $"{Title} | {ProgressPercentage:00.00}%";

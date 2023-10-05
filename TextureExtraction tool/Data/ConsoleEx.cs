@@ -82,10 +82,17 @@
         /// <param name="BackColour">ConsoleColor to use for the background of the text</param>
         public static void WriteColoured(string message, ConsoleColor ForeColour = ConsoleColor.White, ConsoleColor BackColour = ConsoleColor.Black)
         {
-            Console.BackgroundColor = BackColour;
-            Console.ForegroundColor = ForeColour;
-            Console.Write(message);
-            Console.ResetColor();
+            try
+            {
+                Console.BackgroundColor = BackColour;
+                Console.ForegroundColor = ForeColour;
+                Console.Write(message);
+                Console.ResetColor();
+            }
+            catch (Exception)
+            {
+                Console.Write(message);
+            }
         }
 
         /// <summary>
@@ -96,10 +103,17 @@
         /// <param name="BackColour">ConsoleColor to use for the background of the text</param>
         public static void WriteLineColoured(string message, ConsoleColor ForeColour = ConsoleColor.White, ConsoleColor BackColour = ConsoleColor.Black)
         {
-            Console.BackgroundColor = BackColour;
-            Console.ForegroundColor = ForeColour;
-            Console.WriteLine(message);
-            Console.ResetColor();
+            try
+            {
+                Console.BackgroundColor = BackColour;
+                Console.ForegroundColor = ForeColour;
+                Console.WriteLine(message);
+                Console.ResetColor();
+            }
+            catch (Exception)
+            {
+                Console.WriteLine(message);
+            }
         }
 
     }

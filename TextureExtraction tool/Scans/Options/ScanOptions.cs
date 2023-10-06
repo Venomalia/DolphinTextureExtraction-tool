@@ -1,7 +1,5 @@
-﻿using System.Collections.Specialized;
-using System.Configuration;
+﻿using DolphinTextureExtraction.Scans.Results;
 using System.Text;
-using DolphinTextureExtraction.Scans.Results;
 
 namespace DolphinTextureExtraction.Scans.Options
 {
@@ -39,6 +37,13 @@ namespace DolphinTextureExtraction.Scans.Options
         public Action<ScanResults> ProgressAction;
 
         private double LastProgressLength = 0;
+
+        /// <summary>
+        /// is executed when a texture is extracted
+        /// </summary>
+        public ListPrintDelegate ListPrintAction;
+
+        public delegate void ListPrintDelegate(ScanResults result, string type, string filePath, string info = "");
 
         internal void ProgressUpdate(ScanResults result)
         {

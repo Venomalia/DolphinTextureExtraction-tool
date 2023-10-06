@@ -31,13 +31,6 @@ namespace DolphinTextureExtraction.Scans.Options
         /// </summary>
         public bool CombinedRGBA = AppSettings.CombinedRGBA;
 
-        /// <summary>
-        /// is executed when a texture is extracted
-        /// </summary>
-        public TextureActionDelegate TextureAction;
-
-        public delegate void TextureActionDelegate(JUTTexture.TexEntry texture, ScanResults results, in string subdirectory, in string fileName);
-
         public override string ToString()
         {
             StringBuilder sb = new();

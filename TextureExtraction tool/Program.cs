@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
-using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -306,7 +305,7 @@ namespace DolphinTextureExtraction
         private static void StartScanMode()
         {
 
-            bool isSilent = Options.TextureAction != null;
+            bool isSilent = Options.ListPrintAction != null;
 
             if (!isSilent)
             {
@@ -687,18 +686,18 @@ namespace DolphinTextureExtraction
 
                                 case "none":
                                 case "n":
-                                    Options.ProgressAction = ProgressTitleUpdate;
-                                    Options.TextureAction = null;
+                                    Options.ProgressAction = null;
+                                    Options.ListPrintAction = null;
                                     break;
                                 case "bar":
                                 case "b":
                                     Options.ProgressAction = ProgressUpdate;
-                                    Options.TextureAction = null;
+                                    Options.ListPrintAction = null;
                                     break;
                                 case "list":
                                 case "l":
                                     Options.ProgressAction = null;
-                                    Options.TextureAction = TextureUpdate;
+                                    Options.ListPrintAction = ListUpdate;
                                     break;
                                 default:
                                     ExitWrongSyntax(arg2.ToString());
@@ -873,23 +872,19 @@ namespace DolphinTextureExtraction
             { }
         }
 
-        //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v50-1
-        static void TextureUpdate(JUTTexture.TexEntry texture, ScanResults result, in string subdirectory, in string fileName)
+        //change only with caution! this function is required by the Custom Texture Tool https://forums.dolphin-emu.org/Thread-custom-texture-tool-ps-v51-0
+        static void ListUpdate(ScanResults result, string type, string filePath, string info = "")
         {
             double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-            StringBuilder sb = new();
+            StringBuilder sb = new(16 + type.Length + filePath.Length + info.Length);
             sb.Append("Prog:");
             sb.Append(Math.Round(ProgressPercentage, 2));
-            sb.Append("% Extract:");
-            sb.Append(Path.Combine(subdirectory, fileName));
-            sb.Append(".png mips:");
-            sb.Append(texture.Count - 1);
-            sb.Append(" LODBias:");
-            sb.Append(texture.LODBias);
-            sb.Append(" MinLOD:");
-            sb.Append(texture.MinLOD);
-            sb.Append(" MaxLOD:");
-            sb.Append(texture.MinLOD);
+            sb.Append("% ");
+            sb.Append(type);
+            sb.Append(':');
+            sb.Append(filePath);
+            sb.Append(' ');
+            sb.Append(info);
             sb.AppendLine();
             lock (result)
             {

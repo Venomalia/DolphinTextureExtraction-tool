@@ -7,6 +7,7 @@ using DolphinTextureExtraction.Scans.Results;
 using Hack.io;
 using SixLabors.ImageSharp;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace DolphinTextureExtraction.Scans
 {
@@ -145,7 +146,7 @@ namespace DolphinTextureExtraction.Scans
                 int tluts = tex.Palettes.Count == 0 ? 1 : tex.Palettes.Count;
                 for (int tlut = 0; tlut < tluts; tlut++)
                 {
-                    string mainTextureHash = string.Empty;
+                    string mainTextureName = string.Empty;
                     ulong tlutHash = tex.GetTlutHash(tlut);
 
                     // If we already have the texture we skip it
@@ -195,13 +196,13 @@ namespace DolphinTextureExtraction.Scans
                                 }
 
                                 //Create the path and save the texture.
-                                string textureHash = tex.GetDolphinTextureHash(i, tlutHash, Option.DolphinMipDetection, IsArbitraryMipmap == true, tlutHash2);
-                                string path = Path.Combine(SaveDirectory, textureHash) + ".png";
+                                string textureName = tex.GetDolphinTextureHash(i, tlutHash, Option.DolphinMipDetection, IsArbitraryMipmap == true, tlutHash2) + ".png";
+                                string path = Path.Combine(SaveDirectory, textureName);
                                 image[i].SaveAsPng(path);
 
                                 //We save the main level texture path for later
                                 if (i == 0)
-                                    mainTextureHash = textureHash;
+                                    mainTextureName = textureName;
 
                                 //skip mips?
                                 if (IsArbitraryMipmap == false && !Option.Mips) break;
@@ -220,12 +221,36 @@ namespace DolphinTextureExtraction.Scans
                             }
                         }
 
-                        string subdirectory = so.SubPath.ToString();
-                        Log.Write(FileAction.Extract, Path.Combine(subdirectory, mainTextureHash), $"mips:{tex.Count - 1} WrapS:{tex.WrapS} WrapT:{tex.WrapT} LODBias:{tex.LODBias} MinLOD:{tex.MinLOD} MaxLOD:{tex.MaxLOD} {(tex.Count > 1 ? $"ArbMipValue:{ArbitraryMipmapValue:0.000}" : string.Empty)}");
-                        Option.TextureAction?.Invoke(tex, Result, subdirectory, mainTextureHash);
+                        string subFilePath = Path.Join(so.SubPath, mainTextureName);
+                        string texInfo = BuildTextureInfos(tex, ArbitraryMipmapValue);
+
+                        Log.Write(FileAction.Extract, subFilePath, texInfo);
+                        Option.ListPrintAction?.Invoke(Result, "Extract", subFilePath, texInfo);
                     }
                 }
             }
+        }
+
+        private static string BuildTextureInfos(JUTTexture.TexEntry tex, float ArbitraryMipmapValue = 0f)
+        {
+            StringBuilder sb = new();
+            sb.Append("Mips:");
+            sb.Append(tex.Count - 1);
+            sb.Append(" WrapS:");
+            sb.Append(tex.WrapS);
+            sb.Append(" WrapT:");
+            sb.Append(tex.WrapT);
+            sb.Append(" LODBias:");
+            sb.Append(tex.LODBias);
+            sb.Append(" MinLOD:");
+            sb.Append(tex.MinLOD);
+            sb.Append(" MaxLOD:");
+            sb.Append(tex.MinLOD);
+            if (tex.Count > 1 && ArbitraryMipmapValue > 0f)
+            {
+                sb.Append($"ArbMipValue:{ArbitraryMipmapValue:0.000}");
+            }
+            return sb.ToString();
         }
 
         /// <summary>

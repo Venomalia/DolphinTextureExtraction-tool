@@ -57,7 +57,7 @@ namespace DolphinTextureExtraction.Scans
 
                 if (FixImageResolutionIfNeeded(image, hashRG))
                 {
-                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Resize {new Size(width, height)} => {image.Size}.");
+                    LogOptimization(so.GetFullSubPath(), $"Resize {new Size(width, height)} => {image.Size}.");
                     width = image.Width;
                     height = image.Height;
                 }
@@ -82,10 +82,10 @@ namespace DolphinTextureExtraction.Scans
 
                     // Save the RG channel image.
                     using Stream fileRG = Save(image, so.SubPath, hashRG, encoder);
-                    Log.Write(FileAction.Extract, hashRG.ToString(), $"RGBA Split type:RG");
+                    LogSplit(so.SubPath, hashRG, "RGBA Split type:RG");
                     // Save the BA channel image.
                     using Stream fileBA = Save(image, so.SubPath, hashRG, encoder);
-                    Log.Write(FileAction.Extract, hashRG.ToString(), $"RGBA Split type:BA");
+                    LogSplit(so.SubPath, hashRG, "RGBA Split type:BA");
 
                 }
                 return;
@@ -113,9 +113,8 @@ namespace DolphinTextureExtraction.Scans
                                     Image<La16> imageI = Image.Load<La16>(so.Stream);
                                     image = imageI;
                                     FixIntensityTexturs(imageI);
-                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel removed.");
                                     encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                    Result.AddOptimization();
+                                    LogOptimization(so.GetFullSubPath(), $"RGB channel removed.");
                                 }
                                 break;
                             case GXImageFormat.IA4:
@@ -123,24 +122,21 @@ namespace DolphinTextureExtraction.Scans
                                 encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
                                 if (info.PixelType.BitsPerPixel > 16)
                                 {
-                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" RGB channel merged.");
-                                    Result.AddOptimization();
+                                    LogOptimization(so.GetFullSubPath(), $"RGB channel merged.");
                                 }
                                 break;
                             case GXImageFormat.RGB565:
                                 encoder = new() { ColorType = PngColorType.Rgb };
                                 if (info.PixelType.BitsPerPixel > 24)
                                 {
-                                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Alpha channel removed.");
-                                    Result.AddOptimization();
+                                    LogOptimization(so.GetFullSubPath(), $"Alpha channel removed.");
                                 }
                                 break;
                             case GXImageFormat.C4:
                                 IQuantizer quantizer = KnownQuantizers.Wu;
                                 quantizer.Options.Dither = KnownDitherings.Stucki;
                                 encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
-                                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Quantized.");
-                                Result.AddOptimization();
+                                LogOptimization(so.GetFullSubPath(), $"Quantized.");
                                 break;
                             case GXImageFormat.CMPR:
 
@@ -153,8 +149,7 @@ namespace DolphinTextureExtraction.Scans
                                     {
                                         if (AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
                                         {
-                                            Log.WriteNotification(NotificationType.Info, $"\"{name}\" Set alpha Threshold.");
-                                            Result.AddOptimization();
+                                            LogOptimization(so.GetFullSubPath(), $"Set alpha Threshold.");
                                         }
                                     }
                                     else
@@ -183,8 +178,7 @@ namespace DolphinTextureExtraction.Scans
 
                     if (FixImageResolutionIfNeeded(image, dolphinHash))
                     {
-                        Log.WriteNotification(NotificationType.Info, $"\"{name}\" Resize {info.Size} => {image.Size}.");
-                        Result.AddOptimization();
+                        LogOptimization(so.GetFullSubPath(), $"Resize {info.Size} => {image.Size}.");
                     }
 
                     using Stream file = Save(image, so.SubPath, dolphinHash, encoder);
@@ -204,6 +198,20 @@ namespace DolphinTextureExtraction.Scans
             Save(so);
         }
 
+        private void LogOptimization(string filePath, string info)
+        {
+            Log.WriteNotification(NotificationType.Info, $"\"{filePath}\" {info}");
+            Option.ListPrintAction?.Invoke(Result, "Optimizedt", filePath, info);
+            Result.AddOptimization();
+        }
+
+        private void LogSplit(ReadOnlySpan<char> subSavePath, DolphinTextureHashInfo hash, string info)
+        {
+            string savePath = Path.Join(Path.GetDirectoryName(subSavePath), hash.Build() + ".png");
+            Log.WriteNotification(NotificationType.Info, $"\"{savePath}\" {info}");
+            Option.ListPrintAction?.Invoke(Result, "Split", savePath, info);
+        }
+
         private Stream Save(Image image, ReadOnlySpan<char> subSavePath, DolphinTextureHashInfo hash, PngEncoder encoder)
         {
             string saveDirectory, savePath;
@@ -220,7 +228,11 @@ namespace DolphinTextureExtraction.Scans
 
                 if (isDuplicat)
                 {
-                    saveDirectory = GetFullSaveDirectory(Path.Join("~Duplicates", Path.GetDirectoryName(subSavePath)));
+                    string subDupPath = Path.Join("~Duplicates", Path.GetDirectoryName(subSavePath));
+                    saveDirectory = GetFullSaveDirectory(subDupPath);
+                    subDupPath = Path.Combine(subDupPath, hash.Build() + ".png");
+                    Log.WriteNotification(NotificationType.Info, $"\"{subDupPath}\" duplicate found.");
+                    Option.ListPrintAction?.Invoke(Result, "Duplicate", subDupPath, "duplicate found.");
                 }
                 else
                 {

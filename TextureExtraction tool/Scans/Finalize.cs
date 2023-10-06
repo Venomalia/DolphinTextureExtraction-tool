@@ -201,7 +201,7 @@ namespace DolphinTextureExtraction.Scans
         private void LogOptimization(string filePath, string info)
         {
             Log.WriteNotification(NotificationType.Info, $"\"{filePath}\" {info}");
-            Option.ListPrintAction?.Invoke(Result, "Optimizedt", filePath, info);
+            Option.ListPrintAction?.Invoke(Result, "Optimized", filePath, info);
             Result.AddOptimization();
         }
 

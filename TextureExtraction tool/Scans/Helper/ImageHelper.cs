@@ -8,6 +8,30 @@ namespace DolphinTextureExtraction.Scans.Helper
 {
     internal static class ImageHelper
     {
+        public static bool IsGrayscale(Image<Rgba32> image, int threshold = 8, int noise = 100)
+        {
+            var mem = image.GetPixelMemoryGroup();
+            for (int i = 0; i < mem.Count; i++)
+            {
+                Span<Rgba32> pixeldata = mem[i].Span;
+
+                for (int j = 0; j < pixeldata.Length; j++)
+                {
+                    Rgba32 pixel = pixeldata[j];
+                    int minChannel = Math.Min(Math.Min(pixel.R, pixel.G), pixel.B);
+                    int maxChannel = Math.Max(Math.Max(pixel.R, pixel.G), pixel.B);
+                    if (maxChannel - minChannel > threshold)
+                    {
+                        noise -= (maxChannel - minChannel - threshold);
+                        if (noise < 0)
+                            return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public static bool FixImageResolutionIfNeeded(Image image, Size hSize)
         {
             int dividend = image.Width % hSize.Width;

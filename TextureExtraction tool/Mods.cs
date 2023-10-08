@@ -9,6 +9,7 @@
         Split,
         Formats,
         Finalize,
+        CombineRGBA,
     }
 
     internal static class ModesEX
@@ -22,6 +23,7 @@
             Modes.Split => "Splits files by identifier.",
             Modes.Formats => "Displays known formats.",
             Modes.Finalize => "Separates combined RGBA textures & optimizes textures for dolphin.",
+            Modes.CombineRGBA => "Search for RGBA texture pairs and combine them.",
             _ => throw new NotImplementedException(),
         };
 
@@ -34,6 +36,7 @@
             Modes.Split => "s",
             Modes.Formats => "f",
             Modes.Finalize => "z",
+            Modes.CombineRGBA => "rgba",
             _ => throw new NotImplementedException(),
         };
 
@@ -46,6 +49,7 @@
             Modes.Split => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
             Modes.Formats => Array.Empty<Options>(),
             Modes.Finalize => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
+            Modes.CombineRGBA => new[] { Options.Tasks, Options.Dryrun, Options.Progress, Options.Log },
             _ => throw new NotImplementedException(),
         };
 
@@ -57,7 +61,8 @@
             Modes.Compress => $"{Modes.Compress} \"Input\" \"Output\" Algorithm",
             Modes.Split => $"{Modes.Split} \"Input\" \"Output\" Patterns",
             Modes.Formats => string.Empty,
-            Modes.Finalize => $"{Modes.Finalize} \"Input\" \"Output\"",
+            Modes.Finalize => $"{Modes.Finalize} \"Input\" \"Output\" options",
+            Modes.CombineRGBA => $"{Modes.Finalize} \"Input\" \"Output\" options",
             _ => throw new NotImplementedException(),
         };
 

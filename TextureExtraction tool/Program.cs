@@ -96,6 +96,7 @@ namespace DolphinTextureExtraction
                         case Modes.Unpack:
                         case Modes.Extract:
                         case Modes.Finalize:
+                        case Modes.CombineRGBA:
                             #region Extract
 
                             #region User Set Input Path
@@ -243,6 +244,7 @@ namespace DolphinTextureExtraction
                         case Modes.Extract:
                         case Modes.Unpack:
                         case Modes.Finalize:
+                        case Modes.CombineRGBA:
                             #region extract
                             p = GetPahts(args);
                             if (p <= 0)
@@ -321,6 +323,7 @@ namespace DolphinTextureExtraction
                 Modes.Compress => Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), Options, LogDirectory),
                 Modes.Split => Cutter.StartScan(InputPath, OutputDirectory, Pattern, Options, LogDirectory),
                 Modes.Finalize => Scans.Finalize.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                Modes.CombineRGBA => CombineRGBA.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
                 _ => throw new NotImplementedException($"Mode type {Mode}."),
             };
 

@@ -4,11 +4,11 @@ using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
+using System.Security.Policy;
 
 namespace DolphinTextureExtraction.Scans
 {
@@ -50,12 +50,12 @@ namespace DolphinTextureExtraction.Scans
 
                 //load the RGBA image
                 using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
-                AlphaThreshold(image, 2, 253);
+                ImageHelper.AlphaThreshold(image, 2, 253);
                 int width = image.Width;
                 int height = image.Height;
                 PngEncoder encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
 
-                if (FixImageResolutionIfNeeded(image, hashRG))
+                if (ImageHelper.FixImageResolutionIfNeeded(image, hashRG.GetImageSize()))
                 {
                     LogOptimization(so.GetFullSubPath(), $"Resize {new Size(width, height)} => {image.Size}.");
                     width = image.Width;
@@ -112,7 +112,7 @@ namespace DolphinTextureExtraction.Scans
                                 {
                                     Image<La16> imageI = Image.Load<La16>(so.Stream);
                                     image = imageI;
-                                    FixIntensityTexturs(imageI);
+                                    ImageHelper.FixIntensityTexturs(imageI);
                                     encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
                                     LogOptimization(so.GetFullSubPath(), $"RGB channel removed.");
                                 }
@@ -145,9 +145,9 @@ namespace DolphinTextureExtraction.Scans
                                     Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
                                     image = imageCMPR;
 
-                                    if (IsAlphaNeeded(imageCMPR, 160))
+                                    if (ImageHelper.IsAlphaNeeded(imageCMPR, 160))
                                     {
-                                        if (AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                        if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
                                         {
                                             LogOptimization(so.GetFullSubPath(), $"Set alpha Threshold.");
                                         }
@@ -164,7 +164,7 @@ namespace DolphinTextureExtraction.Scans
                                     Image<Rgba32> imageRGBA = Image.Load<Rgba32>(so.Stream);
                                     image = imageRGBA;
 
-                                    if (!IsAlphaNeeded(imageRGBA))
+                                    if (!ImageHelper.IsAlphaNeeded(imageRGBA))
                                     {
                                         goto case GXImageFormat.RGB565;
                                     }
@@ -176,7 +176,7 @@ namespace DolphinTextureExtraction.Scans
 
                     image ??= Image.Load(so.Stream);
 
-                    if (FixImageResolutionIfNeeded(image, dolphinHash))
+                    if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
                     {
                         LogOptimization(so.GetFullSubPath(), $"Resize {info.Size} => {image.Size}.");
                     }
@@ -246,87 +246,6 @@ namespace DolphinTextureExtraction.Scans
             image.SaveAsPng(file, encoder);
 
             return file;
-        }
-
-        public static bool FixImageResolutionIfNeeded(Image image, DolphinTextureHashInfo hash)
-        {
-            Size hSize = hash.GetImageSize();
-
-            int dividend = image.Width % hSize.Width;
-            if (dividend != 0 || image.Height % hSize.Height != 0)
-            {
-                int width = image.Width;
-                if (dividend > hSize.Width / 2)
-                {
-                    width += hSize.Width - dividend;
-                }
-                else
-                {
-                    width -= dividend;
-                }
-                width = Math.Max(width, hSize.Width);
-                int height = hSize.Height * (width / hSize.Width);
-
-                ResizeOptions options = new() { Size = new(width, height), Mode = ResizeMode.Stretch, Sampler = KnownResamplers.Lanczos3 };
-                image.Mutate(x => x.Resize(options));
-
-                return true;
-            }
-            return false;
-        }
-
-        private static void FixIntensityTexturs(Image<La16> image)
-        {
-            var mem = image.GetPixelMemoryGroup();
-            for (int i = 0; i < mem.Count; i++)
-            {
-                Span<La16> pixeldata = mem[i].Span;
-                for (int j = 0; j < pixeldata.Length; j++)
-                {
-                    pixeldata[j].L = pixeldata[j].A;
-                }
-            }
-        }
-
-        private static bool AlphaThreshold(Image<Rgba32> image, int low = 3, int high = 252)
-        {
-            bool setAlpha = false;
-            var mem = image.GetPixelMemoryGroup();
-            for (int i = 0; i < mem.Count; i++)
-            {
-                Span<Rgba32> pixeldata = mem[i].Span;
-                for (int j = 0; j < pixeldata.Length; j++)
-                {
-                    if (pixeldata[j].A < low)
-                    {
-                        pixeldata[j].A = byte.MinValue;
-                        setAlpha = true;
-                    }
-                    else if (pixeldata[j].A > high && pixeldata[j].A != byte.MaxValue)
-                    {
-                        pixeldata[j].A = byte.MaxValue;
-                        setAlpha = true;
-                    }
-                }
-            }
-            return setAlpha;
-        }
-
-        private static bool IsAlphaNeeded(Image<Rgba32> image, int min = 252)
-        {
-            var mem = image.GetPixelMemoryGroup();
-            for (int i = 0; i < mem.Count; i++)
-            {
-                Span<Rgba32> pixeldata = mem[i].Span;
-                for (int j = 0; j < pixeldata.Length; j++)
-                {
-                    if (pixeldata[j].A < min)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
     }
 }

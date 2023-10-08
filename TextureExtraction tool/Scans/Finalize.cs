@@ -81,11 +81,11 @@ namespace DolphinTextureExtraction.Scans
                     }
 
                     // Save the RG channel image.
-                    using Stream fileRG = Save(image, so.SubPath, hashRG, encoder);
+                    using Stream fileRG = Save(imageRG, so.SubPath, hashRG, encoder);
                     LogSplit(so.SubPath, hashRG, "RGBA Split type:RG");
                     // Save the BA channel image.
-                    using Stream fileBA = Save(image, so.SubPath, hashRG, encoder);
-                    LogSplit(so.SubPath, hashRG, "RGBA Split type:BA");
+                    using Stream fileBA = Save(imageBA, so.SubPath, hashBA, encoder);
+                    LogSplit(so.SubPath, hashBA, "RGBA Split type:BA");
 
                 }
                 return;

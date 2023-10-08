@@ -164,6 +164,10 @@ namespace DolphinTextureExtraction.Scans
                                     Image<Rgba32> imageRGBA = Image.Load<Rgba32>(so.Stream);
                                     image = imageRGBA;
 
+                                    if (ImageHelper.IsGrayscale(imageRGBA))
+                                    {
+                                        goto case GXImageFormat.IA8;
+                                    }
                                     if (!ImageHelper.IsAlphaNeeded(imageRGBA))
                                     {
                                         goto case GXImageFormat.RGB565;

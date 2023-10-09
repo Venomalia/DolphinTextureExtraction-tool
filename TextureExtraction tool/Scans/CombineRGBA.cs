@@ -62,27 +62,24 @@ namespace DolphinTextureExtraction.Scans
                         int trend = AnalyzeImagePairs(image, image2);
 
                         SplitTextureHashInfo hashRGBA;
-                        Image<Rgba32> imageRGBA = null;
-                        try
-                        {
-                            if (trend < 0)
-                            {
-                                hashRGBA = new(dolphinHash2, dolphinHash);
-                                imageRGBA = CombineImagePairs(image2, image);
-                            }
-                            else
-                            {
-                                hashRGBA = new(dolphinHash, dolphinHash2);
-                                imageRGBA = CombineImagePairs(image, image2);
-                            }
-                            Save(imageRGBA, so.SubPath, hashRGBA, trend);
+                        ReadOnlySpan<char> subPath = so.SubPath;
 
-                        }
-                        finally
+                        if (trend < 100)
                         {
-                            imageRGBA?.Dispose();
+                            if (trend > 0)
+                                subPath = Path.Join("~Altanatives", subPath);
+                            hashRGBA = new(dolphinHash2, dolphinHash);
+                            using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image);
+                            Save(imageRGBA, subPath, hashRGBA, trend);
                         }
-
+                        if (trend > -100)
+                        {
+                            if (trend <= 0)
+                                subPath = Path.Join("~Altanatives", subPath);
+                            hashRGBA = new(dolphinHash, dolphinHash2);
+                            using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2);
+                            Save(imageRGBA, subPath, hashRGBA, trend);
+                        }
                     }
                 }
             }

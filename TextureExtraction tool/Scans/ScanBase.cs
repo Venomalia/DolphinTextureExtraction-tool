@@ -200,9 +200,16 @@ namespace DolphinTextureExtraction.Scans
         protected void Save(Stream stream, in string destFileName)
         {
             // Don't save anything if performing a dry run
-            if (Option.DryRun) return;
-
-            if (File.Exists(destFileName)) return;
+            if (Option.DryRun)
+                return;
+            // Skip files that are present
+            if (File.Exists(destFileName))
+                return;
+            // skip files that are blacklisted.
+            ReadOnlySpan<char> fileName = Path.GetFileName(destFileName.AsSpan());
+            for (int i = 0; i < blacklist.Length; i++)
+                if (fileName.SequenceEqual(blacklist[i]))
+                    return;
 
             string DirectoryName = Path.GetDirectoryName(destFileName);
             //We can't create a folder if a file with the same name exists.
@@ -217,6 +224,7 @@ namespace DolphinTextureExtraction.Scans
             }
             stream.Seek(0, SeekOrigin.Begin);
         }
+        private static readonly string[] blacklist = new[] { "desktop.ini", "Thumbs.db", ".DS_Store" };
 
         protected void Save(Stream stream, ReadOnlySpan<char> subdirectory, FormatInfo FFormat)
             => Save(stream, Path.ChangeExtension(GetFullSaveDirectory(subdirectory), FFormat.Extension));

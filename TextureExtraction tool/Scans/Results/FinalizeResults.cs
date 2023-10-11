@@ -50,19 +50,17 @@ namespace DolphinTextureExtraction.Scans.Results
             }
         }
 
-        internal bool AddHashIfNeeded(DolphinTextureHashInfo hash)
+        internal bool AddHashIfNeeded(int hash)
         {
-            int hashCode = hash.GetHashCode();
-
             lock (Hash)
             {
                 //Skip duplicate textures
-                if (Hash.Contains(hashCode))
+                if (Hash.Contains(hash))
                 {
                     Duplicates++;
                     return true;
                 }
-                Hash.Add(hashCode);
+                Hash.Add(hash);
             }
             return false;
         }

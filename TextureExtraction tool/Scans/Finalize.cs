@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Extensions;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
@@ -8,7 +9,6 @@ using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Quantization;
-using System.Security.Policy;
 
 namespace DolphinTextureExtraction.Scans
 {
@@ -81,11 +81,15 @@ namespace DolphinTextureExtraction.Scans
                     }
 
                     // Save the RG channel image.
-                    using Stream fileRG = Save(imageRG, so.SubPath, hashRG, encoder);
-                    LogSplit(so.SubPath, hashRG, "RGBA Split type:RG");
+                    string subPathRG = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                    LogDuplicatIfNeeded(ref subPathRG);
+                    using Stream fileRG = Save(imageRG, subPathRG, encoder);
+                    LogSplit(subPathRG, "RGBA Split type:RG");
                     // Save the BA channel image.
-                    using Stream fileBA = Save(imageBA, so.SubPath, hashBA, encoder);
-                    LogSplit(so.SubPath, hashBA, "RGBA Split type:BA");
+                    string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                    LogDuplicatIfNeeded(ref subPathBA);
+                    using Stream fileBA = Save(imageBA, subPathBA, encoder);
+                    LogSplit(subPathBA, "RGBA Split type:BA");
 
                 }
                 return;
@@ -99,6 +103,8 @@ namespace DolphinTextureExtraction.Scans
                 so.Stream.Position = 0;
                 Image image = null;
                 PngEncoder encoder = null;
+                string subPath = so.GetFullSubPath();
+                LogDuplicatIfNeeded(ref subPath);
                 try
                 {
                     //textures a not quantized?
@@ -114,7 +120,7 @@ namespace DolphinTextureExtraction.Scans
                                     image = imageI;
                                     ImageHelper.FixIntensityTexturs(imageI);
                                     encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                    LogOptimization(so.GetFullSubPath(), $"RGB channel removed.");
+                                    LogOptimization(subPath, $"RGB channel removed.");
                                 }
                                 break;
                             case GXImageFormat.IA4:
@@ -122,21 +128,21 @@ namespace DolphinTextureExtraction.Scans
                                 encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
                                 if (info.PixelType.BitsPerPixel > 16)
                                 {
-                                    LogOptimization(so.GetFullSubPath(), $"RGB channel merged.");
+                                    LogOptimization(subPath, $"RGB channel merged.");
                                 }
                                 break;
                             case GXImageFormat.RGB565:
                                 encoder = new() { ColorType = PngColorType.Rgb };
                                 if (info.PixelType.BitsPerPixel > 24)
                                 {
-                                    LogOptimization(so.GetFullSubPath(), $"Alpha channel removed.");
+                                    LogOptimization(subPath, $"Alpha channel removed.");
                                 }
                                 break;
                             case GXImageFormat.C4:
                                 IQuantizer quantizer = KnownQuantizers.Wu;
                                 quantizer.Options.Dither = KnownDitherings.Stucki;
                                 encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
-                                LogOptimization(so.GetFullSubPath(), $"Quantized.");
+                                LogOptimization(subPath, $"Quantized.");
                                 break;
                             case GXImageFormat.CMPR:
 
@@ -149,7 +155,7 @@ namespace DolphinTextureExtraction.Scans
                                     {
                                         if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
                                         {
-                                            LogOptimization(so.GetFullSubPath(), $"Set alpha Threshold.");
+                                            LogOptimization(subPath, $"Set alpha Threshold.");
                                         }
                                     }
                                     else
@@ -182,10 +188,10 @@ namespace DolphinTextureExtraction.Scans
 
                     if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
                     {
-                        LogOptimization(so.GetFullSubPath(), $"Resize {info.Size} => {image.Size}.");
+                        LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
                     }
 
-                    using Stream file = Save(image, so.SubPath, dolphinHash, encoder);
+                    using Stream file = Save(image, subPath, encoder);
                     Result.AddSize(so.Stream.Length, file.Length);
                     return;
                 }
@@ -209,17 +215,29 @@ namespace DolphinTextureExtraction.Scans
             Result.AddOptimization();
         }
 
-        private void LogSplit(ReadOnlySpan<char> subSavePath, DolphinTextureHashInfo hash, string info)
+        private void LogSplit(ReadOnlySpan<char> subSavePath, string info)
         {
-            string savePath = Path.Join(Path.GetDirectoryName(subSavePath), hash.Build() + ".png");
-            Log.WriteNotification(NotificationType.Info, $"\"{savePath}\" {info}");
-            Option.ListPrintAction?.Invoke(Result, "Split", savePath, info);
+            Log.WriteNotification(NotificationType.Info, $"\"{subSavePath}\" {info}");
+            Option.ListPrintAction?.Invoke(Result, "Split", subSavePath.ToString(), info);
         }
 
-        private Stream Save(Image image, ReadOnlySpan<char> subSavePath, DolphinTextureHashInfo hash, PngEncoder encoder)
+        private bool LogDuplicatIfNeeded(ref string subPath)
         {
-            string saveDirectory, savePath;
+            int hash = Path.GetFileNameWithoutExtension(subPath.AsSpan()).GetHashCodeFast();
             bool isDuplicat = Result.AddHashIfNeeded(hash);
+            if (isDuplicat)
+            {
+                subPath = Path.Join("~Duplicates", subPath);
+
+                Log.WriteNotification(NotificationType.Info, $"\"{subPath}\" duplicate found.");
+                Option.ListPrintAction?.Invoke(Result, "Duplicate", subPath, "duplicate found.");
+            }
+            return isDuplicat;
+        }
+
+        private Stream Save(Image image, ReadOnlySpan<char> subSavePath, PngEncoder encoder)
+        {
+            string savePath = GetFullSaveDirectory(subSavePath);
             Stream file;
 
             //In case of a DryRun we do not save the file.
@@ -229,20 +247,7 @@ namespace DolphinTextureExtraction.Scans
             }
             else
             {
-
-                if (isDuplicat)
-                {
-                    string subDupPath = Path.Join("~Duplicates", Path.GetDirectoryName(subSavePath));
-                    saveDirectory = GetFullSaveDirectory(subDupPath);
-                    subDupPath = Path.Combine(subDupPath, hash.Build() + ".png");
-                    Log.WriteNotification(NotificationType.Info, $"\"{subDupPath}\" duplicate found.");
-                    Option.ListPrintAction?.Invoke(Result, "Duplicate", subDupPath, "duplicate found.");
-                }
-                else
-                {
-                    saveDirectory = GetFullSaveDirectory(Path.GetDirectoryName(subSavePath));
-                }
-                savePath = Path.Combine(saveDirectory, hash.Build() + ".png");
+                string saveDirectory = Path.GetDirectoryName(savePath);
                 Directory.CreateDirectory(saveDirectory);
                 file = new FileStream(savePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None); ;
             }

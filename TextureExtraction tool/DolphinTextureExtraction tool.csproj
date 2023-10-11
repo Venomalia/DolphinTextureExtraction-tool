@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <IncludeSymbols>False</IncludeSymbols>
-    <Version>1.7.8.$([System.DateTime]::Now.ToString(`MMdd`))</Version>
+    <Version>1.7.10.$([System.DateTime]::Now.ToString(`MMdd`))</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -31,167 +31,179 @@ namespace DolphinTextureExtraction.Scans
 
         protected override void Scan(ScanObjekt so)
         {
-            //in case it's not a supported image format we just copy the file.
-            if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
+            try
             {
-                Save(so);
-                return;
-            }
-
-            ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
-
-            #region SplitTexture
-            //if SplitTextureHashInfo?
-            if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
-            {
-                Log.WriteNotification(NotificationType.Info, $"\"{name}\" Detected as RGBA combined texture.");
-                // get Dolphin Texture Hashs
-                DolphinTextureHashInfo hashRG, hashBA;
-                (hashRG, hashBA) = splitHash.ToDolphinTextureHashInfo();
-
-                //load the RGBA image
-                using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
-                ImageHelper.AlphaThreshold(image, 2, 253);
-                int width = image.Width;
-                int height = image.Height;
-                PngEncoder encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-
-                if (ImageHelper.FixImageResolutionIfNeeded(image, hashRG.GetImageSize()))
+                //in case it's not a supported image format we just copy the file.
+                if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    LogOptimization(so.GetFullSubPath(), $"Resize {new Size(width, height)} => {image.Size}.");
-                    width = image.Width;
-                    height = image.Height;
+                    Save(so);
+                    return;
                 }
 
-                // Create two new images.
-                using (Image<La16> imageRG = new(width, height))
-                using (Image<La16> imageBA = new(width, height))
+                ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
+
+                #region SplitTexture
+                //if SplitTextureHashInfo?
+                if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
                 {
-                    for (int y = 0; y < height; y++)
+                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Detected as RGBA combined texture.");
+                    // get Dolphin Texture Hashs
+                    DolphinTextureHashInfo hashRG, hashBA;
+                    (hashRG, hashBA) = splitHash.ToDolphinTextureHashInfo();
+
+                    //load the RGBA image
+                    using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
+                    ImageHelper.AlphaThreshold(image, 2, 253);
+                    int width = image.Width;
+                    int height = image.Height;
+                    PngEncoder encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+
+                    if (ImageHelper.FixImageResolutionIfNeeded(image, hashRG.GetImageSize()))
                     {
-                        for (int x = 0; x < width; x++)
-                        {
-                            Rgba32 pixel = image[x, y];
-
-                            // RG channel
-                            imageRG[x, y] = new(pixel.R, pixel.G);
-
-                            // BA channel
-                            imageBA[x, y] = new(pixel.B, pixel.A);
-                        }
+                        LogOptimization(so.GetFullSubPath(), $"Resize {new Size(width, height)} => {image.Size}.");
+                        width = image.Width;
+                        height = image.Height;
                     }
 
-                    // Save the RG channel image.
-                    string subPathRG = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
-                    LogDuplicatIfNeeded(ref subPathRG);
-                    using Stream fileRG = Save(imageRG, subPathRG, encoder);
-                    LogSplit(subPathRG, "RGBA Split type:RG");
-                    // Save the BA channel image.
-                    string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
-                    LogDuplicatIfNeeded(ref subPathBA);
-                    using Stream fileBA = Save(imageBA, subPathBA, encoder);
-                    LogSplit(subPathBA, "RGBA Split type:BA");
-
-                }
-                return;
-            }
-            #endregion
-            else
-            {
-                Image image = null;
-                PngEncoder encoder = null;
-                string subPath = so.GetFullSubPath();
-
-                try
-                {
-                    //if DolphinTextureHashInfo?
-                    if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
+                    // Create two new images.
+                    using (Image<La16> imageRG = new(width, height))
+                    using (Image<La16> imageBA = new(width, height))
                     {
-
-                        ImageInfo info = Image.Identify(so.Stream);
-                        so.Stream.Position = 0;
-                        LogDuplicatIfNeeded(ref subPath);
-                        //textures a not quantized?
-                        if (info.PixelType.BitsPerPixel > 8)
+                        for (int y = 0; y < height; y++)
                         {
-                            switch (dolphinHash.Format)
+                            for (int x = 0; x < width; x++)
                             {
-                                case GXImageFormat.I4:
-                                case GXImageFormat.I8:
-                                    if (info.PixelType.BitsPerPixel > 16)
-                                    {
-                                        Image<La16> imageI = Image.Load<La16>(so.Stream);
-                                        image = imageI;
-                                        ImageHelper.FixIntensityTexturs(imageI);
-                                        encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                        LogOptimization(subPath, $"RGB channel removed.");
-                                    }
-                                    break;
-                                case GXImageFormat.IA4:
-                                case GXImageFormat.IA8:
-                                    encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                    if (info.PixelType.BitsPerPixel > 16)
-                                        LogOptimization(subPath, encoder);
-                                    break;
-                                case GXImageFormat.RGB565:
-                                    encoder = new() { ColorType = PngColorType.Rgb };
-                                    if (info.PixelType.BitsPerPixel > 24)
-                                        LogOptimization(subPath, encoder);
-                                    break;
-                                case GXImageFormat.C4:
-                                    IQuantizer quantizer = KnownQuantizers.Wu;
-                                    quantizer.Options.Dither = null;
-                                    encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
-                                    LogOptimization(subPath, encoder);
-                                    break;
-                                case GXImageFormat.CMPR:
-                                    if (info.PixelType.BitsPerPixel > 24)
-                                    {
-                                        Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
-                                        image = imageCMPR;
+                                Rgba32 pixel = image[x, y];
 
-                                        if (ImageHelper.IsAlphaNeeded(imageCMPR, 160))
+                                // RG channel
+                                imageRG[x, y] = new(pixel.R, pixel.G);
+
+                                // BA channel
+                                imageBA[x, y] = new(pixel.B, pixel.A);
+                            }
+                        }
+
+                        // Save the RG channel image.
+                        string subPathRG = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                        LogDuplicatIfNeeded(ref subPathRG);
+                        using Stream fileRG = Save(imageRG, subPathRG, encoder);
+                        LogSplit(subPathRG, "RGBA Split type:RG");
+                        // Save the BA channel image.
+                        string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                        LogDuplicatIfNeeded(ref subPathBA);
+                        using Stream fileBA = Save(imageBA, subPathBA, encoder);
+                        LogSplit(subPathBA, "RGBA Split type:BA");
+
+                    }
+                    return;
+                }
+                #endregion
+                else
+                {
+                    Image image = null;
+                    PngEncoder encoder = null;
+                    string subPath = so.GetFullSubPath();
+
+                    try
+                    {
+                        //if DolphinTextureHashInfo?
+                        if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
+                        {
+
+                            ImageInfo info = Image.Identify(so.Stream);
+                            so.Stream.Position = 0;
+                            LogDuplicatIfNeeded(ref subPath);
+                            //textures a not quantized?
+                            if (info.PixelType.BitsPerPixel > 8)
+                            {
+                                switch (dolphinHash.Format)
+                                {
+                                    case GXImageFormat.I4:
+                                    case GXImageFormat.I8:
+                                        if (info.PixelType.BitsPerPixel > 16)
                                         {
-                                            if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                            Image<La16> imageI = Image.Load<La16>(so.Stream);
+                                            image = imageI;
+                                            ImageHelper.FixIntensityTexturs(imageI);
+                                            encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                                            LogOptimization(subPath, $"RGB channel removed.");
+                                        }
+                                        break;
+                                    case GXImageFormat.IA4:
+                                    case GXImageFormat.IA8:
+                                        encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                                        if (info.PixelType.BitsPerPixel > 16)
+                                            LogOptimization(subPath, encoder);
+                                        break;
+                                    case GXImageFormat.RGB565:
+                                        encoder = new() { ColorType = PngColorType.Rgb };
+                                        if (info.PixelType.BitsPerPixel > 24)
+                                            LogOptimization(subPath, encoder);
+                                        break;
+                                    case GXImageFormat.C4:
+                                        IQuantizer quantizer = KnownQuantizers.Wu;
+                                        quantizer.Options.Dither = null;
+                                        encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
+                                        LogOptimization(subPath, encoder);
+                                        break;
+                                    case GXImageFormat.CMPR:
+                                        if (info.PixelType.BitsPerPixel > 24)
+                                        {
+                                            Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
+                                            image = imageCMPR;
+
+                                            if (ImageHelper.IsAlphaNeeded(imageCMPR, 160))
                                             {
-                                                LogOptimization(subPath, $"Set alpha Threshold.");
+                                                if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                                {
+                                                    LogOptimization(subPath, $"Set alpha Threshold.");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                goto case GXImageFormat.RGB565;
                                             }
                                         }
-                                        else
-                                        {
-                                            goto case GXImageFormat.RGB565;
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    break;
+                                        break;
+                                    default:
+                                        break;
+                                }
+
                             }
 
+                            image ??= Image.Load(so.Stream);
+
+                            if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
+                            {
+                                LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
+                            }
                         }
 
                         image ??= Image.Load(so.Stream);
 
-                        if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
+                        if (encoder == null && image is Image<Rgba32> imageRGBA)
                         {
-                            LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
+                            encoder = ImageHelper.GetPngEncoder(imageRGBA);
+                            LogOptimization(subPath, encoder);
                         }
+
+                        using Stream file = Save(image, subPath, encoder);
+                        Result.AddSize(so.Stream.Length, file.Length);
                     }
-
-                    image ??= Image.Load(so.Stream);
-
-                    if (encoder == null && image is Image<Rgba32> imageRGBA)
+                    finally
                     {
-                        encoder = ImageHelper.GetPngEncoder(imageRGBA);
-                        LogOptimization(subPath, encoder);
+                        image?.Dispose();
                     }
-
-                    using Stream file = Save(image, subPath, encoder);
-                    Result.AddSize(so.Stream.Length, file.Length);
                 }
-                finally
-                {
-                    image?.Dispose();
-                }
+            }
+            catch (InvalidImageContentException ie)
+            {
+                Log.WriteEX(ie, so.GetFullSubPath());
+                Save(so.Stream, string.Concat(GetFullSaveDirectory(Path.Join("~Corrupt", so.SubPath)), so.Extension));
+            }
+            catch (Exception e)
+            {
+                Log.WriteEX(e, so.GetFullSubPath());
             }
         }
 

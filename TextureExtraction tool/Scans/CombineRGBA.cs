@@ -28,60 +28,72 @@ namespace DolphinTextureExtraction.Scans
 
         protected override void Scan(ScanObjekt so)
         {
-            //in case it's not a supported image format.
-            if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
+            try
             {
-                return;
-            }
-
-            ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
-            if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
-            {
-                if (!dolphinHash.Format.IsPaletteFormat() || !AddHashIfNeeded(dolphinHash))
+                //in case it's not a supported image format.
+                if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return;
                 }
 
-                using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
-
-                if (ImageHelper.IsGrayscale(image) && so.Stream is FileStream file)
+                ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
+                if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
                 {
-                    string directory = Path.GetDirectoryName(file.Name);
-                    string searchPattern = Path.GetFileNameWithoutExtension(file.Name).Replace($"{dolphinHash.TlutHash:x16}", "*");
-
-                    string[] match = Directory.GetFiles(directory, searchPattern + ".*");
-                    if (match.Length == 2)
+                    if (!dolphinHash.Format.IsPaletteFormat() || !AddHashIfNeeded(dolphinHash))
                     {
-                        string fullPaht2 = match[0] == file.Name ? match[1] : match[0];
-                        DolphinTextureHashInfo.TryParse(Path.GetFileName(fullPaht2), out DolphinTextureHashInfo dolphinHash2);
-                        using Image<Rgba32> image2 = Image.Load<Rgba32>(fullPaht2);
-                        if (image.Size != image2.Size)
-                        {
-                            image2.Mutate(x => x.Resize(image.Size));
-                        }
-                        int trend = AnalyzeImagePairs(image, image2);
+                        return;
+                    }
 
-                        SplitTextureHashInfo hashRGBA;
-                        ReadOnlySpan<char> subPath = so.SubPath;
+                    using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
 
-                        if (trend < 100)
+                    if (ImageHelper.IsGrayscale(image) && so.Stream is FileStream file)
+                    {
+                        string directory = Path.GetDirectoryName(file.Name);
+                        string searchPattern = Path.GetFileNameWithoutExtension(file.Name).Replace($"{dolphinHash.TlutHash:x16}", "*");
+
+                        string[] match = Directory.GetFiles(directory, searchPattern + ".*");
+                        if (match.Length == 2)
                         {
-                            if (trend > 0)
-                                subPath = Path.Join("~Altanatives", subPath);
-                            hashRGBA = new(dolphinHash2, dolphinHash);
-                            using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image);
-                            Save(imageRGBA, subPath, hashRGBA, trend);
-                        }
-                        if (trend > -100)
-                        {
-                            if (trend <= 0)
-                                subPath = Path.Join("~Altanatives", subPath);
-                            hashRGBA = new(dolphinHash, dolphinHash2);
-                            using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2);
-                            Save(imageRGBA, subPath, hashRGBA, trend);
+                            string fullPaht2 = match[0] == file.Name ? match[1] : match[0];
+                            DolphinTextureHashInfo.TryParse(Path.GetFileName(fullPaht2), out DolphinTextureHashInfo dolphinHash2);
+                            using Image<Rgba32> image2 = Image.Load<Rgba32>(fullPaht2);
+                            if (image.Size != image2.Size)
+                            {
+                                image2.Mutate(x => x.Resize(image.Size));
+                            }
+                            int trend = AnalyzeImagePairs(image, image2);
+
+                            SplitTextureHashInfo hashRGBA;
+                            ReadOnlySpan<char> subPath = so.SubPath;
+
+                            if (trend < 100)
+                            {
+                                if (trend > 0)
+                                    subPath = Path.Join("~Altanatives", subPath);
+                                hashRGBA = new(dolphinHash2, dolphinHash);
+                                using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image);
+                                Save(imageRGBA, subPath, hashRGBA, trend);
+                            }
+                            if (trend > -100)
+                            {
+                                if (trend <= 0)
+                                    subPath = Path.Join("~Altanatives", subPath);
+                                hashRGBA = new(dolphinHash, dolphinHash2);
+                                using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2);
+                                Save(imageRGBA, subPath, hashRGBA, trend);
+                            }
                         }
                     }
                 }
+            }
+            catch (InvalidImageContentException ie)
+            {
+                Log.WriteEX(ie, so.GetFullSubPath());
+                Save(so.Stream, string.Concat(GetFullSaveDirectory(Path.Join("~Corrupt", so.SubPath)), so.Extension));
+            }
+            catch (Exception e)
+            {
+                Log.WriteEX(e, so.GetFullSubPath());
             }
         }
 

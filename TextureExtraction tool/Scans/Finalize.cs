@@ -100,6 +100,8 @@ namespace DolphinTextureExtraction.Scans
                 #endregion
                 else
                 {
+                    ImageInfo info = Image.Identify(so.Stream);
+                    so.Stream.Position = 0;
                     Image image = null;
                     PngEncoder encoder = null;
                     string subPath = so.GetFullSubPath();
@@ -110,8 +112,6 @@ namespace DolphinTextureExtraction.Scans
                         if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
                         {
 
-                            ImageInfo info = Image.Identify(so.Stream);
-                            so.Stream.Position = 0;
                             LogDuplicatIfNeeded(ref subPath);
                             //textures a not quantized?
                             if (info.PixelType.BitsPerPixel > 8)
@@ -157,6 +157,7 @@ namespace DolphinTextureExtraction.Scans
                                                 if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
                                                 {
                                                     LogOptimization(subPath, $"Set alpha Threshold.");
+                                                    encoder = new() { ColorType = PngColorType.RgbWithAlpha };
                                                 }
                                             }
                                             else
@@ -171,24 +172,33 @@ namespace DolphinTextureExtraction.Scans
 
                             }
 
-                            image ??= Image.Load(so.Stream);
-
-                            if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
+                            if (ImageHelper.ResolutionNeedFix(info.Size, dolphinHash.GetImageSize()))
                             {
+                                image ??= Image.Load(so.Stream);
+                                ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize());
                                 LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
                             }
                         }
 
-                        image ??= Image.Load(so.Stream);
-
-                        if (encoder == null && image is Image<Rgba32> imageRGBA)
+                        // If the texture is quantized we can't improve it anymore.
+                        if (image == null && info.PixelType.BitsPerPixel <= 24)
                         {
-                            encoder = ImageHelper.GetPngEncoder(imageRGBA);
-                            LogOptimization(subPath, encoder);
+                            Save(so);
+                            Result.AddSize(so.Stream.Length, so.Stream.Length);
                         }
+                        else
+                        {
+                            image ??= Image.Load(so.Stream);
 
-                        using Stream file = Save(image, subPath, encoder);
-                        Result.AddSize(so.Stream.Length, file.Length);
+                            if (encoder == null && info.PixelType.BitsPerPixel > 24 && image is Image<Rgba32> imageRGBA)
+                            {
+                                encoder = ImageHelper.GetPngEncoder(imageRGBA);
+                                LogOptimization(subPath, encoder);
+                            }
+
+                            using Stream file = Save(image, subPath, encoder);
+                            Result.AddSize(so.Stream.Length, file.Length);
+                        }
                     }
                     finally
                     {

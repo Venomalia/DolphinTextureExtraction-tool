@@ -46,6 +46,9 @@ namespace DolphinTextureExtraction.Scans.Helper
             return true;
         }
 
+        public static bool ResolutionNeedFix(Size image, Size hSize)
+            => image.Width % hSize.Width != 0 || image.Height % hSize.Height != 0;
+
         public static bool FixImageResolutionIfNeeded(Image image, Size hSize)
         {
             int dividend = image.Width % hSize.Width;

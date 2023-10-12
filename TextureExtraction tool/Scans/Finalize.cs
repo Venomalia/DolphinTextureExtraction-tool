@@ -40,6 +40,7 @@ namespace DolphinTextureExtraction.Scans
 
             ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
 
+            #region SplitTexture
             //if SplitTextureHashInfo?
             if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
             {
@@ -94,118 +95,125 @@ namespace DolphinTextureExtraction.Scans
                 }
                 return;
             }
-
-            //if DolphinTextureHashInfo?
-            if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
+            #endregion
+            else
             {
-
-                ImageInfo info = Image.Identify(so.Stream);
-                so.Stream.Position = 0;
                 Image image = null;
                 PngEncoder encoder = null;
                 string subPath = so.GetFullSubPath();
-                LogDuplicatIfNeeded(ref subPath);
+
                 try
                 {
-                    //textures a not quantized?
-                    if (info.PixelType.BitsPerPixel > 8)
+                    //if DolphinTextureHashInfo?
+                    if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
                     {
-                        switch (dolphinHash.Format)
+
+                        ImageInfo info = Image.Identify(so.Stream);
+                        so.Stream.Position = 0;
+                        LogDuplicatIfNeeded(ref subPath);
+                        //textures a not quantized?
+                        if (info.PixelType.BitsPerPixel > 8)
                         {
-                            case GXImageFormat.I4:
-                            case GXImageFormat.I8:
-                                if (info.PixelType.BitsPerPixel > 16)
-                                {
-                                    Image<La16> imageI = Image.Load<La16>(so.Stream);
-                                    image = imageI;
-                                    ImageHelper.FixIntensityTexturs(imageI);
-                                    encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                    LogOptimization(subPath, $"RGB channel removed.");
-                                }
-                                break;
-                            case GXImageFormat.IA4:
-                            case GXImageFormat.IA8:
-                                encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
-                                if (info.PixelType.BitsPerPixel > 16)
-                                {
-                                    LogOptimization(subPath, $"RGB channel merged.");
-                                }
-                                break;
-                            case GXImageFormat.RGB565:
-                                encoder = new() { ColorType = PngColorType.Rgb };
-                                if (info.PixelType.BitsPerPixel > 24)
-                                {
-                                    LogOptimization(subPath, $"Alpha channel removed.");
-                                }
-                                break;
-                            case GXImageFormat.C4:
-                                IQuantizer quantizer = KnownQuantizers.Wu;
-                                quantizer.Options.Dither = KnownDitherings.Stucki;
-                                encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
-                                LogOptimization(subPath, $"Quantized.");
-                                break;
-                            case GXImageFormat.CMPR:
-
-                                if (info.PixelType.BitsPerPixel > 24)
-                                {
-                                    Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
-                                    image = imageCMPR;
-
-                                    if (ImageHelper.IsAlphaNeeded(imageCMPR, 160))
+                            switch (dolphinHash.Format)
+                            {
+                                case GXImageFormat.I4:
+                                case GXImageFormat.I8:
+                                    if (info.PixelType.BitsPerPixel > 16)
                                     {
-                                        if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                        Image<La16> imageI = Image.Load<La16>(so.Stream);
+                                        image = imageI;
+                                        ImageHelper.FixIntensityTexturs(imageI);
+                                        encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                                        LogOptimization(subPath, $"RGB channel removed.");
+                                    }
+                                    break;
+                                case GXImageFormat.IA4:
+                                case GXImageFormat.IA8:
+                                    encoder = new() { ColorType = PngColorType.GrayscaleWithAlpha };
+                                    if (info.PixelType.BitsPerPixel > 16)
+                                        LogOptimization(subPath, encoder);
+                                    break;
+                                case GXImageFormat.RGB565:
+                                    encoder = new() { ColorType = PngColorType.Rgb };
+                                    if (info.PixelType.BitsPerPixel > 24)
+                                        LogOptimization(subPath, encoder);
+                                    break;
+                                case GXImageFormat.C4:
+                                    IQuantizer quantizer = KnownQuantizers.Wu;
+                                    quantizer.Options.Dither = null;
+                                    encoder = new() { ColorType = PngColorType.Palette, Quantizer = quantizer };
+                                    LogOptimization(subPath, encoder);
+                                    break;
+                                case GXImageFormat.CMPR:
+                                    if (info.PixelType.BitsPerPixel > 24)
+                                    {
+                                        Image<Rgba32> imageCMPR = Image.Load<Rgba32>(so.Stream);
+                                        image = imageCMPR;
+
+                                        if (ImageHelper.IsAlphaNeeded(imageCMPR, 160))
                                         {
-                                            LogOptimization(subPath, $"Set alpha Threshold.");
+                                            if (ImageHelper.AlphaThreshold(imageCMPR, 96, 160)) // dolphin use (128,128)
+                                            {
+                                                LogOptimization(subPath, $"Set alpha Threshold.");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            goto case GXImageFormat.RGB565;
                                         }
                                     }
-                                    else
-                                    {
-                                        goto case GXImageFormat.RGB565;
-                                    }
-                                }
-                                break;
-                            default:
-                                if (info.PixelType.BitsPerPixel > 24)
-                                {
-                                    Image<Rgba32> imageRGBA = Image.Load<Rgba32>(so.Stream);
-                                    image = imageRGBA;
+                                    break;
+                                default:
+                                    break;
+                            }
 
-                                    if (ImageHelper.IsGrayscale(imageRGBA))
-                                    {
-                                        goto case GXImageFormat.IA8;
-                                    }
-                                    if (!ImageHelper.IsAlphaNeeded(imageRGBA))
-                                    {
-                                        goto case GXImageFormat.RGB565;
-                                    }
-                                }
-                                break;
                         }
 
+                        image ??= Image.Load(so.Stream);
+
+                        if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
+                        {
+                            LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
+                        }
                     }
 
                     image ??= Image.Load(so.Stream);
 
-                    if (ImageHelper.FixImageResolutionIfNeeded(image, dolphinHash.GetImageSize()))
+                    if (encoder == null && image is Image<Rgba32> imageRGBA)
                     {
-                        LogOptimization(subPath, $"Resize {info.Size} => {image.Size}.");
+                        encoder = ImageHelper.GetPngEncoder(imageRGBA);
+                        LogOptimization(subPath, encoder);
                     }
 
                     using Stream file = Save(image, subPath, encoder);
                     Result.AddSize(so.Stream.Length, file.Length);
-                    return;
-                }
-                catch (Exception)
-                {
-                    throw;
                 }
                 finally
                 {
                     image?.Dispose();
                 }
             }
+        }
 
-            Save(so);
+        private void LogOptimization(string filePath, PngEncoder encoder)
+        {
+            switch (encoder.ColorType)
+            {
+                case PngColorType.Grayscale:
+                    LogOptimization(filePath, $"Alpha channel removed & RGB channel merged.");
+                    break;
+                case PngColorType.Rgb:
+                    LogOptimization(filePath, $"Alpha channel removed.");
+                    break;
+                case PngColorType.Palette:
+                    LogOptimization(filePath, $"Quantized.");
+                    break;
+                case PngColorType.GrayscaleWithAlpha:
+                    LogOptimization(filePath, $"RGB channel merged.");
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void LogOptimization(string filePath, string info)

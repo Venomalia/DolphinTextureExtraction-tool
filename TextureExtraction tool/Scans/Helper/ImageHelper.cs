@@ -1,6 +1,6 @@
-﻿using AuroraLib.Texture;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -8,6 +8,20 @@ namespace DolphinTextureExtraction.Scans.Helper
 {
     internal static class ImageHelper
     {
+        public static PngEncoder GetPngEncoder(Image<Rgba32> image)
+        {
+            PngColorType colorType = PngColorType.RgbWithAlpha;
+            if (!ImageHelper.IsAlphaNeeded(image))
+            {
+                colorType = PngColorType.Rgb;
+            }
+            if (ImageHelper.IsGrayscale(image))
+            {
+                colorType = colorType == PngColorType.Rgb ? PngColorType.Grayscale : PngColorType.GrayscaleWithAlpha;
+            }
+            return new() { ColorType = colorType };
+        }
+
         public static bool IsGrayscale(Image<Rgba32> image, int threshold = 8, int noise = 100)
         {
             var mem = image.GetPixelMemoryGroup();

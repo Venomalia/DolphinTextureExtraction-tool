@@ -34,25 +34,15 @@ output to the same place only with a "~" in front of the new folder.
 ### Command-line
 List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Command-Line-Commands).
 
-- **Syntax:** `EXTRACT "Input" "Output" -mip`
-   > Extracts all textures and their mipmaps textures.
+- **Syntax:** `EXTRACT "Input" "Output" -dmd -amd`
+   > Extracts all textures and arbitrary mipmap.
 
 - **Syntax:** `HELP`
    > For a list with all commands.
 
 ## [Known results](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results)
 
-## Supported formats
-### ROM images
-- GCDisk (ISO), WiiDisk (ISO), WAD
-### Archives
-- Asura, AFS, ALAR, ALIG, ARC_Pit, ARC0, BIN_MP, BIG, CMN, CPK, FBC, Filelist, FBTI, FSYS, FPK, GVMH, GSW, GSScene, RSC, NARC, NLCM, ONE_SB, ONE_UN, PAK_FE, PAK_Retro, PAK_RetroWii, PAK_TM2, PCKG, POD5, POSD, RARC, RKV2, RMHG, RTDP, TXAG, TXE, U8, bres, pBin, ShrekDir, SevenZip(zip, 7z, tar, deb, dmg, rpm, xar, bz2, lzh, cab, vhd)
-### Compressing
--  AKLZ, AsuraZlb, CNS, CNX, CLZ, COMP, CRILAYLA, CXLZ, FCMP, GCLZ, GZIP, LH, LZ00, LZ01, LZ10, LZ11, LZ77, LZS, LZSS, LZSS_Sega, PRS, PRS_BE, YAY0, YAZ0, YAZ1, ZLB, ZLib, LZ4, LZO, RefPack, Zstd
-### Textures
--  ALTX, BTI, FIPAFTEX, FTEX, GCNT, GBIX, GCIX, GCT0, GTX, GVRT, HXTB, LFXT, NUTC, PTLG, REFT, TEX, TEX0, TEX1, TEX_KS, TEX_RFS, TPL, TPL_0, TXE, TXTR, WTMD, ATB
-### Model archives
-- MOD, BMD3, BDL4, MDL_LM, HSF, PKX, WZX, GSAGTX, GSFILE11
+## [Supported formats](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Supported-formats)
 
 ## Credits
  

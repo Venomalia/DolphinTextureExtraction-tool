@@ -759,7 +759,11 @@ namespace DolphinTextureExtraction
                             Options.DolphinMipDetection = true;
                             break;
                         case DolphinTextureExtraction.Options.Recursiv:
-                            Options.Deep = 1;
+                            if (!uint.TryParse(args[++i], out uint recursiv))
+                            {
+                                ExitWrongSyntax($"{args[i - 1]} {args[i]}", "Task needs a second parameter");
+                            }
+                            Options.Deep = recursiv;
                             break;
                         case DolphinTextureExtraction.Options.ArbitraryMipmapDetection:
                             Options.ArbitraryMipmapDetection = true;

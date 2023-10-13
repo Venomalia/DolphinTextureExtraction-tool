@@ -164,7 +164,7 @@ namespace AuroraLib.Common
         public StringBuilder GetFullDescription()
         {
             StringBuilder sb = new();
-            if (Developer != null)
+            if (Developer != null && Developer != string.Empty)
             {
                 sb.Append(Developer);
                 sb.Append(' ');

@@ -89,7 +89,7 @@ namespace DolphinTextureExtraction.Scans
                         using Stream fileRG = Save(imageRG, subPathRG, encoder);
                         LogSplit(subPathRG, "RGBA Split type:RG");
                         // Save the BA channel image.
-                        string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                        string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashBA.Build() + ".png");
                         LogDuplicatIfNeeded(ref subPathBA);
                         using Stream fileBA = Save(imageBA, subPathBA, encoder);
                         LogSplit(subPathBA, "RGBA Split type:BA");

@@ -69,7 +69,7 @@ namespace DolphinTextureExtraction.Scans
                             if (trend < 100)
                             {
                                 if (trend > 0)
-                                    subPath = Path.Join("~Altanatives", subPath);
+                                    subPath = Path.Join("~Alternatives", subPath);
                                 hashRGBA = new(dolphinHash2, dolphinHash);
                                 using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image);
                                 Save(imageRGBA, subPath, hashRGBA, trend);
@@ -77,7 +77,7 @@ namespace DolphinTextureExtraction.Scans
                             if (trend > -100)
                             {
                                 if (trend <= 0)
-                                    subPath = Path.Join("~Altanatives", subPath);
+                                    subPath = Path.Join("~Alternatives", subPath);
                                 hashRGBA = new(dolphinHash, dolphinHash2);
                                 using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2);
                                 Save(imageRGBA, subPath, hashRGBA, trend);

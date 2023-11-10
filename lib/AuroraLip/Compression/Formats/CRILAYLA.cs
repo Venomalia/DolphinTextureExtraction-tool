@@ -1,15 +1,11 @@
-﻿using AuroraLib.Common;
+﻿using AuroraLib.Compression.Interfaces;
 using AuroraLib.Core.Interfaces;
-using LibCPK;
+using System.IO.Compression;
 
 namespace AuroraLib.Compression.Formats
 {
-    public class CRILAYLA : ICompression, IHasIdentifier
+    public class CRILAYLA : ICompressionAlgorithm, IHasIdentifier
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => true;
-
         public virtual IIdentifier Identifier => _identifier;
 
         private static readonly Identifier64 _identifier = new("CRILAYLA");
@@ -17,12 +13,10 @@ namespace AuroraLib.Compression.Formats
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x10 && stream.Match(_identifier);
 
-        public void Compress(in byte[] source, Stream destination)
-        {
-            destination.Write(CPK.CompressCRILAYLA(source));
-        }
+        public void Decompress(Stream source, Stream destination)
+            => LibCPK.CRILAYLA.Decompress(source, destination);
 
-        public byte[] Decompress(Stream source)
-            => CPK.DecompressLegacyCRI(source.ToArray());
+        public void Compress(ReadOnlySpan<byte> source, Stream destination, CompressionLevel level = CompressionLevel.Optimal)
+            => LibCPK.CRILAYLA.Compress(source, destination);
     }
 }

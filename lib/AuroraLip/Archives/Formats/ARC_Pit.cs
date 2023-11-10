@@ -21,7 +21,7 @@ namespace AuroraLib.Archives.Formats
                 {
                     int fsOffset = stream.ReadInt32();
                     stream.Seek(fsOffset, SeekOrigin.Begin);
-                    Endian endian = stream.DetectByteOrder(typeof(int), typeof(int), typeof(int));
+                    Endian endian = stream.DetectByteOrder<uint>(3);
                     stream.Seek(fsOffset + 8, SeekOrigin.Begin);
                     int Offset = stream.ReadInt32(endian);
                     return Offset == 4;
@@ -35,7 +35,7 @@ namespace AuroraLib.Archives.Formats
         {
             int fsOffset = stream.ReadInt32();
             stream.Seek(fsOffset, SeekOrigin.Begin);
-            Endian endian = stream.DetectByteOrder(typeof(int), typeof(int), typeof(int));
+            Endian endian = stream.DetectByteOrder<uint>(3);
             int filesCount = stream.ReadInt32(endian);
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
@@ -61,7 +61,7 @@ namespace AuroraLib.Archives.Formats
 
             protected void Read(Stream stream)
             {
-                Endian endian = stream.DetectByteOrder(typeof(int), typeof(int), typeof(int));
+                Endian endian = stream.DetectByteOrder<uint>(4);
 
                 int archives = stream.ReadInt32(endian) >> 1;
                 Offset[] OffsetTable = stream.For(archives, s => s.Read<Offset>(endian));

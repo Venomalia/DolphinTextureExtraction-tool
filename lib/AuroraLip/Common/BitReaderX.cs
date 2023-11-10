@@ -5,7 +5,7 @@ namespace AuroraLib.Common
     /// <summary>
     /// Reads bits from a stream.
     /// </summary>
-    public class BitReader : IDisposable
+    public class BitReaderX : IDisposable
     {
         /// <summary>
         /// Returns the underlying stream.
@@ -77,7 +77,7 @@ namespace AuroraLib.Common
         private bool _buffered = false;
         private readonly bool _protectbase;
 
-        public BitReader(Stream stream, Endian byteorder = Endian.Big, bool leaveOpen = false)
+        public BitReaderX(Stream stream, Endian byteorder = Endian.Big, bool leaveOpen = false)
         {
             basestream = stream ?? throw new ArgumentNullException(nameof(stream));
             _protectbase = leaveOpen;

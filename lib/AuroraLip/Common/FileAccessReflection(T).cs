@@ -1,17 +1,19 @@
-﻿namespace AuroraLib.Common
+﻿using AuroraLib.Core.Interfaces;
+
+namespace AuroraLib.Common
 {
-    public class FileAccessReflection<T> where T : IFileAccess
+    public class FileAccessReflection<T> where T : IFormatRecognition
     {
         #region constructor
 
         private static IEnumerable<Type> _AvailableTypes { get; set; }
 
-        private static IEnumerable<IFileAccess> _Instances { get; set; }
+        private static IEnumerable<IFormatRecognition> _Instances { get; set; }
 
         static FileAccessReflection()
         {
-            _AvailableTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes().Where(s => typeof(IFileAccess).IsAssignableFrom(s) && !s.IsInterface && !s.IsAbstract));
-            _Instances = _AvailableTypes.Select(x => (IFileAccess)Activator.CreateInstance(x));
+            _AvailableTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes().Where(s => typeof(IFormatRecognition).IsAssignableFrom(s) && !s.IsInterface && !s.IsAbstract));
+            _Instances = _AvailableTypes.Select(x => (IFormatRecognition)Activator.CreateInstance(x));
         }
 
         public FileAccessReflection()
@@ -36,13 +38,15 @@
         /// A list of all readable types of available T.
         /// </summary>
         /// <returns>List of readable types of T</returns>
-        public IEnumerable<Type> GetReadable() => Instances.Where(x => x.CanRead).Select(x => x.GetType());
+        public IEnumerable<Type> GetReadable()
+            => Instances.Where(x => x is not IFileAccess || ((IFileAccess)x).CanRead).Select(x => x.GetType());
 
         /// <summary>
         /// A list of all writable types of available T.
         /// </summary>
         /// <returns>List of writable types of T</returns>
-        public IEnumerable<Type> GetWritable() => Instances.Where(x => x.CanWrite).Select(x => x.GetType());
+        public IEnumerable<Type> GetWritable()
+            => Instances.Where(x => x is not IFileAccess || ((IFileAccess)x).CanWrite).Select(x => x.GetType());
 
         /// <summary>
         /// Get the type that matches with the Identify.

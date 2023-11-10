@@ -1,9 +1,11 @@
-﻿namespace AuroraLib.Common
+﻿using AuroraLib.Core.Interfaces;
+
+namespace AuroraLib.Common
 {
     /// <summary>
     /// Simple interface for a file access.
     /// </summary>
-    public interface IFileAccess
+    public interface IFileAccess : IFormatRecognition
     {
         /// <summary>
         /// Can be read
@@ -15,12 +17,5 @@
         /// </summary>
         bool CanWrite { get; }
 
-        /// <summary>
-        /// Checks if the data Match with this FileFormat.
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="extension"></param>
-        /// <returns>"True" if match.</returns>
-        bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default);
     }
 }

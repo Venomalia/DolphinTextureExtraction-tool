@@ -1,47 +1,34 @@
-﻿using IronCompress;
+﻿using AuroraLib.Compression.Interfaces;
+using AuroraLib.Core.Buffers;
+using IronCompress;
+using System.IO.Compression;
 
 namespace AuroraLib.Compression
 {
-    public abstract class IronCompressBase : ICompression, ICompressionLevel
+    public abstract class IronCompressBase : ICompressionAlgorithm
     {
-        public bool CanRead => true;
-        public bool CanWrite => true;
-
         protected static readonly Iron Iron = new();
+
         protected abstract Codec Codec { get; }
 
-        public void Compress(in byte[] source, Stream destination)
-        {
-            using (IronCompressResult result = Iron.Compress(Codec, source))
-            {
-                destination.Write(result.AsSpan());
-            }
-        }
-
-        public byte[] Compress(byte[] source, CompressionLevel level)
-        {
-            using (IronCompressResult result = Iron.Compress(Codec, source, null, level.ToSystemIO()))
-            {
-                return result.AsSpan().ToArray();
-            }
-        }
-
-        public byte[] Decompress(Stream source)
-        {
-            using (IronCompressResult result = Iron.Decompress(Codec, source.ToArray()))
-            {
-                return result.AsSpan().ToArray();
-            }
-        }
-
-        public byte[] Decompress(ReadOnlySpan<byte> source, int? outputLength = null)
-        {
-            using (IronCompressResult result = Iron.Decompress(Codec, source, outputLength))
-            {
-                return result.AsSpan().ToArray();
-            }
-        }
-
         public abstract bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default);
+
+        public void Decompress(Stream source, Stream destination)
+        {
+            using SpanBuffer<byte> buffer = new((int)(source.Length - source.Position));
+            source.Read(buffer);
+            Decompress(buffer, destination);
+        }
+
+        public void Decompress(ReadOnlySpan<byte> source, Stream destination)
+        {
+            using IronCompressResult result = Iron.Decompress(Codec, source);
+            destination.Write(result);
+        }
+        public void Compress(ReadOnlySpan<byte> source, Stream destination, CompressionLevel level = CompressionLevel.Optimal)
+        {
+            using IronCompressResult result = Iron.Compress(Codec, source, null, level);
+            destination.Write(result);
+        }
     }
 }

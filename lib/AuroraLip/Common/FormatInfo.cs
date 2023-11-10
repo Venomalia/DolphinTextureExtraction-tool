@@ -53,11 +53,18 @@ namespace AuroraLib.Common
 
                 if (value != null)
                 {
-                    IFileAccess access = GetInstance();
-                    IsMatch = access.IsMatch;
-                    CanRead = access.CanRead;
-                    CanWrite = access.CanWrite;
-                    if (IdentifierOffset == 0 && Identifier == null && access is IHasIdentifier magic)
+                    IFormatRecognition format = GetInstance();
+                    IsMatch = format.IsMatch;
+                    if (format is IFileAccess FileAccess)
+                    {
+                        CanRead = FileAccess.CanRead;
+                        CanWrite = FileAccess.CanWrite;
+                    }
+                    else
+                    {
+                        CanRead = CanWrite = true;
+                    }
+                    if (IdentifierOffset == 0 && Identifier == null && format is IHasIdentifier magic)
                     {
                         Identifier = magic.Identifier;
                     }
@@ -99,7 +106,7 @@ namespace AuroraLib.Common
         /// Creates an instance of the class associated with this format.
         /// </summary>
         /// <returns>An instance of the file access class.</returns>
-        public IFileAccess GetInstance() => (IFileAccess)Activator.CreateInstance(Class);
+        public IFormatRecognition GetInstance() => (IFormatRecognition)Activator.CreateInstance(Class);
 
         public FormatInfo(string extension, IIdentifier identifier, int offset, FormatType typ, string description = "", string developer = "", Type type = null)
         {

@@ -133,12 +133,13 @@ namespace LibCPK
                                 msg = string.Format("Compressing data:{0:x8}", newbie.Length);
                                 onMsgUpdateChanged?.Invoke(msg);
 
-                                byte[] dest_comp = CPK.CompressCRILAYLA(newbie);
+                                MemoryStream dest_comp = new();
+                                CRILAYLA.Compress(newbie, dest_comp);
 
                                 entries[i].FileSize = Convert.ChangeType(dest_comp.Length, entries[i].FileSizeType);
                                 entries[i].ExtractSize = Convert.ChangeType(newbie.Length, entries[i].FileSizeType);
                                 cpk.UpdateFileEntry(entries[i]);
-                                newCPK.Write(dest_comp);
+                                dest_comp.CopyTo(newCPK.BaseStream);
                                 onMsgUpdateChanged?.Invoke(string.Format("Update Entry: {0}, {1:x8}", entries[i].FileName, entries[i].FileOffset));
                                 onMsgUpdateChanged?.Invoke(string.Format(">> {0:x8}\r\n", dest_comp.Length));
                             }

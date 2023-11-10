@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.IO;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -18,7 +19,7 @@ namespace AuroraLib.Archives.Formats
 
         protected override void Read(Stream stream)
         {
-            Endian order = stream.DetectByteOrder(typeof(uint), typeof(uint), typeof(uint), typeof(uint));
+            Endian order = stream.DetectByteOrder<uint>(4);
             int nameLength = stream.At(0x2f, s => s.ReadUInt8()) == 0 ? 32 : 16; // GC 16 Wii 32
 
             Header header = stream.Read<Header>(order);

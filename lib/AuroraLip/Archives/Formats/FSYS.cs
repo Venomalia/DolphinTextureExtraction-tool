@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
@@ -15,8 +15,6 @@ namespace AuroraLib.Archives.Formats
         public virtual IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FSYS");
-
-        private static readonly LZSS lZSS = new LZSS(12, 4, 2);
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 112 && stream.Match(_identifier);
@@ -43,7 +41,9 @@ namespace AuroraLib.Archives.Formats
                 {
                     //<- 0x10 LZSS Header
                     stream.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
-                    Stream DeStream = lZSS.Decompress(stream, (int)Info.DecompressedSize);
+                    Stream DeStream = new MemoryPoolStream();
+                    LZSS.DecompressHeaderless(stream, DeStream, (int)Info.DecompressedSize, new((byte)12, 4, 2));
+
                     Root.AddArchiveFile(DeStream, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
                 }
                 else

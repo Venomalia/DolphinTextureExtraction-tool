@@ -356,6 +356,9 @@ namespace AuroraLib.Common
             new FormatInfo(".olk", 4,"olnk".GetBytes(), FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco",typeof(NUTC)),
 
+            //Silicon Knights
+            new FormatInfo(".cmp", "*SK_ASC*", FormatType.Archive,"Compressed Eternal Darkness Data", "Silicon Knights"),
+
             //The Behemoth
             new FormatInfo(".BREC", "RSND", FormatType.Archive,"Encrypted Shockwave Flash?", "The Behemoth"),
             new FormatInfo(".BREC", "NREC", FormatType.Archive,"Encrypted Shockwave Flash", "The Behemoth"),

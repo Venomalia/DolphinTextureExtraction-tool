@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
@@ -54,8 +54,8 @@ namespace AuroraLib.Archives.Formats
                     else
                     {
                         stream.Seek(current_file_data_position, SeekOrigin.Begin);
-                        byte[] bytes = stream.Read(compressed_size);
-                        var decompressed_stream = zlib.Decompress(bytes, 4096, false);
+                        Stream decompressed_stream = new MemoryPoolStream();
+                        zlib.Decompress(stream, decompressed_stream, compressed_size);
                         Root.AddArchiveFile(decompressed_stream, file_name);
                     }
                 }

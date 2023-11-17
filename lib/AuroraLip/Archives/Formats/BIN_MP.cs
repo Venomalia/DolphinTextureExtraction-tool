@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -13,8 +13,7 @@ namespace AuroraLib.Archives.Formats
 
         public static string Extension => ".bin";
 
-        private static readonly LZSS lZSS = new(10, 6, 2);
-        private static readonly ZLib zlib = new();
+        private static readonly LzProperties _Lz = new((byte)10, 6, 2);
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
@@ -66,6 +65,7 @@ namespace AuroraLib.Archives.Formats
                 offsets[i] = stream.ReadUInt32(Endian.Big);
             }
 
+            ZLib zLib = new();
             Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < files; i++)
             {
@@ -91,13 +91,16 @@ namespace AuroraLib.Archives.Formats
                         break;
 
                     case CompressionType.LZSS:
-                        DeStream = lZSS.Decompress(stream, (int)DeSize);
+                        DeStream = new MemoryPoolStream((int)DeSize);
+                        LZSS.DecompressHeaderless(stream, DeStream, (int)DeSize, _Lz);
                         break;
 
                     case CompressionType.SLIDE:
                     case CompressionType.FSLIDE_ALT:
                     case CompressionType.FSLIDE:
-                        DeStream = new MemoryStream(DecompressSlide(stream, (int)DeSize));
+                        uint temp_len = stream.ReadUInt32(Endian.Big);
+                        DeStream = new MemoryPoolStream((int)DeSize);
+                        LZHudson.DecompressHeaderless(stream, DeStream, (int)DeSize);
                         break;
 
                     case CompressionType.RLE:
@@ -106,7 +109,9 @@ namespace AuroraLib.Archives.Formats
                     case CompressionType.INFLATE:
                         uint decompressed_size = stream.ReadUInt32(Endian.Big);
                         uint compressed_size = stream.ReadUInt32(Endian.Big);
-                        DeStream = zlib.Decompress(stream.Read((int)compressed_size));
+                        DeStream = new MemoryPoolStream();
+                        DeStream.SetLength((int)DeSize);
+                        zLib.Decompress(stream, DeStream, (int)compressed_size);
                         break;
 
                     default:
@@ -150,69 +155,6 @@ namespace AuroraLib.Archives.Formats
             FSLIDE = 4,
             RLE = 5,
             INFLATE = 7,
-        }
-
-        /// <summary>
-        /// (F)SLIDE compression algorithm is similar to LZSS with a 4bit flag.
-        /// </summary>
-        /// <param name="fp"></param>
-        /// <param name="decompressed_size"></param>
-        /// <returns></returns>
-        //base https://github.com/gamemasterplc/mpbintools/blob/master/bindump.c#L240
-        private byte[] DecompressSlide(Stream fp, int decompressed_size)
-        {
-            uint temp_len = fp.ReadUInt32(Endian.Big);
-
-            int dest_offset = 0;
-            int code_word_bits_left = 0;
-            uint code_word = 0;
-            byte[] decompress_buffer = new byte[decompressed_size];
-
-            while (dest_offset < decompressed_size)
-            {
-                //Reads New Code Word from Compressed Stream if Expired
-                if (code_word_bits_left == 0)
-                {
-                    code_word = fp.ReadUInt32(Endian.Big);
-                    code_word_bits_left = 32;
-                }
-
-                //Copies a Byte from the Source to the Destination and Window Buffer
-                if ((code_word & 0x80000000) != 0)
-                {
-                    decompress_buffer[dest_offset++] = fp.ReadUInt8();
-                }
-                else
-                {
-                    //Interpret Next 2 Bytes as a Backwards Distance and Length
-                    byte byte1 = fp.ReadUInt8();
-                    byte byte2 = fp.ReadUInt8();
-
-                    int dist_back = (((byte1 & 0x0F) << 8) | byte2) + 1;
-                    int copy_length = ((byte1 & 0xF0) >> 4) + 2;
-
-                    //Special Case Where the Upper 4 Bits of byte1 are 0
-                    if (copy_length == 2)
-                    {
-                        copy_length = fp.ReadUInt8() + 18;
-                    }
-
-                    //Copy Some Bytes from Window Buffer
-                    byte value;
-                    for (int i = 0; i < copy_length && dest_offset < decompressed_size; i++)
-                    {
-                        if (dist_back > dest_offset)
-                            value = 0;
-                        else
-                            value = decompress_buffer[dest_offset - dist_back];
-
-                        decompress_buffer[dest_offset++] = value;
-                    }
-                }
-                code_word <<= 1;
-                code_word_bits_left--;
-            }
-            return decompress_buffer;
         }
     }
 }

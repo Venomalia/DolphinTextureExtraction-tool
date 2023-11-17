@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Exceptions;
 using IronCompress;
 
@@ -90,11 +90,12 @@ namespace AuroraLib.Archives.Formats
             //prime 1, DKCR = Zlip
             //prime 2,3 = LZO1X-999
             ZLib.Header header = input.Read<ZLib.Header>();
-            if (header.Validate() && header.HasDictionary == false && header.CompressionInfo == 7 && header.CompressionLevel == 3)
+            if (header.Validate() && header.HasDictionary == false && header.CompressionInfo == 7)
             {
                 input.Seek(0, SeekOrigin.Begin);
-                ZLib zLib = new();
-                return zLib.Decompress(input.Read((int)input.Length), (int)decompressedSize);
+                Stream decompressed_stream = new MemoryPoolStream();
+                new ZLib().Decompress(input, decompressed_stream, (int)input.Length);
+                return decompressed_stream;
             }
             else
             {

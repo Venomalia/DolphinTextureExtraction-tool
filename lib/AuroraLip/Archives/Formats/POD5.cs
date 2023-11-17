@@ -1,5 +1,5 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
@@ -43,6 +43,7 @@ namespace AuroraLib.Archives.Formats
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
             stream.Seek(InfoTable, SeekOrigin.Begin);
+            ZLib zLib = new();
             for (int i = 0; i < FileCount; i++)
             {
                 uint NameOffsetForFile = stream.ReadUInt32(Endian.Little);
@@ -63,9 +64,14 @@ namespace AuroraLib.Archives.Formats
                 ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Name };
                 stream.Seek(OffsetForFile, SeekOrigin.Begin);
                 if (SizeForFile == CompressedSizeForFile)
+                {
                     Sub.FileData = new SubStream(stream, SizeForFile);
+                }
                 else
-                    Sub.FileData = new MemoryStream(AuroraLib.Compression.Compression<ZLib>.Decompress(stream.Read((int)SizeForFile)));
+                {
+                    Sub.FileData = new MemoryPoolStream();
+                    zLib.Decompress(stream, Sub.FileData, (int)SizeForFile);
+                }
                 Root.Items.Add(Sub.Name, Sub);
 
                 // Read the file, move on to the next one

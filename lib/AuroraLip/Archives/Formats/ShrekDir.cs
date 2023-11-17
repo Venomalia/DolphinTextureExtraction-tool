@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
-using AuroraLib.Compression.Formats;
+using AuroraLib.Compression.Algorithms;
+using AuroraLib.Core.Buffers;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -56,7 +57,11 @@ namespace AuroraLib.Archives.Formats
                 Entry entry = new(stream, endian);
                 if (!Root.Items.ContainsKey(entry.Name))
                 {
-                    MemoryStream decomp = new(Shrek.Decompress_ALG(reference_stream.At(entry.Offset, s => s.Read((int)entry.CompSize)), (int)entry.DecompSize));
+                    using SpanBuffer<byte> buffer = new((int)entry.CompSize);
+                    reference_stream.Seek(entry.Offset, SeekOrigin.Begin);
+                    reference_stream.Read(buffer.Span);
+                    MemoryPoolStream decomp = new();
+                    LZShrek.DecompressHeaderless(buffer, decomp, (int)entry.DecompSize);
                     Root.AddArchiveFile(decomp, entry.Name);
                 }
             }

@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Compression;
+using AuroraLib.Compression.Interfaces;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -25,7 +26,7 @@ namespace DolphinTextureExtraction.Scans
 
         protected override void Scan(ScanObjekt so)
         {
-            ICompression algo = (ICompression)Activator.CreateInstance(algorithm);
+            ICompressionAlgorithm algo = (ICompressionAlgorithm)Activator.CreateInstance(algorithm);
             using FileStream destination = new(GetFullSaveDirectory(so.SubPath), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
             algo.Compress(so.Stream.ToArray(), destination);
             AddResult(so, destination);

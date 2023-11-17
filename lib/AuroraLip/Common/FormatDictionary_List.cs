@@ -1,9 +1,9 @@
 ﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
-using MuramasaTDB_Encoding;
 
 namespace AuroraLib.Common
 {
@@ -20,9 +20,9 @@ namespace AuroraLib.Common
             //Nintendo Archive
             new FormatInfo(".arc", "RARC", FormatType.Archive, "Archive", Nin_,typeof(RARC)),
             new FormatInfo(".arc", "Uª8-", FormatType.Archive, "Archive", Nin_,typeof(U8)),
-            new FormatInfo(".szs", "Yaz0", FormatType.Archive, comp_, Nin_,typeof(YAZ0)),
-            new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_,typeof(YAZ1)),
-            new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_,typeof(YAY0)),
+            new FormatInfo(".szs", "Yaz0", FormatType.Archive, comp_, Nin_,typeof(Yaz0)),
+            new FormatInfo(".szs", "Yaz1", FormatType.Archive, comp_, Nin_,typeof(Yaz1)),
+            new FormatInfo(".szp", "Yay0", FormatType.Archive, comp_, Nin_,typeof(Yay0)),
             new FormatInfo(".brres","bres", FormatType.Archive, "Wii Resources Archive", Nin_,typeof(Bres)),
             new FormatInfo(".sarc","SARC", FormatType.Archive, "Archive", Nin_),
             new FormatInfo(".mod", FormatType.Archive, "Dolphin 1 Model Archive", Nin_,typeof(MOD)),
@@ -30,7 +30,8 @@ namespace AuroraLib.Common
             new FormatInfo(".bin", 0, new byte[]{2}, FormatType.Texture, "Luigi's mansion Binary Model", Nin_){ IsMatch = BIN_LM_Matcher},
             new FormatInfo(".bnfm","BNFM", FormatType.Archive, "Wiiu Model Archive", Nin_),
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_,Nin_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
-            new FormatInfo(".mio","MIO0", FormatType.Archive, comp_,Nin_),
+            new FormatInfo(".LZOn","LZOn", FormatType.Archive, comp_,Nin_),
+            new FormatInfo(".mio","MIO0", FormatType.Archive, comp_,Nin_,typeof(MIO0)),
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_,typeof(REFT)),
@@ -245,16 +246,16 @@ namespace AuroraLib.Common
             new FormatInfo(".gz",0,new byte[]{31,139}, FormatType.Archive, "GNU zip","GNU Project",typeof(GZip)),
             //new FormatInfo(".arj",new byte[]{96, 234},0, FormatType.Archive, "Archived by Robert Jung","Robert K. Jung"),
             new FormatInfo(".LZ", "LZSS", FormatType.Archive, "Lempel–Ziv–SS", "Storer–Szymanski",typeof(LZSS)),
-            new FormatInfo(".LZ",0, new byte[] { (byte)'L', (byte)'z', (byte)'S', 0 }, FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics",typeof(LZS)),
+            new FormatInfo(".LZ",0, new byte[] { (byte)'L', (byte)'z', (byte)'S', 0 }, FormatType.Archive, "Lempel-Ziv-Stac", "Stac Electronics"),
             new FormatInfo(".Lz00", "LZ00", FormatType.Archive, "Lempel-Ziv 00 "+comp_,string.Empty,typeof(LZ00)),
             new FormatInfo(".Lz01", "LZ01", FormatType.Archive, "Lempel-Ziv 01 "+comp_,string.Empty,typeof(LZ01)),
             new FormatInfo(".lz77","LZ77", FormatType.Archive, "Lempel-Ziv 77 Wii",string.Empty,typeof(LZ77)),
             new FormatInfo(".Comp","COMP", FormatType.Archive, comp_,string.Empty,typeof(COMP)),
-            new FormatInfo(".CNX",new Identifier32((byte)'C',(byte)'N',(byte)'X',0x2), FormatType.Archive, comp_,string.Empty,typeof(CNX)),
+            new FormatInfo(".CNX",new Identifier32((byte)'C',(byte)'N',(byte)'X',0x2), FormatType.Archive, comp_,string.Empty,typeof(CNX2)),
             new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_,string.Empty,typeof(CXLZ)),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv " + comp_),
             new FormatInfo(".ZS",new Identifier32(4247762216), FormatType.Archive, "Zstandard " + comp_,string.Empty,typeof(Zstd)),
-            new FormatInfo(".zlib", FormatType.Archive, comp_,"Mark Adle",typeof(ZLib)){IsMatch = ZLib.Matcher},
+            //new FormatInfo(".zlib", FormatType.Archive, comp_,"Mark Adle",typeof(ZLib)),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
 
             //Common Textures
@@ -470,7 +471,7 @@ namespace AuroraLib.Common
             new FormatInfo(".pac", "PCKG", FormatType.Archive, "Little King's Story Archive", "Cing",typeof(PCKG)),  // also pcha
 
             //Victor Interactive
-            new FormatInfo(".clz",new Identifier32((byte)'C',(byte)'L',(byte)'Z',0), FormatType.Archive, comp_, "Victor Interactive",typeof(CLZ)),
+            new FormatInfo(".clz",new Identifier32((byte)'C',(byte)'L',(byte)'Z',0), FormatType.Archive, comp_, "Victor Interactive",typeof(CLZ0)),
 
             //Ganbarion
             new FormatInfo(".apf", FormatType.Archive,"One Piece FSM Archive", "Ganbarion"), //One Piece: Grand Adventure
@@ -491,7 +492,7 @@ namespace AuroraLib.Common
             //Aqualead. use in Pandora's Tower
             new FormatInfo(".aar","ALAR", FormatType.Archive, "Archive", "Aqualead",typeof(ALAR)), // https://zenhax.com/viewtopic.php?t=16613
             new FormatInfo(".act","ALCT", FormatType.Archive, "Container", "Aqualead"),
-            new FormatInfo(".aar","ALLZ", FormatType.Archive, "AL LZSS Compressed", "Aqualead"), //https://github.com/Brolijah/Aqualead_LZSS
+            new FormatInfo(".aar","ALLZ", FormatType.Archive, "AL LZSS Compressed", "Aqualead",typeof(ALLZ)), //https://github.com/Brolijah/Aqualead_LZSS
             new FormatInfo(".atx","ALTX", FormatType.Texture, "Texture", "Aqualead",typeof(ALTX)),
             new FormatInfo(".aig","ALIG", FormatType.Texture, "Image", "Aqualead",typeof(ALIG)),
             new FormatInfo(".ams","ALMS", FormatType.Collision, "Mesh Collision", "Aqualead"),

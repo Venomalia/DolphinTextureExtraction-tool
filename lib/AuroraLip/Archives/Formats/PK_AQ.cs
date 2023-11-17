@@ -1,9 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Buffers;
-using AuroraLib.Core.IO;
+using AuroraLib.Core.Cryptography;
 using AuroraLib.Core.Text;
-using ICSharpCode.SharpZipLib.Checksum;
-using RenderWareNET.Plugins;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -69,7 +67,7 @@ namespace AuroraLib.Archives.Formats
                 long nameTabelPos = fsStream.Position;
 
                 //Process
-                BZip2Crc crc32 = new();
+                Crc32 crc32 = new(Crc32Algorithm.BZIP2);
                 Dictionary<int, ArchiveDirectory> directoryPairs = new();
                 for (int i = 0; i < directories.Length; i++)
                 {
@@ -97,8 +95,7 @@ namespace AuroraLib.Archives.Formats
                         string filename = fsStream.ReadString();
                         //Get CRC32
                         crc32.Reset();
-                        crc32.Update(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').GetBytes());
-                        uint test = (uint)crc32.Value;
+                        crc32.Compute(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').GetBytes());
 
                         HEntry fileEntry = default;
                         foreach (HEntry entry in hEntries)

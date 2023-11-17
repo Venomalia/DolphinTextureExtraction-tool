@@ -1,6 +1,8 @@
 ﻿using AuroraLib.Archives;
 using AuroraLib.Common;
 using AuroraLib.Compression;
+using AuroraLib.Compression.Interfaces;
+using AuroraLib.Core.Interfaces;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -319,9 +321,9 @@ namespace DolphinTextureExtraction.Scans
                     }
                     return true;
                 }
-                if (so.Format.Class.GetInterface(nameof(ICompression)) != null)
+                if (so.Format.Class.GetInterface(nameof(ICompressionAlgorithm)) != null)
                 {
-                    Stream destream = new MemoryStream(((ICompression)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream));
+                    Stream destream = ((ICompressionAlgorithm)Activator.CreateInstance(so.Format.Class)).Decompress(so.Stream);
                     Scan(new ScanObjekt(destream, so.SubPath, so.Deep + 1, so.Extension));
                     return true;
                 }

@@ -20,65 +20,64 @@ namespace AuroraLib.Texture.Formats
         protected override void Read(Stream stream)
         {
             stream.MatchThrow(_identifier);
-            var header = stream.Read<Header>(Endian.Big);
-
+            Header header = stream.Read<Header>(Endian.Big);
             stream.Seek(header.Textures.Offset, SeekOrigin.Begin);
-            TextureInfo[] texInfo = stream.For(header.Textures.Count, S => S.Read<TextureInfo>(Endian.Big));
-            var startOffset = stream.Position;
+            Span<TextureInfo> texInfos = stackalloc TextureInfo[header.Textures.Count];
+            stream.Read(texInfos, Endian.Big);
+            long startOffset = stream.Position;
 
             stream.Seek(header.Palettes.Offset, SeekOrigin.Begin);
-            PaletteInfo[] palInfo = stream.For(header.Palettes.Count, S => S.Read<PaletteInfo>(Endian.Big));
-            var palSectionOffset = stream.Position;
+            Span<PaletteInfo> palInfo = stackalloc PaletteInfo[header.Palettes.Count];
+            stream.Read(palInfo, Endian.Big);
+            long palSectionOffset = stream.Position;
 
-            for (int i = 0; i < texInfo.Length; i++)
+            for (int i = 0; i < texInfos.Length; i++)
             {
-                var textureName = stream.At(header.StringTable.Offset + texInfo[i].NameOffset, S => S.ReadString());
-
-                texInfo[i].GetGXFormat(out GXImageFormat Format, out GXPaletteFormat PaletteFormat);
-
-                // Get palett Info
-                PaletteInfo? palette = null;
-                if (texInfo[i].PaletteIndex == -1)
-                {
-                    try
-                    {
-                        palette = palInfo.First(p => p.NameOffset == texInfo[i].NameOffset);
-                    }
-                    catch (Exception) { }
-                }
-                else
-                {
-                    palette = palInfo[texInfo[i].PaletteIndex];
-                }
+                string textureName = stream.At(header.StringTable.Offset + texInfos[i].NameOffset, S => S.ReadString());
+                GXImageFormat format = texInfos[i].GetGXImageFormat();
+                GXPaletteFormat paletteFormat = texInfos[i].GetGXPaletteFormat();
 
                 //unfortunately i do not know where the mip flag is, so => Get Mipmaps From Size
-                var Images = 0;
-                if (i == texInfo.Length - 1)
+                int Images = 0;
+                if (i == texInfos.Length - 1)
                 {
-                    Images = (int)(header.Palettes.Offset - startOffset - texInfo[i].DataOffset);
+                    Images = (int)(header.Palettes.Offset - startOffset - texInfos[i].DataOffset);
                 }
                 else
                 {
-                    Images = (int)(texInfo[i + 1].DataOffset - texInfo[i].DataOffset);
+                    Images = (int)(texInfos[i + 1].DataOffset - texInfos[i].DataOffset);
                 }
-                Images = Format.GetMipmapsFromSize(Images, texInfo[i].Width, texInfo[i].Height);
+                Images = format.GetMipmapsFromSize(Images, texInfos[i].Width, texInfos[i].Height);
 
-                // get Palett Data
-                var PaletteCount = 0;
-                byte[] PaletteData = null;
-                if (Format.IsPaletteFormat())
+                // get Palette Data
+                PaletteInfo palette = default;
+                Span<byte> PaletteData = Span<byte>.Empty;
+                if (format.IsPaletteFormat())
                 {
-                    if (palette != null)
+                    if (texInfos[i].PaletteIndex == -1)
                     {
-                        PaletteCount = palette.Value.Count;
-                        var palName = stream.At(header.StringTable.Offset + palette.Value.NameOffset, S => S.ReadString());
-                        PaletteData = stream.At(palSectionOffset + palette.Value.DataOffset, S => S.Read(2 * PaletteCount));
+                        foreach (PaletteInfo pInfo in palInfo)
+                        {
+                            if (pInfo.NameOffset == texInfos[i].NameOffset)
+                            {
+                                palette = pInfo;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        palette = palInfo[texInfos[i].PaletteIndex];
+                    }
+                    if (palette.Count != 0)
+                    {
+                        stream.Seek(palSectionOffset + palette.DataOffset, SeekOrigin.Begin);
+                        PaletteData = stream.Read(2 * palette.Count);
                     }
                 }
 
-                stream.Seek(startOffset + texInfo[i].DataOffset, SeekOrigin.Begin);
-
-                TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, texInfo[i].Width, texInfo[i].Height, Images)
+                stream.Seek(startOffset + texInfos[i].DataOffset, SeekOrigin.Begin);
+                TexEntry current = new(stream, PaletteData, format, paletteFormat, palette.Count, texInfos[i].Width, texInfos[i].Height, Images)
                 {
                     LODBias = 0,
                     MagnificationFilter = GXFilterMode.Nearest,
@@ -97,81 +96,80 @@ namespace AuroraLib.Texture.Formats
             throw new NotImplementedException();
         }
 
-        private struct Position
+        private readonly struct Position
         {
-            public uint Offset;
-            public int Count;
+            public readonly uint Offset;
+            public readonly int Count;
         }
 
-        private struct Header
+        private readonly struct Header
         {
-            public uint Unk1;
-            public uint Unk2;
-            public uint Unk3;
-            public uint Flag;
-            public Position Material1Table;
-            public Position MaterialTable;
-            public Position Positions;
-            public Position Normals;
-            public Position UV;
-            public Position Primitives;
-            public Position Bones;
-            public Position Textures;
-            public Position Palettes;
-            public Position Unkown1;
-            public Position Rig;
-            public Position Unkown2;
-            public Position Unkown3;
-            public Position Unkown4;
-            public Position Unkown5;
-            public Position Unkown6;
-            public Position Unkown7;
-            public Position Unkown8;
-            public Position StringTable;
+            public readonly uint Unk1;
+            public readonly uint Unk2;
+            public readonly uint Unk3;
+            public readonly uint Flag;
+            public readonly Position Material1Table;
+            public readonly Position MaterialTable;
+            public readonly Position Positions;
+            public readonly Position Normals;
+            public readonly Position UV;
+            public readonly Position Primitives;
+            public readonly Position Bones;
+            public readonly Position Textures;
+            public readonly Position Palettes;
+            public readonly Position Unkown1;
+            public readonly Position Rig;
+            public readonly Position Unkown2;
+            public readonly Position Unkown3;
+            public readonly Position Unkown4;
+            public readonly Position Unkown5;
+            public readonly Position Unkown6;
+            public readonly Position Unkown7;
+            public readonly Position Unkown8;
+            public readonly Position StringTable;
         }
 
-        private struct TextureInfo
+        private readonly struct TextureInfo
         {
-            public uint NameOffset;
-            public uint Padding;
-            public HSFImageFormat Format;
-            public byte Type;
-            public ushort Width;
-            public ushort Height;
-            public ushort Depth;
-            public uint Padding1;
-            public int PaletteIndex; // -1 usually excet for paletted?
-            public uint Padding2;
-            public uint DataOffset;
+            public readonly int NameOffset;
+            public readonly uint Padding;
+            public readonly HSFImageFormat Format;
+            public readonly byte Type;
+            public readonly ushort Width;
+            public readonly ushort Height;
+            public readonly ushort Depth;
+            public readonly uint Padding1;
+            public readonly int PaletteIndex; // -1 usually excet for paletted?
+            public readonly uint Padding2;
+            public readonly uint DataOffset;
 
-            public void GetGXFormat(out GXImageFormat imageFormat, out GXPaletteFormat paletteFormat)
+            public readonly GXImageFormat GetGXImageFormat()
             {
                 switch (Format)
                 {
                     case HSFImageFormat.Palette1:
                     case HSFImageFormat.Palette2:
                     case HSFImageFormat.Palette3:
-                        paletteFormat = Format == HSFImageFormat.Palette2 ? GXPaletteFormat.RGB5A3 : GXPaletteFormat.RGB565;
-                        if (Type == 4)
-                            imageFormat = GXImageFormat.C4;
-                        else
-                            imageFormat = GXImageFormat.C8;
-                        return;
-
+                        return Type == 4 ? GXImageFormat.C4 : GXImageFormat.C8;
                     default:
-                        imageFormat = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Format.ToString());
-                        paletteFormat = GXPaletteFormat.IA8;
-                        return;
+                        return (GXImageFormat)Enum.Parse(typeof(GXImageFormat), Format.ToString());
                 }
             }
+
+            public readonly GXPaletteFormat GetGXPaletteFormat() => Format switch
+            {
+                HSFImageFormat.Palette1 => GXPaletteFormat.RGB565,
+                HSFImageFormat.Palette2 => GXPaletteFormat.RGB5A3,
+                _ => GXPaletteFormat.IA8,
+            };
         }
 
-        private struct PaletteInfo
+        private readonly struct PaletteInfo
         {
-            public uint NameOffset;
-            public int Format;
-            public int Count;
-            public uint DataOffset;
+            public readonly uint NameOffset;
+            public readonly int Format;
+            public readonly int Count;
+            public readonly uint DataOffset;
         }
 
         private enum HSFImageFormat : byte

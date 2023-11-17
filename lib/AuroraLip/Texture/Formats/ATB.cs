@@ -47,19 +47,13 @@ namespace AuroraLib.Texture.Formats
 
             // Read banks
             stream.Seek(bank_offset, SeekOrigin.Begin);
-            bank[] blocks = new bank[num_banks];
-            for (int i = 0; i < num_banks; i++)
-            {
-                blocks[i].frames = stream.ReadUInt16(Endian.Big);
-                stream.ReadUInt16(Endian.Big);
-                blocks[i].frame_offset = stream.ReadUInt32(Endian.Big);
-            }
-
+            Span<Bank> blocks = stackalloc Bank[num_banks];
+            stream.Read(blocks, Endian.Big);
             for (int i = 0; i < num_banks; i++)
             {
                 Banks.Add(new List<FrameEntry>());
-                stream.Seek(blocks[i].frame_offset, SeekOrigin.Begin);
-                for (int fi = 0; fi < blocks[i].frames; fi++)
+                stream.Seek(blocks[i].Offset, SeekOrigin.Begin);
+                for (int fi = 0; fi < blocks[i].Frames; fi++)
                 {
                     Banks[i].Add(new FrameEntry(stream));
                 }
@@ -67,30 +61,22 @@ namespace AuroraLib.Texture.Formats
 
             // Read textures
             stream.Seek(texture_offset, SeekOrigin.Begin);
-            TexturEntry[] entries = new TexturEntry[num_textures];
-            for (int i = 0; i < num_textures; i++)
-            {
-                entries[i] = new TexturEntry(stream);
-            }
+            Span<TexturEntry> entries = stackalloc TexturEntry[num_textures];
+            stream.Read(entries, Endian.Big);
 
             for (int i = 0; i < num_textures; i++)
             {
-                if (entries[i].Format == ATB_Format.RGB5A3_DUPE)
-                    entries[i].Format = ATB_Format.RGB5A3;
-                if (entries[i].Format == ATB_Format.A8)
-                    entries[i].Format = ATB_Format.RGBA32;
+                GXImageFormat GXFormat = entries[i].AsGXImageFormat();
 
-                GXImageFormat GXFormat = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), entries[i].Format.ToString());
-
-                byte[] PaletteData = null;
-                if (GXFormat.IsPaletteFormat())
+                Span<byte> PaletteData = Span<byte>.Empty;
+                if (entries[i].IsPaletteFormat())
                 {
                     stream.Seek(entries[i].PaletteOffset, SeekOrigin.Begin);
                     PaletteData = stream.Read(entries[i].PaletteSize * 2);
                 }
 
                 stream.Seek(entries[i].ImageOffset, SeekOrigin.Begin);
-                TexEntry current = new TexEntry(stream, PaletteData, GXFormat, GXPaletteFormat.RGB5A3, entries[i].PaletteSize, entries[i].Width, entries[i].Height)
+                TexEntry current = new(stream, PaletteData, GXFormat, GXPaletteFormat.RGB5A3, entries[i].PaletteSize, entries[i].Width, entries[i].Height)
                 {
                     LODBias = 0,
                     MagnificationFilter = GXFilterMode.Nearest,
@@ -110,34 +96,41 @@ namespace AuroraLib.Texture.Formats
             throw new NotImplementedException();
         }
 
-        private struct bank
+        private readonly struct Bank
         {
-            public ushort frames;
-            public uint frame_offset;
+            public readonly ushort Frames;
+            public readonly ushort Padding;
+            public readonly uint Offset;
         }
 
-        public class TexturEntry
+        public readonly struct TexturEntry
         {
-            public byte Bpp;
-            public ATB_Format Format;
-            public ushort PaletteSize;
-            public ushort Width;
-            public ushort Height;
-            public uint ImageSize;
-            public uint PaletteOffset;
-            public uint ImageOffset;
+            public readonly byte Bpp;
+            public readonly ATB_Format Format;
+            public readonly ushort PaletteSize;
+            public readonly ushort Width;
+            public readonly ushort Height;
+            public readonly uint ImageSize;
+            public readonly uint PaletteOffset;
+            public readonly uint ImageOffset;
 
-            public TexturEntry(Stream stream)
+            public bool IsPaletteFormat() => PaletteOffset != ImageOffset;
+
+            public GXImageFormat AsGXImageFormat() => Format switch
             {
-                Bpp = (byte)stream.ReadByte();
-                Format = (ATB_Format)stream.ReadByte();
-                PaletteSize = stream.ReadUInt16(Endian.Big);
-                Width = stream.ReadUInt16(Endian.Big);
-                Height = stream.ReadUInt16(Endian.Big);
-                ImageSize = stream.ReadUInt32(Endian.Big);
-                PaletteOffset = stream.ReadUInt32(Endian.Big);
-                ImageOffset = stream.ReadUInt32(Endian.Big);
-            }
+                ATB_Format.RGBA32 => GXImageFormat.RGBA32,
+                ATB_Format.RGB5A3 => GXImageFormat.RGB5A3,
+                ATB_Format.RGB5A3_DUPE => GXImageFormat.RGB5A3,
+                ATB_Format.C8 => Bpp == 24 ? throw new NotSupportedException("BPP 24") : GXImageFormat.C8,
+                ATB_Format.C4 => GXImageFormat.C4,
+                ATB_Format.IA8 => GXImageFormat.IA8,
+                ATB_Format.IA4 => GXImageFormat.IA4,
+                ATB_Format.I8 => GXImageFormat.I8,
+                ATB_Format.I4 => GXImageFormat.I4,
+                ATB_Format.A8 => GXImageFormat.RGBA32, //?
+                ATB_Format.CMPR => GXImageFormat.CMPR,
+                _ => throw new NotImplementedException(),
+            };
         }
 
         public class PatternEntry

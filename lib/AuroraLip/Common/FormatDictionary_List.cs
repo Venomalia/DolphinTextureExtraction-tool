@@ -509,7 +509,7 @@ namespace AuroraLib.Common
 
             //Hudson Soft
             new FormatInfo(".bin", FormatType.Archive, "Mario Party Archive", "Hudson Soft",typeof(BIN_MP)),
-            new FormatInfo(".hsf",new Identifier64(1447449416), FormatType.Texture,"Mario Party Model","Hudson Soft",typeof(HSF)),
+            new FormatInfo(".hsf",new Identifier64(15537406417982280), FormatType.Texture,"Mario Party Model","Hudson Soft",typeof(HSF)),
             new FormatInfo(".atb", FormatType.Texture,"Mario Party texture","Hudson Soft",typeof(ATB)),
             new FormatInfo(".h3m", "HVQM3 1." , FormatType.Video,"Video","Hudson Soft"),
             new FormatInfo(".h4m", "HVQM4 1." , FormatType.Video,"Video","Hudson Soft"),

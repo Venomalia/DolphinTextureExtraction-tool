@@ -32,6 +32,8 @@ namespace AuroraLib.Common
             new FormatInfo(".ash","ASH0", FormatType.Archive, comp_,Nin_), //https://github.com/trapexit/wiiqt/blob/master/WiiQt/ash.cpp
             new FormatInfo(".LZOn","LZOn", FormatType.Archive, comp_,Nin_),
             new FormatInfo(".mio","MIO0", FormatType.Archive, comp_,Nin_,typeof(MIO0)),
+            new FormatInfo(".vff","VFF ", FormatType.Archive, "Virtual FAT filesystem",Nin_),
+            new FormatInfo(".ccf",new Identifier32(4604739), FormatType.Archive, "CCF archive",Nin_),
 
             //Nintendo Textures
             new FormatInfo(".breft","REFT", FormatType.Texture, "Wii Effect Texture", Nin_,typeof(REFT)),
@@ -124,6 +126,7 @@ namespace AuroraLib.Common
             new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation", Nin_),
             new FormatInfo(".brlyt", "RLYT", FormatType.Layout, "Wii structure Layout", Nin_),
             new FormatInfo(".brfnt", "RFNT", FormatType.Font, "Wii Font", Nin_),
+            new FormatInfo(".pkb",  "RFNA", FormatType.Font, "Wii Font", Nin_),
             new FormatInfo(".bflyt", "FLYT", FormatType.Layout, "Binary caFe LaYouT", Nin_),
             new FormatInfo(".bclyt", "CLYT", FormatType.Layout, "Binary caFe LaYouT", Nin_),
             new FormatInfo(".bflim", "FLIM", FormatType.Texture, "Binary caFe Layout IMage", Nin_),
@@ -617,7 +620,6 @@ namespace AuroraLib.Common
 
             //Font
             new FormatInfo(".bfn", "FONTbfn1", FormatType.Font),
-            new FormatInfo(".pkb",  "RFNA", FormatType.Font),
             //Model
             new FormatInfo(".HGO","HGOF", FormatType.Model),
             new FormatInfo(".CMDL", FormatType.Model),

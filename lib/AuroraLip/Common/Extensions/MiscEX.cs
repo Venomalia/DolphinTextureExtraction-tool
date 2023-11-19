@@ -11,35 +11,26 @@ namespace AuroraLib.Common
             return data;
         }
 
-        public static byte[] AESDecrypt(byte[] cipherData, byte[] Key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
+        public static void AESDecrypt(byte[] cipherData, byte[] key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
         {
             Aes aes = Aes.Create();
-            aes.KeySize = Key.Length * 8;
+            aes.KeySize = key.Length * 8;
             aes.Mode = cipherMode;
             aes.Padding = paddingMode;
-            aes.Key = Key;
+            aes.Key = key;
             aes.IV = IV;
-            return aes.CreateDecryptor().Decrypt(cipherData);
+            aes.CreateDecryptor().TransformBlock(cipherData, 0, cipherData.Length, cipherData,0);
         }
 
-        public static byte[] AESEncrypt(byte[] cipherData, byte[] Key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
+        public static void AESEncrypt(byte[] cipherData, byte[] key, byte[] IV, CipherMode cipherMode = CipherMode.CBC, PaddingMode paddingMode = PaddingMode.Zeros)
         {
             Aes aes = Aes.Create();
-            aes.KeySize = Key.Length * 8;
+            aes.KeySize = key.Length * 8;
             aes.Mode = cipherMode;
             aes.Padding = paddingMode;
-            aes.Key = Key;
+            aes.Key = key;
             aes.IV = IV;
-            return aes.CreateEncryptor().Decrypt(cipherData);
-        }
-
-        public static byte[] Decrypt(this ICryptoTransform algorithm, byte[] cipherData)
-        {
-            using MemoryPoolStream ms = new();
-            using CryptoStream cs = new(ms, algorithm, CryptoStreamMode.Write);
-            cs.Write(cipherData, 0, cipherData.Length);
-            cs.Close();
-            return ms.ToArray();
+            aes.CreateEncryptor().TransformBlock(cipherData, 0, cipherData.Length, cipherData, 0);
         }
     }
 }

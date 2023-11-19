@@ -310,7 +310,7 @@ namespace AuroraLib.Common
             new FormatInfo(".nes", 0,new byte[]{78,69,83,26} , FormatType.Rom, "Rom", Nin_),
             new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Iso, "Dolphin Iso", "Dolphin Team"),
             new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Iso, "Wii ISO Archive","Wiimm"),
-            new FormatInfo(".wad",new Identifier32(0,0,(byte)'s',(byte)'I'),4, FormatType.Iso, "Wii WAD",Nin_,typeof(WAD)),
+            new FormatInfo(".wad",new Identifier32((byte)'I', (byte)'s', 0, 0),4, FormatType.Iso, "Wii WAD",Nin_,typeof(WAD)),
             new FormatInfo(".ciso", FormatType.Iso, "Compact ISO"),
             new FormatInfo(".iso", FormatType.Iso, "Gamecube Mini Disc Image",Nin_,typeof(GCDisk)),
             new FormatInfo(".iso", FormatType.Iso, "Wii Disc Image",Nin_,typeof(WiiDisk)),

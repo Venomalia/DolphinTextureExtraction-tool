@@ -1,6 +1,6 @@
 ﻿using AuroraLib.Common;
 
-namespace AuroraLib.Archives.DiscImage
+namespace AuroraLib.DiscImage.Revolution
 {
     public static class WiiKey
     {
@@ -24,9 +24,11 @@ namespace AuroraLib.Archives.DiscImage
         /// </summary>
         static WiiKey()
         {
-            CKey = MiscEX.AESDecrypt(CKey, MiscEX.RKey(42, 16), MiscEX.RKey(13, 16));
-            KKey = MiscEX.AESDecrypt(KKey, MiscEX.RKey(42, 16), MiscEX.RKey(13, 16));
-            VKey = MiscEX.AESDecrypt(VKey, MiscEX.RKey(42, 16), MiscEX.RKey(13, 16));
+            byte[] gKey = MiscEX.RKey(42, 16);
+            byte[] gIV = MiscEX.RKey(13, 16);
+            MiscEX.AESDecrypt(CKey, gKey, gIV);
+            MiscEX.AESDecrypt(KKey, gKey, gIV);
+            MiscEX.AESDecrypt(VKey, gKey, gIV);
         }
     }
 }

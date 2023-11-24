@@ -44,9 +44,9 @@ namespace DolphinTextureExtraction.Scans
 
                 #region SplitTexture
                 //if SplitTextureHashInfo?
-                if (name.Length > 32 && name[..4].SequenceEqual("RGBA") && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
+                if (name.Length > 32 && (name[..4].SequenceEqual("RGBA") || name[..4].SequenceEqual("BGRA")) && SplitTextureHashInfo.TryParse(name.ToString(), out SplitTextureHashInfo splitHash))
                 {
-                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Detected as RGBA combined texture.");
+                    Log.WriteNotification(NotificationType.Info, $"\"{name}\" Detected as {splitHash.SplitType} combined texture.");
                     // get Dolphin Texture Hashs
                     DolphinTextureHashInfo hashRG, hashBA;
                     (hashRG, hashBA) = splitHash.ToDolphinTextureHashInfo();
@@ -66,35 +66,47 @@ namespace DolphinTextureExtraction.Scans
                     }
 
                     // Create two new images.
-                    using (Image<La16> imageRG = new(width, height))
-                    using (Image<La16> imageBA = new(width, height))
+                    using Image<La16> imageRG = new(width, height);
+                    using Image<La16> imageBA = new(width, height);
+                    if (splitHash.SplitType == SplitTextureHashInfo.ChannelSplitType.RGBA)
                     {
                         for (int y = 0; y < height; y++)
                         {
                             for (int x = 0; x < width; x++)
                             {
                                 Rgba32 pixel = image[x, y];
-
                                 // RG channel
                                 imageRG[x, y] = new(pixel.R, pixel.G);
-
                                 // BA channel
                                 imageBA[x, y] = new(pixel.B, pixel.A);
                             }
                         }
-
-                        // Save the RG channel image.
-                        string subPathRG = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
-                        LogDuplicatIfNeeded(ref subPathRG);
-                        using Stream fileRG = Save(imageRG, subPathRG, encoder);
-                        LogSplit(subPathRG, "RGBA Split type:RG");
-                        // Save the BA channel image.
-                        string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashBA.Build() + ".png");
-                        LogDuplicatIfNeeded(ref subPathBA);
-                        using Stream fileBA = Save(imageBA, subPathBA, encoder);
-                        LogSplit(subPathBA, "RGBA Split type:BA");
-
                     }
+                    else
+                    {
+                        for (int y = 0; y < height; y++)
+                        {
+                            for (int x = 0; x < width; x++)
+                            {
+                                Rgba32 pixel = image[x, y];
+                                // BG channel
+                                imageRG[x, y] = new(pixel.B, pixel.G);
+                                // RA channel
+                                imageBA[x, y] = new(pixel.R, pixel.A);
+                            }
+                        }
+                    }
+
+                    // Save the RG channel image.
+                    string subPathRG = Path.Join(Path.GetDirectoryName(so.SubPath), hashRG.Build() + ".png");
+                    LogDuplicatIfNeeded(ref subPathRG);
+                    using Stream fileRG = Save(imageRG, subPathRG, encoder);
+                    LogSplit(subPathRG, $"{splitHash.SplitType} Split type:{splitHash.SplitType.ToString()[..2]}");
+                    // Save the BA channel image.
+                    string subPathBA = Path.Join(Path.GetDirectoryName(so.SubPath), hashBA.Build() + ".png");
+                    LogDuplicatIfNeeded(ref subPathBA);
+                    using Stream fileBA = Save(imageBA, subPathBA, encoder);
+                    LogSplit(subPathBA, $"{splitHash.SplitType} Split type:{splitHash.SplitType.ToString()[2..]}");
                     return;
                 }
                 #endregion

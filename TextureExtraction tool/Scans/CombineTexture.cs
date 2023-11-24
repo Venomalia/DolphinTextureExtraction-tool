@@ -9,22 +9,23 @@ using SixLabors.ImageSharp.Processing;
 
 namespace DolphinTextureExtraction.Scans
 {
-    public class CombineRGBA : ScanBase
+    public class CombineTexture : ScanBase
     {
-        List<int> _hash = new();
+        private readonly List<int> _hash = new();
 
-        public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null)
-            => StartScan_Async(meindirectory, savedirectory, options, logDirectory).Result;
+        private readonly SplitTextureHashInfo.ChannelSplitType _channelSplitType;
 
-        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null)
+        public static ScanResults StartScan(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null, SplitTextureHashInfo.ChannelSplitType splitType = SplitTextureHashInfo.ChannelSplitType.RGBA)
+            => StartScan_Async(meindirectory, savedirectory, options, logDirectory, splitType).Result;
+
+        public static async Task<ScanResults> StartScan_Async(string meindirectory, string savedirectory, ScanOptions options, string logDirectory = null, SplitTextureHashInfo.ChannelSplitType splitType = SplitTextureHashInfo.ChannelSplitType.RGBA)
         {
-            CombineRGBA Extractor = new(meindirectory, savedirectory, options, logDirectory);
+            CombineTexture Extractor = new(meindirectory, savedirectory, options, logDirectory, splitType);
             return await Extractor.StartScan_Async();
         }
 
-        public CombineRGBA(in string scanDirectory, in string saveDirectory, ScanOptions options, string logDirectory = null) : base(scanDirectory, saveDirectory, options, logDirectory)
-        {
-        }
+        public CombineTexture(in string scanDirectory, in string saveDirectory, ScanOptions options, string logDirectory = null, SplitTextureHashInfo.ChannelSplitType splitType = SplitTextureHashInfo.ChannelSplitType.RGBA) : base(scanDirectory, saveDirectory, options, logDirectory)
+            => _channelSplitType = splitType;
 
         protected override void Scan(ScanObjekt so)
         {
@@ -70,16 +71,16 @@ namespace DolphinTextureExtraction.Scans
                             {
                                 if (trend > 0)
                                     subPath = Path.Join("~Alternatives", subPath);
-                                hashRGBA = new(dolphinHash2, dolphinHash);
-                                using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image);
+                                hashRGBA = new(dolphinHash2, dolphinHash, _channelSplitType);
+                                using Image<Rgba32> imageRGBA = CombineImagePairs(image2, image, _channelSplitType);
                                 Save(imageRGBA, subPath, hashRGBA, trend);
                             }
                             if (trend > -100)
                             {
                                 if (trend <= 0)
                                     subPath = Path.Join("~Alternatives", subPath);
-                                hashRGBA = new(dolphinHash, dolphinHash2);
-                                using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2);
+                                hashRGBA = new(dolphinHash, dolphinHash2, _channelSplitType);
+                                using Image<Rgba32> imageRGBA = CombineImagePairs(image, image2, _channelSplitType);
                                 Save(imageRGBA, subPath, hashRGBA, trend);
                             }
                         }
@@ -119,12 +120,12 @@ namespace DolphinTextureExtraction.Scans
             file.Dispose();
 
             fileName = Path.Join(Path.GetDirectoryName(subSavePath), fileName);
-            Log.WriteNotification(AuroraLib.Common.NotificationType.Info, $"\"{fileName}\" RGBA tendency {trend}.");
-            Option.ListPrintAction?.Invoke(Result, "Combined", fileName, $"RGBA tendency {trend}.");
+            Log.WriteNotification(AuroraLib.Common.NotificationType.Info, $"\"{fileName}\" {_channelSplitType} tendency {trend}.");
+            Option.ListPrintAction?.Invoke(Result, "Combined", fileName, $"{_channelSplitType} tendency {trend}.");
 
         }
 
-        private static Image<Rgba32> CombineImagePairs(Image<Rgba32> imageRG, Image<Rgba32> imageBA)
+        private static Image<Rgba32> CombineImagePairs(Image<Rgba32> imageRG, Image<Rgba32> imageBA, SplitTextureHashInfo.ChannelSplitType splitType)
         {
             int width = imageRG.Width;
             int height = imageRG.Height;
@@ -141,9 +142,19 @@ namespace DolphinTextureExtraction.Scans
                 Span<Rgba32> pBA = memBA[i].Span;
                 Span<Rgba32> p = mem[i].Span;
 
-                for (int j = 0; j < pRG.Length; j++)
+                if (splitType == SplitTextureHashInfo.ChannelSplitType.RGBA)
                 {
-                    p[j] = new(pRG[j].R, pRG[j].A, pBA[j].R, pBA[j].A);
+                    for (int j = 0; j < pRG.Length; j++)
+                    {
+                        p[j] = new(pRG[j].R, pRG[j].A, pBA[j].R, pBA[j].A);
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < pRG.Length; j++)
+                    {
+                        p[j] = new(pBA[j].R, pRG[j].A, pRG[j].R, pBA[j].A);
+                    }
                 }
             }
 

@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Text;
+using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -97,6 +98,7 @@ namespace DolphinTextureExtraction
                         case Modes.Extract:
                         case Modes.Finalize:
                         case Modes.CombineRGBA:
+                        case Modes.CombineBGRA:
                             #region Extract
 
                             #region User Set Input Path
@@ -245,6 +247,7 @@ namespace DolphinTextureExtraction
                         case Modes.Unpack:
                         case Modes.Finalize:
                         case Modes.CombineRGBA:
+                        case Modes.CombineBGRA:
                             #region extract
                             p = GetPahts(args);
                             if (p <= 0)
@@ -323,7 +326,8 @@ namespace DolphinTextureExtraction
                 Modes.Compress => Compress.StartScan(InputPath, OutputDirectory, Reflection.Compression.GetByName(Algorithm), Options, LogDirectory),
                 Modes.Split => Cutter.StartScan(InputPath, OutputDirectory, Pattern, Options, LogDirectory),
                 Modes.Finalize => Scans.Finalize.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
-                Modes.CombineRGBA => CombineRGBA.StartScan(InputPath, OutputDirectory, Options, LogDirectory),
+                Modes.CombineRGBA => CombineTexture.StartScan(InputPath, OutputDirectory, Options, LogDirectory, SplitTextureHashInfo.ChannelSplitType.RGBA),
+                Modes.CombineBGRA => CombineTexture.StartScan(InputPath, OutputDirectory, Options, LogDirectory, SplitTextureHashInfo.ChannelSplitType.BGRA),
                 _ => throw new NotImplementedException($"Mode type {Mode}."),
             };
 

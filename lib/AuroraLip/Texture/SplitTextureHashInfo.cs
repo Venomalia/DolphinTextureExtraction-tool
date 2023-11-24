@@ -45,7 +45,9 @@ namespace AuroraLib.Texture
         /// </summary>
         public GXImageFormat Format { get; }
 
-        public SplitTextureHashInfo(int width, int height, GXImageFormat format, ulong hash, ulong tlutHash, ulong tlutHash2, int mipmap = 0, bool hasMips = false, bool isArbitraryMipmap = false)
+        public ChannelSplitType SplitType { get; }
+
+        public SplitTextureHashInfo(int width, int height, GXImageFormat format, ulong hash, ulong tlutHash, ulong tlutHash2, int mipmap = 0, bool hasMips = false, bool isArbitraryMipmap = false, ChannelSplitType type = ChannelSplitType.RGBA)
         {
             Width = width;
             Height = height;
@@ -56,9 +58,10 @@ namespace AuroraLib.Texture
             IsArbitraryMipmap = isArbitraryMipmap;
             HasMips = hasMips;
             Format = format;
+            SplitType = type;
         }
 
-        public SplitTextureHashInfo(DolphinTextureHashInfo dolphinHash, DolphinTextureHashInfo dolphinHash2)
+        public SplitTextureHashInfo(DolphinTextureHashInfo dolphinHash, DolphinTextureHashInfo dolphinHash2, ChannelSplitType type = ChannelSplitType.RGBA)
         {
             Width = dolphinHash.Width;
             Height = dolphinHash.Height;
@@ -69,6 +72,7 @@ namespace AuroraLib.Texture
             IsArbitraryMipmap = dolphinHash.IsArbitraryMipmap;
             HasMips = dolphinHash.HasMips;
             Format = dolphinHash.Format;
+            SplitType = type;
         }
 
         public (DolphinTextureHashInfo, DolphinTextureHashInfo) ToDolphinTextureHashInfo()
@@ -84,16 +88,9 @@ namespace AuroraLib.Texture
         /// <summary>
         /// Builds a Split texture hash.
         /// </summary>
-        /// <returns>The Dolphin texture hash for this <see cref="DolphinTextureHashInfo"/>.</returns>
-        public string Build()
-            => Build(Width, Height, Hash, Format, TlutHash, TlutHash2, Mipmap, HasMips, IsArbitraryMipmap);
-
-        /// <summary>
-        /// Builds a Split texture hash with the set mip level.
-        /// </summary>
         /// <param name="mipLevel"></param>
         /// <returns>The Dolphin texture hash for this <see cref="DolphinTextureHashInfo"/>.</returns>
-        public string Build(int mipLevel) => Build(Width, Height, Hash, Format, TlutHash, TlutHash2, mipLevel, HasMips, IsArbitraryMipmap);
+        public string Build(int mipLevel = 0) => Build(Width, Height, Hash, Format, TlutHash, TlutHash2, mipLevel, HasMips, IsArbitraryMipmap, SplitType);
 
         /// <summary>
         /// Builds a Dolphin split texture hash.
@@ -108,10 +105,11 @@ namespace AuroraLib.Texture
         /// <param name="hasMips">Whether the texture has mipmaps.</param>
         /// <param name="IsArbitraryMipmap">Whether the texture's mipmaps have arbitrary sizes.</param>
         /// <returns>The Dolphin texture hash for the provided texture parameters.</returns>
-        public static string Build(int ImageWidth, int ImageHeight, ulong Hash, GXImageFormat Format, ulong TlutHash, ulong TlutHash2, int mipmap = 0, bool hasMips = false, bool IsArbitraryMipmap = false)
+        public static string Build(int ImageWidth, int ImageHeight, ulong Hash, GXImageFormat Format, ulong TlutHash, ulong TlutHash2, int mipmap = 0, bool hasMips = false, bool IsArbitraryMipmap = false, ChannelSplitType type = ChannelSplitType.RGBA)
         {
             ValueStringBuilder builder = new(stackalloc char[80]);
-            builder.Append("RGBA_");
+            builder.Append(type.ToString());
+            builder.Append('_');
             builder.Append(ImageWidth.ToString());
             builder.Append('x');
             builder.Append(ImageHeight.ToString());
@@ -151,9 +149,9 @@ namespace AuroraLib.Texture
 
         public static bool TryParse(string dolphinHash, out SplitTextureHashInfo splitTexture)
         {
-            if (TryParse(dolphinHash, out int imageWidth, out int imageHeight, out ulong hash, out GXImageFormat format, out ulong tlutHash, out ulong tlutHash2, out int mipmap, out bool hasMips, out bool isArbitraryMipmap))
+            if (TryParse(dolphinHash, out int imageWidth, out int imageHeight, out ulong hash, out GXImageFormat format, out ulong tlutHash, out ulong tlutHash2, out int mipmap, out bool hasMips, out bool isArbitraryMipmap, out ChannelSplitType type))
             {
-                splitTexture = new SplitTextureHashInfo(imageWidth, imageHeight, format, hash, tlutHash, tlutHash2, mipmap, hasMips, isArbitraryMipmap);
+                splitTexture = new SplitTextureHashInfo(imageWidth, imageHeight, format, hash, tlutHash, tlutHash2, mipmap, hasMips, isArbitraryMipmap, type);
                 return true;
             }
             else
@@ -163,9 +161,9 @@ namespace AuroraLib.Texture
             }
         }
 
-        public static bool TryParse(string splitHash, out int imageWidth, out int imageHeight, out ulong hash, out GXImageFormat format, out ulong tlutHash, out ulong tlutHash2, out int mipmap, out bool hasMips, out bool isArbitraryMipmap)
+        public static bool TryParse(string splitHash, out int imageWidth, out int imageHeight, out ulong hash, out GXImageFormat format, out ulong tlutHash, out ulong tlutHash2, out int mipmap, out bool hasMips, out bool isArbitraryMipmap, out ChannelSplitType type)
         {
-            const string pattern = @"RGBA_(\d+)x(\d+)(_m)?_(\$|[0-9a-fA-F]{16})_(\$|[0-9a-fA-F]{16})(_(\$|[0-9a-fA-F]{16}))?_(\d+)(_arb)?(_mip(\d+))?";
+            const string pattern = @"(RGBA|BGRA)_(\d+)x(\d+)(_m)?_(\$|[0-9a-fA-F]{16})_(\$|[0-9a-fA-F]{16})(_(\$|[0-9a-fA-F]{16}))?_(\d+)(_arb)?(_mip(\d+))?";
 
             var match = Regex.Match(splitHash, pattern);
             if (!match.Success)
@@ -174,21 +172,29 @@ namespace AuroraLib.Texture
                 hash = tlutHash = tlutHash2 = 0;
                 format = GXImageFormat.IA4;
                 hasMips = isArbitraryMipmap = false;
+                type = ChannelSplitType.RGBA;
                 return false;
             }
             else
             {
-                imageWidth = int.Parse(match.Groups[1].Value);
-                imageHeight = int.Parse(match.Groups[2].Value);
-                hasMips = match.Groups[3].Success;
-                hash = ulong.Parse(match.Groups[4].Value, System.Globalization.NumberStyles.HexNumber);
-                tlutHash = match.Groups[5].Success && match.Groups[5].Value != "$" ? ulong.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.HexNumber) : 0;
-                tlutHash2 = match.Groups[6].Success && match.Groups[7].Value != "$" ? ulong.Parse(match.Groups[7].Value, System.Globalization.NumberStyles.HexNumber) : 0;
-                format = (GXImageFormat)int.Parse(match.Groups[8].Value);
-                isArbitraryMipmap = match.Groups[9].Success;
-                mipmap = match.Groups[10].Success ? int.Parse(match.Groups[11].Value) : 0;
+                type = Enum.Parse<ChannelSplitType>(match.Groups[1].Value);
+                imageWidth = int.Parse(match.Groups[2].Value);
+                imageHeight = int.Parse(match.Groups[3].Value);
+                hasMips = match.Groups[4].Success;
+                hash = ulong.Parse(match.Groups[5].Value, System.Globalization.NumberStyles.HexNumber);
+                tlutHash = match.Groups[6].Success && match.Groups[5].Value != "$" ? ulong.Parse(match.Groups[6].Value, System.Globalization.NumberStyles.HexNumber) : 0;
+                tlutHash2 = match.Groups[7].Success && match.Groups[8].Value != "$" ? ulong.Parse(match.Groups[8].Value, System.Globalization.NumberStyles.HexNumber) : 0;
+                format = (GXImageFormat)int.Parse(match.Groups[9].Value);
+                isArbitraryMipmap = match.Groups[10].Success;
+                mipmap = match.Groups[11].Success ? int.Parse(match.Groups[12].Value) : 0;
                 return true;
             }
+        }
+
+        public enum ChannelSplitType : uint
+        {
+            RGBA,
+            BGRA,
         }
 
     }

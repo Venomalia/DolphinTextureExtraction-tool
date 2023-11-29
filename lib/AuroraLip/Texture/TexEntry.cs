@@ -258,16 +258,9 @@ namespace AuroraLib.Texture
                 //Splits the pallete data if there are more than one
                 if (Format.IsPaletteFormat() && PaletteCount > 0)
                 {
-                    int PalettesNumber = PaletteData.Length / (PaletteCount * 2);
-                    if (PalettesNumber <= 1)
-                        Palettes.Add(PaletteData[..(PaletteCount * 2)].ToArray());
-                    else
-                    {
-                        int PaletteSize = PaletteData.Length / PalettesNumber;
-
-                        for (int i = 0; i < PalettesNumber; i++)
-                            Palettes.Add(PaletteData.Slice(i * PaletteSize, PaletteSize).ToArray());
-                    }
+                    int paletteSize = Math.Min(PaletteCount * 2, Format.GetMaxPaletteSize());
+                    for (int i = 0; i < PaletteData.Length / paletteSize; i++)
+                        Palettes.Add(PaletteData.Slice(i * paletteSize, paletteSize).ToArray());
                 }
             }
 

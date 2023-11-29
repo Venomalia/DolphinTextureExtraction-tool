@@ -337,6 +337,9 @@ namespace AuroraLib.Common
             new FormatInfo(".adx", "€", FormatType.Audio, "CRI Audio", "CRIWARE"){ IsMatch = ADX_Matcher},
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),
             new FormatInfo(".sfd", 2, new byte[] { 1, 186, 33 } , FormatType.Video, "SofDec Video", "CRIWARE"),
+            
+            //	Atlus
+            new FormatInfo(".tpx", FormatType.Texture, "Texture Palette Xtension", "Atlus"){ Class = typeof(TPX)},
 
             //Capcom
             new FormatInfo("", FormatType.Archive, "MT Framework Archive", "Capcom"){ Class = typeof(ARC_MTF)},

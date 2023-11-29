@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
+using SevenZipExtractor;
 using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
@@ -16,9 +17,6 @@ namespace AuroraLib.Texture.Formats
         public static readonly Identifier32 Magic = new(0x00, 0x20, 0xAF, 0x30);
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => Matcher(stream, extension);
-
-        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 12 && stream.Match(Magic);
 
         public static int GetSize(Stream stream)
@@ -65,18 +63,20 @@ namespace AuroraLib.Texture.Formats
             for (int i = 0; i < ImageOffsetTable.Length; i++)
             {
                 byte[] PaletteData = null;
-                PaletteHeader paletteHeader;
+                PaletteHeader paletteHeader = default;
                 if (ImageOffsetTable[i].HasPaletteData)
                 {
                     stream.Seek(HeaderStart + ImageOffsetTable[i].PaletteHeaderOffset, SeekOrigin.Begin);
                     paletteHeader = stream.Read<PaletteHeader>(Endian.Big);
 
+                    int paletteSize = paletteHeader.Count * 2;
+                    if ((byte)paletteHeader.Format == byte.MaxValue) // This is a modification from TPX format which describes a RGBA pallete with the value 255
+                    {
+                        paletteSize *= 2;
+                        paletteHeader.Format = GXPaletteFormat.IA8;
+                    }
                     stream.Seek(HeaderStart + paletteHeader.PaletteDataAddress, SeekOrigin.Begin);
-                    PaletteData = stream.Read(paletteHeader.Count * 2);
-                }
-                else
-                {
-                    paletteHeader = default;
+                    PaletteData = stream.Read(paletteSize);
                 }
 
                 stream.Seek(HeaderStart + ImageOffsetTable[i].ImageHeaderOffset, SeekOrigin.Begin);
@@ -138,7 +138,7 @@ namespace AuroraLib.Texture.Formats
                     };
                     stream.Write(paletteHeader, Endian.Big);
                     stream.WriteAlign(32);
-                    foreach (var Palette in this[i].Palettes)
+                    foreach (byte[] Palette in this[i].Palettes)
                         stream.Write(Palette);
                     stream.WriteAlign(32);
                 }
@@ -169,19 +169,24 @@ namespace AuroraLib.Texture.Formats
                     stream.Write(bytes);
                 }
 
-                ImageOffsetTable[i] = new ImageOffsetEntry() { ImageHeaderOffset = ImageHeader, PaletteHeaderOffset = PaletteHeader };
+                ImageOffsetTable[i] = new ImageOffsetEntry(ImageHeader, PaletteHeader);
             }
 
             //Write ImageOffsetTable
             stream.At(OffsetLocation, s => s.Write<ImageOffsetEntry>(ImageOffsetTable, Endian.Big));
         }
 
-        public struct ImageOffsetEntry
+        public readonly struct ImageOffsetEntry
         {
-            public uint ImageHeaderOffset;
-            public uint PaletteHeaderOffset;
+            public readonly uint ImageHeaderOffset;
+            public readonly uint PaletteHeaderOffset;
+            public readonly bool HasPaletteData => PaletteHeaderOffset != 0;
 
-            public bool HasPaletteData => PaletteHeaderOffset != 0;
+            public ImageOffsetEntry(uint imageHeaderOffset, uint paletteHeaderOffset)
+            {
+                ImageHeaderOffset = imageHeaderOffset;
+                PaletteHeaderOffset = paletteHeaderOffset;
+            }
         }
 
         public struct ImageHeader
@@ -202,37 +207,37 @@ namespace AuroraLib.Texture.Formats
 
             public GXImageFormat Format
             {
-                get => (GXImageFormat)format;
+                readonly get => (GXImageFormat)format;
                 set => format = (uint)value;
             }
 
             public GXWrapMode WrapS
             {
-                get => (GXWrapMode)wrapS;
+                readonly get => (GXWrapMode)wrapS;
                 set => wrapS = (uint)value;
             }
 
             public GXWrapMode WrapT
             {
-                get => (GXWrapMode)wrapT;
+                readonly get => (GXWrapMode)wrapT;
                 set => wrapT = (uint)value;
             }
 
             public GXFilterMode MinFilter
             {
-                get => (GXFilterMode)minFilter;
+                readonly get => (GXFilterMode)minFilter;
                 set => minFilter = (uint)value;
             }
 
             public GXFilterMode MagFilter
             {
-                get => (GXFilterMode)maxFilter;
+                readonly get => (GXFilterMode)maxFilter;
                 set => maxFilter = (uint)value;
             }
 
             public bool EnableEdgeLOD
             {
-                get => EdgeLOD > 0;
+                readonly get => EdgeLOD > 0;
                 set => EdgeLOD = (byte)(value ? 1 : 0);
             }
         }
@@ -247,7 +252,7 @@ namespace AuroraLib.Texture.Formats
 
             public GXPaletteFormat Format
             {
-                get => (GXPaletteFormat)format;
+                readonly get => (GXPaletteFormat)format;
                 set => format = (uint)value;
             }
         }

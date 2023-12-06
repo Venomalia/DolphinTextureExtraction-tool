@@ -31,7 +31,7 @@ namespace AuroraLib.Texture.Formats
 
         protected override void Read(Stream stream) => Read(stream, null, GXPaletteFormat.IA8, 0);
 
-        protected void Read(Stream stream, byte[] PaletteData, GXPaletteFormat PaletteFormat, int PaletteCount)
+        protected void Read(Stream stream, Span<byte> PaletteData, GXPaletteFormat PaletteFormat, int PaletteCount)
         {
             stream.MatchThrow(_identifier);
 
@@ -80,7 +80,7 @@ namespace AuroraLib.Texture.Formats
                         }
 
                         stream.Position = SectionOffsets;
-                        TexEntry tex = new TexEntry(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
+                        TexEntry tex = new(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
                         {
                             LODBias = 0,
                             MagnificationFilter = GXFilterMode.Nearest,
@@ -92,13 +92,16 @@ namespace AuroraLib.Texture.Formats
                             MaxLOD = MaxLOD
                         };
 
-                        foreach (var PalletName in PalletNames)
+                        foreach (string PalletName in PalletNames)
                         {
                             ArchiveFile PFile = (ArchiveFile)ParentBres[PalletName];
                             lock (PFile.FileData)
                             {
                                 PFile.FileData.Seek(0, SeekOrigin.Begin);
-                                tex.Palettes.Add(new PLT0(PFile.FileData).Data);
+
+                                PLT0 pallet = new(PFile.FileData);
+                                tex.PaletteFormat = pallet.Format;
+                                tex.Palettes.Add(pallet.Data);
                             }
                         }
                         Add(tex);

@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
-using AuroraLib.Core.IO;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -38,7 +37,7 @@ namespace AuroraLib.Archives.Formats
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
 
-            List<RTDPEntry> Entries = new List<RTDPEntry>();
+            List<RTDPEntry> Entries = new();
             for (int i = 0; i < NrEntries; i++)
             {
                 Entries.Add(new RTDPEntry(stream));
@@ -47,18 +46,12 @@ namespace AuroraLib.Archives.Formats
             foreach (var Entry in Entries)
             {
                 //If Duplicate...
-                if (Root.Items.ContainsKey(Entry.Name)) Entry.Name = Path.GetFileName(Entry.Name) + Entries.IndexOf(Entry) + Path.GetExtension(Entry.Name);
+                if (Root.Items.ContainsKey(Entry.Name))
+                    Entry.Name = Path.GetFileName(Entry.Name) + Entries.IndexOf(Entry) + Path.GetExtension(Entry.Name);
 
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Entry.Name };
-                stream.Position = Entry.DataOffset + EOH;
-
-                MemoryPoolStream ms = new(Entry.DataSize);
-                ms.SetLength(Entry.DataSize);
-                Span<byte> msSpan = ms.UnsaveAsSpan();
-                stream.Read(msSpan);
-                msSpan.DataXor(0x55);
-                Sub.FileData = ms;
-                Root.Items.Add(Sub.Name, Sub);
+                SubStream subStream = new(stream, Entry.DataSize, Entry.DataOffset + EOH);
+                XORStream xORStream = new(subStream, 0x55);
+                Root.AddArchiveFile(xORStream, Entry.Name);
             }
         }
 

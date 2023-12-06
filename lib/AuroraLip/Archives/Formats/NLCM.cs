@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
+using System.Text;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -64,23 +65,60 @@ namespace AuroraLib.Archives.Formats
             }
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
-            for (uint i = 0; i < file_count; i++)
+            for (int i = 0; i < file_count; i++)
             {
                 uint size = stream.ReadUInt32(Endian.Big);
                 uint padding = stream.ReadUInt32(Endian.Big);
                 uint file_offset = stream.ReadUInt32(Endian.Big);
                 uint padding2 = stream.ReadUInt32(Endian.Big);
-
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = i.ToString() };
-                reference_stream.Seek(file_offset, SeekOrigin.Begin);
-                Sub.FileData = new SubStream(reference_stream, size);
-                Root.Items.Add(Sub.Name, Sub);
+                string name = GetName(reference_stream, file_offset, size, i);
+                Root.AddArchiveFile(reference_stream, size, file_offset, name);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
+        protected override void Write(Stream stream)
         {
             throw new NotImplementedException();
+        }
+
+
+        internal static string GetName(Stream stream, uint offset, uint size, int index)
+        {
+            stream.Seek(offset, SeekOrigin.Begin);
+            if (stream.Read<ushort>() == 22600)
+            {
+                if (stream.Read<ushort>() == 16980)
+                {
+                    stream.Seek(offset + size - 0x20, SeekOrigin.Begin);
+                    return stream.ReadString(0x20) + '_' + index;
+                }
+                else
+                {
+                    stream.Seek(offset + size - 0x30, SeekOrigin.Begin);
+                    return ReadHXString(stream) + '_' + index;
+                }
+            }
+            return index.ToString();
+        }
+
+        internal static string ReadHXString(Stream stream)
+        {
+            Span<byte> bytes = stackalloc byte[0x30];
+            stream.Read(bytes);
+
+            int start;
+            int end;
+            for (end = 0x30 - 1; end >= 0; end--)
+            {
+                if (bytes[end] != 0)
+                    break;
+            }
+            for (start = end; start >= 0; start--)
+            {
+                if (bytes[start] < 0x30 || bytes[start] > 0x7A)//58-64
+                    break;
+            }
+            return Encoding.ASCII.GetString(bytes[(start + 1)..(end + 1)]);
         }
     }
 }

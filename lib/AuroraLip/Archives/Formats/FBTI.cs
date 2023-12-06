@@ -31,30 +31,36 @@ namespace AuroraLib.Archives.Formats
         protected override void Read(Stream stream)
         {
             stream.MatchThrow(_identifier);
-            string version = stream.ReadString(4);
+            int version = int.Parse(stream.ReadString(4));
             uint file_count = stream.ReadUInt32(Endian.Big);
-            uint unknown = stream.ReadUInt32(Endian.Big);
+            uint start_offset = stream.ReadUInt32(Endian.Big); // always 0x10
+
+            Span<FileEntry> entries = stackalloc FileEntry[(int)file_count];
+            stream.Read(entries, Endian.Big);
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
-            for (uint i = 0; i < file_count; i++)
+            for (int i = 0; i < file_count; i++)
             {
-                uint file_offset = stream.ReadUInt32(Endian.Big);
-                uint size = stream.ReadUInt32(Endian.Big);
-                long saved_position = stream.Position;
-
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = i.ToString() };
-                stream.Seek(file_offset, SeekOrigin.Begin);
-                Sub.FileData = new SubStream(stream, size);
-                Root.Items.Add(Sub.Name, Sub);
-
-                // Read the file, move on to the next one
-                stream.Seek(saved_position, SeekOrigin.Begin);
+                string name = NLCM.GetName(stream, entries[i].Offset, entries[i].Size, i);
+                Root.AddArchiveFile(stream, entries[i].Size, entries[i].Offset, name);
             }
         }
 
         protected override void Write(Stream ArchiveFile)
         {
             throw new NotImplementedException();
+        }
+
+        private readonly struct FileEntry
+        {
+            public readonly uint Offset;
+            public readonly uint Size;
+
+            public FileEntry(uint offset, uint size)
+            {
+                Offset = offset;
+                Size = size;
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression.Interfaces;
-using System.IO;
 
 namespace AuroraLib.Compression
 {
@@ -10,14 +9,37 @@ namespace AuroraLib.Compression
         {
         }
 
-        /// <summary>
-        /// Trying to decompress the data
-        /// </summary>
-        /// <param name="source">stream to be decrypted</param>
-        /// <param name="destination">Decompressed stream</param>
-        /// <param name="type">Matching algorithm</param>
-        /// <returns></returns>
-        public bool TryToDecompress(Stream source, out Stream destination, out Type type)
+        public bool TryToDecompress(Stream source, out List<Stream> destinations, out Type type)
+        {
+            destinations = new();
+            if (TryToDecompress(source, out Stream destination, out ICompressionDecoder decoder))
+            {
+                type = decoder.GetType();
+                destinations.Add(destination);
+                while (source.Position + 0x10 < source.Length)
+                {
+                    while (source.ReadByte() == 0)
+                    { }
+                    source.Position--;
+                    if (source.Peek(s => decoder.IsMatch(s)))
+                    {
+                        destination = new MemoryPoolStream();
+                        decoder.Decompress(source, destination);
+                        destinations.Add(destination);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                return true;
+            }
+            destinations = null;
+            type = null;
+            return false;
+        }
+
+        public bool TryToDecompress(Stream source, out Stream destination, out ICompressionDecoder type)
         {
             destination = new MemoryPoolStream();
 
@@ -28,19 +50,12 @@ namespace AuroraLib.Compression
                     if (source.Peek(s => decoder.IsMatch(s)))
                     {
                         decoder.Decompress(source, destination);
-                        type = decoder.GetType();
-
-                        if (source.Position + 0x10 < source.Length) // Segmented?
-                        {
-                            DecompressSegmented(decoder, source, destination);
-                        }
-
+                        type = decoder;
                         return true;
                     }
                 }
                 catch (Exception t)
                 {
-
                     destination.SetLength(0);
                 }
             }
@@ -49,25 +64,6 @@ namespace AuroraLib.Compression
             destination = null;
             type = null;
             return false;
-        }
-
-        private static void DecompressSegmented(ICompressionDecoder algorithm, Stream source, Stream destination)
-        {
-            while (source.Position + 0x10 < source.Length)
-            {
-                while (source.ReadByte() == 0)
-                { }
-                source.Position--;
-
-                if (source.Peek(s => algorithm.IsMatch(s)))
-                {
-                    algorithm.Decompress(source, destination);
-                }
-                else
-                {
-                    break;
-                }
-            }
         }
     }
 }

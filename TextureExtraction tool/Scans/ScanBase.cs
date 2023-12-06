@@ -265,12 +265,8 @@ namespace DolphinTextureExtraction.Scans
                     case ".cmp":
                     case ".cmparc":
                     case ".cmpres":
-                        if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out Type type))
-                        {
-                            Log.Write(FileAction.Extract, $"\"{so.SubPath}{so.Extension}\"", $"Decompressed with {type.Name}");
-                            Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, Path.GetExtension(so.SubPath)));
+                        if (TryDecompress(so))
                             return true;
-                        }
                         break;
                 }
             }
@@ -334,16 +330,40 @@ namespace DolphinTextureExtraction.Scans
         protected virtual bool TryForce(ScanObjekt so)
         {
             if (so.Stream.Length < 25165824) // 24 MB
-                if (Reflection.Compression.TryToDecompress(so.Stream, out Stream test, out _))
-                {
-                    Scan(new ScanObjekt(test, so.SubPath, so.Deep + 1, so.Extension));
+            {
+                if (TryDecompress(so))
                     return true;
-                }
+            }
+
             so.Stream.Seek(0, SeekOrigin.Begin);
             if (TryCut(so))
                 return true;
             so.Stream.Seek(0, SeekOrigin.Begin);
 
+            return false;
+        }
+
+        protected virtual bool TryDecompress(ScanObjekt so)
+        {
+            if (Reflection.Compression.TryToDecompress(so.Stream, out List<Stream> decomStreams, out Type type))
+            {
+                if (decomStreams.Count == 1)
+                {
+                    Log.Write(FileAction.Extract, $"\"{so.SubPath}{so.Extension}\"", $"Decompressed with {type.Name}.");
+                    Scan(new ScanObjekt(decomStreams[0], so.SubPath, so.Deep + 1, so.Extension));
+                    decomStreams[0].Dispose();
+                }
+                else
+                {
+                    Log.Write(FileAction.Extract, $"\"{so.SubPath}{so.Extension}\"", $"Decompressed with {type.Name}, {decomStreams.Count} file chunks.");
+                    for (int i = 0; i < decomStreams.Count; i++)
+                    {
+                        Scan(new ScanObjekt(decomStreams[i], so.SubPath, so.Deep + 1, so.Extension));
+                        decomStreams[i].Dispose();
+                    }
+                }
+                return true;
+            }
             return false;
         }
 

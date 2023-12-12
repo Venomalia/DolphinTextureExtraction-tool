@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 using System.Runtime.InteropServices;
 
@@ -14,23 +15,30 @@ namespace AuroraLib.Archives.Formats
 
         private static readonly Identifier32 _identifier = new((byte)'B', (byte)'I', (byte)'G', 0);
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Match(_identifier) && stream.ReadUInt8() == 0;
+        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.Match(Identifier);
+
 
         protected override void Read(Stream stream)
         {
-            stream.MatchThrow(_identifier);
+            stream.MatchThrow(Identifier);
+            ReadData(stream);
+        }
 
+        protected void ReadData(Stream stream)
+        {
             Header header = stream.Read<Header>();
 
             stream.Seek(header.TableOffset, SeekOrigin.Begin);
-            InfoEntrie[] infos = stream.For((int)header.Files, s => s.Read<InfoEntrie>());
+            using SpanBuffer<InfoEntrie> infos = new(header.Files);
+            stream.Read<InfoEntrie>(infos);
+
+            stream.Seek(header.FileTableOffset, SeekOrigin.Begin);
+            FileEntrie[] files = stream.For((int)header.Files, s => new FileEntrie(s, header.Version));
 
             stream.Seek(header.DirectoryTableOffset, SeekOrigin.Begin);
             DirectoryEntrie[] directorys = stream.For((int)header.Directorys, s => new DirectoryEntrie(s));
 
-            stream.Seek(header.FileTableOffset, SeekOrigin.Begin);
-            FileEntrie[] files = stream.For((int)header.Files, s => new FileEntrie(s));
 
             //Process Directorys
             Dictionary<int, ArchiveDirectory> directoryPairs = new();
@@ -83,18 +91,18 @@ namespace AuroraLib.Archives.Formats
 
             public uint TableSize2;
 
-            public uint FileTableOffset => TableOffset + (TableSize << 3);
-            public uint DirectoryTableOffset => FileTableOffset + TableSize * 0x54;
+            public readonly uint FileTableOffset => TableOffset + (TableSize << 3);
+            public readonly uint DirectoryTableOffset => FileTableOffset + TableSize * (Version == 0x24 ? (byte)0x58 : (byte)0x54);
 
         }
 
-        public unsafe struct InfoEntrie
+        public struct InfoEntrie
         {
             public uint Offset;
             public uint Unknown;
         }
 
-        public unsafe struct DirectoryEntrie
+        public class DirectoryEntrie
         {
             public uint FileOffset;
             public int SubDirectorys;
@@ -114,7 +122,7 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        public unsafe struct FileEntrie
+        public class FileEntrie
         {
             public uint Size;
             public int NextIndex;
@@ -122,6 +130,9 @@ namespace AuroraLib.Archives.Formats
             public uint DirectoryIndex;
             private uint timestamp;
             public string Name;
+            public uint Unk1;
+            public byte[] Hash;
+            public uint Unk2;
 
             public DateTimeOffset Timestamp
             {
@@ -129,7 +140,7 @@ namespace AuroraLib.Archives.Formats
                 set => timestamp = (uint)value.ToUnixTimeSeconds();
             }
 
-            public FileEntrie(Stream stream)
+            public FileEntrie(Stream stream, uint version)
             {
                 Size = stream.ReadUInt32();
                 NextIndex = stream.ReadInt32();
@@ -137,6 +148,15 @@ namespace AuroraLib.Archives.Formats
                 DirectoryIndex = stream.ReadUInt32();
                 timestamp = stream.ReadUInt32();
                 Name = stream.ReadString(64);
+                if (version >= 36)
+                {
+                    Unk1 = stream.ReadUInt32();
+                }
+                if (version >= 44)
+                {
+                    Hash = stream.Read(32);
+                    Unk2 = stream.ReadUInt32();
+                }
             }
         }
     }

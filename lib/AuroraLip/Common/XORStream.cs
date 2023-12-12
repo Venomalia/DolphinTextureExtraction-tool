@@ -5,12 +5,22 @@ namespace AuroraLib.Common
     public class XORStream : Stream
     {
         public readonly Stream Base;
-        public readonly byte Key;
+        public readonly byte[] Key;
 
         public XORStream(Stream stream, byte key)
         {
             Base = stream;
-            Key = key;
+            Key = new byte[] { key };
+        }
+
+        public XORStream(Stream stream, ReadOnlySpan<byte> key)
+        {
+            Base = stream;
+            Key = new byte[key.Length * 2];
+            for (int i = 0; i < Key.Length; i++)
+            {
+                Key[i] = key[i % key.Length];
+            }
         }
 
         public override bool CanRead => Base.CanRead;
@@ -26,15 +36,33 @@ namespace AuroraLib.Common
 
         public override int Read(Span<byte> buffer)
         {
-            int r = Base.Read(buffer);
-            buffer.DataXor(Key);
+            int r;
+            if (Key.Length == 1)
+            {
+                r = Base.Read(buffer);
+                buffer.DataXor(Key[0]);
+            }
+            else
+            {
+                int offset = (int)(Base.Position % (Key.Length / 2));
+                r = Base.Read(buffer);
+                buffer.DataXor(Key.AsSpan(offset, (Key.Length / 2)));
+            }
             return r;
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
             SpanBuffer<byte> rbuffer = new(buffer);
-            rbuffer.Span.DataXor(Key);
+            if (Key.Length == 1)
+            {
+                rbuffer.Span.DataXor(Key[0]);
+            }
+            else
+            {
+                int offset = (int)(Base.Position % (Key.Length / 2));
+                rbuffer.Span.DataXor(Key.AsSpan(offset, (Key.Length / 2)));
+            }
             Base.Write(rbuffer);
         }
 

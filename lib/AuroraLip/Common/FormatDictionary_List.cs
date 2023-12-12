@@ -351,7 +351,7 @@ namespace AuroraLib.Common
             new FormatInfo(".nif_wii", FormatType.Texture, "Gamebryo File Format", "Gamebase"),
 
             //UbiSoft
-            new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft"),
+            new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BUG)),
             new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BIG)),
             new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft Audio"),
 

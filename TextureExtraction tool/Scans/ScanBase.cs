@@ -407,6 +407,7 @@ namespace DolphinTextureExtraction.Scans
         {
             if (so.Format.Identifier == null)
             {
+                so.Stream.Seek(0, SeekOrigin.Begin);
                 byte[] infoBytes = so.Stream.Read(32 > so.Stream.Length ? (int)so.Stream.Length : 32);
 
                 Log.Write(FileAction.Unknown, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}",

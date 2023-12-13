@@ -55,12 +55,12 @@ namespace DolphinTextureExtraction.Scans
                         if (!TryExtract(so))
                         {
                             Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
-                            Save(so.Stream, so.SubPath.ToString(), so.Format);
+                            Save(so);
                         }
                         break;
                     default:
                         if (so.Deep != 0)
-                            Save(so.Stream, so.SubPath.ToString(), so.Format);
+                            Save(so);
                         break;
                 }
             }
@@ -68,7 +68,7 @@ namespace DolphinTextureExtraction.Scans
             {
                 Log.WriteEX(t, so.GetFullSubPath());
                 if (so.Deep != 0)
-                    Save(so.Stream, so.SubPath.ToString(), so.Format);
+                    Save(so);
             }
         }
     }

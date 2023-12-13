@@ -94,8 +94,6 @@ namespace AuroraLib.Common
             new FormatInfo(".bnk","IBNK",FormatType.Audio,"Instrument Bank",Nin_),
             new FormatInfo(".wsy","WSYS",FormatType.Audio,"Wave System Table",Nin_),
             new FormatInfo(".arc","BARC",FormatType.Audio,"BARC archive",Nin_),
-            new FormatInfo(".sp","SPCE",FormatType.Else,"Sunshine Cutscene Event",Nin_),
-            new FormatInfo(".sp","SPCB",FormatType.Else,"Sunshine Cutscene Event",Nin_),
             new FormatInfo(".COL",FormatType.Collision,"model collision",Nin_),
             new FormatInfo(".bst",FormatType.Audio,"JAudio Sound Table",Nin_),
             new FormatInfo(".aaf",FormatType.Audio,"Audio Initialization File",Nin_),
@@ -125,6 +123,9 @@ namespace AuroraLib.Common
             new FormatInfo(".blo", "SCRNblo2", FormatType.Layout, "UI V2 Layout", Nin_),
             new FormatInfo(".brlan", "RLAN", FormatType.Animation, "Wii layout Animation", Nin_),
             new FormatInfo(".brlyt", "RLYT", FormatType.Layout, "Wii structure Layout", Nin_),
+            new FormatInfo(".brlmc", "RLMC", FormatType.Unknown, "Wii MC layout", Nin_), //not exactly known
+            new FormatInfo(".brlpa", "RLPA", FormatType.Unknown, "Wii PA layout", Nin_), //not exactly known
+            new FormatInfo(".pblm", "PBLM", FormatType.Unknown, "Wii Sport", Nin_), //not exactly known
             new FormatInfo(".brfnt", "RFNT", FormatType.Font, "Wii Font", Nin_),
             new FormatInfo(".pkb",  "RFNA", FormatType.Font, "Wii Font", Nin_),
             new FormatInfo(".bflyt", "FLYT", FormatType.Layout, "Binary caFe LaYouT", Nin_),
@@ -162,6 +163,8 @@ namespace AuroraLib.Common
             new FormatInfo(".bcam", FormatType.Parameter, "JMap camera data", Nin_),
             new FormatInfo(".canm","ANDO", FormatType.Parameter, "JCameraAnimation", Nin_),
             new FormatInfo(".aamp","AAMP", FormatType.Parameter, "binary resource parameter archives", Nin_),
+            new FormatInfo(".sp","SPCE",FormatType.Else,"Sunshine Cutscene Event",Nin_),
+            new FormatInfo(".sp","SPCB",FormatType.Else,"Sunshine Cutscene Event",Nin_),
             //new FormatInfo(".brmdl", FormatType.Model, "Wii Model Display Lists", Nin_),
 
             #endregion Nintendo
@@ -411,6 +414,12 @@ namespace AuroraLib.Common
             new FormatInfo("", "NLCL", FormatType.Archive, "Rune Factory Archive 2", "Neverland",typeof(NLCL)),
             new FormatInfo("", "MEDB", FormatType.Archive, "Rune Factory Archive 3", "Neverland",typeof(MEDB)),
             new FormatInfo(".hvt", "HXTB", FormatType.Texture, "Rune Factory Texture", "Neverland",typeof(HXTB)),
+            new FormatInfo(".hxcb", "HXCB", FormatType.Parameter, "Rune Factory Camera", "Neverland"),
+            new FormatInfo(".hxab", "HXAB", FormatType.Animation, "Rune Factory Animation", "Neverland"),
+            new FormatInfo(".hxhb", "HXHB", FormatType.Parameter, "Rune Factory Bone", "Neverland"),
+            new FormatInfo(".hxtp", "HXTP", FormatType.Parameter, "Rune Factory Parameter", "Neverland"),
+            new FormatInfo(".hxgb", "HXGB", FormatType.Model, "Rune Factory Model", "Neverland"),
+            new FormatInfo(".hxmb", "HXMB", FormatType.Parameter, "Rune Factory data", "Neverland"),
 
             //Square Enix FFCC Crystal Bearers
             new FormatInfo(".pos","POSD", FormatType.Archive, "Crystal Bearers Archive Header","Square Enix",typeof(POSD)),
@@ -526,7 +535,9 @@ namespace AuroraLib.Common
             //Radical Entertainment
             new FormatInfo(".rcf", "ATG CORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
             new FormatInfo(".rcf", "RADCORE CEMENT LIBRARY", FormatType.Archive,"","Radical Entertainment"),
-            new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
+            new FormatInfo(".p3d", "P3DZ", FormatType.Archive,"Compressed Pure3D file","Radical Entertainment"),
+            new FormatInfo(".p3d", "P3Dÿ", FormatType.Archive,"Pure3D file","Radical Entertainment"),
+            new FormatInfo(".p3d", new Identifier32((byte)'R',(byte)'Z',0,0) , FormatType.Archive,"Pure3D RZ file","Radical Entertainment"),
             
             //Eurocom
             new FormatInfo(".000", FormatType.Archive, "Eurocom Archive","Eurocom", typeof(Filelist)), //https://github.com/eurotools/eurochef
@@ -669,8 +680,9 @@ namespace AuroraLib.Common
 
         private static bool BZip_Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            byte[] Data = stream.Read(4);
-            return stream.Length > 4 && Data[0] == 66 && Data[1] == 90 && (Data[2] == 104 || Data[2] == 0) && Data[3] >= 49 && Data[3] <= 57;
+            Span<byte> data = stackalloc byte[4];
+            stream.Read(data);
+            return stream.Length > 4 && data[0] == 66 && data[1] == 90 && (data[2] == 104 || data[2] == 0) && data[3] >= 49 && data[3] <= 57;
         }
 
         private static bool LZH_Matcher(Stream stream, ReadOnlySpan<char> extension = default)

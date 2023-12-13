@@ -192,6 +192,7 @@ namespace AuroraLib.Common
             new FormatInfo(".dict",new Identifier32(0xA9F32458),0, FormatType.Archive, "Archive Dictionary","Next Level Games"),
             new FormatInfo(".rlt",new Identifier32("PTLG"),0, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
             new FormatInfo(".wrlt",new Identifier32("PTLG"),0x10, FormatType.Texture, "Strikers Gameworld Texture","Next Level Games",typeof(PTLG)),
+            new FormatInfo(".TexPO", FormatType.Texture, "Punch Out Texture","Next Level Games",typeof(TexPO)),
             new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games",typeof(RES_NLG)),
             new FormatInfo(".sanim", FormatType.Animation, "Striker Skeleton Animation","Next Level Games"),
             new FormatInfo(".nlxwb", FormatType.Audio, "Next Level Wave","Next Level Games"),

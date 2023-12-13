@@ -1,118 +1,118 @@
-﻿namespace AuroraLib.Archives.DiscImage
+﻿namespace AuroraLib.DiscImage.Dolphin
 {
-    public enum RegionCode : int
+    public enum RegionCode : byte
     {
         /// <summary>
         /// Worldwide
         /// </summary>
-        World = 'A',
+        World = (byte)'A',
 
         /// <summary>
         /// in China on the Nvidia Shield.
         /// </summary>
-        China = 'C',
+        China = (byte)'C',
 
         // NTSC
         /// <summary>
         /// PAL games released on NTSC-U Virtual Console
         /// </summary>
-        NTSC_VC_P = 'B',
+        NTSC_VC_P = (byte)'B',
 
         /// <summary>
         /// Default country code for NTSC-U versions
         /// </summary>
-        NTSC = 'E',
+        NTSC = (byte)'E',
 
         /// <summary>
         /// NTSC-J games released on NTSC-U Virtual Console
         /// </summary>
-        NTSC_VC_J = 'N',
+        NTSC_VC_J = (byte)'N',
 
         /// <summary>
         /// Default country code for NTSC-J versions
         /// </summary>
-        Japan = 'J',
+        Japan = (byte)'J',
 
         /// <summary>
         /// NTSC-K
         /// </summary>
-        Korea = 'K',
+        Korea = (byte)'K',
 
         /// <summary>
         /// NTSC-J games released on Korean Virtual Console
         /// </summary>
-        Korea_VC_J = 'Q',
+        Korea_VC_J = (byte)'Q',
 
         /// <summary>
         /// NTSC-U games released on Korean Virtual Console
         /// </summary>
-        Korea_VC_U = 'T',
+        Korea_VC_U = (byte)'T',
 
         //Pal
         /// <summary>
         /// Pal German specific versions
         /// </summary>
-        Germany = 'D',
+        Germany = (byte)'D',
 
         /// <summary>
         /// Pal France specific versions
         /// </summary>
-        France = 'F',
+        France = (byte)'F',
 
         /// <summary>
         /// Pal Netherlands specific versions
         /// </summary>
-        Netherlands = 'H',
+        Netherlands = (byte)'H',
 
         /// <summary>
         /// Pal Italy specific versions
         /// </summary>
-        Italy = 'I',
+        Italy = (byte)'I',
 
         /// <summary>
         /// NTSC-U games released on PAL Virtual Console
         /// </summary>
-        Pal_VC_U = 'M',
+        Pal_VC_U = (byte)'M',
 
         /// <summary>
         /// Default country code for Pal versions
         /// </summary>
-        Pal = 'P',
+        Pal = (byte)'P',
 
         /// <summary>
         /// Pal Spain specific versions
         /// </summary>
-        Spain = 'S',
+        Spain = (byte)'S',
 
         /// <summary>
         /// NTSC-J games released on PAL Virtual Console
         /// </summary>
-        Pal_VC_J = 'L',
+        Pal_VC_J = (byte)'L',
 
         /// <summary>
         /// Pal Russia specific versions
         /// </summary>
-        Russia = 'R',
+        Russia = (byte)'R',
 
         /// <summary>
         /// Pal Australia specific versions
         /// </summary>
-        Australia = 'U',
+        Australia = (byte)'U',
 
         /// <summary>
         /// Pal nordic specific versions
         /// </summary>
-        Nordic = 'V',
+        Nordic = (byte)'V',
 
         /// <summary>
         /// Mainly Taiwan and Hong Kong
         /// </summary>
-        Taiwan = 'W',
+        Taiwan = (byte)'W',
 
         //Special
-        Special_X = 'X',
+        Special_X = (byte)'X',
 
-        Special_Y = 'Y',
-        Special_Z = 'Z',
+        Special_Y = (byte)'Y',
+        Special_Z = (byte)'Z',
     }
 }

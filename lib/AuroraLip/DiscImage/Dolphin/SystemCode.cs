@@ -1,126 +1,112 @@
-﻿namespace AuroraLib.Archives.DiscImage
+﻿namespace AuroraLib.DiscImage.Dolphin
 {
-    public enum SystemCode : int
+    public enum SystemCode : byte
     {
         /// <summary>
         /// Gamecube disc
         /// </summary>
-        GC = 'G',
+        GC = (byte)'G',
 
         /// <summary>
         /// Gamecube Demo disc
         /// </summary>
-        GCDemo = 'D',
+        GCDemo = (byte)'D',
 
         /// <summary>
         /// Wii disc before 2010
         /// </summary>
-        Revolution = 'R',
+        Revolution = (byte)'R',
 
         /// <summary>
         /// Wii disc after 2010
         /// </summary>
-        Wii_Newer = 'S',
+        Wii_Newer = (byte)'S',
 
         /// <summary>
         /// Wii Channel
         /// </summary>
-        Channel = 'H',
+        Channel = (byte)'H',
 
         /// <summary>
         /// WiiWare
         /// </summary>
-        WiiWare = 'W',
+        WiiWare = (byte)'W',
 
         /// <summary>
         /// Virtual Console Nintendo Entertainment System (NES) or Famicom (FC)
         /// </summary>
-        NES = 'F',
+        NES = (byte)'F',
 
         /// <summary>
         /// Virtual Console Super Nintendo Entertainment System (SNES) or Super Famicom (SFC)
         /// </summary>
-        SNES = 'J',
+        SNES = (byte)'J',
 
         /// <summary>
         /// Nintendo 64
         /// </summary>
-        N64 = 'N',
+        N64 = (byte)'N',
 
         /// <summary>
         /// Virtual Console MasterSystem
         /// </summary>
-        MasterSystem = 'L',
+        MasterSystem = (byte)'L',
 
         /// <summary>
         /// Virtual Console Commodore 64
         /// </summary>
-        C64 = 'C',
+        C64 = (byte)'C',
 
         /// <summary>
         /// Virtual Console Arcade
         /// </summary>
-        Arcade = 'E',
+        Arcade = (byte)'E',
 
         /// <summary>
         /// Virtual Console Megadrive
         /// </summary>
-        Megadrive = 'M',
+        Megadrive = (byte)'M',
 
         /// <summary>
         /// Virtual Console(J) PCEngine or GC Promotional Disc
         /// </summary>
-        PCEngine = 'P',
+        PCEngine = (byte)'P',
 
         /// <summary>
         /// Virtual Console(J) PCEngine CD
         /// </summary>
-        PCEngineCD = 'Q',
+        PCEngineCD = (byte)'Q',
 
         /// <summary>
         /// Virtual Console(J) MSX
         /// </summary>
-        MSX = 'X',
+        MSX = (byte)'X',
 
         /// <summary>
         /// Utility like the GBA-Player
         /// </summary>
-        Utility = 'U',
+        Utility = (byte)'U',
 
         //0-4 were used by nintendo
         /// <summary>
         /// Wii Service Disc (autoboot)
         /// </summary>
-        Diagnostic = '0',
+        Diagnostic = (byte)'0',
 
         /// <summary>
         /// Wii Service Disc 2
         /// </summary>
-        Diagnostic1 = '1',
+        Diagnostic1 = (byte)'1',
 
-        DVDRelated = '2',
+        DVDRelated = (byte)'2',
 
         /// <summary>
         /// Wii Backup Disc
         /// </summary>
-        Backup = '4',
+        Backup = (byte)'4',
 
-        ChanInstaller = '_',
+        ChanInstaller = (byte)'_',
+
         Unknown = default,
-
-        /// <summary>
-        /// Wii disc
-        /// </summary>
-        WiiDisc = Revolution | Wii_Newer,
-
-        /// <summary>
-        /// Gamecube disc or Gamecube Demo disc
-        /// </summary>
-        GCDisc = GC | GCDemo | Utility | PCEngine,
-
-        /// <summary>
-        /// Virtual Console
-        /// </summary>
-        VirtualConsole = NES | SNES | N64 | MasterSystem | Megadrive | C64 | MSX | PCEngine | PCEngineCD | Arcade
     }
 }

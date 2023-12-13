@@ -1,6 +1,7 @@
-﻿using AuroraLib.Archives.DiscImage;
-using AuroraLib.Common;
+﻿using AuroraLib.Common;
+using AuroraLib.Core.Cryptography;
 using AuroraLib.Core.Interfaces;
+using AuroraLib.DiscImage.Revolution;
 using System.Security.Cryptography;
 
 namespace AuroraLib.Archives.Formats
@@ -13,7 +14,7 @@ namespace AuroraLib.Archives.Formats
 
         public virtual IIdentifier Identifier => Magic;
 
-        public static readonly Identifier32 Magic = new(0, 0, (byte)'s', (byte)'I');
+        public static readonly Identifier32 Magic = new((byte)'I', (byte)'s', 0, 0);
 
         public WADHeader Header;
 
@@ -22,9 +23,6 @@ namespace AuroraLib.Archives.Formats
         public V0Ticket Ticket;
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => Matcher(stream, extension);
-
-        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (stream.Length > 4096)
             {
@@ -42,7 +40,6 @@ namespace AuroraLib.Archives.Formats
             //Cert
             stream.Align(64);
             long CertPos = stream.Position;
-            //Cert = new Cert(stream);
             stream.Seek(CertPos + Header.CertSize, SeekOrigin.Begin);
             //Ticket
             stream.Align(64);
@@ -55,14 +52,15 @@ namespace AuroraLib.Archives.Formats
             TMD = new TMD(stream);
             stream.Seek(TMDPos + Header.TMDSize, SeekOrigin.Begin);
 
-            Root = new ArchiveDirectory() { Name = $"[{this.TMD.TitleID}]", OwnerArchive = this };
+            Root = new() { Name = $"[{this.TMD.TitleID}]", OwnerArchive = this };
             Root.AddArchiveFile(stream, Header.HeaderSize, 0, "header.bin");
             Root.AddArchiveFile(stream, Header.CertSize, CertPos, "cert.bin");
             Root.AddArchiveFile(stream, Header.TicketSize, TicketPos, "ticket.bin");
             Root.AddArchiveFile(stream, Header.TMDSize, TMDPos, "tmd.bin");
-            ArchiveDirectory filesDirectory = new ArchiveDirectory(this, Root) { Name = "files" };
+            ArchiveDirectory filesDirectory = new(this, Root) { Name = "files" };
 
             //Content
+            BaseHash sha1 = new(SHA1.Create());
             Aes aes = Aes.Create();
             aes.KeySize = 128;
             aes.BlockSize = 128;
@@ -72,28 +70,27 @@ namespace AuroraLib.Archives.Formats
 
             long ContentPos = StreamEx.AlignPosition(stream.Position, 64);
 
-            for (int i = 0; i < TMD.Content; i++)
+            for (int i = 0; i < TMD.CMDs.Count; i++)
             {
-                stream.Align(64);
-
-                SubStream Content = new SubStream(stream, StreamEx.AlignPosition((long)TMD.CMDs[i].Size, 16));
-
+                //Decrypt
                 aes.IV = TMD.CMDs[i].GetContentIV();
-
-                byte[] buffer = new byte[Content.Length];
+                stream.Align(64);
+                SubStream Content = new(stream, StreamEx.AlignPosition((long)TMD.CMDs[i].Size, 16));
+                MemoryPoolStream de = new((int)Content.Length, true);
                 using (CryptoStream cs = new(Content, aes.CreateDecryptor(), CryptoStreamMode.Read, false))
                 {
-                    cs.Read(buffer, 0, buffer.Length);
+                    cs.Read(de.UnsaveAsSpan());
                 }
 
-                //sha1 comparison
-                SHA1 sha1 = SHA1.Create();
-                byte[] thishash = sha1.ComputeHash(buffer);
-                if (!thishash.SequenceEqual(TMD.CMDs[i].Hash))
-                    Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(WAD)} sha1 hash doesn't match in:'{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app'");
+                string name = $"{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app";
+                filesDirectory.AddArchiveFile(de, name);
 
-                MemoryStream de = new(buffer);
-                filesDirectory.AddArchiveFile(de, $"{TMD.CMDs[i].ContentId}_{TMD.CMDs[i].Type}.app");
+                //sha1 hash comparison
+                sha1.Reset();
+                sha1.Compute(de.UnsaveAsSpan());
+                if (!sha1.GetBytes().SequenceEqual(TMD.CMDs[i].Hash))
+                    Events.NotificationEvent.Invoke(NotificationType.Warning, $"{nameof(WAD)} sha1 hash doesn't match in:'{name}'");
+
             }
             Root.Items.Add(filesDirectory.Name, filesDirectory);
 
@@ -113,11 +110,11 @@ namespace AuroraLib.Archives.Formats
 
         public struct WADHeader
         {
-            public uint HeaderSize { get; }
-            public Identifier32 Magic { get; }
-            public uint CertSize { get; }
-            private uint Reserved;
-            public uint TicketSize { get; }
+            public uint HeaderSize;
+            public Identifier32 Magic;
+            public uint CertSize;
+            private readonly uint Reserved;
+            public uint TicketSize;
             public uint TMDSize;
             public uint ContentSize;
             public uint FooterSize;

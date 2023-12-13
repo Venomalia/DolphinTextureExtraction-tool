@@ -1,8 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using AuroraLib.Core.Interfaces;
+using System.Collections.ObjectModel;
 
-namespace AuroraLib.Archives.DiscImage
+namespace AuroraLib.DiscImage.Dolphin
 {
-    public partial struct GameID
+    public partial struct GameID : IIdentifier
     {
         // comes from dolphin
         internal static readonly ReadOnlyDictionary<string, string> MakerCodes = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>()

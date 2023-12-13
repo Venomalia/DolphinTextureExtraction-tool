@@ -20,7 +20,7 @@ namespace AuroraLib.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension == Extension && stream.Length > 128;
+            => extension.SequenceEqual(Extension) && stream.Length > 128;
 
         public struct Header
         {

@@ -19,7 +19,7 @@ namespace AuroraLib.Texture.Formats
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension == Extension;
+            => extension.SequenceEqual(Extension);
 
         protected override void Read(Stream stream)
         {

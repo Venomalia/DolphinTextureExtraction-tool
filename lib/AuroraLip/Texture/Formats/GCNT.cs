@@ -15,7 +15,7 @@ namespace AuroraLib.Texture.Formats
         private static readonly Identifier32 _alt = new("SIZE");
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Match(_identifier) || stream.At(8, s => s.Match(_identifier));
+            => stream.Length > 0x10 && (stream.Match(_identifier) || stream.At(8, s => s.Match(_identifier)));
 
         protected override void Read(Stream stream)
         {

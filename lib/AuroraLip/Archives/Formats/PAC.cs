@@ -12,7 +12,7 @@ namespace AuroraLib.Archives.Formats
         private const string Extension = ".PAC";
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension == Extension && stream.Length > 52428800;
+            => extension.SequenceEqual(Extension) && stream.Length > 52428800;
 
         protected override void Read(Stream stream)
         {

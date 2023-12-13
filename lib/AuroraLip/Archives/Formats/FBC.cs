@@ -22,9 +22,7 @@ namespace AuroraLib.Archives.Formats
         }
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-        {
-            return extension == Extension;
-        }
+            => extension.SequenceEqual(Extension);
 
         private const string Bres = "bresþÿ";
 

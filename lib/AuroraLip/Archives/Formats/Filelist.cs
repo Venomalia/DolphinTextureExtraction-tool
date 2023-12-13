@@ -14,7 +14,7 @@ namespace AuroraLib.Archives.Formats
         public const string Extension = ".000";
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension == Extension;
+            => extension.SequenceEqual(Extension);
 
         protected override void Read(Stream stream)
         {

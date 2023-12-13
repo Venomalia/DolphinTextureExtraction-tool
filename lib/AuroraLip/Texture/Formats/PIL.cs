@@ -12,7 +12,7 @@ namespace AuroraLib.Texture.Formats
 
         public const string Extension = ".PIL";
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => extension == Extension;
+        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => extension.SequenceEqual(Extension);
 
         protected override void Read(Stream stream)
         {

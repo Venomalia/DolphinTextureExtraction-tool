@@ -13,10 +13,10 @@ namespace AuroraLib.Texture.Formats
         public bool CanWrite => false;
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => Matcher(stream, extension);
-
-        public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
+            if (stream.Length < 0x20)
+                return false;
+
             uint ImageCount = stream.ReadUInt32(Endian.Big);
             if (extension.Contains(".tpl", StringComparison.InvariantCultureIgnoreCase) && ImageCount >= 1 && ImageCount < 255)
             {

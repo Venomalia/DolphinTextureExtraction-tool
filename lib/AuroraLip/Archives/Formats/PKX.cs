@@ -1,5 +1,4 @@
 ﻿using AuroraLib.Common;
-using RenderWareNET.Plugins;
 
 namespace AuroraLib.Archives.Formats
 {

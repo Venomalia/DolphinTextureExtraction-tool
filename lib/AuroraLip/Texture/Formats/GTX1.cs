@@ -14,7 +14,7 @@ namespace AuroraLib.Texture.Formats
         private static readonly Identifier32 _identifier = new("GTX1");
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.At(4, s => s.Match(_identifier));
+            => stream.Length > 0x10 && stream.At(4, s => s.Match(_identifier));
 
         protected override void Read(Stream stream)
         {

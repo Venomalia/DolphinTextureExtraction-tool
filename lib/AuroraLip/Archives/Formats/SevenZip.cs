@@ -59,6 +59,9 @@ namespace AuroraLib.Archives.Formats
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
+            if (stream.Length < 0x10)
+                return false;
+
             Span<byte> id = stackalloc byte[8];
             stream.Read(id);
             foreach (var item in FileSignatures)

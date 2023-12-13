@@ -2,6 +2,7 @@
 using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture.BlockFormats;
 using System.Runtime.InteropServices;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace AuroraLib.Texture.Formats
 {

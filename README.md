@@ -46,11 +46,13 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 
 ## Credits
  
+- [AuroraLib.Compression](https://github.com/Venomalia/AuroraLib.Compression) used as Compression library.
+
 - [ImageSharp](https://github.com/SixLabors/ImageSharp) used as graphics API.
 
 - [Hack.io](https://github.com/SuperHackio/Hack.io) to read RARC, U8, YAZ, YAY, BTI, TPL, TEX1, BMD and BDL Format
 
-- [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT, Format and to read PRS, CNX, Lz00, lz01 Lz10, Lz11 Compressing.
+- [Puyo Tools](https://github.com/nickworonekin/puyotools) Code reference for ONE GVMH, GBIX, GCIX, GVRT, Format.
 
 - [HashDepot](https://github.com/ssg/HashDepot) used for xxHash generation
 
@@ -58,14 +60,10 @@ List of all [commands](https://github.com/Venomalia/DolphinTextureExtraction-too
 
 - [SevenZip](https://github.com/adoconnection/SevenZipExtractor) to read formats supported by 7Zip
 	
-- [SharpZipLib](https://github.com/icsharpcode/SharpZipLib) to read ZLib Compressing
-	
 - [AFSLib](https://github.com/MaikelChan/AFSLib) to read AFS archive format
 
 - [cpk-tools](https://github.com/ConnorKrammer/cpk-tools) to read CRIWARE's CPK archive format
 	
-- [CLZ-Compression](https://github.com/sukharah/CLZ-Compression) Code reference for CLZ Compressing
-
 - [Switch-Toolbox](https://github.com/KillzXGaming/Switch-Toolbox/blob/12dfbaadafb1ebcd2e07d239361039a8d05df3f7/File_Format_Library/FileFormats/NLG/MarioStrikers/StrikersRLT.cs) Code reference for PTLG Format
 	
 - [Rune Factory Frontier Tools](https://github.com/master801/Rune-Factory-Frontier-Tools) Code reference for NLCM Archives

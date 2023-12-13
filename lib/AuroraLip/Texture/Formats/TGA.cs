@@ -1,8 +1,9 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture.PixelFormats;
-using RenderWareNET.Plugins;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Tga;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.Formats
@@ -14,7 +15,7 @@ namespace AuroraLib.Texture.Formats
 
         public bool CanWrite => false;
 
-        public static readonly string[] Extensions = new string[]{ ".tga", ".vda", ".icb", ".vst" };
+        public static readonly string[] Extensions = new string[] { ".tga", ".vda", ".icb", ".vst" };
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {

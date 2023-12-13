@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.Texture.BlockFormats
+﻿using SixLabors.ImageSharp.PixelFormats;
+
+namespace AuroraLib.Texture.BlockFormats
 {
     /// <summary>
     /// Represents a block of RGBA32 pixels. Each block has a size of 4x4 pixels.

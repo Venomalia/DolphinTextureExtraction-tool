@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Core.Text;
 using AuroraLib.Texture.Interfaces;
 using System.Text.RegularExpressions;
+using SixLabors.ImageSharp;
 
 namespace AuroraLib.Texture
 {

@@ -1,6 +1,7 @@
 ﻿using AuroraLib.Texture.PixelFormats;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace AuroraLib.Texture.BlockFormats
 {
@@ -159,7 +160,7 @@ namespace AuroraLib.Texture.BlockFormats
         /// <param name="pixel">The RGBA color value of the pixel.</param>
         /// <param name="colors">The span of colors to compare against.</param>
         /// <returns>The index of the closest color in the set of colors.</returns>
-        private static int GetColorIndex(in Rgba32 pixel, Span<Rgba32> colors)
+        private static int GetColorIndex(Rgba32 pixel, Span<Rgba32> colors)
         {
             float minDistance = float.MaxValue;
             int colorIndex = 0;

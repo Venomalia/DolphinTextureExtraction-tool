@@ -1,8 +1,11 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Texture.BlockFormats;
 using AuroraLib.Texture.PixelFormats;
+using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Memory;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Processing.Processors.Transforms;
 using System.Drawing;
 using System.Numerics;

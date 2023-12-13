@@ -1,7 +1,8 @@
 ﻿using AuroraLib.Core.Buffers;
-using SixLabors.ImageSharp.Advanced;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
 
 namespace AuroraLib.Texture
 {

@@ -188,6 +188,8 @@ namespace AuroraLib.Common
             new FormatInfo("", "RFRM", FormatType.Texture, "Retro Format Descriptor", Retro_),
 
             //Next Level Games
+            new FormatInfo(".dict",new Identifier32(0x5824F3A9),0, FormatType.Archive, "Punch Out Dictionary","Next Level Games",typeof(DICTPO)),
+            new FormatInfo(".dict",new Identifier32(0xA9F32458),0, FormatType.Archive, "Archive Dictionary","Next Level Games"),
             new FormatInfo(".rlt",new Identifier32("PTLG"),0, FormatType.Texture, "Strikers Texture","Next Level Games",typeof(PTLG)),
             new FormatInfo(".wrlt",new Identifier32("PTLG"),0x10, FormatType.Texture, "Strikers Gameworld Texture","Next Level Games",typeof(PTLG)),
             new FormatInfo(".Res", FormatType.Texture, "Strikers RES Texture","Next Level Games",typeof(RES_NLG)),

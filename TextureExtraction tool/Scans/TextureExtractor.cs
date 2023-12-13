@@ -125,6 +125,13 @@ namespace DolphinTextureExtraction.Scans
             {
                 Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
                 Result.AddUnsupported(so);
+#if DEBUG
+                if (so.Format.Typ == FormatType.Texture)
+                {
+                    string paht = Path.Combine("~Exception", so.SubPath.ToString());
+                    Save(so.Stream, paht, so.Format);
+                }
+#endif
             }
 
         }

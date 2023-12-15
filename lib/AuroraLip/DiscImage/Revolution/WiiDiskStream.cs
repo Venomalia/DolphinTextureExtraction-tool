@@ -24,7 +24,7 @@ namespace AuroraLib.DiscImage.Revolution
 
         public override long Position
         {
-            get => BlockNumber * _DataSize + BlockOffset;
+            get => (long)BlockNumber * _DataSize + BlockOffset;
             set
             {
                 if (value < 0)

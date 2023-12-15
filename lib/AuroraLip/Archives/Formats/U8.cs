@@ -44,15 +44,15 @@ namespace AuroraLib.Archives.Formats
             //Read Nods
             stream.Seek(nodeTableOffset, SeekOrigin.Begin);
             U8Node rootNode = stream.Read<U8Node>(Endian.Big);
-            using SpanBuffer<U8Node> nodes = new(rootNode.Size - 1);
-            stream.Read(nodes.Span, Endian.Big);
+            using SpanBuffer<U8Node> nodes = new(rootNode.Size);
+            stream.Read(nodes.Span[1..], Endian.Big);
 
             long StringTableOffset = nodeTableOffset + (rootNode.Size * 0x0C);
             Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
-            List<ArchiveDirectory> directorys = new() { Root };
+            Dictionary<int, ArchiveDirectory> directorys = new() { { 0, Root } };
             Stack<Tuple<ArchiveDirectory, int>> stack = new();
             stack.Push(new(Root, nodes.Length));
-            for (int i = 0; i < nodes.Length; i++)
+            for (int i = 1; i < nodes.Length; i++)
             {
                 U8Node node = nodes[i];
                 stream.Seek(StringTableOffset + node.NameOffset, SeekOrigin.Begin);
@@ -63,12 +63,11 @@ namespace AuroraLib.Archives.Formats
                 {
                     name = $"{Path.GetFileNameWithoutExtension(name.AsSpan())}_{i}{Path.GetExtension(name.AsSpan())}";
                 }
-
                 if (node.IsDirectory)
                 {
                     ArchiveDirectory dir = new() { OwnerArchive = this, Parent = directorys[node.Offset], Name = name };
                     directorys[node.Offset].Items.Add(name, dir);
-                    directorys.Add(dir);
+                    directorys.Add(i, dir);
                     stack.Push(new(dir, node.Size));
                 }
                 else

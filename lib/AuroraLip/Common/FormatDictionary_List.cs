@@ -263,7 +263,7 @@ namespace AuroraLib.Common
             new FormatInfo(".CNX",new Identifier32((byte)'C',(byte)'N',(byte)'X',0x2), FormatType.Archive, comp_,string.Empty,typeof(CNX2)),
             new FormatInfo(".CXLZ","CXLZ", FormatType.Archive, comp_,string.Empty,typeof(CXLZ)),
             new FormatInfo(".LZ", FormatType.Archive, "Lempel-Ziv " + comp_),
-            new FormatInfo(".ZS",new Identifier32(4247762216), FormatType.Archive, "Zstandard " + comp_,string.Empty,typeof(Zstd)),
+            new FormatInfo(".ZS",new Identifier32(0xFD2FB528), FormatType.Archive, "Zstandard " + comp_,string.Empty,typeof(Zstd)),
             //new FormatInfo(".zlib", FormatType.Archive, comp_,"Mark Adle",typeof(ZLib)),
             new FormatInfo(".tar","KIJ=H", FormatType.Archive, "tape archive"),
 
@@ -310,6 +310,7 @@ namespace AuroraLib.Common
             new FormatInfo(".csv", FormatType.Text,"Comma Separated Values"),
             new FormatInfo(".inf", FormatType.Text, "info file"),
             new FormatInfo(".ini", FormatType.Text, "Configuration file"),
+            new FormatInfo(".ttf","ttcf", FormatType.Font,"TrueType Collection"),
 
             //Roms & Iso
             new FormatInfo(".gba", 0,new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}, FormatType.Rom, "GBA Rom", Nin_),

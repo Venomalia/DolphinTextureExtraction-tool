@@ -15,10 +15,13 @@ namespace AuroraLib.DiscImage.Revolution
         public bool UseEncryption;
 
         public HeaderBin(Stream source) : base(source)
+        { }
+
+        protected override void ReadData(Stream dest)
         {
-            GameName = source.ReadString(64);
-            UseVerification = source.ReadUInt8() == 0;
-            UseEncryption = source.ReadUInt8() == 0;
+            GameName = dest.ReadString(64);
+            UseVerification = dest.ReadUInt8() == 0;
+            UseEncryption = dest.ReadUInt8() == 0;
         }
 
         protected override void WriteData(Stream dest)

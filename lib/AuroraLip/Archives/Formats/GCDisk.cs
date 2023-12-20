@@ -12,8 +12,6 @@ namespace AuroraLib.Archives.Formats
 
         public bool CanWrite => false;
 
-        protected virtual uint MagicWord => GameHeader.GCMagicWord;
-
         public GameHeader Header;
 
         public GCDisk()
@@ -27,14 +25,14 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Length > 9280 && extension.Contains(".iso", StringComparison.InvariantCultureIgnoreCase) && new BootBin(stream).IsValid;
+        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.Length > 9280 && extension.Contains(".iso", StringComparison.InvariantCultureIgnoreCase) && new BootBin(stream).DiskType == DiskTypes.GC;
 
         protected override void Read(Stream stream) => Root = ProcessData(stream);
 
-        protected ArchiveDirectory ProcessData(Stream stream, bool isGC = true)
+        protected ArchiveDirectory ProcessData(Stream stream)
         {
-            BootBin boot = new(stream, isGC);
+            BootBin boot = new(stream);
             Header ??= boot;
 
             // get appLoaderDate
@@ -56,7 +54,7 @@ namespace AuroraLib.Archives.Formats
             ArchiveDirectory filedir = new(RootDirectory.OwnerArchive, RootDirectory) { Name = "files", LastAccessTimeUtc = appDate, CreationTimeUtc = appDate };
             RootDirectory.Items.Add(filedir.Name, filedir);
             stream.Seek(boot.FSTableOffset, SeekOrigin.Begin);
-            FSTBin FST = new(stream, isGC);
+            FSTBin FST = new(stream, boot.DiskType == DiskTypes.GC);
             FST.ProcessEntres(stream, filedir);
             return RootDirectory;
         }

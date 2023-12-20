@@ -23,6 +23,9 @@ namespace AuroraLib.Archives.Formats
         {
         }
 
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.Length > 9280 && extension.Contains(".iso", StringComparison.InvariantCultureIgnoreCase) && new BootBin(stream).DiskType == DiskTypes.Wii;
+
         protected override void Read(Stream stream)
         {
             Header = new HeaderBin(stream);
@@ -49,11 +52,11 @@ namespace AuroraLib.Archives.Formats
                 WiiDiskStream wiiStream = new(stream, stream.Length - partition.DATAoffset, partition.DATAoffset, partition.Ticket.GetPartitionKey());
                 WiiDiskEncrypter.Add(wiiStream);
 
-                ArchiveDirectory mainDirectory = ProcessData(wiiStream, false);
+                ArchiveDirectory mainDirectory = ProcessData(wiiStream);
                 foreach (var item in mainDirectory.Items)
                 {
                     item.Value.Parent = parDirectory;
-                    parDirectory.Items.Add(item.Key,item.Value);
+                    parDirectory.Items.Add(item.Key, item.Value);
                 }
             }
         }

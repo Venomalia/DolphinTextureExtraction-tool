@@ -13,11 +13,11 @@
         public uint UserLength;
         public uint Unknown;
 
-        public bool IsGC;
+        public BootBin(Stream source) : base(source)
+        { }
 
-        public BootBin(Stream source, bool isGC = true) : base(source)
+        protected override void ReadData(Stream source)
         {
-            IsGC = isGC;
             GameName = source.ReadString(992);
             DebugMonitorOffset = source.ReadUInt32(Endian.Big);
             DebugMonitorAddress = source.ReadUInt32(Endian.Big);
@@ -30,7 +30,7 @@
             UserLength = source.ReadUInt32(Endian.Big);
             Unknown = source.ReadUInt32(Endian.Big);
             source.Position += 4;
-            if (!IsGC)
+            if (DiskType == DiskTypes.Wii)
             {
                 DolOffset <<= 2;
                 FSTableOffset <<= 2;
@@ -43,8 +43,8 @@
             dest.Write(DebugMonitorOffset, Endian.Big);
             dest.Write(DebugMonitorAddress, Endian.Big);
             dest.Write(stackalloc byte[24]);
-            dest.Write(IsGC ? DolOffset : DolOffset >> 2, Endian.Big);
-            dest.Write(IsGC ? FSTableOffset : FSTableOffset >> 2, Endian.Big);
+            dest.Write(DiskType == DiskTypes.GC ? DolOffset : DolOffset >> 2, Endian.Big);
+            dest.Write(DiskType == DiskTypes.GC ? FSTableOffset : FSTableOffset >> 2, Endian.Big);
             dest.Write(FSTableSize, Endian.Big);
             dest.Write(FSTableSizeMax, Endian.Big);
             dest.Write(UserPosition, Endian.Big);

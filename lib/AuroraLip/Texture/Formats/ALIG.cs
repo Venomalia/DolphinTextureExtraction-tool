@@ -21,47 +21,62 @@ namespace AuroraLib.Texture.Formats
             long start = stream.Position;
             stream.MatchThrow(_identifier);
 
-            Header header = stream.Read<Header>();
-            stream.Seek(start + header.Offset, SeekOrigin.Begin);
-
-            GXImageFormat format = AsGXFormat(header.Format);
-
-            Add(new TexEntry(stream, null, format, GXPaletteFormat.IA8, 0, header.Width, header.Height, header.Mips)
+            TypeHeader typeH = stream.Read<TypeHeader>();
+            GXImageFormat format = AsGXFormat(typeH.Format);
+            switch (typeH.Palette)
             {
-                LODBias = 0,
-                MagnificationFilter = GXFilterMode.Nearest,
-                MinificationFilter = GXFilterMode.Nearest,
-                WrapS = GXWrapMode.CLAMP,
-                WrapT = GXWrapMode.CLAMP,
-                EnableEdgeLOD = false,
-                MinLOD = 0,
-                MaxLOD = 0
-            });
+                case PaletteFormat.None:
+                    BaseHeader header = stream.Read<BaseHeader>();
+                    stream.Seek(start + header.Offset, SeekOrigin.Begin);
 
-            if (header.Format == ImageFormat.GACC)
-            {
-                Add(new TexEntry(stream, null, format, GXPaletteFormat.IA8, 0, header.Width, header.Height, header.Mips)
-                {
-                    LODBias = 0,
-                    MagnificationFilter = GXFilterMode.Nearest,
-                    MinificationFilter = GXFilterMode.Nearest,
-                    WrapS = GXWrapMode.CLAMP,
-                    WrapT = GXWrapMode.CLAMP,
-                    EnableEdgeLOD = false,
-                    MinLOD = 0,
-                    MaxLOD = 0
-                });
+
+                    Add(new TexEntry(stream, format, header.Width, header.Height, header.Mips)
+                    {
+                        LODBias = 0,
+                        MagnificationFilter = GXFilterMode.Nearest,
+                        MinificationFilter = GXFilterMode.Nearest,
+                        WrapS = GXWrapMode.CLAMP,
+                        WrapT = GXWrapMode.CLAMP,
+                        EnableEdgeLOD = false,
+                        MinLOD = 0,
+                        MaxLOD = header.Mips
+                    });
+
+                    if (typeH.Format == ImageFormat.GACC)
+                    {
+                        Add(new TexEntry(stream, format, header.Width, header.Height, header.Mips)
+                        {
+                            LODBias = 0,
+                            MagnificationFilter = GXFilterMode.Nearest,
+                            MinificationFilter = GXFilterMode.Nearest,
+                            WrapS = GXWrapMode.CLAMP,
+                            WrapT = GXWrapMode.CLAMP,
+                            EnableEdgeLOD = false,
+                            MinLOD = 0,
+                            MaxLOD = header.Mips
+                        });
+                    }
+                    break;
+                case PaletteFormat.RGBA:
+                default:
+                    throw new NotSupportedException();
             }
+
+
+
         }
 
         protected override void Write(Stream stream) => throw new NotImplementedException();
 
-        private struct Header
+        private struct TypeHeader
         {
             public int Unk;
             public ImageFormat Format;
-            public int Pad;
+            public PaletteFormat Palette;
+        }
 
+        private struct BaseHeader
+        {
             public ushort Width;
             public ushort Height;
             public int Images;
@@ -74,14 +89,23 @@ namespace AuroraLib.Texture.Formats
             public ushort Un5;
             public ushort Mips;
 
-            private uint Size
+            public uint Size
             {
-                get => BitConverterX.Swap(size);
+                readonly get => BitConverterX.Swap(size);
                 set => size = BitConverterX.Swap(value);
             }
         }
 
-        private enum ImageFormat
+        private struct PaletteHeader
+        {
+            public int Unk;
+            public int Unk2;
+            public ushort Width;
+            public ushort Height;
+            public int Unk3;
+        }
+
+        private enum ImageFormat : uint
         {
             GCI4 = 877216583,//I4
             GCI8 = 944325447,//I8
@@ -91,6 +115,15 @@ namespace AuroraLib.Texture.Formats
             GACC = 1128481095,//2xCMPR
             GCCP = 1346585415,//CMPR
             G5A3 = 859911495, //RGB5A3
+            GC32 = 842220359,//RGBA32
+            PAL4 = 877412688,//C4
+            PAL8 = 944521552,//C8
+        }
+
+        private enum PaletteFormat : uint
+        {
+            None = 0,
+            RGBA = 1094862674,
         }
 
         private static GXImageFormat AsGXFormat(ImageFormat mode) => mode switch
@@ -103,7 +136,10 @@ namespace AuroraLib.Texture.Formats
             ImageFormat.GCCP => GXImageFormat.CMPR,
             ImageFormat.G5A3 => GXImageFormat.RGB5A3,
             ImageFormat.G565 => GXImageFormat.RGB565,
-            _ => throw new NotImplementedException(),
+            ImageFormat.GC32 => GXImageFormat.RGBA32,
+            ImageFormat.PAL4 => GXImageFormat.I4,
+            ImageFormat.PAL8 => throw new NotImplementedException($"PAL8"),
+            _ => throw new NotImplementedException(mode.ToString()),
         };
     }
 }

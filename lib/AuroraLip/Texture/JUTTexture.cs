@@ -1,5 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Core.Extensions;
+using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture
 {
@@ -10,7 +11,7 @@ namespace AuroraLib.Texture
     /// <summary>
     /// The base class of all textures.
     /// </summary>
-    public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable, IName
+    public abstract partial class JUTTexture : List<JUTTexture.TexEntry>, IDisposable, IObjectName
     {
         /// <summary>
         /// The full path of this file.

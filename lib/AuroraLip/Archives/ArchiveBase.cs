@@ -32,11 +32,15 @@ namespace AuroraLib.Archives
             get => root;
             set
             {
-                if (root != null)
+                if (root != null && root.OwnerArchive == this)
                     root.OwnerArchive = null;
 
-                value.OwnerArchive = this;
-                value.Parent = null;
+                if (value != null)
+                {
+                    value.OwnerArchive = this;
+                    value.Parent = null;
+                }
+
                 root = value;
             }
         }

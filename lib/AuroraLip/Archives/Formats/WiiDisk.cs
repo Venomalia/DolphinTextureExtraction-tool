@@ -10,7 +10,13 @@ namespace AuroraLib.Archives.Formats
     // ref https://wiibrew.org/wiki/Wii_disc
     public partial class WiiDisk : GCDisk
     {
-        private readonly List<WiiDiskStream> WiiDiskEncrypter = new();
+        private readonly List<Stream> WiiDiskEncrypter = new();
+
+        public new HeaderBin Header
+        {
+            get => (HeaderBin)base.Header;
+            set => base.Header = value;
+        }
 
         public WiiDisk()
         { }
@@ -28,13 +34,17 @@ namespace AuroraLib.Archives.Formats
 
         protected override void Read(Stream stream)
         {
-            Header = new HeaderBin(stream);
-            stream.Seek(262144, SeekOrigin.Begin);
-            PartitionInfo Partitions = new(stream);
+            base.Header = new HeaderBin(stream);
+            ProcessPartitionData(stream);
+        }
 
+        internal void ProcessPartitionData(Stream stream)
+        {
+            stream.Seek(0x40000, SeekOrigin.Begin);
+            PartitionInfo partitions = new(stream);
             Root = new() { Name = $"{Header.GameName} [{Header.GameID}]", OwnerArchive = this };
 
-            foreach (var partition in Partitions)
+            foreach (var partition in partitions)
             {
                 ArchiveDirectory parDirectory = new(this, Root) { Name = partition.Type.ToString() };
                 parDirectory.AddArchiveFile(stream, Partition.TICKETsize, partition.TICKEToffse, "ticket.bin");
@@ -49,8 +59,16 @@ namespace AuroraLib.Archives.Formats
                 DiscDirectory.AddArchiveFile(stream, 32, 319488, "region.bin");
                 parDirectory.Items.Add(DiscDirectory.Name, DiscDirectory);
 
-                WiiDiskStream wiiStream = new(stream, stream.Length - partition.DATAoffset, partition.DATAoffset, partition.Ticket.GetPartitionKey());
-                WiiDiskEncrypter.Add(wiiStream);
+                Stream wiiStream;
+                if (Header.UseEncryption)
+                {
+                    wiiStream = new WiiDiskStream(stream, stream.Length - partition.DATAoffset, partition.DATAoffset, partition.Ticket.GetPartitionKey());
+                    WiiDiskEncrypter.Add(wiiStream);
+                }
+                else
+                {
+                    wiiStream = new SubStream(stream, stream.Length - partition.DATAoffset, partition.DATAoffset);
+                }
 
                 ArchiveDirectory mainDirectory = ProcessData(wiiStream);
                 foreach (var item in mainDirectory.Items)
@@ -71,7 +89,7 @@ namespace AuroraLib.Archives.Formats
             base.Dispose(disposing);
             if (disposing)
             {
-                foreach (WiiDiskStream stream in WiiDiskEncrypter)
+                foreach (Stream stream in WiiDiskEncrypter)
                 {
                     stream.Dispose();
                 }

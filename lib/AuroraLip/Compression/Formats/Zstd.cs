@@ -43,8 +43,8 @@ namespace AuroraLib.Compression.Formats
             ulong DecompressedSize = Decompressor.GetDecompressedSize(sourceSpan);
             using SpanBuffer<byte> destinationSpan = new((int)DecompressedSize);
             using Decompressor decompressor = new();
-            decompressor.Unwrap(sourceSpan, destinationSpan);
-            destination.Write(destinationSpan);
+            int length = decompressor.Unwrap(sourceSpan, destinationSpan);
+            destination.Write(destinationSpan.Span[..length]);
         }
 
     }

@@ -118,6 +118,7 @@ namespace AuroraLib.Common
             new FormatInfo(".bnr","CBMD", FormatType.Else, "3DS Video Banner", Nin_),
 
             //Nintendo Else
+            new FormatInfo(".bfn", "FONTbfn1", FormatType.Font, "Jfont" ),
             new FormatInfo(".ymp",FormatType.Collision,"Sunshine pollution heightmaps",Nin_),
             new FormatInfo(".blo", "SCRNblo1", FormatType.Layout, "UI Layout", Nin_),
             new FormatInfo(".blo", "SCRNblo2", FormatType.Layout, "UI V2 Layout", Nin_),
@@ -451,6 +452,7 @@ namespace AuroraLib.Common
             new FormatInfo(".RSL","RMHG", FormatType.Archive, "Grasshopper Archive", "Grasshopper Manufacture",typeof(RMHG)),
             new FormatInfo(".bin","GCT0", FormatType.Texture, "Grasshopper Texture", "Grasshopper Manufacture",typeof(GCT0)),
             new FormatInfo(".bin","CGMG", FormatType.Model, "Grasshopper Model", "Grasshopper Manufacture"),
+            new FormatInfo(".gm2","GMF2", FormatType.Model, "Grasshopper Model v2", "Grasshopper Manufacture"),
 
             //Treasure
             new FormatInfo(".RSC", FormatType.Archive, "Wario World archive", "Treasure",typeof(RSC)),
@@ -636,8 +638,6 @@ namespace AuroraLib.Common
             new FormatInfo(".mds", "MDSV", FormatType.Video,"zack and wiki Video"),
             new FormatInfo(".bik", "BIKi", FormatType.Video,"Bink","Epic Game"),
 
-            //Font
-            new FormatInfo(".bfn", "FONTbfn1", FormatType.Font),
             //Model
             new FormatInfo(".HGO","HGOF", FormatType.Model),
             new FormatInfo(".CMDL", FormatType.Model),

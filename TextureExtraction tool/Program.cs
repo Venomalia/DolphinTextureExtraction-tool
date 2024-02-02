@@ -543,11 +543,7 @@ namespace DolphinTextureExtraction
             Console.WriteLine(string.Join(", ", textures).LineBreak(17));
 
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
-            ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);
-            Console.WriteLine(" If you use RVZ images, unpack them into a folder using Dolphin.");
-            Console.WriteLine("right click on a game -> Properties -> Filesystem -> right click on \"Disc - [Game ID]\" -> Extract Files...");
             Console.ResetColor();
-            Console.WriteLine();
         }
 
         static void PrintOptions()

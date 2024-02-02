@@ -2,6 +2,7 @@
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Compression.Formats;
 using AuroraLib.Core.Text;
+using AuroraLib.DiscImage.RVZ;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 
@@ -316,7 +317,7 @@ namespace AuroraLib.Common
             //Roms & Iso
             new FormatInfo(".gba", 0,new byte[]{46,0,0,234,36,255,174,81,105,154,162,33,61,132,130}, FormatType.Rom, "GBA Rom", Nin_),
             new FormatInfo(".nes", 0,new byte[]{78,69,83,26} , FormatType.Rom, "Rom", Nin_),
-            new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Iso, "Dolphin Iso", "Dolphin Team"),
+            new FormatInfo(".rvz", 0,new byte[]{82,86,90,1} , FormatType.Iso, "Dolphin Iso", "Dolphin Team",typeof(RVZ)),
             new FormatInfo(".WIA", 0,new byte[]{87,73,65,1} , FormatType.Iso, "Wii ISO Archive","Wiimm"),
             new FormatInfo(".wad",new Identifier32((byte)'I', (byte)'s', 0, 0),4, FormatType.Iso, "Wii WAD",Nin_,typeof(WAD)),
             new FormatInfo(".ciso", FormatType.Iso, "Compact ISO"),

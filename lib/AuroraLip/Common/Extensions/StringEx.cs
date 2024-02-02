@@ -13,43 +13,63 @@ namespace AuroraLib.Common
         public static string SimpleDate => DateTime.Now.ToString("yy-MM-dd_HH-mm-ss");
 
         /// <summary>
-        /// Introduces a linebreak if the current console's width is passed
-        /// </summary>
-        public static string LineBreak(this string text) => text.LineBreak(Console.WindowWidth - 1, 0);
-
-        /// <summary>
         /// Introduces a linebreak if the current console's width is passed, prepending a given <paramref name="offset"/> of space characters
         /// </summary>
         /// <param name="max">The maximum number of characters to a line.</param>
-        public static string LineBreak(this string text, int offset) => text.LineBreak(Console.WindowWidth - 1, offset);
+        public static string LineBreak(this string text, int offset = 0) => text.LineBreak(Console.WindowWidth - 1, offset, Console.CursorLeft);
 
         /// <summary>
         /// Introduces a linebreak if the specified <paramref name="width"/> is passed, prepending a given <paramref name="offset"/> of space characters
         /// </summary>
         /// <param name="width">The maximum number of characters to a line.</param>
         /// <param name="offset">How many spaces to prepend to any created newlines.</param>
-        public static string LineBreak(this string text, int width, int offset)
+        /// <param name="columnOffset">column offset of the <paramref name="text"/>.</param>
+        public static string LineBreak(this string text, int width, int offset, int columnOffset = 0)
         {
-            if (string.IsNullOrEmpty(text)) return string.Empty;
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            int cOffset = Console.CursorLeft;
             string insert = Environment.NewLine.PadRight(offset, ' ');
-            StringBuilder output = new StringBuilder();
-            StringReader reader = new StringReader(text);
-            while (true)
+            StringBuilder output = new();
+
+            int index = 0;
+            while (index < text.Length)
             {
-                string read = reader.ReadLine();
-                if (read == null) break;
-                int index = 0;
-                while (index + width < read.Length)
-                {
-                    ReadOnlySpan<char> line = read.AsSpan(index, width);
-                    index += line.LastIndexOf(' ');
-                    read = read.Insert(index, insert);
-                }
-                output.AppendLine(read);
+                int length = text[index..].IndexOf(Environment.NewLine);
+                if ((length == -1))
+                    length = text.Length;
+                length -= -index;
+
+                LineInsert(output, text.AsSpan(index, length), insert, width, columnOffset);
+                index = length + Environment.NewLine.Length;
             }
+
             output.Length -= Environment.NewLine.Length;
             return output.ToString();
         }
+
+        private static void LineInsert(StringBuilder output, ReadOnlySpan<char> text, ReadOnlySpan<char> insert, int width, int offset = 0)
+        {
+            int index = 0, length = width - offset;
+            while (index + length < text.Length)
+            {
+                ReadOnlySpan<char> line = text.Slice(index, length);
+                int lineEnd = line.LastIndexOf(' ');
+                if (lineEnd == -1)
+                    lineEnd = length;
+
+                output.Append(line[..lineEnd]);
+                output.Append(insert);
+
+                if (index == 0)
+                    length = width - insert.Length;
+                index += lineEnd;
+            }
+            output.Append(text[index..]);
+            output.AppendLine();
+        }
+
 
         /// <summary>
         /// Creates a divider line equal to the current console's width

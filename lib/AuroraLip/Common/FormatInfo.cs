@@ -211,13 +211,9 @@ namespace AuroraLib.Common
         public virtual bool Equals(FormatInfo other)
         {
             if (Identifier != null)
-            {
                 return Identifier.Equals(other.Identifier);
-            }
             else
-            {
-                return Extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase);
-            }
+                return other.Identifier == null && Extension.Contains(other.Extension, StringComparison.InvariantCultureIgnoreCase);
         }
 
         /// <inheritdoc />

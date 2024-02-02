@@ -29,7 +29,6 @@ namespace AuroraLib.Common
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            int cOffset = Console.CursorLeft;
             string insert = Environment.NewLine.PadRight(offset, ' ');
             StringBuilder output = new();
 
@@ -37,12 +36,11 @@ namespace AuroraLib.Common
             while (index < text.Length)
             {
                 int length = text[index..].IndexOf(Environment.NewLine);
-                if ((length == -1))
+                if (length == -1)
                     length = text.Length;
-                length -= -index;
 
                 LineInsert(output, text.AsSpan(index, length), insert, width, columnOffset);
-                index = length + Environment.NewLine.Length;
+                index += length + Environment.NewLine.Length;
             }
 
             output.Length -= Environment.NewLine.Length;

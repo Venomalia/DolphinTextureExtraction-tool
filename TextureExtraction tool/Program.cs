@@ -525,9 +525,22 @@ namespace DolphinTextureExtraction
 #else
             Console.WriteLine($"{System.Diagnostics.Process.GetCurrentProcess().ProcessName} v{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version} {IntPtr.Size * 8}bit\t\t{DateTime.Now.ToString()}");
 #endif
-            List<string> formats = new(AuroraLib.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
-            formats.Sort();
-            Console.WriteLine($"Supported formats: {string.Join(", ", formats)}.".LineBreak(20));
+            ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
+            IEnumerable<FormatInfo> formats = FormatDictionary.Master.Where(x => x.CanRead && x.Class != null).DistinctBy(x => x.Class);
+            List<string> fileSystems = formats.Where(x => x.Typ == FormatType.Iso).Select(x => x.Class.Name).ToList();
+            List<string> archives = formats.Where(x => x.Typ == FormatType.Archive).Select(x => x.Class.Name).ToList();
+            List<string> textures = formats.Where(x => x.Typ == FormatType.Texture).Select(x => x.Class.Name).ToList();
+            textures.Sort();
+            archives.Sort();
+            //List<string> formats = new(AuroraLib.Common.Reflection.FileAccess.GetReadable().Select(x => x.Name)) { "BDL4", "BMD3", "TEX1" };
+            //formats.Sort();
+            ConsoleEx.WriteLineColoured($"Supported formats:", ConsoleColor.Cyan);
+            ConsoleEx.WriteColoured($"Disk images:\t", ConsoleColor.Cyan);
+            Console.WriteLine(string.Join(", ", fileSystems));
+            ConsoleEx.WriteColoured($"Archives:\t", ConsoleColor.Cyan);
+            Console.WriteLine(string.Join(", ", archives).LineBreak(17));
+            ConsoleEx.WriteColoured($"Textures:\t", ConsoleColor.Cyan);
+            Console.WriteLine(string.Join(", ", textures).LineBreak(17));
 
             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
             ConsoleEx.WriteColoured("INFO:", ConsoleColor.Red);

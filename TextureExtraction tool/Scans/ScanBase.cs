@@ -6,6 +6,7 @@ using AuroraLib.Core.Interfaces;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
+using System.Runtime.CompilerServices;
 
 namespace DolphinTextureExtraction.Scans
 {
@@ -61,17 +62,20 @@ namespace DolphinTextureExtraction.Scans
             DateTime starttime = DateTime.Now;
 
             if (Directory.Exists(ScanPath))
+            {
                 Scan(new DirectoryInfo(ScanPath));
+            }
             else if (File.Exists(ScanPath))
             {
-                var file = new FileInfo(ScanPath);
+                FileInfo file = new(ScanPath);
                 Result.Worke = 1;
                 Result.WorkeLength = file.Length;
                 Option.ProgressUpdate(Result);
 
-                Stream stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
-                Scan(new ScanObjekt(stream, file.Name.AsSpan(), 0, file.Extension));
-                stream.Close();
+                using FileStream stream = new(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+                ScanObjekt objekt = new(stream, file.Name.AsSpan(), 0, file.Extension);
+                Scan(objekt);
 
                 Result.Progress++;
                 Result.ProgressLength += file.Length;
@@ -199,6 +203,7 @@ namespace DolphinTextureExtraction.Scans
         /// </summary>
         /// <param name="stream"></param>
         /// <param name="destFileName"></param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         protected void Save(Stream stream, in string destFileName)
         {
             // Don't save anything if performing a dry run
@@ -210,8 +215,10 @@ namespace DolphinTextureExtraction.Scans
             // skip files that are blacklisted.
             ReadOnlySpan<char> fileName = Path.GetFileName(destFileName.AsSpan());
             for (int i = 0; i < blacklist.Length; i++)
+            {
                 if (fileName.SequenceEqual(blacklist[i]))
                     return;
+            }
 
             string DirectoryName = Path.GetDirectoryName(destFileName);
             //We can't create a folder if a file with the same name exists.
@@ -234,6 +241,7 @@ namespace DolphinTextureExtraction.Scans
         protected void Save(ScanObjekt so)
             => Save(so.Stream, string.Concat(GetFullSaveDirectory(so.SubPath), so.Extension));
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         protected virtual bool TryExtract(ScanObjekt so)
         {
             if (so.Format.Class == null)
@@ -278,7 +286,9 @@ namespace DolphinTextureExtraction.Scans
                     string subPath = so.SubPath.ToString();
                     // if the archive needs more files.
                     if (so.Deep == 0)
+                    {
                         archive.FileRequest = new Events.FileRequestDelegate(N => new FileStream(Path.Combine(Path.GetDirectoryName(Path.Combine(ScanPath, subPath)), N), FileMode.Open, FileAccess.Read, FileShare.Read));
+                    }
                     else
                     {
                         ArchiveFile file = so.File;
@@ -343,6 +353,7 @@ namespace DolphinTextureExtraction.Scans
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         protected virtual bool TryDecompress(ScanObjekt so)
         {
             if (Reflection.Compression.TryToDecompress(so.Stream, out List<Stream> decomStreams, out Type type))
@@ -372,9 +383,8 @@ namespace DolphinTextureExtraction.Scans
         {
             try
             {
-                if (badformats.Item1 == so.Format)
-                    if (badformats.Item2 > 4)
-                        return false;
+                if (badformats.Item1 == so.Format && badformats.Item2 > 4)
+                    return false;
 
                 Archive archive = new DataCutter(so.Stream);
                 if (archive.Root.Count > 0)
@@ -396,7 +406,10 @@ namespace DolphinTextureExtraction.Scans
                     badformats.Item2++;
             }
             else
+            {
                 badformats = (so.Format, 0);
+            }
+
             return false;
         }
 

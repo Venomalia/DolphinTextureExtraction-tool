@@ -90,7 +90,9 @@ namespace DolphinTextureExtraction.Scans
                         {
 
                             if (so.Format.Class == null)
+                            {
                                 LogResultUnsupported(so);
+                            }
                             else
                             {
                                 switch (so.Format.Class.Name)
@@ -143,6 +145,7 @@ namespace DolphinTextureExtraction.Scans
         /// </summary>
         /// <param name="texture"></param>
         /// <param name="subdirectory"></param>
+        [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private void Save(JUTTexture texture, ScanObjekt so)
         {
             foreach (JUTTexture.TexEntry tex in texture)

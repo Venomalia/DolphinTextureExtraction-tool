@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Archives;
+using AuroraLib.Archives.Formats;
 using AuroraLib.Common;
 using AuroraLib.Compression;
 using AuroraLib.Compression.Interfaces;
@@ -297,7 +298,18 @@ namespace DolphinTextureExtraction.Scans
                     archive.Open(so.Stream, subPath);
                     long size = archive.Root.Size;
                     //scan the archive file.
-                    Scan(archive, so.SubPath, so.Deep + 1);
+                    if (Option.Parallel.MaxDegreeOfParallelism == 1 || so.Format.Typ != FormatType.Iso || so.Format.Class.Name == nameof(GCDisk))
+                    {
+                        Scan(archive, so.SubPath, so.Deep + 1);
+                    }
+                    else
+                    {
+                        // Most disk images are faster in single-tasking mode.
+                        int Parallelism = Option.Parallel.MaxDegreeOfParallelism;
+                        Option.Parallel.MaxDegreeOfParallelism = 1;
+                        Scan(archive, so.SubPath, so.Deep + 1);
+                        Option.Parallel.MaxDegreeOfParallelism = Parallelism;
+                    }
 
                     if (so.Stream.Length > 104857600 * 5) //100MB*5
                         return true;

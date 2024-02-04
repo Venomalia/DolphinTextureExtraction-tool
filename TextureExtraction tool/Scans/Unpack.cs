@@ -66,7 +66,10 @@ namespace DolphinTextureExtraction.Scans
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, so.GetFullSubPath());
+                lock (Result)
+                {
+                    Log.WriteEX(t, so.GetFullSubPath());
+                }
                 if (so.Deep != 0)
                     Save(so);
             }

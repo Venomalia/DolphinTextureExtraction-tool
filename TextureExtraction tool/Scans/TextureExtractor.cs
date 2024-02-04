@@ -1,4 +1,7 @@
-﻿using AuroraLib.Common;
+﻿using AuroraLib.Archives;
+using AuroraLib.Archives.Formats;
+using AuroraLib.Common;
+using AuroraLib.Common.Interfaces;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using DolphinTextureExtraction.Scans.Helper;
@@ -84,6 +87,45 @@ namespace DolphinTextureExtraction.Scans
                         }
                         goto case FormatType.Archive;
                     case FormatType.Iso:
+                        if (so.Format.Class.Name != nameof(WAD) && so.Format.Class.IsSubclassOf(typeof(Archive)))
+                        {
+
+                            int Parallelism = Option.Parallel.MaxDegreeOfParallelism;
+                            if (Option.Parallel.MaxDegreeOfParallelism != 1 && so.Format.Class.Name != nameof(GCDisk))
+                            {
+                                // Most disk images are faster in single-tasking mode.
+                                Option.Parallel.MaxDegreeOfParallelism = 1;
+                            }
+
+                            using Archive archive = (Archive)Activator.CreateInstance(so.Format.Class);
+                            archive.Open(so.Stream);
+
+                            // For Wii games we skip the update partition.
+                            const string UPDATE = "UPDATE";
+                            if (archive.Root.Items.TryGetValue(UPDATE, out ArchiveObject partiton))
+                            {
+                                Log.WriteNotification(NotificationType.Info, $"INFO: {archive.Root.Name} update partition skipped.");
+                                partiton.Dispose();
+                                archive.Root.Items.Remove(UPDATE);
+                            }
+
+                            // We use the name that is embedded in the game.
+                            string aPath = PathX.GetValidPath(Path.Join(Path.GetDirectoryName(so.SubPath), archive.Root.Name));
+                            Scan(archive, aPath, so.Deep + 1);
+                            Option.Parallel.MaxDegreeOfParallelism = Parallelism;
+
+                            // We save the game ID as txt for dolphin
+                            if (Result.Extracted != 0 && archive is IGameDetails details)
+                            {
+                                string identifierDir = Path.Join(aPath, "_GameID");
+                                identifierDir = GetFullSaveDirectory(identifierDir);
+                                Directory.CreateDirectory(identifierDir);
+                                string identifierPath = Path.Join(identifierDir, $"{details.GameID.GetString().AsSpan(0, 3)}.txt");
+                                File.Create(identifierPath).Close();
+                            }
+                            break;
+                        }
+                        goto case FormatType.Archive;
                     case FormatType.Archive:
 
                         if (!TryExtract(so))
@@ -125,8 +167,11 @@ namespace DolphinTextureExtraction.Scans
             }
             catch (Exception t)
             {
-                Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
-                Result.AddUnsupported(so);
+                lock (Result)
+                {
+                    Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
+                    Result.AddUnsupported(so);
+                }
 #if DEBUG
                 if (so.Format.Typ == FormatType.Texture)
                 {

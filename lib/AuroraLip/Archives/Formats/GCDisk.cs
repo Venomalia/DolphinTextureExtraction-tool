@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Interfaces;
 using AuroraLib.DiscImage.Dolphin;
 
 namespace AuroraLib.Archives.Formats
@@ -6,11 +7,15 @@ namespace AuroraLib.Archives.Formats
     /// <summary>
     /// Nintendo Gamecube Mini Disc Image.
     /// </summary>
-    public class GCDisk : Archive, IFileAccess
+    public class GCDisk : Archive, IFileAccess, IGameDetails
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
+
+        public GameID GameID => Header.GameID;
+
+        public string GameName => Header.GameName;
 
         public GameHeader Header;
 

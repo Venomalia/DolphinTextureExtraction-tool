@@ -1,4 +1,5 @@
 ﻿using AuroraLib.Common;
+using AuroraLib.Common.Interfaces;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.DiscImage.Dolphin;
 using AuroraLib.DiscImage.Revolution;
@@ -6,13 +7,17 @@ using AuroraLib.DiscImage.RVZ;
 
 namespace AuroraLib.Archives.Formats
 {
-    public partial class RVZ : Archive, IHasIdentifier, IFileAccess
+    public partial class RVZ : Archive, IHasIdentifier, IFileAccess, IGameDetails
     {
         public bool CanRead => true;
 
         public bool CanWrite => false;
 
         public virtual IIdentifier Identifier => _identifier;
+
+        public GameID GameID => Header.GameID;
+
+        public string GameName => Header.GameName;
 
         private static readonly Identifier32 _identifier = new(82, 86, 90, 1);
 

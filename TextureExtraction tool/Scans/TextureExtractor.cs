@@ -258,7 +258,7 @@ namespace DolphinTextureExtraction.Scans
             sb.Append(tex.MinLOD);
             if (tex.Count > 1 && ArbitraryMipmapValue > 0f)
             {
-                sb.Append($"ArbMipValue:{ArbitraryMipmapValue:0.000}");
+                sb.Append($" ArbMipValue:{ArbitraryMipmapValue:0.000}");
             }
             return sb.ToString();
         }

@@ -6,11 +6,12 @@
 [![Downloads](https://img.shields.io/github/downloads/Venomalia/DolphinTextureExtraction-tool/total?color=907&label=Downloads)](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases)
 [![Stars](https://img.shields.io/github/stars/Venomalia/DolphinTextureExtraction-tool?color=990&label=Stars)](https://github.com/Venomalia/DolphinTextureExtraction-tool/stargazers)
 
-Is a Command line tool for extracting GC and Wii textures from disc and is compatible with Dolphin's texture hash.
-It allows you to extract textures from a game without having to play through the game with dolphin first.
-The tool can be used for [any game](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results), but the extraction rate depends on what formats the game uses and if the tool supports them.
-the tool can also unpack all supported formats.
-The most common formats are already supported, new features and formats will be added over time.
+This command-line tool is designed for extracting textures from GameCube and Wii discs, offering compatibility with Dolphin's texture hash.
+With allows you to quickly get textures to create a texture pack  without the need to play through them on Dolphin first!
+While its extraction rate depends on the game's formats and the tool's support for them, it can handle a wide [range of games](https://github.com/Venomalia/DolphinTextureExtraction-tool/wiki/Known-results).
+Additionally, the tool supports unpacking all compatible formats and some other functions. 
+
+Although the most common formats are already supported, the tool is still under development and new functions and other formats will be added over time.
 
 ## Download
 This is a .NET 6.0 application and requires the .NET Runtime 6.0. If you don't have it installed yet, you can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
@@ -20,8 +21,6 @@ This is a .NET 6.0 application and requires the .NET Runtime 6.0. If you don't h
 [<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?include_prereleases&sort=semver&label=prerelease&style=for-the-badge" alt="Pre releases Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/)
 
 ## How to use
-INFO: If you use RVZ images, unpack them into a folder using Dolphin.  
-Right click on a game -> **Properties** -> **Filesystem** -> right click on "**Disc - [Game ID]**" -> **Extract Files**...
 
 ### Command-line UI
 Launch `DolphinTextureExtraction.tool.exe` and

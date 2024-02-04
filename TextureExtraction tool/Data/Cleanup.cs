@@ -88,11 +88,14 @@
                     {
                         if (subdirectory.GetDirectories().Length == 0)
                         {
-                            if (subdirectory.GetFiles().Length <= maxGroupsSize)
+                            int Textures = subdirectory.GetFiles("*.png").Length;
+                            if (Textures <= maxGroupsSize && Textures != 0)
                                 subdirectory.Merge(directory.FullName);
                         }
                         else
+                        {
                             Default(subdirectory, maxGroupsSize);
+                        }
                     }
                 }
 

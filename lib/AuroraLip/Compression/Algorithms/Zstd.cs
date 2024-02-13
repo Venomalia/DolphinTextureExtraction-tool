@@ -4,7 +4,7 @@ using AuroraLib.Core.Interfaces;
 using System.IO.Compression;
 using ZstdSharp;
 
-namespace AuroraLib.Compression.Formats
+namespace AuroraLib.Compression.Algorithms
 {
     public class Zstd : ICompressionAlgorithm, IHasIdentifier
     {

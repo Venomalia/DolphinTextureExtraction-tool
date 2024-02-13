@@ -2,7 +2,7 @@
 using AuroraLib.Core.Interfaces;
 using System.IO.Compression;
 
-namespace AuroraLib.Compression.Formats
+namespace AuroraLib.Compression.Algorithms
 {
     public class CRILAYLA : ICompressionAlgorithm, IHasIdentifier
     {

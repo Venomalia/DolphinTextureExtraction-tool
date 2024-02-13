@@ -3,7 +3,7 @@ using AuroraLib.Compression.Interfaces;
 using System.Buffers;
 using System.IO.Compression;
 
-namespace NSMBWCompression
+namespace AuroraLib.Compression.Algorithms
 {
     /// <summary>
     /// LH compression algorithm base on (LZ77 + Huffman)

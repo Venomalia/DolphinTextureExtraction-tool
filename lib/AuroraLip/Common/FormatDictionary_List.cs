@@ -1,8 +1,6 @@
 ﻿using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Algorithms;
-using AuroraLib.Compression.Formats;
 using AuroraLib.Core.Text;
-using AuroraLib.DiscImage.RVZ;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 

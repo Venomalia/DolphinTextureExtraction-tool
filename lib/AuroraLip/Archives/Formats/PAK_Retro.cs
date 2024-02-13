@@ -1,7 +1,6 @@
 ﻿using AuroraLib.Common;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Exceptions;
-using IronCompress;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -109,28 +108,28 @@ namespace AuroraLib.Archives.Formats
             const int segmentSize = 0x4000; // The decompressed size of each segment
             int numSegments = (int)Math.Ceiling((double)decompressedSize / segmentSize); // The number of segments in the file
             MemoryPoolStream output = new((int)decompressedSize); // A stream to hold the decompressed data
-            Iron iron = new();
 
             for (int i = 0; i < numSegments; i++)
             {
                 // Calculate the size of the current segment
                 int segmentLength = Math.Min(segmentSize, (int)decompressedSize - i * segmentSize);
-
                 short blockSize = input.ReadInt16(Endian.Big);
+
                 //Copy Block if not compressed
                 if (blockSize < 0)
                 {
-                    blockSize -= blockSize;
-                    output.Write(input.Read(blockSize));
+                    using MemoryPoolStream buffer = new(input, blockSize);
+                    buffer.WriteTo(output);
                     continue;
                 }
-
-                // Decompress the data for this segment
-                using (IronCompressResult uncompressed = iron.Decompress(Codec.LZO, input.Read(blockSize), segmentLength))
+                else
                 {
-                    output.Write(uncompressed.AsSpan());
+                    // Decompress the data for this segment
+                    using MemoryPoolStream buffer = new(input, blockSize);
+                    LZO.DecompressHeaderless(buffer, output);
                 }
             }
+            output.Position = 0;
             return output;
         }
 

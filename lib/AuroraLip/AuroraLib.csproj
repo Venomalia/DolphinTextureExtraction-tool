@@ -24,11 +24,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AuroraLib.Compression" Version="1.0.5.1" />
-    <PackageReference Include="IronCompress" Version="1.5.1" />
+    <PackageReference Include="AuroraLib.Compression" Version="1.0.6" />
     <PackageReference Include="RenderWareNET" Version="0.6.1" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
+    <PackageReference Include="ZstdSharp.Port" Version="0.7.5" />
   </ItemGroup>
 
   <ItemGroup>

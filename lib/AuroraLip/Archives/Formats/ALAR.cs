@@ -1,5 +1,7 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.IO;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -23,21 +25,19 @@ namespace AuroraLib.Archives.Formats
         protected override void Read(Stream stream)
         {
             stream.MatchThrow(_identifier);
-            byte flag = stream.ReadUInt8();
-            byte unk = stream.ReadUInt8();
+            byte version = stream.ReadUInt8();
+            EntryFlags entryFlags = stream.Read<EntryFlags>();
             ushort entries = stream.ReadUInt16(Endian.Big);
-            ushort unk_2 = stream.ReadUInt16(Endian.Big);
-            ushort unk_3 = stream.ReadUInt16(Endian.Big);
-            ushort unk_4 = stream.ReadUInt16(Endian.Big);
-            ushort unk_5 = stream.ReadUInt16(Endian.Big);
+            uint lowId = stream.ReadUInt32(Endian.Big);
+            uint highId = stream.ReadUInt32(Endian.Big);
 
             Root = new ArchiveDirectory() { OwnerArchive = this };
-            switch (flag)
+            switch (version)
             {
                 case 2:
                     for (int i = 0; i < entries; i++)
                     {
-                        uint mistery = stream.ReadUInt32(Endian.Big);
+                        uint id = stream.ReadUInt32(Endian.Big);
                         uint offset = stream.ReadUInt32(Endian.Big);
                         uint size = stream.ReadUInt32(Endian.Big);
                         uint pad = stream.ReadUInt32(Endian.Big);
@@ -47,22 +47,19 @@ namespace AuroraLib.Archives.Formats
                         string name = stream.ReadString(0x20);
 
                         if (Root.Items.ContainsKey(name))
-                            name = name + i;
+                            name += i;
                         Root.AddArchiveFile(stream, size, offset, name);
                         stream.Seek(pos, SeekOrigin.Begin);
                     }
                     break;
 
                 case 3:
-                    ushort unk_6 = stream.ReadUInt16(Endian.Big);
-                    List<ushort> entrie_pos = new List<ushort>();
-                    for (int i = 0; i < entries; i++)
+                    ushort dataTabelOffset = stream.ReadUInt16(Endian.Big);
+                    SpanBuffer<ushort> entrieOffsets = new(entries);
+                    stream.Read<ushort>(entrieOffsets, Endian.Big);
+                    foreach (ushort entrieOffset in entrieOffsets)
                     {
-                        entrie_pos.Add(stream.ReadUInt16(Endian.Big));
-                    }
-                    foreach (ushort entrie in entrie_pos)
-                    {
-                        stream.Seek(entrie, SeekOrigin.Begin);
+                        stream.Seek(entrieOffset, SeekOrigin.Begin);
                         uint id = stream.ReadUInt32(Endian.Big);
                         uint offset = stream.ReadUInt32(Endian.Big);
                         uint size = stream.ReadUInt32(Endian.Big);
@@ -70,14 +67,25 @@ namespace AuroraLib.Archives.Formats
                         string name = stream.ReadString();
 
                         if (Root.Items.ContainsKey(name))
-                            name = name + id;
+                            name += id;
                         Root.AddArchiveFile(stream, size, offset, name);
                     }
+                    entrieOffsets.Dispose();
                     break;
 
                 default:
-                    throw new Exception($"{nameof(ALAR)} unknown flag:{flag}");
+                    throw new Exception($"{nameof(ALAR)} unknown version:{version}");
             }
+        }
+
+        [Flags]
+        public enum EntryFlags : byte
+        {
+            IsResident = 1,
+            IsPrepare = 2,
+            Unknown = 32,
+            Unknown2 = 64,
+            HasName = 128
         }
 
         protected override void Write(Stream ArchiveFile)

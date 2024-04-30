@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -14,7 +14,7 @@ namespace AuroraLib.Texture.Formats
         private static readonly Identifier32 _identifier = new("ALIG");
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Match(_identifier);
+            => stream.Match(Identifier);
 
         protected override void Read(Stream stream)
         {
@@ -27,7 +27,7 @@ namespace AuroraLib.Texture.Formats
             {
                 case PaletteFormat.None:
                     BaseHeader header = stream.Read<BaseHeader>();
-                    stream.Seek(start + header.Offset, SeekOrigin.Begin);
+                    stream.Seek(start + header.ImageOffset, SeekOrigin.Begin);
 
 
                     Add(new TexEntry(stream, format, header.Width, header.Height, header.Mips)
@@ -61,16 +61,15 @@ namespace AuroraLib.Texture.Formats
                 default:
                     throw new NotSupportedException();
             }
-
-
-
         }
 
         protected override void Write(Stream stream) => throw new NotImplementedException();
 
         private struct TypeHeader
         {
-            public int Unk;
+            public MipmapType Mipmap;
+            public ImageFlags Flags;
+            public ushort PaletteColors;
             public ImageFormat Format;
             public PaletteFormat Palette;
         }
@@ -80,8 +79,8 @@ namespace AuroraLib.Texture.Formats
             public ushort Width;
             public ushort Height;
             public int Images;
-            public int Unk2;// 0x10
-            public int Offset; // 0x40
+            public int PaletteOffset;// 0x10
+            public int ImageOffset; // 0x40
 
             private uint size;
             public int Unk3;
@@ -107,23 +106,40 @@ namespace AuroraLib.Texture.Formats
 
         private enum ImageFormat : uint
         {
-            GCI4 = 877216583,//I4
-            GCI8 = 944325447,//I8
-            GIA4 = 876693831,//IA4
-            GIA8 = 943802695,//IA8
-            G565 = 892745031,//RGB565
-            GACC = 1128481095,//2xCMPR
-            GCCP = 1346585415,//CMPR
-            G5A3 = 859911495, //RGB5A3
-            GC32 = 842220359,//RGBA32
+            GCI4 = 877216583,//GameCube I4
+            GCI8 = 944325447,//GameCube I8
+            GIA4 = 876693831,//GameCube IA4
+            GIA8 = 943802695,//GameCube IA8
+            G565 = 892745031,//GameCube RGB565
+            GACC = 1128481095,//GameCube 2xCMPR
+            GCCP = 1346585415,//GameCube CMPR
+            G5A3 = 859911495, //GameCube RGB5A3
+            GC32 = 842220359,//GameCube RGBA32
             PAL4 = 877412688,//C4
             PAL8 = 944521552,//C8
+            BGRA = 1095911234,//BGRA32
+            ETC1 = 826496069,//Ericsson Texture Compression
+            EC1A = 1093747525,//Ericsson Texture Compression
         }
 
         private enum PaletteFormat : uint
         {
             None = 0,
             RGBA = 1094862674,
+        }
+
+        public enum MipmapType : byte
+        {
+            NoMipmap = 0,
+            HasMipmap = 1,
+            Platform = 2
+        }
+
+        [Flags]
+        public enum ImageFlags : byte
+        {
+            None = 0,
+            HasAlpha = 1,
         }
 
         private static GXImageFormat AsGXFormat(ImageFormat mode) => mode switch

@@ -1,4 +1,4 @@
-﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Archives.Formats;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
@@ -330,6 +330,10 @@ namespace AuroraLib.Common
             #endregion Common
 
             #region Mixed
+
+            //Arika
+            new FormatInfo(".DAT", FormatType.Archive, "Endless Ocean Archive", "Arika",typeof(RF2)),
+            new FormatInfo(".tdl", FormatType.Texture, "Endless Ocean Texture", "Arika",typeof(TDL0)),
 
             //Sting Entertainment
             new FormatInfo(".PAC", FormatType.Archive, "Archive", "Sting Entertainment",typeof(PAC)),

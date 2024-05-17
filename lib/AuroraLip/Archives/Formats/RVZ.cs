@@ -1,5 +1,4 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Common.Interfaces;
+using AuroraLib.Archives.Formats.Nintendo;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.DiscImage.Dolphin;
 using AuroraLib.DiscImage.Revolution;
@@ -7,53 +6,40 @@ using AuroraLib.DiscImage.RVZ;
 
 namespace AuroraLib.Archives.Formats
 {
-    public partial class RVZ : Archive, IHasIdentifier, IFileAccess, IGameDetails
+    public sealed partial class RVZ : WiiDisk, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
-
-        public GameID GameID => Header.GameID;
-
-        public string GameName => Header.GameName;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new(82, 86, 90, 1);
 
         private RvzStream rvzStream;
 
-        public GameHeader Header;
+        public new GameHeader Header { get => header; set => header = value; }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            rvzStream = new(stream);
-            GCDisk reader;
+            rvzStream = new(source);
             if (rvzStream.RVZDiscT.DiscType == DiscTypes.GameCube)
             {
-                reader = new GCDisk();
-                reader.Open(rvzStream);
+                ProcessData(rvzStream, this);
             }
             else
             {
-                HeaderBin wiiHeader = new(rvzStream)
+                Header = new HeaderBin(rvzStream)
                 {
                     UseVerification = false,
                     UseEncryption = false
                 };
-                reader = new WiiDisk { Header = wiiHeader };
-                ((WiiDisk)reader).ProcessPartitionData(rvzStream);
+                ProcessPartitionData(rvzStream);
             }
-
-            Root = reader.Root;
-            reader.Root = null;
-            Header = reader.Header;
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         protected override void Dispose(bool disposing)
         {

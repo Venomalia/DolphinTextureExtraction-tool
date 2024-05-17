@@ -1,80 +1,72 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using System.IO;
 
 namespace AuroraLib.Archives.Formats
 {
     // Format references https://github.com/intns/MODConv. For now, the textures are enough for us.
 
     /// <summary>
-    /// Pikmin model archive.
+    /// Pikmin 1 model archive.
     /// </summary>
-    public class MOD : Archive, IFileAccess
+    public sealed class MOD : ArchiveNode
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => false;
-
-        public static string Extension => ".mod";
+        public override bool CanWrite => false;
 
         public MOD()
-        { }
-
-        public MOD(string filename) : base(filename)
         {
         }
 
-        public MOD(Stream stream, string filename = null) : base(stream, filename)
+        public MOD(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public MOD(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadInt32(Endian.Big) == ((int)ChunkTyps.Header);
+            => extension.Contains(".mod", StringComparison.InvariantCultureIgnoreCase) && stream.ReadInt32(Endian.Big) == ((int)ChunkTyps.Header);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-
-            while (stream.Position < stream.Length)
+            while (source.Position < source.Length)
             {
-                if ((stream.Position & 0x1F) != 0)
-                    throw new Exception($"Chunk start ({stream.Position}) not on boundary!");
+                if ((source.Position & 0x1F) != 0)
+                    throw new Exception($"Chunk start ({source.Position}) not on boundary!");
 
-                ChunkTyps opcode = (ChunkTyps)stream.ReadInt32(Endian.Big);
-                int lengthOfStruct = stream.ReadInt32(Endian.Big);
-                long StartOfStruct = stream.Position;
+                ChunkTyps opcode = (ChunkTyps)source.ReadInt32(Endian.Big);
+                int lengthOfStruct = source.ReadInt32(Endian.Big);
+                long StartOfStruct = source.Position;
 
                 switch (opcode)
                 {
                     case ChunkTyps.Texture:
-                        ReadTextureChunk(stream, lengthOfStruct, StartOfStruct);
+                        ReadTextureChunk(source, lengthOfStruct, StartOfStruct);
                         break;
 
                     case ChunkTyps.TextureAttribute:
-                        ReadTextureAttributeChunk(stream, lengthOfStruct, StartOfStruct);
+                        ReadTextureAttributeChunk(source, lengthOfStruct, StartOfStruct);
                         break;
 
                     case ChunkTyps.EoF: //End of binary data Start of INI data
-                        stream.Seek(lengthOfStruct, SeekOrigin.Current);
-                        StartOfStruct = stream.Position;
-                        lengthOfStruct = (int)(stream.Length - stream.Position);
-                        Root.AddArchiveFile(stream, lengthOfStruct, "info.ini");
+                        source.Seek(lengthOfStruct, SeekOrigin.Current);
+                        StartOfStruct = source.Position;
+                        lengthOfStruct = (int)(source.Length - source.Position);
+                        Add(new FileNode("info.ini", new SubStream(source, lengthOfStruct)));
                         break;
 
                     default:
-                        Root.AddArchiveFile(stream, lengthOfStruct, opcode.ToString() + ".bin");
+                        Add(new FileNode(opcode.ToString() + ".bin", new SubStream(source, lengthOfStruct)));
                         break;
                 }
 
                 // Read the file, move on to the next one
-                stream.Seek(StartOfStruct + lengthOfStruct, SeekOrigin.Begin);
+                source.Seek(StartOfStruct + lengthOfStruct, SeekOrigin.Begin);
             }
-        }
-
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
         }
 
         private void ReadTextureAttributeChunk(Stream stream, in int lengthOfStruct, in long StartOfStruct)
@@ -84,7 +76,7 @@ namespace AuroraLib.Archives.Formats
 
             for (int i = 1; i <= NumberOfFiles; i++)
             {
-                Root.AddArchiveFile(stream, 12, ChunkTyps.TextureAttribute.ToString() + i + ".attr");
+                Add(new FileNode(ChunkTyps.TextureAttribute.ToString() + i + ".attr", new SubStream(stream, 12)));
                 stream.Seek(20, SeekOrigin.Current);
             }
         }
@@ -99,10 +91,12 @@ namespace AuroraLib.Archives.Formats
                 long StartOfEntry = stream.Position;
                 stream.Seek(28, SeekOrigin.Current);
                 int DataSize = stream.ReadInt32(Endian.Big);
-                Root.AddArchiveFile(stream, 32 + DataSize, StartOfEntry, ChunkTyps.Texture.ToString() + i + ".txe");
+                Add(new FileNode(ChunkTyps.TextureAttribute.ToString() + i + ".txe", new SubStream(stream, 32 + DataSize, StartOfEntry)));
                 stream.Seek(DataSize, SeekOrigin.Current);
             }
         }
+
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public enum ChunkTyps : int
         {

@@ -1,51 +1,72 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 using RenderWareNET.Structs;
 using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class ONE_SH : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// SEGA Shadow The Hedgehog Archive
+    /// </summary>
+    public sealed class ONE_SH : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => Magic;
+        public IIdentifier Identifier => Magic;
 
         public static readonly Identifier32 Magic = new("One ");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ONE_SH()
+        {
+        }
+
+        public ONE_SH(string name) : base(name)
+        {
+        }
+
+        public ONE_SH(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x20 && stream.ReadUInt32() == 0 && stream.At(0xC, s => s.Match(Magic));
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
             int rwHeaderSize = Unsafe.SizeOf<RWPluginHeader>();
-            RWPluginHeader rwHeader = stream.Read<RWPluginHeader>();
-            Header header = stream.Read<Header>();
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            stream.Seek(0xb0, SeekOrigin.Begin);
+            RWPluginHeader rwHeader = source.Read<RWPluginHeader>();
+            Header header = source.Read<Header>();
+
+            source.Seek(0xb0, SeekOrigin.Begin);
             if (header.Version.Higher == 808857136) // 0.60
             {
-                Entry[] entrys = stream.For(header.Entrys, s => new Entry(stream));
+                Entry[] entrys = source.For(header.Entrys, s => new Entry(source));
                 for (int i = 0; i < entrys.Length; i++)
                 {
-                    uint size = i + 1 == entrys.Length ? (uint)(stream.Length - entrys[i].Offset - rwHeaderSize) : entrys[i + 1].Offset - entrys[i].Offset;
-                    Root.AddArchiveFile(stream, size, entrys[i].Offset + rwHeaderSize, entrys[i].Name + (entrys[i].Flag == 1 ? ".prs" : string.Empty));
+                    uint size = i + 1 == entrys.Length ? (uint)(source.Length - entrys[i].Offset - rwHeaderSize) : entrys[i + 1].Offset - entrys[i].Offset;
+
+                    FileNode Sub = new(entrys[i].Name, new SubStream(source, size, entrys[i].Offset + rwHeaderSize));
+                    if (entrys[i].Flag == 1)
+                        Sub.Name += ".prs";
+                    Add(Sub);
                 }
             }
             else
             {
-                Entry5_0[] entrys = stream.For(header.Entrys, s => new Entry5_0(stream));
+                Entry5_0[] entrys = source.For(header.Entrys, s => new Entry5_0(source));
                 for (int i = 0; i < entrys.Length; i++)
                 {
-                    uint size = i + 1 == entrys.Length ? (uint)(stream.Length - entrys[i].Offset - rwHeaderSize) : entrys[i + 1].Offset - entrys[i].Offset;
-                    Root.AddArchiveFile(stream, size, entrys[i].Offset + rwHeaderSize, entrys[i].Name + (entrys[i].Flag == 1 ? ".prs" : string.Empty));
+                    uint size = i + 1 == entrys.Length ? (uint)(source.Length - entrys[i].Offset - rwHeaderSize) : entrys[i + 1].Offset - entrys[i].Offset;
+                    FileNode Sub = new(entrys[i].Name, new SubStream(source, size, entrys[i].Offset + rwHeaderSize));
+                    if (entrys[i].Flag == 1)
+                        Sub.Name += ".prs";
+                    Add(Sub);
                 }
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public struct Header
         {

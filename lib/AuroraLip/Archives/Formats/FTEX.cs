@@ -1,39 +1,52 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FTEX : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Vanillaware Muramasa Texture Archive
+    /// </summary>
+    public sealed class FTEX : ArchiveNode, IHasIdentifier
     {
-        public virtual bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public virtual bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FTEX");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public FTEX()
+        {
+        }
+
+        public FTEX(string name) : base(name)
+        {
+        }
+
+        public FTEX(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            Header header = stream.Read<Header>();
-            stream.Seek(0x10, SeekOrigin.Current);
-            NameEntry[] names = stream.For((int)header.Entrys, s => new NameEntry(s));
+            Header header = source.Read<Header>();
+            source.Seek(0x10, SeekOrigin.Current);
+            NameEntry[] names = source.For((int)header.Entrys, s => new NameEntry(s));
 
-            stream.Seek(header.Offset, SeekOrigin.Begin);
-            Root = new ArchiveDirectory() { Name = "root", OwnerArchive = this };
+            source.Seek(header.Offset, SeekOrigin.Begin);
             for (int i = 0; i < header.Entrys; i++)
             {
-                FTX0 Entry = stream.Read<FTX0>();
-                stream.Seek(Entry.Offset - 0x10, SeekOrigin.Current);
-                Root.AddArchiveFile(stream, Entry.Size, names[i].Name);
-                stream.Seek(Entry.Size, SeekOrigin.Current);
+                FTX0 Entry = source.Read<FTX0>();
+                source.Seek(Entry.Offset - 0x10, SeekOrigin.Current);
+                FileNode file = new(names[i].Name, new SubStream(source, Entry.Size));
+                Add(file);
+                source.Seek(Entry.Size, SeekOrigin.Current);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private struct Header
         {
@@ -42,7 +55,7 @@ namespace AuroraLib.Archives.Formats
             public uint Offset;
             public uint Entrys;
 
-            public uint FullSize => Size + Offset + 0x10;
+            public readonly uint FullSize => Size + Offset + 0x10;
         }
 
         private struct NameEntry
@@ -71,8 +84,6 @@ namespace AuroraLib.Archives.Formats
             public uint Size;
             public uint Offset;
             public uint Padding;
-
-            public uint FullSize => Size + Offset;
         }
     }
 }

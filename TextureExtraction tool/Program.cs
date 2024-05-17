@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans;
@@ -855,8 +855,8 @@ namespace DolphinTextureExtraction
             double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
             Console.Write($" {ProgressPercentage:00.00}%");
             Console.WriteLine();
-
-            if (result.Progress < result.Worke)
+            
+            if (!result.IsCompleted)
                 Console.SetCursorPosition(0, Cursor);
             else
                 ScanProgress = null;
@@ -870,7 +870,7 @@ namespace DolphinTextureExtraction
             try
             {
                 double ProgressPercentage = result.ProgressLength / result.WorkeLength * 100;
-                if (result.Progress < result.Worke)
+                if (!result.IsCompleted)
                 {
                     if (result is TextureExtractorResult exResult)
                     {

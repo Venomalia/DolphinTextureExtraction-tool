@@ -1,87 +1,83 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using AuroraLib.Compression;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// Red Fly Studios Star Wars Force Unleashed Archive
+    /// </summary>
     // From https://zenhax.com/viewtopic.php?f=9&t=7288
     // Thanks to Acewell, aluigi, AlphaTwentyThree, Chrrox
-    public class POD5 : Archive, IHasIdentifier, IFileAccess
+    public sealed class POD5 : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("POD5");
 
         public POD5()
-        { }
-
-        public POD5(string filename) : base(filename)
         {
         }
 
-        public POD5(Stream stream, string filename = null) : base(stream, filename)
+        public POD5(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public POD5(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            stream.Seek(0x58, SeekOrigin.Begin);
-            uint FileCount = stream.ReadUInt32(Endian.Little);
-            stream.Seek(0x108, SeekOrigin.Begin);
-            uint InfoTable = stream.ReadUInt32(Endian.Little);
+            source.Seek(0x58, SeekOrigin.Begin);
+            uint FileCount = source.ReadUInt32(Endian.Little);
+            source.Seek(0x108, SeekOrigin.Begin);
+            uint InfoTable = source.ReadUInt32(Endian.Little);
             uint StringTableOffset = (FileCount * 0x1c) + InfoTable;
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-
-            stream.Seek(InfoTable, SeekOrigin.Begin);
+            source.Seek(InfoTable, SeekOrigin.Begin);
             ZLib zLib = new();
             for (int i = 0; i < FileCount; i++)
             {
-                uint NameOffsetForFile = stream.ReadUInt32(Endian.Little);
-                uint SizeForFile = stream.ReadUInt32(Endian.Little);
-                uint OffsetForFile = stream.ReadUInt32(Endian.Little);
-                uint CompressedSizeForFile = stream.ReadUInt32(Endian.Little);
-                uint Compressed = stream.ReadUInt32(Endian.Little);
-                uint Unknown1 = stream.ReadUInt32(Endian.Little);
-                uint Unknown2 = stream.ReadUInt32(Endian.Little);
-                long SavedPosition = stream.Position;
+                uint NameOffsetForFile = source.ReadUInt32(Endian.Little);
+                uint SizeForFile = source.ReadUInt32(Endian.Little);
+                uint OffsetForFile = source.ReadUInt32(Endian.Little);
+                uint CompressedSizeForFile = source.ReadUInt32(Endian.Little);
+                uint Compressed = source.ReadUInt32(Endian.Little);
+                uint Unknown1 = source.ReadUInt32(Endian.Little);
+                uint Unknown2 = source.ReadUInt32(Endian.Little);
+                long SavedPosition = source.Position;
 
-                stream.Seek(NameOffsetForFile + StringTableOffset, SeekOrigin.Begin);
-                string Name = stream.ReadString();
+                source.Seek(NameOffsetForFile + StringTableOffset, SeekOrigin.Begin);
+                string Name = source.ReadString();
 
                 //If Duplicate...
-                if (Root.Items.ContainsKey(Name)) Name = Name + i.ToString();
+                if (Contains(Name))
+                    Name += i;
 
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = Name };
-                stream.Seek(OffsetForFile, SeekOrigin.Begin);
-                if (SizeForFile == CompressedSizeForFile)
+                FileNode Sub = new (Name, new SubStream(source, SizeForFile, OffsetForFile));
+                if (SizeForFile != CompressedSizeForFile)
                 {
-                    Sub.FileData = new SubStream(stream, SizeForFile);
+                    MemoryPoolStream decom = new((int)CompressedSizeForFile);
+                    zLib.Decompress(Sub.Data, decom);
+                    Sub.Data = decom;
                 }
-                else
-                {
-                    Sub.FileData = new MemoryPoolStream();
-                    zLib.Decompress(stream, Sub.FileData, (int)SizeForFile);
-                }
-                Root.Items.Add(Sub.Name, Sub);
+                Add(Sub);
 
                 // Read the file, move on to the next one
-                stream.Seek(SavedPosition, SeekOrigin.Begin);
+                source.Seek(SavedPosition, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

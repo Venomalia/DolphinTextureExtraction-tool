@@ -1,7 +1,6 @@
-using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
-using AuroraLib.Core.IO;
 
 namespace AuroraLib.Archives.Formats
 {
@@ -9,66 +8,78 @@ namespace AuroraLib.Archives.Formats
     /// Aqualead Archive
     /// </summary>
     // base on https://zenhax.com/viewtopic.php?t=16613
-    public class ALAR : Archive, IHasIdentifier, IFileAccess
+    // Todo: https://web.archive.org/web/20160811181703/http://fw.aqualead.co.jp/Document/Aqualead/Tool/ALMakeArc.html
+    public sealed class ALAR : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("ALAR");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ALAR()
+        {
+        }
+
+        public ALAR(string name) : base(name)
+        {
+        }
+
+        public ALAR(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            byte version = stream.ReadUInt8();
-            EntryFlags entryFlags = stream.Read<EntryFlags>();
-            ushort entries = stream.ReadUInt16(Endian.Big);
-            uint lowId = stream.ReadUInt32(Endian.Big);
-            uint highId = stream.ReadUInt32(Endian.Big);
+            source.MatchThrow(_identifier);
+            byte version = source.ReadUInt8();
+            EntryFlags entryFlags = source.Read<EntryFlags>();
+            ushort entries = source.ReadUInt16(Endian.Big);
+            uint lowId = source.ReadUInt32(Endian.Big);
+            uint highId = source.ReadUInt32(Endian.Big);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            uint id, offset, size, pad;
+            string path, name, lixo;
             switch (version)
             {
                 case 2:
                     for (int i = 0; i < entries; i++)
                     {
-                        uint id = stream.ReadUInt32(Endian.Big);
-                        uint offset = stream.ReadUInt32(Endian.Big);
-                        uint size = stream.ReadUInt32(Endian.Big);
-                        uint pad = stream.ReadUInt32(Endian.Big);
+                        id = source.ReadUInt32(Endian.Big);
+                        offset = source.ReadUInt32(Endian.Big);
+                        size = source.ReadUInt32(Endian.Big);
+                        pad = source.ReadUInt32(Endian.Big);
 
-                        long pos = stream.Position;
-                        stream.Seek(offset - 0x22, SeekOrigin.Begin);
-                        string name = stream.ReadString(0x20);
+                        long pos = source.Position;
+                        source.Seek(offset - 0x22, SeekOrigin.Begin);
+                        path = source.ReadString(0x20);
+                        name = Path.GetFileName(path);
 
-                        if (Root.Items.ContainsKey(name))
-                            name += i;
-                        Root.AddArchiveFile(stream, size, offset, name);
-                        stream.Seek(pos, SeekOrigin.Begin);
+                        Stream data = new SubStream(source, size, offset);
+                        AddPath(path, new FileNode(name, data) { ID = id });
+                        source.Seek(pos, SeekOrigin.Begin);
                     }
                     break;
 
                 case 3:
-                    ushort dataTabelOffset = stream.ReadUInt16(Endian.Big);
+                    ushort dataTabelOffset = source.ReadUInt16(Endian.Big);
                     SpanBuffer<ushort> entrieOffsets = new(entries);
-                    stream.Read<ushort>(entrieOffsets, Endian.Big);
+                    source.Read<ushort>(entrieOffsets, Endian.Big);
                     foreach (ushort entrieOffset in entrieOffsets)
                     {
-                        stream.Seek(entrieOffset, SeekOrigin.Begin);
-                        uint id = stream.ReadUInt32(Endian.Big);
-                        uint offset = stream.ReadUInt32(Endian.Big);
-                        uint size = stream.ReadUInt32(Endian.Big);
-                        string lixo = stream.ReadString(6);
-                        string name = stream.ReadString();
+                        source.Seek(entrieOffset, SeekOrigin.Begin);
+                        id = source.ReadUInt32(Endian.Big);
+                        offset = source.ReadUInt32(Endian.Big);
+                        size = source.ReadUInt32(Endian.Big);
+                        lixo = source.ReadString(6);
+                        path = source.ReadString();
+                        name = Path.GetFileName(path);
 
-                        if (Root.Items.ContainsKey(name))
-                            name += id;
-                        Root.AddArchiveFile(stream, size, offset, name);
+                        Stream data = new SubStream(source, size, offset);
+                        AddPath(path, new FileNode(name, data) { ID = id });
                     }
                     entrieOffsets.Dispose();
                     break;
@@ -78,6 +89,8 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
+
         [Flags]
         public enum EntryFlags : byte
         {
@@ -86,11 +99,6 @@ namespace AuroraLib.Archives.Formats
             Unknown = 32,
             Unknown2 = 64,
             HasName = 128
-        }
-
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
         }
     }
 }

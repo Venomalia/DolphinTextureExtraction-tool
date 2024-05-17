@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
@@ -7,52 +8,57 @@ namespace AuroraLib.Archives.Formats
     /// Brawl ARC0 Archive
     /// </summary>
     // ref https://github.com/soopercool101/BrawlCrate/blob/a0e5638c34bba0de783ece169d483ad7e7dcb016/BrawlLib/SSBB/ResourceNodes/Archives/ARCNode.cs
-    public class ARC0 : Archive, IHasIdentifier, IFileAccess
+    public sealed class ARC0 : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new((byte)'A', (byte)'R', (byte)'C', 0);
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ARC0()
+        {
+        }
+
+        public ARC0(string name) : base(name)
+        {
+        }
+
+        public ARC0(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier) && stream.ReadByte() == 0;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            ushort version = stream.ReadUInt16(Endian.Big); //257
-            ushort files = stream.ReadUInt16(Endian.Big);
-            ulong unk = stream.ReadUInt64(Endian.Big);
-            string name = stream.ReadString(48);
+            ushort version = source.ReadUInt16(Endian.Big); //257
+            ushort files = source.ReadUInt16(Endian.Big);
+            ulong unk = source.ReadUInt64(Endian.Big);
+            string name = source.ReadString(48);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < files; i++)
             {
-                EntryType type = (EntryType)stream.ReadUInt16(Endian.Big);
-                ushort index = stream.ReadUInt16(Endian.Big);
-                uint size = stream.ReadUInt32(Endian.Big);
-                byte groupIndex = (byte)stream.ReadByte();
-                byte pad = (byte)stream.ReadByte();
-                short redirectIndex = stream.ReadInt16(Endian.Big);
+                EntryType type = (EntryType)source.ReadUInt16(Endian.Big);
+                ushort index = source.ReadUInt16(Endian.Big);
+                uint size = source.ReadUInt32(Endian.Big);
+                byte groupIndex = (byte)source.ReadByte();
+                byte pad = (byte)source.ReadByte();
+                short redirectIndex = source.ReadInt16(Endian.Big);
 
                 uint[] padding = new uint[5];
                 for (int p = 0; p < 5; p++)
-                    padding[p] = stream.ReadUInt32(Endian.Big);
+                    padding[p] = source.ReadUInt32(Endian.Big);
+                Add(new FileNode($"{type}_{i}.pcs", new SubStream(source, size)));
 
-                Root.AddArchiveFile(stream, size, $"{type}_{i}.pcs");
-
-                stream.Align(size, SeekOrigin.Current, 32);
+                source.Align(size, SeekOrigin.Current, 32);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public enum EntryType : short
         {

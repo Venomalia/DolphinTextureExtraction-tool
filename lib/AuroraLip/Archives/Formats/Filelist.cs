@@ -1,65 +1,69 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class Filelist : Archive, IFileAccess
+    /// <summary>
+    /// Eurocom Archive
+    /// </summary>
+    public sealed class Filelist : ArchiveNode
     {
+        public override bool CanWrite => false;
 
-        public bool CanRead => true;
 
-        public bool CanWrite => false;
-
-        public const string Extension = ".000";
-
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.SequenceEqual(Extension);
-
-        protected override void Read(Stream stream)
+        public Filelist()
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            //try to request an external file.
-            string datname = Path.ChangeExtension(Path.GetFileNameWithoutExtension(FullPath), ".txt");
-            try
-            {
-                reference_steam = FileRequest.Invoke(datname);
-                List<TXTEntry> entryslist = ReadTXTEntrys(reference_steam);
+        }
 
+        public Filelist(string name) : base(name)
+        {
+        }
+
+        public Filelist(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.SequenceEqual(".000");
+
+        protected override void Deserialize(Stream source)
+        {
+            //try to request an external file.
+            string datname = Path.GetFileNameWithoutExtension(Name);
+            if (TryGetRefFile(datname + ".txt", out FileNode refFile))
+            {
+                Stream reference_txt = refFile.Data;
+                List<TXTEntry> entryslist = ReadTXTEntrys(reference_txt);
                 foreach (var entry in entryslist)
                 {
-                    Root.AddArchiveFile(stream, entry.Len, entry.Loc, entry.Paht);
+                    Add(new FileNode(entry.Paht, new SubStream(source, entry.Len, entry.Loc)));
                 }
-
             }
-            catch (Exception)
+            if (TryGetRefFile(datname + ".bin", out refFile))
             {
-                datname = Path.ChangeExtension(datname, ".bin");
-                try
+                Stream reference_bin = refFile.Data;
+                Endian endian = reference_bin.DetectByteOrder<uint>();
+
+                BinHeader header = reference_bin.Read<BinHeader>(endian);
+                BinEntry[] entrys = reference_bin.For((int)header.Files, s => new BinEntry(s, endian));
+                for (int i = 0; i < entrys.Length; i++)
                 {
-                    reference_bin = FileRequest.Invoke(datname);
-
-                    Endian endian = reference_bin.DetectByteOrder<uint>();
-
-                    BinHeader header = reference_bin.Read<BinHeader>(endian);
-                    BinEntry[] entrys = reference_bin.For((int)header.Files, s => new BinEntry(s, endian));
-
-
-                    for (int i = 0; i < entrys.Length; i++)
+                    if (!Contains(entrys[i].Hash.ToString()))
                     {
-                        if (!Root.Items.ContainsKey(entrys[i].Hash.ToString()))
-                        {
-                            Root.AddArchiveFile(stream, entrys[i].Size, entrys[i].Offsets[0].LocOffset, entrys[i].Hash.ToString());
-                        }
+                        FileNode file = new(entrys[i].Hash.ToString(), new SubStream(source, entrys[i].Size, entrys[i].Offsets[0].LocOffset));
+                        Add(file);
                     }
                 }
-                catch (Exception)
-                {
-                    throw new Exception($"{nameof(Filelist)}: could not request the file {datname}.");
-                }
+            }
+            else
+            {
+                throw new Exception($"{nameof(DICTPO)}: could not request the file {datname}.txt or {datname}.bin.");
             }
         }
 
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private List<TXTEntry> ReadTXTEntrys(Stream streamTXT)
         {
@@ -94,8 +98,6 @@ namespace AuroraLib.Archives.Formats
             }
             return entries;
         }
-
-        protected override void Write(Stream stream) => throw new NotImplementedException();
 
         private struct BinHeader
         {
@@ -146,18 +148,5 @@ namespace AuroraLib.Archives.Formats
                 public uint LocFile;
             }
         }
-
-        private Stream reference_bin;
-        private Stream reference_steam;
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                reference_bin?.Dispose();
-                reference_steam?.Dispose();
-            }
-        }
-
     }
 }

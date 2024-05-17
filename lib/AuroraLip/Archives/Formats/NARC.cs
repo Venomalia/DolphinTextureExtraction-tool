@@ -1,78 +1,63 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class NARC : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Treasure Sin and Punishment archive
+    /// </summary>
+    public sealed class NARC : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("NARC");
 
         public NARC()
-        { }
-
-        public NARC(string filename) : base(filename)
         {
         }
 
-        public NARC(Stream RARCFile, string filename = null) : base(RARCFile, filename)
+        public NARC(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Match(_identifier);
-
-        protected override void Read(Stream stream)
+        public NARC(FileNode source) : base(source)
         {
-            stream.MatchThrow(_identifier);
-            uint NrEntries = stream.ReadUInt32(Endian.Big);
-            uint StringTableSize = stream.ReadUInt32(Endian.Big);
-            uint DataTablePosition = stream.ReadUInt32(Endian.Big);
+        }
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => stream.Length > 0x20 && stream.Match(_identifier);
 
-            List<NARCEntry> Entries = new List<NARCEntry>();
-            for (int i = 0; i < NrEntries; i++)
+        protected override void Deserialize(Stream source)
+        {
+            source.MatchThrow(_identifier);
+            uint NrEntries = source.ReadUInt32(Endian.Big);
+            uint StringTableSize = source.ReadUInt32(Endian.Big);
+            uint dataTableOffset = source.ReadUInt32(Endian.Big);
+
+            using SpanBuffer<NARCEntry> entries = new(NrEntries);
+            source.Read<NARCEntry>(entries,Endian.Big);
+            long nameTableOffset = source.Position;
+
+            foreach (NARCEntry entry in entries)
             {
-                Entries.Add(new NARCEntry(stream));
-            }
-            long position = stream.Position;
-
-            foreach (NARCEntry entry in Entries)
-            {
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root };
-                stream.Position = position + entry.NameOffset;
-                Sub.Name = stream.ReadString();
-                stream.Position = DataTablePosition + entry.DataOffset;
-                Sub.FileData = new SubStream(stream, entry.DataSize);
-                Root.Items.Add(Sub.Name, Sub);
+                source.Position = nameTableOffset + entry.NameOffset;
+                FileNode Sub = new(source.ReadString(), new SubStream(source, entry.DataSize, dataTableOffset + entry.DataOffset));
+                Add(Sub);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
-        private class NARCEntry
+        private readonly struct NARCEntry
         {
-            public uint Unknown;
-            public uint NameOffset;
-            public uint DataOffset;
-            public uint DataSize;
-
-            public NARCEntry(Stream stream)
-            {
-                Unknown = stream.ReadUInt32(Endian.Big);
-                NameOffset = stream.ReadUInt32(Endian.Big);
-                DataOffset = stream.ReadUInt32(Endian.Big);
-                DataSize = stream.ReadUInt32(Endian.Big);
-            }
+            public readonly uint Unknown;
+            public readonly uint NameOffset;
+            public readonly uint DataOffset;
+            public readonly uint DataSize;
         }
     }
 }

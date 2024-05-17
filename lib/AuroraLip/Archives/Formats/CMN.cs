@@ -1,32 +1,42 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using System;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class CMN : Archive, IFileAccess
+    /// <summary>
+    /// Treyarch CMN Archive.
+    /// </summary>
+    public sealed class CMN : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public const string Extension = ".cmn";
-
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32() < 2048 && stream.ReadUInt32() != 0;
-
-        protected override void Read(Stream stream)
+        public CMN()
         {
-            uint files = stream.ReadUInt32();
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+        }
 
+        public CMN(string name) : base(name)
+        {
+        }
+
+        public CMN(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.Contains(".cmn", StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32() < 2048 && stream.ReadUInt32() != 0;
+
+        protected override void Deserialize(Stream source)
+        {
+            uint files = source.ReadUInt32();
             for (int i = 0; i < files; i++)
             {
-                FileEntrie entrie = stream.Read<FileEntrie>();
-                Root.AddArchiveFile(stream, entrie.Size, entrie.Offset, $"File_{i}_{entrie.Type}_{entrie.Hash}");
+                FileEntrie entrie = source.Read<FileEntrie>();
+                Add(new FileNode($"File_{i}_{entrie.Type}_{entrie.Hash}", new SubStream(source, entrie.Size, entrie.Offset)));
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private struct FileEntrie
         {

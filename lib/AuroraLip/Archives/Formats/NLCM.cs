@@ -1,86 +1,69 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
 {
-    // Rune Factory (Frontier) archive format
+    /// <summary>
+    /// Rune Factory (Frontier) archive format
+    /// </summary>
     // Cross-referenced with https://github.com/master801/Rune-Factory-Frontier-Tools
-    public class NLCM : Archive, IHasIdentifier, IFileAccess
+    public sealed  class NLCM : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("NLCM");
 
         private Stream reference_stream;
 
         public NLCM()
-        { }
-
-        public NLCM(string filename) : base(filename)
         {
         }
 
-        public NLCM(Stream stream, string filename = null) : base(stream, filename)
+        public NLCM(string name) : base(name)
         {
         }
 
-        protected override void Dispose(bool disposing)
+        public NLCM(FileNode source) : base(source)
         {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                if (reference_stream != null)
-                {
-                    reference_stream.Dispose();
-                }
-            }
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            uint table_offset = stream.ReadUInt32(Endian.Big);
-            uint unknown2 = stream.ReadUInt32(Endian.Big);
-            uint file_count = stream.ReadUInt32(Endian.Big);
-            uint unknown3 = stream.ReadUInt32(Endian.Big);
-            string reference_file = stream.ReadString();
-            stream.Seek(table_offset, SeekOrigin.Begin);
+            source.MatchThrow(_identifier);
+            uint table_offset = source.ReadUInt32(Endian.Big);
+            uint unknown2 = source.ReadUInt32(Endian.Big);
+            uint file_count = source.ReadUInt32(Endian.Big);
+            uint unknown3 = source.ReadUInt32(Endian.Big);
+            string reference_file = source.ReadString();
+            source.Seek(table_offset, SeekOrigin.Begin);
 
             //try to request an external file.
-            try
+            if (Parent is not null && Parent.TryGet(reference_file, out ObjectNode refNode) && refNode is FileNode refFile)
             {
-                reference_stream = FileRequest.Invoke(reference_file);
+                reference_stream = refFile.Data;
+                for (int i = 0; i < file_count; i++)
+                {
+                    uint size = source.ReadUInt32(Endian.Big);
+                    uint padding = source.ReadUInt32(Endian.Big);
+                    uint file_offset = source.ReadUInt32(Endian.Big);
+                    uint padding2 = source.ReadUInt32(Endian.Big);
+                    string name = GetName(reference_stream, file_offset, size, i);
+                    FileNode Sub = new(name, new SubStream(reference_stream, size, file_offset));
+                    Add(Sub);
+                }
             }
-            catch (Exception)
+            else
             {
                 throw new Exception($"{nameof(NLCM)}: could not request the file {reference_file}.");
             }
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            for (int i = 0; i < file_count; i++)
-            {
-                uint size = stream.ReadUInt32(Endian.Big);
-                uint padding = stream.ReadUInt32(Endian.Big);
-                uint file_offset = stream.ReadUInt32(Endian.Big);
-                uint padding2 = stream.ReadUInt32(Endian.Big);
-                string name = GetName(reference_stream, file_offset, size, i);
-                Root.AddArchiveFile(reference_stream, size, file_offset, name);
-            }
         }
-
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
-
 
         internal static string GetName(Stream stream, uint offset, uint size, int index)
         {
@@ -119,6 +102,20 @@ namespace AuroraLib.Archives.Formats
                     break;
             }
             return Encoding.ASCII.GetString(bytes[(start + 1)..(end + 1)]);
+        }
+
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                if (reference_stream != null)
+                {
+                    reference_stream.Dispose();
+                }
+            }
         }
     }
 }

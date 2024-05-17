@@ -1,24 +1,36 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Buffers;
-using AuroraLib.Core.IO;
-using System;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class ARC_FS : Archive, IFileAccess
+    /// <summary>
+    /// From Software Archive
+    /// </summary>
+    public sealed class ARC_FS : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public virtual bool CanWrite => false;
+        private static readonly string[] extensions = new[] { ".tex", ".ptm", ".ctm", "" };
 
-        public static readonly string[] Extension = new[] { ".tex", ".ptm", ".ctm", "" };
+        public ARC_FS()
+        {
+        }
 
-        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ARC_FS(string name) : base(name)
+        {
+        }
+
+        public ARC_FS(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             bool match = false;
-            for (int i = 0; i < Extension.Length; i++)
+            for (int i = 0; i < extensions.Length; i++)
             {
-                if (extension.Contains(Extension[i], StringComparison.InvariantCultureIgnoreCase))
+                if (extension.Contains(extensions[i], StringComparison.InvariantCultureIgnoreCase))
                 {
                     match = true;
                     break;
@@ -45,13 +57,12 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            Process(stream, Root);
-            if (Root.Items.Count == 2)
+            Process(source, this);
+            if (Count == 2)
             {
-                Stream texStream = ((ArchiveFile)Root.Items.Values.First()).FileData;
+                Stream texStream = ((FileNode)Values.First()).Data;
                 texStream.Seek(8, SeekOrigin.Begin);
                 uint gtxPos = texStream.ReadUInt32(Endian.Big);
                 texStream.Seek(gtxPos + 4, SeekOrigin.Begin);
@@ -59,33 +70,32 @@ namespace AuroraLib.Archives.Formats
                 texStream.Seek(0, SeekOrigin.Begin);
                 if (identifier == 827872327) //GTX1
                 {
-                    ArchiveDirectory helper = Root;
-                    Root = new ArchiveDirectory() { OwnerArchive = this };
-                    ArchiveDirectory texturs = new(this, Root) { Name = "Textures" };
-                    Root.Items.Add(texturs.Name, texturs);
-                    ArchiveObject modeldata = helper.Items.Values.Last();
+                    using FileNode texturdata = (FileNode)Values.First();
+                    FileNode modeldata = (FileNode)Values.Last();
+                    DirectoryNode texturs = new("Textures");
+                    Add(texturs);
                     modeldata.Name = "Model";
-                    Root.Items.Add(modeldata.Name, modeldata);
-                    Process(((ArchiveFile)helper.Items.Values.First()).FileData, texturs);
+                    Process(texturdata.Data, texturs);
+                    Remove(texturdata);
                 }
             }
         }
 
-        protected static void Process(Stream stream, ArchiveDirectory Parent)
+        private static void Process(Stream source, DirectoryNode parent)
         {
-            uint size = stream.ReadUInt32(Endian.Big);
-            uint entrys = stream.ReadUInt32(Endian.Big);
+            uint size = source.ReadUInt32(Endian.Big);
+            uint entrys = source.ReadUInt32(Endian.Big);
             using SpanBuffer<uint> pointers = new((int)entrys);
-            stream.Read(pointers.Span, Endian.Big);
+            source.Read(pointers.Span, Endian.Big);
 
             for (int i = 0; i < pointers.Length; i++)
             {
-                stream.Seek(pointers[i], SeekOrigin.Begin);
-                uint eSize = stream.ReadUInt32(Endian.Big);
-                Parent.AddArchiveFile(stream, eSize, pointers[i], $"entry{i}");
+                source.Seek(pointers[i], SeekOrigin.Begin);
+                uint eSize = source.ReadUInt32(Endian.Big);
+                parent.Add(new FileNode($"entry{i}", new SubStream(source, eSize, pointers[i])));
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

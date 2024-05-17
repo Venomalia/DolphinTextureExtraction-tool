@@ -1,29 +1,36 @@
-﻿using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
-namespace AuroraLib.Texture.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Genius Sonority "GSW" file format.
     /// Based on Pokemon XD (GXXP01).
     /// </summary>
-    public class GSW : Archive, IFileAccess
+    public sealed class GSW : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public GSW()
+        {
+        }
 
-        public const string Extension = ".GSW";
+        public GSW(string name) : base(name)
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public GSW(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.SequenceEqual(Extension);
+            => extension.SequenceEqual(".GSW");
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream stream)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             Header header = stream.Read<Header>(Endian.Big);
 
             uint SpriteDepth = 0;
@@ -51,7 +58,8 @@ namespace AuroraLib.Texture.Formats
                     uint data_leftover = Instruction.DataSize - (aligned - (InstructionPointer + 8));
 
                     // TODO: How big is the struct? Looking at the file it appears to be 0x20, but trying to understand the code seems different?
-                    Root.AddArchiveFile(stream, data_leftover - 0x20, aligned + 0x20, $"{aligned:X8}.GTX");
+                    FileNode file = new($"{aligned:X8}.GTX", new SubStream(stream, data_leftover - 0x20, aligned + 0x20));
+                    Add(file);
                 }
                 else if (Instruction.Opcode == Opcode.DefineBits || Instruction.Opcode == Opcode.DefineBitsJPEG2 || Instruction.Opcode == Opcode.DefineBitsJPEG3)
                 {
@@ -64,10 +72,7 @@ namespace AuroraLib.Texture.Formats
             }
         }
 
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public struct Header
         {

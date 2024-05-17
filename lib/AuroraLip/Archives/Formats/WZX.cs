@@ -1,36 +1,43 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
-namespace AuroraLib.Texture.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Genius Sonority "WZX" file format.
     /// Based on Pokémon XD Gale of Darkness (GXXP01).
     /// </summary>
-    public class WZX : Archive, IFileAccess
+    public sealed class WZX : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public WZX()
+        {
+        }
 
-        public const string Extension = ".wzx";
+        public WZX(string name) : base(name)
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public WZX(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.At(0x68, s => s.ReadInt32(Endian.Big) == 3);
+            => extension.Contains(".wzx", StringComparison.InvariantCultureIgnoreCase) && stream.At(0x68, s => s.ReadInt32(Endian.Big) == 3);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream stream)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             Header header = stream.Read<Header>(Endian.Big);
             HeaderAfter header_after = stream.Read<HeaderAfter>(Endian.Big);
 
             stream.Align(32);
             if (header_after.Size != 0)
             {
-                Root.AddArchiveFile(stream, header_after.Size, stream.Position, $"{stream.Position:X8}.GSscene");
+                FileNode file = new($"{stream.Position:X8}.GSscene", new SubStream(stream, header_after.Size, stream.Position));
+                Add(file);
                 stream.Seek(header_after.Size, SeekOrigin.Current);
                 stream.Align(32);
             }
@@ -43,31 +50,31 @@ namespace AuroraLib.Texture.Formats
                     switch (chunk.Type)
                     {
                         case 0x01:
-                            ParseType01(stream, chunk, Root);
+                            ParseType01(stream, chunk, this);
                             break;
 
                         case 0x02:
-                            ParseType02(stream, chunk, Root);
+                            ParseType02(stream, chunk, this);
                             break;
 
                         case 0x03:
-                            ParseType03(stream, chunk, Root);
+                            ParseType03(stream, chunk, this);
                             break;
 
                         case 0x04:
-                            ParseType04(stream, chunk, Root);
+                            ParseType04(stream, chunk, this);
                             break;
 
                         case 0x05:
-                            ParseType05(stream, chunk, Root);
+                            ParseType05(stream, chunk, this);
                             break;
 
                         case 0x06:
-                            ParseType06(stream, chunk, Root);
+                            ParseType06(stream, chunk, this);
                             break;
 
                         case 0x07:
-                            ParseType07(stream, chunk, Root);
+                            ParseType07(stream, chunk, this);
                             break;
 
                         default:
@@ -77,41 +84,44 @@ namespace AuroraLib.Texture.Formats
             }
         }
 
-        protected void ParseType01(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType01(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type01 param = stream.Read<Type01>(Endian.Big);
             if (param.Type == 3)
             {
-                Root.AddArchiveFile(stream, param.Size, stream.Position, $"{stream.Position:X8}.bin");
+                FileNode file = new($"{stream.Position:X8}.bin", new SubStream(stream, param.Size));
+                Add(file);
                 stream.Seek(param.Size, SeekOrigin.Current);
             }
         }
 
-        protected void ParseType02(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType02(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type02 param = stream.Read<Type02>(Endian.Big);
             stream.Align(32);
             if (param.Size != 0)
             {
-                Root.AddArchiveFile(stream, param.Size, stream.Position, $"{stream.Position:X8}.GSscene");
+                FileNode file = new($"{stream.Position:X8}.GSscene", new SubStream(stream, param.Size));
+                Add(file);
                 stream.Seek(param.Size, SeekOrigin.Current);
                 stream.Align(32);
             }
         }
 
-        protected void ParseType03(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType03(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type03 param = stream.Read<Type03>(Endian.Big);
             stream.Align(32);
             if (chunk.Unknown6C == 0)
             {
-                Root.AddArchiveFile(stream, param.Size, stream.Position, $"{stream.Position:X8}.GPT");
+                FileNode file = new($"{stream.Position:X8}.GPT", new SubStream(stream, param.Size));
+                Add(file);
                 stream.Seek(param.Size, SeekOrigin.Current);
                 stream.Align(32);
             }
         }
 
-        protected void ParseType04(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04 param = stream.Read<Type04>(Endian.Big);
             switch (param.Subtype)
@@ -145,97 +155,99 @@ namespace AuroraLib.Texture.Formats
             }
         }
 
-        protected void ParseType04Subtype00(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype00(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype00 subparam = stream.Read<Type04Subtype00>(Endian.Big);
             stream.Seek(subparam.Count * 0x10, SeekOrigin.Current);
         }
 
-        protected void ParseType04Subtype01(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype01(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype01 subparam = stream.Read<Type04Subtype01>(Endian.Big);
             stream.Align(32);
             if (chunk.Unknown6C == 0)
             {
                 // TODO: Doesn't post-process, so maybe don't include?
-                Root.AddArchiveFile(stream, subparam.Size, stream.Position, $"{stream.Position:X8}.GPT");
+                FileNode file = new($"{stream.Position:X8}.GPT", new SubStream(stream, subparam.Size));
+                Add(file);
             }
             stream.Seek(subparam.Size, SeekOrigin.Current);
             stream.Align(32);
         }
 
-        protected void ParseType04Subtype05(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype05(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype05 subparam = stream.Read<Type04Subtype05>(Endian.Big);
             stream.Align(32);
             if (subparam.Size != 0)
             {
-                Root.AddArchiveFile(stream, subparam.Size, stream.Position, $"{stream.Position:X8}.GSscene");
+                FileNode file = new($"{stream.Position:X8}.GSscene", new SubStream(stream, subparam.Size));
+                Add(file);
                 stream.Seek(subparam.Size, SeekOrigin.Current);
                 stream.Align(32);
             }
         }
 
-        protected void ParseType04Subtype06(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype06(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype06 subparam = stream.Read<Type04Subtype06>(Endian.Big);
             stream.Seek(subparam.Count * 0x10, SeekOrigin.Current);
         }
 
-        protected void ParseType04Subtype07(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype07(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype07 subparam = stream.Read<Type04Subtype07>(Endian.Big);
             stream.Seek(subparam.Count * 0x10, SeekOrigin.Current);
         }
 
-        protected void ParseType04Subtype09(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType04Subtype09(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type04Subtype09 subparam = stream.Read<Type04Subtype09>(Endian.Big);
             stream.Align(32);
 
             if (subparam.ArchiveSize != 0)
             {
-                Root.AddArchiveFile(stream, subparam.ArchiveSize, stream.Position, $"{stream.Position:X8}.GSscene");
+                FileNode file = new($"{stream.Position:X8}.GSscene", new SubStream(stream, subparam.ArchiveSize));
+                Add(file);
                 stream.Seek(subparam.ArchiveSize, SeekOrigin.Current);
                 stream.Align(32);
             }
 
             if (subparam.ParticleSize != 0)
             {
-                Root.AddArchiveFile(stream, subparam.ParticleSize, stream.Position, $"{stream.Position:X8}.GPT");
+                FileNode file = new($"{stream.Position:X8}.GPT", new SubStream(stream, subparam.ParticleSize));
+                Add(file);
                 stream.Seek(subparam.ParticleSize, SeekOrigin.Current);
                 stream.Align(32);
             }
         }
 
-        protected void ParseType05(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType05(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type05 param = stream.Read<Type05>(Endian.Big);
             // Does nothing at loading, so we do nothing.
         }
 
-        protected void ParseType06(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType06(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type06 param = stream.Read<Type06>(Endian.Big);
             // Does nothing at loading, so we do nothing.
         }
 
-        protected void ParseType07(Stream stream, Chunk chunk, ArchiveDirectory Root)
+        private void ParseType07(Stream stream, Chunk chunk, ArchiveNode Root)
         {
             Type07 param = stream.Read<Type07>(Endian.Big);
             stream.Align(32);
             // TODO: Doesn't post-process, so maybe don't include?
-            Root.AddArchiveFile(stream, param.Size, stream.Position, $"{stream.Position:X8}.bin");
+            FileNode file = new($"{stream.Position:X8}.bin", new SubStream(stream, param.Size));
+            Add(file);
             stream.Seek(param.Size, SeekOrigin.Current);
             stream.Align(32);
         }
 
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
-        public struct Header
+        private struct Header
         {
             public uint Unknown00;
             public uint Unknown04;
@@ -267,7 +279,7 @@ namespace AuroraLib.Texture.Formats
             public uint Unknown6C;
         }
 
-        public struct HeaderAfter
+        private struct HeaderAfter
         {
             public uint Unknown00;
             public uint ChunksCount;
@@ -282,7 +294,7 @@ namespace AuroraLib.Texture.Formats
             // Padding to 32 bytes
         }
 
-        public struct Chunk
+        private struct Chunk
         {
             public uint Unknown00;
             public uint Type;

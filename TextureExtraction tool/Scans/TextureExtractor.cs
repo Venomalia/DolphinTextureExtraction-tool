@@ -1,7 +1,7 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Archives.Formats;
+using AuroraLib.Archives;
+using AuroraLib.Archives.Formats.Nintendo;
 using AuroraLib.Common;
-using AuroraLib.Common.Interfaces;
+using AuroraLib.Common.Node;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 using DolphinTextureExtraction.Scans.Helper;
@@ -74,22 +74,21 @@ namespace DolphinTextureExtraction.Scans
                         break;
                     case FormatType.Texture:
                         if (Option.Raw)
-                            Save(so.Stream, Path.Combine("~Raw", so.SubPath.ToString()), so.Format);
+                            Save(so.File.Data, Path.Combine("~Raw", so.File.GetFullPath()), so.Format);
                         if (so.Format.Class != null && so.Format.Class.GetMember(nameof(JUTTexture)) != null)
                         {
                             using (JUTTexture Texture = (JUTTexture)Activator.CreateInstance(so.Format.Class))
                             {
-                                Texture.Open(so.Stream);
+                                Texture.Open(so.File.Data);
                                 Save(Texture, so);
                             }
-                            Result.ExtractedSize += so.Stream.Length;
+                            Result.ExtractedSize += so.File.Data.Length;
                             break;
                         }
                         goto case FormatType.Archive;
                     case FormatType.Iso:
-                        if (so.Format.Class.Name != nameof(WAD) && so.Format.Class.IsSubclassOf(typeof(Archive)))
+                        if (so.Format.Class.Name != nameof(WAD) && so.Format.Class.IsSubclassOf(typeof(ArchiveNode)))
                         {
-
                             int Parallelism = Option.Parallel.MaxDegreeOfParallelism;
                             if (Option.Parallel.MaxDegreeOfParallelism != 1 && so.Format.Class.Name != nameof(GCDisk))
                             {
@@ -97,27 +96,25 @@ namespace DolphinTextureExtraction.Scans
                                 Option.Parallel.MaxDegreeOfParallelism = 1;
                             }
 
-                            using Archive archive = (Archive)Activator.CreateInstance(so.Format.Class);
-                            archive.Open(so.Stream);
+                            using ArchiveNode archive = (ArchiveNode)Activator.CreateInstance(so.Format.Class);
+                            archive.BinaryDeserialize(so.File.Data);
 
                             // For Wii games we skip the update partition.
                             const string UPDATE = "UPDATE";
-                            if (archive.Root.Items.TryGetValue(UPDATE, out ArchiveObject partiton))
+                            if (archive.TryGet(UPDATE, out ObjectNode partiton))
                             {
-                                Log.WriteNotification(NotificationType.Info, $"INFO: {archive.Root.Name} update partition skipped.");
+                                Log.WriteNotification(NotificationType.Info, $"INFO: {archive.Name} update partition skipped.");
                                 partiton.Dispose();
-                                archive.Root.Items.Remove(UPDATE);
+                                archive.Remove(partiton);
                             }
 
-                            // We use the name that is embedded in the game.
-                            string aPath = PathX.GetValidPath(Path.Join(Path.GetDirectoryName(so.SubPath), archive.Root.Name));
-                            Scan(archive, aPath, so.Deep + 1);
+                            Scan(archive, 1);
                             Option.Parallel.MaxDegreeOfParallelism = Parallelism;
 
                             // We save the game ID as txt for dolphin
-                            if (Result.Extracted != 0 && archive is IGameDetails details)
+                            if (Result.Extracted != 0 && archive is GCDisk details)
                             {
-                                string identifierDir = Path.Join(aPath, "_GameID");
+                                string identifierDir = Path.Join(so.File.GetFullPath(), "_GameID");
                                 identifierDir = GetFullSaveDirectory(identifierDir);
                                 Directory.CreateDirectory(identifierDir);
                                 string identifierPath = Path.Join(identifierDir, $"{details.GameID.GetString().AsSpan(0, 3)}.txt");
@@ -140,24 +137,24 @@ namespace DolphinTextureExtraction.Scans
                                 switch (so.Format.Class.Name)
                                 {
                                     case "BDL":
-                                        BDL bdlmodel = new(so.Stream);
+                                        BDL bdlmodel = new(so.File.Data);
                                         foreach (var item in bdlmodel.Textures.Textures)
                                         {
                                             Save(item, so);
                                         }
-                                        Result.ExtractedSize += so.Stream.Length;
+                                        Result.ExtractedSize += so.File.Data.Length;
                                         break;
                                     case "BMD":
-                                        BMD bmdmodel = new(so.Stream);
+                                        BMD bmdmodel = new(so.File.Data);
                                         foreach (var item in bmdmodel.Textures.Textures)
                                         {
                                             Save(item, so);
                                         }
-                                        Result.ExtractedSize += so.Stream.Length;
+                                        Result.ExtractedSize += so.File.Data.Length;
                                         break;
                                     case "TEX0":
-                                        using (JUTTexture Texture = new TEX0(so.Stream)) Save(Texture, so);
-                                        Result.ExtractedSize += so.Stream.Length;
+                                        using (JUTTexture Texture = new TEX0(so.File.Data)) Save(Texture, so);
+                                        Result.ExtractedSize += so.File.Data.Length;
                                         break;
                                 }
                             }
@@ -165,20 +162,23 @@ namespace DolphinTextureExtraction.Scans
                         break;
                 }
             }
-            catch (Exception t)
+            catch (Exception)
             {
                 lock (Result)
-                {
-                    Log.WriteEX(t, string.Concat(so.SubPath, so.Extension));
                     Result.AddUnsupported(so);
-                }
+
 #if DEBUG
-                if (so.Format.Typ == FormatType.Texture)
+                try
                 {
-                    string paht = Path.Combine("~Exception", so.SubPath.ToString());
-                    Save(so.Stream, paht, so.Format);
+                    if (so.Deep != 0 && so.File.Data.CanRead)
+                    {
+                        string paht = GetFullSaveDirectory(Path.Combine("~Exception", so.File.GetFullPath()));
+                        Save(so.File.Data, paht);
+                    }
                 }
+                catch (Exception) { }
 #endif
+                throw;
             }
 
         }
@@ -211,7 +211,7 @@ namespace DolphinTextureExtraction.Scans
                     // Don't extract anything if performing a dry run
                     if (!Option.DryRun)
                     {
-                        string SaveDirectory = GetFullSaveDirectory(so.SubPath);
+                        string SaveDirectory = GetFullSaveDirectory(PathX.GetValidPath(so.File.GetFullPath()));
                         Directory.CreateDirectory(SaveDirectory);
 
 
@@ -265,7 +265,7 @@ namespace DolphinTextureExtraction.Scans
                         }
                         catch (Exception t)
                         {
-                            Log.WriteEX(t, string.Concat(so.SubPath, tex.ToString()));
+                            Log.WriteEX(t, string.Concat(so.File.GetFullPath(), tex.ToString()));
                             Result.AddUnsupported(so);
                         }
                         finally
@@ -276,7 +276,7 @@ namespace DolphinTextureExtraction.Scans
                             }
                         }
 
-                        string subFilePath = Path.Join(so.SubPath, mainTextureName);
+                        string subFilePath = Path.Join(so.File.GetFullPath(), mainTextureName);
                         string texInfo = BuildTextureInfos(tex, ArbitraryMipmapValue);
 
                         Log.Write(FileAction.Extract, subFilePath, texInfo);
@@ -316,6 +316,7 @@ namespace DolphinTextureExtraction.Scans
         /// <returns></returns>
         private bool TryBTI(Stream stream, ScanObjekt so)
         {
+            so.File.Data.Position = 0;
             if (stream.Length - stream.Position <= Unsafe.SizeOf<BTI.ImageHeader>())
                 return false;
             var ImageHeader = stream.Read<BTI.ImageHeader>(Endian.Big);
@@ -334,8 +335,8 @@ namespace DolphinTextureExtraction.Scans
             {
                 try
                 {
-                    string paht = Path.Combine("~Force", so.SubPath.ToString());
-                    so = new ScanObjekt(so.Stream, paht, so.Deep, so.Extension);
+                    string paht = Path.Combine("~Force", so.File.GetFullPath());
+                    so = new ScanObjekt(so.File, so.Deep);
                     using BTI bit = new(stream);
                     Save(bit, so);
                     return true;
@@ -343,6 +344,7 @@ namespace DolphinTextureExtraction.Scans
                 catch (Exception)
                 { }
             }
+            so.File.Data.Position = 0;
             return false;
         }
 
@@ -351,33 +353,32 @@ namespace DolphinTextureExtraction.Scans
         #region Helper
         protected override bool TryForce(ScanObjekt so)
         {
-            if (((TextureExtractorOptions)Option).Force)
+            if (Option.Force)
             {
                 if (base.TryForce(so))
                     return true;
 
-                so.Stream.Position = 0;
-                if (TryBTI(so.Stream, so))
+                if (TryBTI(so.File.Data, so))
                     return true;
-                so.Stream.Position = 0;
             }
             else
             {
                 if (so.Format.Extension == "")
                 {
-                    if (TryBTI(so.Stream, so))
+                    if (TryBTI(so.File.Data, so))
                         return true;
-                    so.Stream.Position = 0;
                 }
                 else if (TryExtract(so))
+                {
                     return true;
+                }
             }
             return false;
         }
 
         private void LogResultUnsupported(ScanObjekt so)
         {
-            Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+            Log.Write(FileAction.Unsupported, so.File.GetFullPath() + $" ~{PathX.AddSizeSuffix(so.File.Data.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
             Result.AddUnsupported(so);
         }
 

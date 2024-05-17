@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,14 +14,9 @@ namespace DolphinTextureExtraction.Scans.Results
         public TimeSpan TotalTime { get; internal set; }
 
         /// <summary>
-        /// count of all files to be searched.
+        /// 
         /// </summary>
-        public int Worke { get; internal set; }
-
-        /// <summary>
-        /// count of all files already searched.
-        /// </summary>
-        public int Progress { get; internal set; } = 0;
+        public bool IsCompleted { get; internal set; }
 
         /// <summary>
         /// Size of all files to be searched in bytes.

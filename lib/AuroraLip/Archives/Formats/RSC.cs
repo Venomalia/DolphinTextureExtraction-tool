@@ -1,40 +1,53 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using System.Xml.Linq;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class RSC : Archive, IFileAccess
+    /// <summary>
+    /// Treasure Wario World archive
+    /// </summary>
+    public sealed class RSC : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public RSC()
+        {
+        }
 
-        public static string Extension => ".RSC";
+        public RSC(string name) : base(name)
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public RSC(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.SequenceEqual(Extension);
+            => extension.SequenceEqual(".RSC");
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            _ = stream.Read(32);
+            _ = source.Read(32);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             do
             {
-                Entry entry = stream.Read<Entry>(Endian.Big);
-                Root.AddArchiveFile(stream, (int)entry.Size, $"{entry.Flag}_entry{Root.Count}");
+                Entry entry = source.Read<Entry>(Endian.Big);
+                FileNode file = new($"{entry.Flag}_entry{Count}", new SubStream(source, (int)entry.Size));
+                Add(file);
                 if (entry.NextOffset == 0)
                 {
                     break;
                 }
-                stream.Seek(entry.NextOffset, SeekOrigin.Begin);
+                source.Seek(entry.NextOffset, SeekOrigin.Begin);
             }
             while (true);
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private struct Entry
         {

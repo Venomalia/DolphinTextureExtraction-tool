@@ -1,5 +1,6 @@
-﻿using AuroraLib.Archives;
+using AuroraLib.Archives.Formats.Nintendo;
 using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.Palette.Formats;
 
@@ -13,6 +14,7 @@ namespace AuroraLib.Texture.Formats
 
         public virtual IIdentifier Identifier => _identifier;
 
+        private const string PalettesPath = "Palettes(NW4R)";
         private static readonly Identifier32 _identifier = new("TEX0");
 
         public TEX0()
@@ -61,56 +63,47 @@ namespace AuroraLib.Texture.Formats
 
             if (PaletteData == null && Format.IsPaletteFormat())
             {
-                if (stream is ArchiveFile.ArchiveFileStream substream)
+                //only temporary
+                if (stream is Bres.SubStream substream)
                 {
-                    string name;
-                    lock (substream.BaseStream)
-                    {
-                        substream.BaseStream.Seek(substream.Offset + StringOffset, SeekOrigin.Begin);
-                        name = substream.BaseStream.ReadString();
-                    }
-                    Archive ParentBres = substream.Parent.OwnerArchive;
-                    if (ParentBres.ItemExists("Palettes(NW4R)"))
-                    {
-                        List<string> PalletNames = ((ArchiveDirectory)ParentBres["Palettes(NW4R)"]).FindItems(name + "*");
+                    string name = substream.Name;
+                    IEnumerable<FileNode> PalletNames = new List<FileNode>();
+                    DirectoryNode ParentBres = substream.Root;
+                    if (ParentBres.Contains(PalettesPath))
+                        PalletNames = ((DirectoryNode)ParentBres[PalettesPath]).Search<FileNode>(name + "*");
 
-                        if (PalletNames.Count == 0)
+                    if (!PalletNames.Any())
+                    {
+                        throw new PaletteException("No linked pallete palette data could be found");
+                    }
+
+
+                    stream.Position = SectionOffsets;
+                    TexEntry tex = new(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
+                    {
+                        LODBias = 0,
+                        MagnificationFilter = GXFilterMode.Nearest,
+                        MinificationFilter = GXFilterMode.Nearest,
+                        WrapS = GXWrapMode.CLAMP,
+                        WrapT = GXWrapMode.CLAMP,
+                        EnableEdgeLOD = false,
+                        MinLOD = MinLOD,
+                        MaxLOD = MaxLOD
+                    };
+
+                    foreach (FileNode PFile in PalletNames)
+                    {
+                        lock (PFile.Data)
                         {
-                            throw new PaletteException("No linked pallete palette data could be found");
+                            PFile.Data.Seek(0, SeekOrigin.Begin);
+
+                            PLT0 pallet = new(PFile.Data);
+                            tex.PaletteFormat = pallet.Format;
+                            tex.Palettes.Add(pallet.Data);
                         }
-
-                        stream.Position = SectionOffsets;
-                        TexEntry tex = new(stream, Format, ImageWidth, ImageHeight, TotalImageCount - 1)
-                        {
-                            LODBias = 0,
-                            MagnificationFilter = GXFilterMode.Nearest,
-                            MinificationFilter = GXFilterMode.Nearest,
-                            WrapS = GXWrapMode.CLAMP,
-                            WrapT = GXWrapMode.CLAMP,
-                            EnableEdgeLOD = false,
-                            MinLOD = MinLOD,
-                            MaxLOD = MaxLOD
-                        };
-
-                        foreach (string PalletName in PalletNames)
-                        {
-                            ArchiveFile PFile = (ArchiveFile)ParentBres[PalletName];
-                            lock (PFile.FileData)
-                            {
-                                PFile.FileData.Seek(0, SeekOrigin.Begin);
-
-                                PLT0 pallet = new(PFile.FileData);
-                                tex.PaletteFormat = pallet.Format;
-                                tex.Palettes.Add(pallet.Data);
-                            }
-                        }
-                        Add(tex);
-                        return;
                     }
-                    else
-                    {
-                        throw new PaletteException("No palette data could be found");
-                    }
+                    Add(tex);
+                    return;
                 }
             }
             stream.Position = SectionOffsets;

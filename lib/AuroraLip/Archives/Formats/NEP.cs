@@ -1,33 +1,47 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.Archives.Formats
 {
-    public sealed class NEP : Archive, IFileAccess
+    /// <summary>
+    /// SEGA NEP Archive
+    /// </summary>
+    public sealed class NEP : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => extension == ".NEP";
-
-        protected override void Read(Stream stream)
+        public NEP()
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            while (stream.Position + 0x20 < stream.Length)
+        }
+
+        public NEP(string name) : base(name)
+        {
+        }
+
+        public NEP(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => extension == ".NEP";
+
+        protected override void Deserialize(Stream source)
+        {
+            while (source.Position + 0x20 < source.Length)
             {
-                long pos = stream.Position;
-                Entry entry = stream.Read<Entry>(Endian.Big);
-                string name = stream.ReadString();
+                long pos = source.Position;
+                Entry entry = source.Read<Entry>(Endian.Big);
+                string name = source.ReadString();
                 name = name.Replace("..\\", string.Empty);
-                if (!Root.Items.ContainsKey(name))
+                if (!Contains(name))
                 {
-                    Root.AddArchiveFile(stream, entry.Size, pos + entry.Offset, name);
+                    FileNode Sub = new(name, new SubStream(source, entry.Size, pos + entry.Offset));
+                    Add(Sub);
                 }
-                stream.Seek(pos + entry.TotalSize, SeekOrigin.Begin);
+                source.Seek(pos + entry.TotalSize, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private struct Entry
         {

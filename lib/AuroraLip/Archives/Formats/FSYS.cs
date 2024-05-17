@@ -1,62 +1,74 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// Genius Sonority FSYS Archive
+    /// </summary>
     //base https://github.com/PekanMmd/Pokemon-XD-Code/
-    public class FSYS : Archive, IHasIdentifier, IFileAccess
+    public sealed class FSYS : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FSYS");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public FSYS()
+        {
+        }
+
+        public FSYS(string name) : base(name)
+        {
+        }
+
+        public FSYS(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 112 && stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            Header header = stream.Read<Header>(Endian.Big);
+            source.MatchThrow(_identifier);
+            Header header = source.Read<Header>(Endian.Big);
 
-            stream.Seek(header.FileInfoOffset, SeekOrigin.Begin);
+            source.Seek(header.FileInfoOffset, SeekOrigin.Begin);
             using SpanBuffer<uint> FileInfosOffsets = new((int)header.Entries);
-            stream.Read(FileInfosOffsets.Span, Endian.Big);
+            source.Read(FileInfosOffsets.Span, Endian.Big);
 
-            stream.Seek(header.StringTableOffset, SeekOrigin.Begin);
-            string[] Filenames = stream.For((int)header.Entries, s => s.ReadString());
+            source.Seek(header.StringTableOffset, SeekOrigin.Begin);
+            string[] Filenames = source.For((int)header.Entries, s => s.ReadString());
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < FileInfosOffsets.Length; i++)
             {
-                stream.Seek(FileInfosOffsets[i], SeekOrigin.Begin);
-                var Info = stream.Read<FileInfo>(Endian.Big);
+                source.Seek(FileInfosOffsets[i], SeekOrigin.Begin);
+                var Info = source.Read<FileInfo>(Endian.Big);
 
                 if (Info.IsCompressed())
                 {
                     //<- 0x10 LZSS Header
-                    stream.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
+                    source.Seek(Info.FileStartPointer + 0x10, SeekOrigin.Begin);
                     Stream DeStream = new MemoryPoolStream();
-                    LZSS.DecompressHeaderless(stream, DeStream, (int)Info.DecompressedSize, new((byte)12, 4, 2));
+                    LZSS.DecompressHeaderless(source, DeStream, (int)Info.DecompressedSize, new((byte)12, 4, 2));
 
-                    Root.AddArchiveFile(DeStream, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
+                    FileNode file = new($"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}", DeStream);
+                    Add(file);
                 }
                 else
                 {
-                    Root.AddArchiveFile(stream, Info.DecompressedSize, Info.FileStartPointer, $"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}");
+                    FileNode file = new($"{Info.ResourceID:X8}_{Filenames[i]}.{Info.FileFormat}", new SubStream(source, Info.DecompressedSize, Info.FileStartPointer));
+                    Add(file);
                 }
             }
         }
 
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private struct Header
         {

@@ -1,48 +1,47 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
-namespace AuroraLib.Archives.Formats
+namespace AuroraLib.Archives.Formats.Retro
 {
     /// <summary>
     /// The .pak format used in Metroid Prime 3 and Donkey Kong Country Returns
     /// </summary>
     // base https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime_3)#Header
-    public class PAK_RetroWii : PAK_Retro
+    public sealed class PAK_RetroWii : PAK_Retro
     {
         public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public new static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-        {
-            return extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32(Endian.Big) == 2 && stream.ReadUInt32(Endian.Big) == 64 && stream.ReadUInt64(Endian.Big) != 0 && stream.ReadUInt64(Endian.Big) != 0;
-        }
+            => extension.Contains(".pak", StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt32(Endian.Big) == 2 && stream.ReadUInt32(Endian.Big) == 64 && stream.ReadUInt64(Endian.Big) != 0 && stream.ReadUInt64(Endian.Big) != 0;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
             //Header
-            uint Version = stream.ReadUInt32(Endian.Big);
-            uint HeaderSize = stream.ReadUInt32(Endian.Big);
-            byte[] MD5hash = stream.Read(16);
+            uint Version = source.ReadUInt32(Endian.Big);
+            uint HeaderSize = source.ReadUInt32(Endian.Big);
+            byte[] MD5hash = source.Read(16);
 
-            stream.Seek(HeaderSize, SeekOrigin.Begin);
+            source.Seek(HeaderSize, SeekOrigin.Begin);
 
             //Table of Contents
-            uint Sections = stream.ReadUInt32(Endian.Big);
+            uint Sections = source.ReadUInt32(Endian.Big);
 
             uint STRG_SectionSize = 0, RSHD_SectionSize = 0, DATA_SectionSize = 0;
             for (int i = 0; i < Sections; i++)
             {
-                switch (stream.ReadString(4))
+                switch (source.ReadString(4))
                 {
                     case "STRG":
-                        STRG_SectionSize = stream.ReadUInt32(Endian.Big);
+                        STRG_SectionSize = source.ReadUInt32(Endian.Big);
                         break;
 
                     case "RSHD":
-                        RSHD_SectionSize = stream.ReadUInt32(Endian.Big);
+                        RSHD_SectionSize = source.ReadUInt32(Endian.Big);
                         break;
 
                     case "DATA":
-                        DATA_SectionSize = stream.ReadUInt32(Endian.Big);
+                        DATA_SectionSize = source.ReadUInt32(Endian.Big);
                         break;
 
                     default:
@@ -51,17 +50,15 @@ namespace AuroraLib.Archives.Formats
             }
 
             //NameTabel
-            stream.Seek(128, SeekOrigin.Begin);
+            source.Seek(128, SeekOrigin.Begin);
 
-            Sections = stream.ReadUInt32(Endian.Big);
+            Sections = source.ReadUInt32(Endian.Big);
             Dictionary<ulong, NameEntry> NameTable = new();
             for (int i = 0; i < Sections; i++)
             {
-                NameEntry entry = new(stream);
+                NameEntry entry = new(source);
                 if (!NameTable.ContainsKey(entry.ID))
-                {
                     NameTable.Add(entry.ID, entry);
-                }
                 else
                 {
                     Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(PAK_RetroWii)},{entry.ID} is already in name table. string:{entry.Name}.");
@@ -69,42 +66,32 @@ namespace AuroraLib.Archives.Formats
             }
 
             //ResourceTable
-            stream.Seek(128 + STRG_SectionSize, SeekOrigin.Begin);
+            source.Seek(128 + STRG_SectionSize, SeekOrigin.Begin);
 
-            Sections = stream.ReadUInt32(Endian.Big);
-            AssetEntry[] AssetTable = stream.For((int)Sections, s => new AssetEntry(stream));
+            Sections = source.ReadUInt32(Endian.Big);
+            AssetEntry[] AssetTable = source.For((int)Sections, s => new AssetEntry(source));
 
             //DataTable
             long DATAStart = 128 + STRG_SectionSize + RSHD_SectionSize;
-            stream.Seek(DATAStart, SeekOrigin.Begin);
+            source.Seek(DATAStart, SeekOrigin.Begin);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             foreach (AssetEntry entry in AssetTable)
             {
-                string name;
-                if (NameTable.TryGetValue(entry.ID, out NameEntry nameEntry))
-                {
-                    name = $"{entry.ID}_{nameEntry.Name}.{nameEntry.Type}";
-                }
-                else
-                {
-                    name = $"{entry.ID}.{entry.Type}";
-                }
-                if (Root.Items.ContainsKey(name))
-                {
+                string name = NameTable.TryGetValue(entry.ID, out NameEntry nameEntry)
+                    ? $"{entry.ID}_{nameEntry.Name}.{nameEntry.Type}"
+                    : $"{entry.ID}.{entry.Type}";
+
+                if (Contains(name))
                     continue;
-                }
 
                 if (entry.Compressed)
                 {
-                    stream.Seek(entry.Offset + DATAStart, SeekOrigin.Begin);
-                    string Type = stream.ReadString(4);
+                    source.Seek(entry.Offset + DATAStart, SeekOrigin.Begin);
+                    string Type = source.ReadString(4);
                     if (Type != "CMPD")
-                    {
                         Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(PAK_Retro)},{name} type:{Type} is not known.");
-                    }
-                    uint blocks = stream.ReadUInt32(Endian.Big);
-                    CMPDEntry[] CMPD = stream.For((int)blocks, s => new CMPDEntry(stream));
+                    uint blocks = source.ReadUInt32(Endian.Big);
+                    CMPDEntry[] CMPD = source.For((int)blocks, s => new CMPDEntry(source));
 
                     //DKCR = Zlip & prime 3 = LZO1X-999
                     MemoryPoolStream MS = new();
@@ -113,26 +100,22 @@ namespace AuroraLib.Archives.Formats
                         //Copy block if not compressed
                         if (CMPD[i].DeSize == (int)CMPD[i].CoSize)
                         {
-                            MS.Write(stream.Read((int)CMPD[i].DeSize), 0, (int)CMPD[i].DeSize);
+                            MS.Write(source.Read((int)CMPD[i].DeSize), 0, (int)CMPD[i].DeSize);
                             continue;
                         }
                         // Decompress the data for this block
-                        using Stream temStream = Decompress(new SubStream(stream, (int)CMPD[i].CoSize), CMPD[i].DeSize);
+                        using Stream temStream = Decompress(new SubStream(source, (int)CMPD[i].CoSize), CMPD[i].DeSize);
                         MS.Write(temStream.ToArray().AsSpan());
                     }
-                    ArchiveFile Sub = new() { Parent = Root, Name = name, FileData = MS };
-                    Root.Items.Add(Sub.Name, Sub);
+                    FileNode file = new(name, MS);
+                    Add(file);
                 }
                 else
                 {
-                    Root.AddArchiveFile(stream, entry.Size, entry.Offset + DATAStart, name);
+                    FileNode file = new(name, new SubStream(source, entry.Size, entry.Offset + DATAStart));
+                    Add(file);
                 }
             }
-        }
-
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
         }
 
         private struct CMPDEntry

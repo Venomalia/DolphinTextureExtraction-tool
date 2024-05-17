@@ -1,26 +1,39 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Compression;
 using AuroraLib.Compression.Algorithms;
+using AuroraLib.Core.Buffers;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// Hudson Soft Mario Party Archive
+    /// </summary>
     // base on https://github.com/gamemasterplc/mpbintools/blob/master/bindump.c
-    public class BIN_MP : Archive, IFileAccess
+    public sealed class BIN_MP : ArchiveNode
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => false;
-
-        public static string Extension => ".bin";
+        public override bool CanWrite => false;
 
         private static readonly LzProperties _Lz = new((byte)10, 6, 2);
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public BIN_MP()
+        {
+        }
+
+        public BIN_MP(string name) : base(name)
+        {
+        }
+
+        public BIN_MP(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
+            if (extension.Contains(".bin", StringComparison.InvariantCultureIgnoreCase))
             {
                 uint files = stream.ReadUInt32(Endian.Big);
                 if (files > 1000 || files == 0)
@@ -56,27 +69,23 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            uint files = stream.ReadUInt32(Endian.Big);
-            uint[] offsets = new uint[files];
-            for (int i = 0; i < files; i++)
-            {
-                offsets[i] = stream.ReadUInt32(Endian.Big);
-            }
+            uint files = source.ReadUInt32(Endian.Big);
+            using SpanBuffer<uint> offsets = new (files);
+            source.Read<uint>(offsets,Endian.Big);
 
             ZLib zLib = new();
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < files; i++)
             {
-                stream.Seek(offsets[i], SeekOrigin.Begin);
-                uint DeSize = stream.ReadUInt32(Endian.Big);
-                CompressionType type = (CompressionType)stream.ReadUInt32(Endian.Big);
+                source.Seek(offsets[i], SeekOrigin.Begin);
+                uint DeSize = source.ReadUInt32(Endian.Big);
+                CompressionType type = (CompressionType)source.ReadUInt32(Endian.Big);
 
                 long compressed = 0;
                 if (i == offsets.Length - 1)
                 {
-                    compressed = stream.Length - offsets[i] - 8;
+                    compressed = source.Length - offsets[i] - 8;
                 }
                 else
                 {
@@ -87,64 +96,61 @@ namespace AuroraLib.Archives.Formats
                 switch (type)
                 {
                     case CompressionType.NONE:
-                        DeStream = new SubStream(stream, DeSize);
+                        DeStream = new SubStream(source, DeSize);
                         break;
 
                     case CompressionType.LZSS:
                         DeStream = new MemoryPoolStream((int)DeSize);
-                        LZSS.DecompressHeaderless(stream, DeStream, (int)DeSize, _Lz);
+                        LZSS.DecompressHeaderless(source, DeStream, (int)DeSize, _Lz);
                         break;
 
                     case CompressionType.SLIDE:
                     case CompressionType.FSLIDE_ALT:
                     case CompressionType.FSLIDE:
-                        uint temp_len = stream.ReadUInt32(Endian.Big);
+                        uint temp_len = source.ReadUInt32(Endian.Big);
                         DeStream = new MemoryPoolStream((int)DeSize);
-                        LZHudson.DecompressHeaderless(stream, DeStream, (int)DeSize);
+                        LZHudson.DecompressHeaderless(source, DeStream, (int)DeSize);
                         break;
 
                     case CompressionType.RLE:
-                        Root.AddArchiveFile(stream, compressed, $"{i}_{type}.cmpres");
+                        Add(new FileNode($"{i}_{type}.cmpres", new SubStream(source, compressed)));
                         continue;
                     case CompressionType.INFLATE:
-                        uint decompressed_size = stream.ReadUInt32(Endian.Big);
-                        uint compressed_size = stream.ReadUInt32(Endian.Big);
+                        uint decompressed_size = source.ReadUInt32(Endian.Big);
+                        uint compressed_size = source.ReadUInt32(Endian.Big);
                         DeStream = new MemoryPoolStream();
                         DeStream.SetLength((int)DeSize);
-                        zLib.Decompress(stream, DeStream, (int)compressed_size);
+                        zLib.Decompress(source, DeStream, (int)compressed_size);
                         break;
 
                     default:
                         Events.NotificationEvent?.Invoke(NotificationType.Warning, $"{nameof(CompressionType)}, unknown Compression type {type}.");
-                        DeStream = new SubStream(stream, DeSize);
+                        DeStream = new SubStream(source, DeSize);
                         break;
                 }
 
                 DeStream.Seek(0, SeekOrigin.Begin);
                 if (DeStream.ReadString(4) == "HSFV")
                 {
-                    Root.AddArchiveFile(DeStream, $"{i}_{type}.hsf");
+                    Add(new FileNode($"{i}_{type}.hsf", new SubStream(DeStream)));
                 }
                 else
                 {
                     DeStream.Seek(12, SeekOrigin.Begin);
                     if (DeStream.ReadUInt32(Endian.Big) == 20)
                     {
-                        Root.AddArchiveFile(DeStream, $"{i}_{type}.atb");
+                        Add(new FileNode($"{i}_{type}.atb", new SubStream(DeStream)));
                     }
                     else
                     {
-                        Root.AddArchiveFile(DeStream, $"{i}_{type}.bin");
+                        Add(new FileNode($"{i}_{type}.bin", new SubStream(DeStream)));
                     }
                 }
                 DeStream.Seek(0, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public enum CompressionType : uint
         {

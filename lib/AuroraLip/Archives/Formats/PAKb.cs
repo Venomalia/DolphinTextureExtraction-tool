@@ -1,78 +1,76 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PAKb : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Keen Games Dawn of Discovery Archive
+    /// </summary>
+    public sealed class PAKb : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("PAKb");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PAKb()
+        {
+        }
+
+        public PAKb(string name) : base(name)
+        {
+        }
+
+        public PAKb(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            uint file_count = stream.ReadUInt32(Endian.Big);
+            uint file_count = source.ReadUInt32(Endian.Big);
 
-            FileData[] file_data = new FileData[file_count];
-            for (uint i = 0; i < file_count; i++)
+            using SpanBuffer<FileData> file_data = new(file_count);
+            source.Read<FileData>(file_data, Endian.Big);
+
+            uint names_start = file_data[(int)file_count - 1].Offset;
+
+            for (int i = 0; i < file_count; i++)
             {
-                file_data[i] = new FileData(stream);
-            }
+                source.Seek(names_start, SeekOrigin.Begin);
 
-            uint names_start = file_data[file_count - 1].offset;
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            for (uint i = 0; i < file_count; i++)
-            {
-                stream.Seek(names_start, SeekOrigin.Begin);
-
-                uint expected_crc = file_data[i].crc;
+                uint expected_crc = file_data[i].Crc;
                 uint crc = 0;
                 string name = "";
                 do
                 {
-                    crc = stream.ReadUInt32(Endian.Big);
-                    uint name_size = stream.ReadUInt32(Endian.Big);
+                    crc = source.ReadUInt32(Endian.Big);
+                    uint name_size = source.ReadUInt32(Endian.Big);
                     if (name_size == 0)
                     {
                         crc = expected_crc;
                     }
-                    name = stream.ReadString((int)name_size);
+                    name = source.ReadString((int)name_size);
                 } while (expected_crc != crc);
-                if (Root.Items.ContainsKey(name))
-                {
-                    name += "_" + i.ToString();
-                }
-                Root.AddArchiveFile(stream, file_data[i].size, file_data[i].offset, name);
+
+                FileNode file = new(name, new SubStream(source, file_data[i].Size, file_data[i].Offset));
+                Add(file);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
-        private class FileData
+        private readonly struct FileData
         {
-            public uint crc;
-            public uint offset;
-            public uint size;
-
-            public FileData(Stream stream)
-            {
-                crc = stream.ReadUInt32(Endian.Big);
-                offset = stream.ReadUInt32(Endian.Big);
-                size = stream.ReadUInt32(Endian.Big);
-            }
+            public readonly uint Crc;
+            public readonly uint Offset;
+            public readonly uint Size;
         }
     }
 }

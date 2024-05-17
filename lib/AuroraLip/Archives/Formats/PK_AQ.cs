@@ -1,24 +1,38 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Cryptography;
 using AuroraLib.Core.Text;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// AQ Interactive Archive
+    /// </summary>
     //base on https://forum.xentax.com/viewtopic.php?f=10&t=5938
-    public class PK_AQ : Archive, IFileAccess
+    public sealed class PK_AQ : ArchiveNode, IFileAccess
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        private const string FSExtension = ".pfs";
 
-        public static string FSExtension => ".pfs";
+        private const string HeaderExtension = ".pkh";
 
-        public static string HeaderExtension => ".pkh";
+        private const string DataExtension = ".pk";
 
-        public static string DataExtension => ".pk";
+        public PK_AQ()
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PK_AQ(string name) : base(name)
+        {
+        }
+
+        public PK_AQ(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
@@ -31,32 +45,30 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream hStream)
+        protected override void Deserialize(Stream source)
         {
-            //try to request external files.
-            string datname = Path.ChangeExtension(Path.GetFileNameWithoutExtension(FullPath), DataExtension);
-            try
+            //try to request an external file.
+            string datname = Path.GetFileNameWithoutExtension(Name);
+            if (TryGetRefFile(datname + DataExtension, out FileNode refFile))
             {
-                pkstream = FileRequest.Invoke(datname);
+                pkstream = refFile.Data;
             }
-            catch (Exception)
+            else
             {
                 throw new Exception($"{nameof(PK_AQ)}: could not request the file {datname}.");
             }
 
             //Read PKH
-            uint Entrys = hStream.ReadUInt32(Endian.Big);
+            uint Entrys = source.ReadUInt32(Endian.Big);
             using SpanBuffer<HEntry> hEntries = new((int)Entrys);
-            hStream.Read(hEntries.Span, Endian.Big);
-
-            try
+            source.Read(hEntries.Span, Endian.Big);
+            if (TryGetRefFile(datname + FSExtension, out refFile))
             {
-                datname = Path.ChangeExtension(Path.GetFileNameWithoutExtension(FullPath), FSExtension);
-                Stream fsStream = FileRequest.Invoke(datname);
+                using Stream fsStream = refFile.Data;
+                refFile.Data = new MemoryStream();
 
                 //Read PFS
                 FSHeader header = fsStream.Read<FSHeader>(Endian.Big);
-
 
                 using SpanBuffer<DirectoryEntry> directories = new((int)header.Directorys);
                 fsStream.Read(directories.Span, Endian.Big);
@@ -68,24 +80,21 @@ namespace AuroraLib.Archives.Formats
 
                 //Process
                 Crc32 crc32 = new(Crc32Algorithm.BZIP2);
-                Dictionary<int, ArchiveDirectory> directoryPairs = new();
+                Dictionary<int, DirectoryNode> directoryPairs = new();
+                string rootPath = GetFullPath();
                 for (int i = 0; i < directories.Length; i++)
                 {
                     DirectoryEntry dirEntry = directories[i];
-                    fsStream.Seek(nameTabelPos + directoryNameOffsets[i], SeekOrigin.Begin);
-                    string name = fsStream.ReadString();
+                    DirectoryNode dir = this;
 
-                    ArchiveDirectory dir = new()
-                    {
-                        OwnerArchive = this,
-                        Name = name,
-                    };
-                    directoryPairs.Add(directories[i].Index, dir);
                     if (directories[i].ParentIndex != -1)
                     {
-                        directoryPairs[dirEntry.ParentIndex].Items.Add(name, dir);
-                        dir.Parent = directoryPairs[dirEntry.ParentIndex];
+                        fsStream.Seek(nameTabelPos + directoryNameOffsets[i], SeekOrigin.Begin);
+                        string name = fsStream.ReadString();
+                        dir = new(name);
+                        directoryPairs[dirEntry.ParentIndex].Add(dir);
                     }
+                    directoryPairs.Add(directories[i].Index, dir);
 
                     //Process FileEntrys
                     for (int fi = 0; fi < dirEntry.FileEntrys; fi++)
@@ -93,71 +102,76 @@ namespace AuroraLib.Archives.Formats
                         int FileIndex = dirEntry.FileStartChild + fi;
                         fsStream.Seek(nameTabelPos + fileNameOffsets[FileIndex], SeekOrigin.Begin);
                         string filename = fsStream.ReadString();
+                        string filePath = Path.Combine(Path.GetRelativePath(rootPath, dir.GetFullPath()), filename).Replace('\\', '/').ToLower().Replace('?', 'L');
                         //Get CRC32
                         crc32.Reset();
-                        crc32.Compute(Path.Combine(dir.FullPath, filename).Replace('\\', '/').ToLower().Replace('?', 'L').GetBytes());
+                        crc32.Compute(filePath);
+                        uint pathCRC32 = crc32.Value;
 
-                        HEntry fileEntry = default;
-                        foreach (HEntry entry in hEntries)
+                        foreach (HEntry item in hEntries)
                         {
-                            if (entry.CRC32 == crc32.Value)
+                            if (item.CRC32 == pathCRC32)
                             {
-                                fileEntry = entry;
+                                FileNode file = item.IsCompressed
+                                    ? new($"{filename}.lz", new SubStream(pkstream, item.ComprSize, item.Offset))
+                                    : new(filename, new SubStream(pkstream, item.DecomSize, item.Offset));
+                                dir.Add(file);
                                 break;
                             }
                         }
+                    }
+                    if (dir.Count != dirEntry.FileEntrys)
+                    {
 
-                        if (fileEntry.IsCompressed)
-                            dir.AddArchiveFile(pkstream, fileEntry.ComprSize, fileEntry.Offset, filename + ".lz");
-                        else
-                            dir.AddArchiveFile(pkstream, fileEntry.DecomSize, fileEntry.Offset, filename);
                     }
                 }
-                Root = directoryPairs[0];
-                fsStream.Close();
+
+                // Move Root items
+                foreach (var item in directoryPairs[0])
+                {
+                    item.Value.MoveTo(this);
+                }
             }
-            catch (Exception)
+            else
             {
                 //Process without PFS
-                Root = new ArchiveDirectory() { OwnerArchive = this };
                 for (int i = 0; i < Entrys; i++)
                 {
-                    if (hEntries[i].IsCompressed)
-                        Root.AddArchiveFile(pkstream, hEntries[i].ComprSize, hEntries[i].Offset, $"{i}_{hEntries[i].CRC32}.lz");
-                    else
-                        Root.AddArchiveFile(pkstream, hEntries[i].DecomSize, hEntries[i].Offset, $"{i}_{hEntries[i].CRC32}.bin");
+                    FileNode file = hEntries[i].IsCompressed
+                        ? new($"{i}_{hEntries[i].CRC32}.lz", new SubStream(pkstream, hEntries[i].ComprSize, hEntries[i].Offset))
+                        : new($"{i}_{hEntries[i].CRC32}.bin", new SubStream(pkstream, hEntries[i].DecomSize, hEntries[i].Offset));
+                    Add(file);
                 }
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
 
-        public struct FSHeader
+        public readonly struct FSHeader
         {
-            public uint Pad1;
-            public uint Pad2;
-            public uint Directorys;
-            public uint Files;
+            public readonly uint Pad1;
+            public readonly uint Pad2;
+            public readonly uint Directorys;
+            public readonly uint Files;
         }
 
-        public struct DirectoryEntry
+        public readonly struct DirectoryEntry
         {
-            public int Index;
-            public int ParentIndex;
-            public int DirectoryStartChild;
-            public uint DirectoryEntrys;
-            public int FileStartChild;
-            public uint FileEntrys;
+            public readonly int Index;
+            public readonly int ParentIndex;
+            public readonly int DirectoryStartChild;
+            public readonly uint DirectoryEntrys;
+            public readonly int FileStartChild;
+            public readonly uint FileEntrys;
         }
 
-        public struct HEntry
+        public readonly struct HEntry
         {
-            public uint CRC32;
-            public uint Offset;
-            public uint DecomSize;
-            public uint ComprSize;
+            public readonly uint CRC32;
+            public readonly uint Offset;
+            public readonly uint DecomSize;
+            public readonly uint ComprSize;
 
-            public bool IsCompressed => ComprSize != 0;
+            public readonly bool IsCompressed => ComprSize != 0;
         }
 
         private Stream pkstream;
@@ -173,5 +187,7 @@ namespace AuroraLib.Archives.Formats
                 }
             }
         }
+
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

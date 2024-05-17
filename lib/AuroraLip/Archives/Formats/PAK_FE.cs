@@ -1,64 +1,64 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PAK_FE : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Intelligent Systems Fire Emblem Archive
+    /// </summary>
+    public sealed class PAK_FE : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("pack");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PAK_FE()
+        {
+        }
+
+        public PAK_FE(string name) : base(name)
+        {
+        }
+
+        public PAK_FE(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            ushort NrEntries = stream.ReadUInt16(Endian.Big);
-            ushort Unk = stream.ReadUInt16(Endian.Big);
+            ushort NrEntries = source.ReadUInt16(Endian.Big);
+            ushort Unk = source.ReadUInt16(Endian.Big);
 
-            Entrie[] entries = new Entrie[NrEntries];
-            for (int i = 0; i < NrEntries; i++)
-            {
-                entries[i] = new Entrie(stream);
-            }
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            using SpanBuffer<Entrie> entries = new (NrEntries);
+            source.Read<Entrie>(entries, Endian.Big);
 
             for (int i = 0; i < NrEntries; i++)
             {
-                stream.Seek(entries[i].name, SeekOrigin.Begin);
-                string name = stream.ReadString();
+                source.Seek(entries[i].name, SeekOrigin.Begin);
+                string name = source.ReadString();
 
-                Root.AddArchiveFile(stream, entries[i].size, entries[i].data, name);
+                FileNode file = new(name, new SubStream(source, entries[i].size, entries[i].data));
+                Add(file);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
-        private class Entrie
+        private readonly struct Entrie
         {
-            public uint Unk;
-            public uint name;
-            public uint data;
-            public uint size;
-
-            public Entrie(Stream stream)
-            {
-                Unk = stream.ReadUInt32(Endian.Big);
-                name = stream.ReadUInt32(Endian.Big);
-                data = stream.ReadUInt32(Endian.Big);
-                size = stream.ReadUInt32(Endian.Big);
-            }
+            public readonly uint Unk;
+            public readonly uint name;
+            public readonly uint data;
+            public readonly uint size;
         }
     }
 }

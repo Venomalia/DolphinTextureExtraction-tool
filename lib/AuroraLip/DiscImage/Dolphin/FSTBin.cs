@@ -1,4 +1,4 @@
-﻿using AuroraLib.Archives;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.DiscImage.Dolphin
 {
@@ -17,10 +17,10 @@ namespace AuroraLib.DiscImage.Dolphin
             stringTableOffset = stream.Position;
         }
 
-        public void ProcessEntres(Stream stream, ArchiveDirectory directory)
+        public void ProcessEntres(Stream stream, DirectoryNode directory)
             => ProcessEntres(stream, directory, 0, Entires.Length);
 
-        private int ProcessEntres(Stream stream, ArchiveDirectory directory, int i, int l)
+        private int ProcessEntres(Stream stream, DirectoryNode directory, int i, int l)
         {
             while (i < l)
             {
@@ -28,16 +28,16 @@ namespace AuroraLib.DiscImage.Dolphin
                 string name = stream.ReadString();
                 if (Entires[i].IsDirectory)
                 {
-                    ArchiveDirectory subdir = new(directory.OwnerArchive, directory) { Name = name };
-                    directory.Items.Add(name, subdir);
+                    DirectoryNode subdir = new(name);
+                    directory.Add(subdir);
                     i = ProcessEntres(stream, subdir, i + 1, (int)Entires[i].Data - 1);
                 }
                 else
                 {
                     if (_IsGC)
-                        directory.AddArchiveFile(stream, Entires[i].Data, Entires[i].Offset, name);
+                        directory.Add(new FileNode(name, new SubStream(stream, Entires[i].Data, Entires[i].Offset)));
                     else
-                        directory.AddArchiveFile(stream, Entires[i].Data, Entires[i].Offset << 2, name);
+                        directory.Add(new FileNode(name, new SubStream(stream, Entires[i].Data, Entires[i].Offset << 2)));
                     i++;
                 }
             }

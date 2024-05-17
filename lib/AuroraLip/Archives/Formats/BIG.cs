@@ -1,71 +1,84 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class BIG : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// UbiSoft BIG Archive
+    /// </summary>
+    public class BIG : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => false;
+        public override bool CanWrite => false;
 
         public virtual IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new((byte)'B', (byte)'I', (byte)'G', 0);
 
-        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public BIG()
+        {
+        }
+
+        public BIG(string name) : base(name)
+        {
+        }
+
+        public BIG(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(Identifier);
 
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(Identifier);
-            ReadData(stream);
+            source.MatchThrow(Identifier);
+            ReadData(source);
         }
 
-        protected void ReadData(Stream stream)
+        protected void ReadData(Stream source)
         {
-            Header header = stream.Read<Header>();
+            Header header = source.Read<Header>();
 
-            stream.Seek(header.TableOffset, SeekOrigin.Begin);
+            source.Seek(header.TableOffset, SeekOrigin.Begin);
             using SpanBuffer<InfoEntrie> infos = new(header.Files);
-            stream.Read<InfoEntrie>(infos);
+            source.Read<InfoEntrie>(infos);
 
-            stream.Seek(header.FileTableOffset, SeekOrigin.Begin);
-            FileEntrie[] files = stream.For((int)header.Files, s => new FileEntrie(s, header.Version));
+            source.Seek(header.FileTableOffset, SeekOrigin.Begin);
+            FileEntrie[] files = source.For((int)header.Files, s => new FileEntrie(s, header.Version));
 
-            stream.Seek(header.DirectoryTableOffset, SeekOrigin.Begin);
-            DirectoryEntrie[] directorys = stream.For((int)header.Directorys, s => new DirectoryEntrie(s));
+            source.Seek(header.DirectoryTableOffset, SeekOrigin.Begin);
+            DirectoryEntrie[] directorys = source.For((int)header.Directorys, s => new DirectoryEntrie(s));
 
 
             //Process Directorys
-            Dictionary<int, ArchiveDirectory> directoryPairs = new();
-            for (int i = 0; i < directorys.Length; i++)
+            Dictionary<int, DirectoryNode> directoryPairs = new()
             {
-                ArchiveDirectory dir = new()
-                {
-                    OwnerArchive = this,
-                    Name = directorys[i].Name,
-                };
+                { 0, this }
+            };
+            Name = directorys[0].Name;
+
+            for (int i = 1; i < directorys.Length; i++)
+            {
+                DirectoryNode dir = new(directorys[i].Name);
                 directoryPairs.Add(i, dir);
                 if (directorys[i].ParentIndex != -1)
                 {
-                    directoryPairs[directorys[i].ParentIndex].Items.Add(dir.Name, dir);
-                    dir.Parent = directoryPairs[directorys[i].ParentIndex];
+                    directoryPairs[directorys[i].ParentIndex].Add(dir);
                 }
             }
-            Root = directoryPairs[0];
 
             //Process Files
             for (int i = 0; i < files.Length; i++)
             {
-                directoryPairs[(int)files[i].DirectoryIndex].AddArchiveFile(stream, files[i].Size, infos[i].Offset, files[i].Name);
+                directoryPairs[(int)files[i].DirectoryIndex].Add(new FileNode(files[i].Name, new SubStream(source, files[i].Size, infos[i].Offset)));
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         [StructLayout(LayoutKind.Sequential, Size = 64)]
         public struct Header
@@ -149,9 +162,7 @@ namespace AuroraLib.Archives.Formats
                 timestamp = stream.ReadUInt32();
                 Name = stream.ReadString(64);
                 if (version >= 36)
-                {
                     Unk1 = stream.ReadUInt32();
-                }
                 if (version >= 44)
                 {
                     Hash = stream.Read(32);

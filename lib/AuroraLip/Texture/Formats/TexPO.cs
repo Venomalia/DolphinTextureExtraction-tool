@@ -1,8 +1,7 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Texture;
+using AuroraLib.Common;
 using static AuroraLib.Texture.Formats.PTLG;
 
-namespace AuroraLib.Archives.Formats
+namespace AuroraLib.Texture.Formats
 {
     public class TexPO : JUTTexture, IFileAccess
     {
@@ -15,14 +14,14 @@ namespace AuroraLib.Archives.Formats
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => extension.SequenceEqual(Extension);
 
-        protected override void Read(Stream stream)
+        protected override void Read(Stream source)
         {
-            Header header = stream.Read<Header>(Endian.Big);
-            stream.Seek(0x60, SeekOrigin.Begin);
-            int size = (int)(stream.Length - 0x60) - (header.ImageFormat.IsPaletteFormat() ? header.PaletteColors * 2 : 0);
+            Header header = source.Read<Header>(Endian.Big);
+            source.Seek(0x60, SeekOrigin.Begin);
+            int size = (int)(source.Length - 0x60) - (header.ImageFormat.IsPaletteFormat() ? header.PaletteColors * 2 : 0);
             int mipmaps = header.ImageFormat.GetMipmapsFromSize(size, (int)header.Width, (int)header.Height);
 
-            Add(new TexEntry(stream, header.ImageFormat, GXPaletteFormat.RGB5A3, (int)header.Width, (int)header.Height, mipmaps)
+            Add(new TexEntry(source, header.ImageFormat, GXPaletteFormat.RGB5A3, (int)header.Width, (int)header.Height, mipmaps)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,

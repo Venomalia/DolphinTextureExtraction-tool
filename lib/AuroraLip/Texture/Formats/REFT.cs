@@ -1,4 +1,4 @@
-﻿using AuroraLib.Archives.Formats;
+using AuroraLib.Archives.Formats.Nintendo;
 using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 

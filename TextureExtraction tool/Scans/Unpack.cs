@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -27,7 +27,7 @@ namespace DolphinTextureExtraction.Scans
                 LogScanObjekt(so);
                 if (Option.Deep != 0 && so.Deep >= Option.Deep)
                 {
-                    Save(so.Stream, so.SubPath.ToString(), so.Format);
+                    Save(so.File.Data, so.File.GetFullPath(), so.Format);
                     return;
                 }
 
@@ -48,13 +48,13 @@ namespace DolphinTextureExtraction.Scans
 
                         LogResultUnknown(so);
                         if (so.Deep != 0)
-                            Save(so.Stream, so.SubPath.ToString(), so.Format);
+                            Save(so);
                         break;
                     case FormatType.Iso:
                     case FormatType.Archive:
                         if (!TryExtract(so))
                         {
-                            Log.Write(FileAction.Unsupported, so.GetFullSubPath() + $" ~{PathX.AddSizeSuffix(so.Stream.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
+                            Log.Write(FileAction.Unsupported, so.File.GetFullPath() + $" ~{PathX.AddSizeSuffix(so.File.Data.Length, 2)}", $"Description: {so.Format.GetFullDescription()}");
                             Save(so);
                         }
                         break;
@@ -64,14 +64,12 @@ namespace DolphinTextureExtraction.Scans
                         break;
                 }
             }
-            catch (Exception t)
+            catch (Exception)
             {
-                lock (Result)
-                {
-                    Log.WriteEX(t, so.GetFullSubPath());
-                }
+                // In case of a processing error, we would still like to save new files.
                 if (so.Deep != 0)
                     Save(so);
+                throw;
             }
         }
     }

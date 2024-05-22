@@ -1,4 +1,4 @@
-﻿using DolphinTextureExtraction.Scans.Results;
+using DolphinTextureExtraction.Scans.Results;
 using System.Text;
 
 namespace DolphinTextureExtraction.Scans.Options
@@ -8,9 +8,9 @@ namespace DolphinTextureExtraction.Scans.Options
 
         public ParallelOptions Parallel = AppSettings.Parallel;
 
-        internal ParallelOptions SubParallel => new()
+        internal ParallelOptions GetSubParallel(int i) => new()
         {
-            MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / 2),
+            MaxDegreeOfParallelism = Math.Max(1, Parallel.MaxDegreeOfParallelism / Math.Max(1, i)),
             CancellationToken = Parallel.CancellationToken,
             TaskScheduler = Parallel.TaskScheduler
         };
@@ -48,7 +48,7 @@ namespace DolphinTextureExtraction.Scans.Options
         internal void ProgressUpdate(ScanResults result)
         {
 
-            if (result.Progress >= result.Worke)
+            if (result.IsCompleted)
             {
                 //we have to report the last progress!
                 Monitor.Enter(result);

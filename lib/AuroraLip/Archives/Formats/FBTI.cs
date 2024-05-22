@@ -1,55 +1,53 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    // Rune Factory (Frontier) archive format
-    public class FBTI : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Rune Factory (Frontier) archive format
+    /// </summary>
+    public sealed class FBTI : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FBTI");
 
         public FBTI()
-        { }
-
-        public FBTI(string filename) : base(filename)
         {
         }
 
-        public FBTI(Stream stream, string filename = null) : base(stream, filename)
+        public FBTI(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public FBTI(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            int version = int.Parse(stream.ReadString(4));
-            uint file_count = stream.ReadUInt32(Endian.Big);
-            uint start_offset = stream.ReadUInt32(Endian.Big); // always 0x10
+            source.MatchThrow(_identifier);
+            int version = int.Parse(source.ReadString(4));
+            uint file_count = source.ReadUInt32(Endian.Big);
+            uint start_offset = source.ReadUInt32(Endian.Big); // always 0x10
 
             Span<FileEntry> entries = stackalloc FileEntry[(int)file_count];
-            stream.Read(entries, Endian.Big);
+            source.Read(entries, Endian.Big);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < file_count; i++)
             {
-                string name = NLCM.GetName(stream, entries[i].Offset, entries[i].Size, i);
-                Root.AddArchiveFile(stream, entries[i].Size, entries[i].Offset, name);
+                string name = NLCM.GetName(source, entries[i].Offset, entries[i].Size, i);
+                Add(new FileNode(name, new SubStream(source, entries[i].Size, entries[i].Offset)));
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private readonly struct FileEntry
         {

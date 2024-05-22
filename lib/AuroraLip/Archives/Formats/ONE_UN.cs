@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
@@ -6,45 +7,45 @@ namespace AuroraLib.Archives.Formats
     /// <summary>
     /// Archive use in Sonic Unleashed
     /// </summary>
-    public class ONE_UN : Archive, IHasIdentifier, IFileAccess
+    public sealed class ONE_UN : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("one.");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ONE_UN()
+        {
+        }
+
+        public ONE_UN(string name) : base(name)
+        {
+        }
+
+        public ONE_UN(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier) && stream.At(4, S => stream.ReadUInt32()) <= 1024 * 4;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            uint numEntries = stream.ReadUInt32();
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            uint numEntries = source.ReadUInt32();
             for (int i = 0; i < numEntries; i++)
             {
-                string entryFilename = stream.ReadString(56);
-                uint entryOffset = stream.ReadUInt32();
-                uint entryLength = stream.ReadUInt32();
+                string entryFilename = source.ReadString(56);
+                uint entryOffset = source.ReadUInt32();
+                uint entryLength = source.ReadUInt32();
 
-                if (Root.ItemKeyExists(entryFilename))
-                {
-                    Root.AddArchiveFile(stream, entryLength, entryOffset, entryFilename + i);
-                }
-                else
-                {
-                    Root.AddArchiveFile(stream, entryLength, entryOffset, entryFilename);
-                }
+                FileNode Sub = new(entryFilename, new SubStream(source, entryLength, entryOffset));
+                Add(Sub);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

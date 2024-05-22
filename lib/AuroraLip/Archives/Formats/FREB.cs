@@ -1,30 +1,43 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FREB : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Square Enix Crystal Bearers Archive
+    /// </summary>
+    public sealed class FREB : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FREB");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public FREB()
+        {
+        }
+
+        public FREB(string name) : base(name)
+        {
+        }
+
+        public FREB(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier) && stream.Length < 67108864;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.Seek(0x20, SeekOrigin.Begin);
-            FolderEntye A = new(stream, Endian.Big);
-            FolderEntye B = new(stream, Endian.Big);
+            source.Seek(0x20, SeekOrigin.Begin);
+            FolderEntye A = new(source, Endian.Big);
+            FolderEntye B = new(source, Endian.Big);
 
-            FileEntye[] entyes = stream.For(B.Files, s => new FileEntye(s, Endian.Big));
+            FileEntye[] entyes = source.For(B.Files, s => new FileEntye(s, Endian.Big));
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
 
             for (int i = 0; i < entyes.Length; i++)
             {
@@ -38,8 +51,8 @@ namespace AuroraLib.Archives.Formats
                     long nameOffset = entyes[i].GetNameOffset();
                     if (nameOffset != -1)
                     {
-                        stream.Seek(nameOffset, SeekOrigin.Begin);
-                        name = stream.ReadString(8).TrimEnd('ÿ');
+                        source.Seek(nameOffset, SeekOrigin.Begin);
+                        name = source.ReadString(8).TrimEnd('ÿ');
                     }
                     else
                     {
@@ -47,11 +60,12 @@ namespace AuroraLib.Archives.Formats
                     }
                 }
                 name = $"{name}_{i}.{entyes[i].Type}";
-                Root.AddArchiveFile(stream, entyes[i].Size, entyes[i].Offset, name);
+                FileNode file = new(name, new SubStream(source, entyes[i].Size, entyes[i].Offset));
+                Add(file);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private unsafe struct FolderEntye
         {
@@ -79,7 +93,7 @@ namespace AuroraLib.Archives.Formats
             public uint unk3;
             public uint unk4;
 
-            public long GetNameOffset() => Type switch
+            public readonly long GetNameOffset() => Type switch
             {
                 FileType.FMOT => Offset + 16,
                 FileType.FSKL => Offset + 8,

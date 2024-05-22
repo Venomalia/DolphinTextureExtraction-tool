@@ -1,60 +1,56 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static AuroraLib.Texture.Formats.TXTRCC;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FONT : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Square Enix FFCC Font data archive.
+    /// </summary>
+    public sealed class FONT : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("FONT");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public FONT()
+        {
+        }
+
+        public FONT(string name) : base(name)
+        {
+        }
+
+        public FONT(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0xD0 && stream.Match(_identifier) && stream.ReadUInt32(Endian.Big) + 0x10 == stream.Length;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            CCPropertieNote root = source.Read<CCPropertieNote>(Endian.Big);
 
-            CCPropertieNote root = stream.Read<CCPropertieNote>(Endian.Big);
-
-            long contentSize = stream.Position + root.ContentSize - 0x10;
-            while (stream.Position < contentSize)
+            long contentSize = source.Position + root.ContentSize - 0x10;
+            while (source.Position < contentSize)
             {
-                long offset = stream.Position;
-                CCPropertieNote propertie = stream.Read<CCPropertieNote>(Endian.Big);
-                string name;
+                long offset = source.Position;
+                CCPropertieNote propertie = source.Read<CCPropertieNote>(Endian.Big);
+                FileNode file = new(propertie.Identifier.ToString(), new SubStream(source, propertie.ContentSize + 0x10, offset));
+
                 if (propertie.Identifier == 1381259348)
                 {
-                    CCPropertieNote nameNote = stream.Read<CCPropertieNote>(Endian.Big);
-                    name = stream.ReadString((int)nameNote.ContentSize);
+                    CCPropertieNote nameNote = source.Read<CCPropertieNote>(Endian.Big);
+                    file.Name = source.ReadString((int)nameNote.ContentSize);
                 }
-                else
-                {
-                    name = propertie.Identifier.ToString();
-                }
-
-                if (Root.Items.ContainsKey(name))
-                {
-                    name += Root.Items.Count;
-                }
-
-                Root.AddArchiveFile(stream, propertie.ContentSize + 0x10, offset, name);
-                stream.Seek(offset + propertie.ContentSize + 0x10, SeekOrigin.Begin);
+                Add(file);
+                source.Seek(offset + propertie.ContentSize + 0x10, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream ArchiveFile) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

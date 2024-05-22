@@ -1,64 +1,58 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class FBC : Archive, IFileAccess
+    /// <summary>
+    /// H.a.n.d. Fables Chocobo archive.
+    /// </summary>
+    public sealed class FBC : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        private const string Extension = "FBC";
-
-        public FBC()
-        { }
-
-        public FBC(string filename) : base(filename)
-        {
-        }
-
-        public FBC(Stream stream, string filename = null) : base(stream, filename)
-        {
-        }
-
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.SequenceEqual(Extension);
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+            => extension.SequenceEqual("FBC");
 
         private const string Bres = "bresþÿ";
 
-        protected override void Read(Stream stream)
+        public FBC()
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+        }
 
+        public FBC(string name) : base(name)
+        {
+        }
+
+        public FBC(FileNode source) : base(source)
+        {
+        }
+
+        protected override void Deserialize(Stream source)
+        {
             //we do not know the header, so we skip it
-            stream.Seek(150, SeekOrigin.Begin);
+            source.Seek(150, SeekOrigin.Begin);
 
             //FBC seem to contain only bres files
-            while (stream.Search(Bres))
+            while (source.Search(Bres))
             {
-                long entrystart = stream.Position;
-                if (!stream.Match(Bres))
+                long entrystart = source.Position;
+                if (!source.Match(Bres))
                     continue;
-                ushort Version = stream.ReadUInt16(Endian.Big);
-                uint TotalSize = stream.ReadUInt32(Endian.Big);
+                ushort Version = source.ReadUInt16(Endian.Big);
+                uint TotalSize = source.ReadUInt32(Endian.Big);
 
-                if (TotalSize > stream.Length - entrystart)
+                if (TotalSize > source.Length - entrystart)
                 {
-                    stream.Search(Bres);
-                    TotalSize = (uint)(stream.Position - entrystart);
+                    source.Search(Bres);
+                    TotalSize = (uint)(source.Position - entrystart);
                 }
 
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = $"entry_{TotalFileCount + 1}.bres" };
-                Sub.FileData = new SubStream(stream, TotalSize, entrystart);
-                Root.Items.Add(Sub.Name, Sub);
+                FileNode Sub = new($"entry_{Count + 1}.bres", new SubStream(source, TotalSize, entrystart));
+                Add(Sub);
 
-                stream.Position = entrystart + TotalSize;
+                source.Position = entrystart + TotalSize;
             }
         }
 
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

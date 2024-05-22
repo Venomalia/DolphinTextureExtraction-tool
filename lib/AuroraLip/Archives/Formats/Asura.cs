@@ -1,36 +1,46 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class Asura : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Rebellion Asura Archive
+    /// </summary>
+    public sealed class Asura : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier64 _identifier = new("Asura   ");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public Asura()
+        {
+        }
+
+        public Asura(string name) : base(name)
+        {
+        }
+
+        public Asura(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Length > 0x20 && stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-
-            Endian endian = stream.At(0xC, s => s.DetectByteOrder<int>());
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            source.MatchThrow(_identifier);
+            Endian endian = source.At(0xC, s => s.DetectByteOrder<int>());
 
             int i = 0;
-            while (stream.Position < stream.Length - 4)
+            while (source.Position < source.Length - 4)
             {
-                long startpos = stream.Position;
+                long startpos = source.Position;
 
-                string magic = stream.ReadString(4);
-                uint size = stream.ReadUInt32(endian);
+                string magic = source.ReadString(4);
+                uint size = source.ReadUInt32(endian);
 
                 if (magic == string.Empty || size == 0)
                 {
@@ -40,30 +50,30 @@ namespace AuroraLib.Archives.Formats
                 int nameoffset = GetNamePos(magic);
                 if (nameoffset != -1)
                 {
-                    stream.Seek(startpos + nameoffset, SeekOrigin.Begin);
-                    string name = stream.ReadString().TrimStart('\\');
+                    source.Seek(startpos + nameoffset, SeekOrigin.Begin);
+                    string name = source.ReadString().TrimStart('\\');
 
                     if (magic == "FCSR")
                     {
-                        stream.Align(4);
-                        size -= (uint)(stream.Position - startpos);
-                        startpos = stream.Position;
+                        source.Align(4);
+                        size -= (uint)(source.Position - startpos);
+                        startpos = source.Position;
                     }
 
 
-                    Root.AddArchiveFile(stream, size, startpos, $"{name}~ID{i++}.{magic.ToLower()}");
+                    Add(new FileNode($"{name}~ID{i++}.{magic.ToLower()}", new SubStream(source, size, startpos)));
                 }
                 else
                 {
-                    Root.AddArchiveFile(stream, size, startpos, $"{magic}~ID{i++}.{magic.ToLower()}");
+                    Add(new FileNode($"{magic}~ID{i++}.{magic.ToLower()}", new SubStream(source, size, startpos)));
                 }
 
                 //go to next
-                stream.Seek(startpos + size, SeekOrigin.Begin);
+                source.Seek(startpos + size, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private static int GetNamePos(string magic) => magic switch
         {

@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
 using System.Text;
@@ -71,7 +71,7 @@ namespace DolphinTextureExtraction.Scans.Helper
             }
         }
 
-        public void WriteEX(Exception ex, in string strMessage = "")
+        public void WriteEX(Exception ex, ReadOnlySpan<char> strMessage)
         {
             const string EX = "Exception: ";
             StringBuilder sb = new();

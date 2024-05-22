@@ -1,16 +1,19 @@
-﻿using AuroraLib.Archives;
+using AuroraLib.Archives;
 using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 
 namespace DolphinTextureExtraction
 {
-    internal class DataCutter : Archive
+    internal class DataCutter : ArchiveNode
     {
         protected int maxErr = 15;
 
         private static readonly List<byte[]> Pattern = new List<byte[]>();
+
+        public override bool CanWrite => throw new NotImplementedException();
 
         static DataCutter()
         {
@@ -23,24 +26,25 @@ namespace DolphinTextureExtraction
             }
         }
 
-        public DataCutter() { }
+        public DataCutter() : base(nameof(DataCutter)) { }
 
-        public DataCutter(string filename) : base(filename) { }
+        public DataCutter(string name) : base(name) { }
 
-        public DataCutter(Stream stream, string filename = null) : base(stream, filename) { }
+        public DataCutter(Stream stream, string name = nameof(DataCutter)) : base(name)
+            => BinaryDeserialize(stream);
 
-        public DataCutter(Stream stream, IEnumerable<byte[]> pattern, string filename = null) : base()
-        {
-            FullPath = filename;
-            Read(stream, pattern);
-        }
+        public DataCutter(Stream stream, IEnumerable<byte[]> pattern) : this()
+            => Read(stream, pattern);
 
-        protected override void Read(Stream stream)
-            => Read(stream, Pattern);
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default) => false;
+
+        protected override void Deserialize(Stream source)
+        => Read(source, Pattern);
+
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         protected void Read(Stream stream, IEnumerable<byte[]> pattern)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             int err = 0;
 
             while (stream.Search(pattern, out byte[] match))
@@ -50,7 +54,7 @@ namespace DolphinTextureExtraction
                 long entrystart = stream.Position - format.IdentifierOffset;
 
                 // if Compresst?
-                if (Root.Count <= 1 && stream.Position > 6 + format.IdentifierOffset)
+                if (Count <= 1 && stream.Position > 6 + format.IdentifierOffset)
                 {
                     stream.Seek(-5 - format.IdentifierOffset, SeekOrigin.Current);
                     switch (stream.ReadByte())
@@ -58,13 +62,8 @@ namespace DolphinTextureExtraction
                         case 16: //LZ77
                                  //case 17: //LZ11
                             stream.Seek(-1, SeekOrigin.Current);
-                            ArchiveFile ComSub = new ArchiveFile
-                            {
-                                Parent = Root,
-                                Name = $"entrys.lz",
-                                FileData = new SubStream(stream, stream.Length - stream.Position, stream.Position)
-                            };
-                            Root.Items.Add(ComSub.Name, ComSub);
+                            FileNode ComSub = new($"entrys.lz", new SubStream(stream, stream.Length - stream.Position, stream.Position));
+                            Add(ComSub);
                             return;
                     }
                 }
@@ -161,13 +160,8 @@ namespace DolphinTextureExtraction
                 }
                 err--;
 
-                ArchiveFile Sub = new ArchiveFile
-                {
-                    Parent = Root,
-                    Name = $"entry_{TotalFileCount + 1}.{format.Extension}",
-                    FileData = new SubStream(stream, TotalSize, entrystart)
-                };
-                Root.Items.Add(Sub.Name, Sub);
+                FileNode Sub = new($"entry_{Count + 1}.{format.Extension}", new SubStream(stream, TotalSize, entrystart));
+                Add(Sub);
 
                 stream.Position = entrystart + TotalSize;
             }
@@ -175,13 +169,8 @@ namespace DolphinTextureExtraction
             if (err > maxErr)
                 throw new Exception($"maximum error tolerance of {maxErr} exceeded.");
 
-            if (Root.Count > 1)
-                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{nameof(DataCutter)} has seperated {this.Root.Count} files.");
-        }
-
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
+            if (Count > 1)
+                Events.NotificationEvent?.Invoke(NotificationType.Info, $"{nameof(DataCutter)} has seperated {Count} files.");
         }
     }
 }

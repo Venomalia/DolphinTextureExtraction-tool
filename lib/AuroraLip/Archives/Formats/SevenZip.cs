@@ -1,15 +1,16 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using SevenZipExtractor;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class SevenZip : Archive, IFileAccess
+    public sealed class SevenZip : ArchiveNode
     {
-        public bool CanRead => _CanRead;
+        public override bool CanRead => _CanRead;
 
         private static bool _CanRead = false;
 
-        public bool CanWrite => false;
+        public override bool CanWrite => false;
 
         public static string LibraryFilePath
         {
@@ -23,16 +24,6 @@ namespace AuroraLib.Archives.Formats
 
         private static string libraryPath;
 
-        public SevenZip()
-        { }
-
-        public SevenZip(string filename) : base(filename)
-        {
-        }
-
-        public SevenZip(Stream stream, string fullpath = null) : base(stream, fullpath)
-        {
-        }
 
         static SevenZip()
         {
@@ -41,6 +32,18 @@ namespace AuroraLib.Archives.Formats
             {
                 Events.NotificationEvent?.Invoke(NotificationType.Warning, "7-zip DLL could not be found!");
             }
+        }
+
+        public SevenZip()
+        {
+        }
+
+        public SevenZip(string name) : base(name)
+        {
+        }
+
+        public SevenZip(FileNode source) : base(source)
+        {
         }
 
         private static void Initialize7zipDLL(bool Is32Bit)
@@ -57,7 +60,7 @@ namespace AuroraLib.Archives.Formats
                 Initialize7zipDLL(true);
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
         {
             if (stream.Length < 0x10)
                 return false;
@@ -74,30 +77,24 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream ArchiveFile)
+        protected override void Deserialize(Stream source)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-
             //this protects our Stream from being closed by 7zip
-            SubStream stream = new SubStream(ArchiveFile, ArchiveFile.Length);
+            SubStream stream = new(source, source.Length);
 
-            using (SevenZipExtractor.ArchiveFile archiveFile = new SevenZipExtractor.ArchiveFile(stream, null, libraryPath))
+            using SevenZipExtractor.ArchiveFile archiveFile = new(stream, null, libraryPath);
+            foreach (Entry entry in archiveFile.Entries)
             {
-                foreach (Entry entry in archiveFile.Entries)
-                {
-                    // extract to stream
-                    MemoryPoolStream ms = new((int)entry.Size);
-                    entry.Extract(ms);
-                    ms.Seek(0, SeekOrigin.Begin);
-                    Root.AddArchiveFile(ms, entry.FileName);
-                }
+                // extract to stream
+                MemoryPoolStream ms = new((int)entry.Size);
+                entry.Extract(ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                FileNode file = new(entry.FileName, ms);
+                Add(file);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         internal static Dictionary<SevenZipFormat, byte[]> FileSignatures = new()
         {

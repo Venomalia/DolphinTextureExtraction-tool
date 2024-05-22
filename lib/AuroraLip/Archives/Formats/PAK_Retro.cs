@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Exceptions;
 
@@ -8,35 +9,43 @@ namespace AuroraLib.Archives.Formats
     /// The .pak format used in Metroid Prime and Metroid Prime 2
     /// </summary>
     // base https://www.metroid2002.com/retromodding/wiki/PAK_(Metroid_Prime)#Header
-    public class PAK_Retro : Archive, IFileAccess
+    public class PAK_Retro : ArchiveNode
     {
-        public virtual bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public virtual bool CanWrite => false;
+        public PAK_Retro()
+        {
+        }
 
-        public const string Extension = ".pak";
+        public PAK_Retro(string name) : base(name)
+        {
+        }
 
-        public virtual bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PAK_Retro(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt16(Endian.Big) == 3 && stream.ReadUInt16(Endian.Big) == 5 && stream.ReadUInt32(Endian.Big) == 0;
+            => extension.Contains(".pak", StringComparison.InvariantCultureIgnoreCase) && stream.ReadUInt16(Endian.Big) == 3 && stream.ReadUInt16(Endian.Big) == 5 && stream.ReadUInt32(Endian.Big) == 0;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
             //Header
-            ushort VersionMajor = stream.ReadUInt16(Endian.Big);
-            ushort VersionMinor = stream.ReadUInt16(Endian.Big);
-            uint Padding = stream.ReadUInt32(Endian.Big);
+            ushort VersionMajor = source.ReadUInt16(Endian.Big);
+            ushort VersionMinor = source.ReadUInt16(Endian.Big);
+            uint Padding = source.ReadUInt32(Endian.Big);
             if (VersionMajor != 3 && VersionMinor != 5 && Padding != 0)
                 throw new InvalidIdentifierException($"{VersionMajor},{VersionMinor},{Padding}");
 
             //NameTabel
-            uint Sections = stream.ReadUInt32(Endian.Big);
+            uint Sections = source.ReadUInt32(Endian.Big);
             Dictionary<uint, NameEntry> NameTable = new();
             for (int i = 0; i < Sections; i++)
             {
-                NameEntry entry = new(stream);
+                NameEntry entry = new(source);
                 if (!NameTable.ContainsKey(entry.ID))
                 {
                     NameTable.Add(entry.ID, entry);
@@ -48,38 +57,31 @@ namespace AuroraLib.Archives.Formats
             }
 
             //ResourceTable
-            Sections = stream.ReadUInt32(Endian.Big);
-            AssetEntry[] AssetTable = stream.For((int)Sections, s => new AssetEntry(stream));
+            Sections = source.ReadUInt32(Endian.Big);
+            AssetEntry[] AssetTable = source.For((int)Sections, s => new AssetEntry(source));
 
             //DataTable
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             foreach (AssetEntry entry in AssetTable)
             {
-                string name;
-                if (NameTable.TryGetValue(entry.ID, out NameEntry nameEntry))
-                {
-                    name = $"{entry.ID}_{nameEntry.Name}.{nameEntry.Type}";
-                }
-                else
-                {
-                    name = $"{entry.ID}.{entry.Type}";
-                }
-                if (Root.Items.ContainsKey(name))
-                {
+                string name = NameTable.TryGetValue(entry.ID, out NameEntry nameEntry)
+                    ? $"{entry.ID}_{nameEntry.Name}.{nameEntry.Type}"
+                    : $"{entry.ID}.{entry.Type}";
+
+                if (Contains(name))
                     continue;
-                }
 
                 if (entry.Compressed)
                 {
-                    stream.Seek(entry.Offset, SeekOrigin.Begin);
-                    uint DeSize = stream.ReadUInt32(Endian.Big);
-                    Stream es = Decompress(new SubStream(stream, entry.Size - 4), DeSize);
-                    ArchiveFile Sub = new() { Parent = Root, Name = name, FileData = es };
-                    Root.Items.Add(Sub.Name, Sub);
+                    source.Seek(entry.Offset, SeekOrigin.Begin);
+                    uint DeSize = source.ReadUInt32(Endian.Big);
+                    Stream es = Decompress(new SubStream(source, entry.Size - 4), DeSize);
+                    FileNode file = new(name, es);
+                    Add(file);
                 }
                 else
                 {
-                    Root.AddArchiveFile(stream, entry.Size, entry.Offset, name);
+                    FileNode file = new(name, new SubStream(source, entry.Size, entry.Offset));
+                    Add(file);
                 }
             }
         }
@@ -133,7 +135,7 @@ namespace AuroraLib.Archives.Formats
             return output;
         }
 
-        protected override void Write(Stream ArchiveFile) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         protected struct NameEntry
         {

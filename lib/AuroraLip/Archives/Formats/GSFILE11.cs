@@ -1,45 +1,42 @@
-﻿using AuroraLib.Archives;
-using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
-namespace AuroraLib.Texture.Formats
+namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Genius Sonority "0x11" file format.
     /// Real file extension is unknown, number is from FSYS filetype field
     /// Based on Pokémon XD Gale of Darkness (GXXP01).
     /// </summary>
-    public class GSFILE11 : Archive, IHasIdentifier, IFileAccess
+    public sealed class GSFILE11 : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new(0x7B, 0x1E, 0xE3, 0xF2);
 
         public GSFILE11()
-        { }
-
-        public GSFILE11(string filename) : base(filename)
         {
         }
 
-        public GSFILE11(Stream stream, string filename = null) : base(stream, filename)
+        public GSFILE11(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public GSFILE11(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => extension.Contains(".gsfile11", StringComparison.InvariantCultureIgnoreCase)
                 && stream.At(0, s => s.ReadInt32(Endian.Big) == 0x7B1EE3F2);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream stream)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             Header header = stream.Read<Header>(Endian.Big);
 
             if (header.Magic != 0x7B1EE3F2)
@@ -54,16 +51,13 @@ namespace AuroraLib.Texture.Formats
             {
                 stream.Seek(texture_entries_offset + 8u * i, SeekOrigin.Begin);
                 TextureEntry tex_entry = stream.Read<TextureEntry>(Endian.Big);
-                Root.AddArchiveFile(stream, stream.Length - tex_entry.TextureOffset,
-                    tex_entry.TextureOffset, $"{tex_entry.TextureOffset:X8}.GTX");
+                FileNode file = new($"{tex_entry.TextureOffset:X8}.GTX", new SubStream(stream, stream.Length - tex_entry.TextureOffset, tex_entry.TextureOffset));
+                Add(file);
                 // TODO: FIlters are explicitly set to linear (and none for mipmaps), does this matter?
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public struct Header
         {

@@ -1,4 +1,6 @@
 using AuroraLib.Archives.Formats;
+using AuroraLib.Archives.Formats.Nintendo;
+using AuroraLib.Archives.Formats.Retro;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Text;
 using AuroraLib.Texture;
@@ -349,7 +351,7 @@ namespace AuroraLib.Common
             new FormatInfo(".aix", FormatType.Audio, "CRI Audio Archive", "CRIWARE"),
             new FormatInfo(".sfd", 2, new byte[] { 1, 186, 33 } , FormatType.Video, "SofDec Video", "CRIWARE"),
             
-            //	Atlus
+            //Atlus
             new FormatInfo(".tpx", FormatType.Texture, "Texture Palette Xtension", "Atlus"){ Class = typeof(TPX)},
 
             //Capcom
@@ -362,8 +364,8 @@ namespace AuroraLib.Common
             new FormatInfo(".nif_wii", FormatType.Texture, "Gamebryo File Format", "Gamebase"),
 
             //UbiSoft
-            new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BUG)),
-            new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "UbiSoft Archive","UbiSoft",typeof(BIG)),
+            new FormatInfo(".bf",new Identifier32((byte)'B',(byte)'U',(byte)'G',0), FormatType.Archive, "Archive","UbiSoft",typeof(BUG)),
+            new FormatInfo(".bf", new Identifier32((byte)'B',(byte)'I',(byte)'G',0), FormatType.Archive, "Archive","UbiSoft",typeof(BIG)),
             new FormatInfo(".waa","RIFF", FormatType.Audio, "UbiSoft Audio"),
 
             //Keen Games
@@ -410,7 +412,7 @@ namespace AuroraLib.Common
             new FormatInfo(".wtm", "WTMD", FormatType.Texture, "Arc Rise Texture", "Imageepoch",typeof(WTMD)),
 
             //Natsume
-            new FormatInfo(".pBin", "pBin", FormatType.Archive, "Harvest Moon Archive", "Natsume",typeof(pBin)),
+            new FormatInfo(".pBin", "pBin", FormatType.Archive, "Harvest Moon Archive", "Natsume",typeof(PBin)),
             new FormatInfo(".tex", FormatType.Texture, "Harvest Moon Texture", "Natsume",typeof(FIPAFTEX)),
 
             //Neverland
@@ -595,7 +597,7 @@ namespace AuroraLib.Common
             //Activision & Shaba Games & Treyarch
             new FormatInfo(".DIR", FormatType.Archive, "Shrek SuperSlam Dir","Shaba Games",typeof(ShrekDir)),
             new FormatInfo(".texpack","TXPK", FormatType.Texture, "Shrek Texture","Shaba Games"),
-            new FormatInfo(".cmn", FormatType.Archive,"","Treyarch",typeof(CMN)), //http://wiki.xentax.com/index.php/NHL_2K3_CMN
+            new FormatInfo(".cmn", FormatType.Archive,"Archive","Treyarch",typeof(CMN)), //http://wiki.xentax.com/index.php/NHL_2K3_CMN
             new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture","Activision",typeof(GCNT)), //http://wiki.xentax.com/index.php/GCT_Image
             new FormatInfo(".gct","GCNT", FormatType.Texture, "GameCube Texture","Activision",typeof(GCNT)){ IdentifierOffset=8 },
             new FormatInfo(".snd","SOND", FormatType.Audio, "Sond","Activision"),

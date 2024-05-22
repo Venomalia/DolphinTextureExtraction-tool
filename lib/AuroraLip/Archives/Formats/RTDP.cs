@@ -1,64 +1,63 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class RTDP : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Imageepoch Arc Rise Archive
+    /// </summary>
+    public sealed class RTDP : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("RTDP");
 
         public RTDP()
-        { }
-
-        public RTDP(string filename) : base(filename)
         {
         }
 
-        public RTDP(Stream RARCFile, string filename = null) : base(RARCFile, filename)
+        public RTDP(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public RTDP(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            int EOH = (int)stream.ReadUInt32(Endian.Big);
-            int NrEntries = (int)stream.ReadUInt32(Endian.Big);
-            int Size = (int)stream.ReadUInt32(Endian.Big);
-            stream.Position = 0x20;
+            source.MatchThrow(_identifier);
+            int EOH = (int)source.ReadUInt32(Endian.Big);
+            int NrEntries = (int)source.ReadUInt32(Endian.Big);
+            int Size = (int)source.ReadUInt32(Endian.Big);
+            source.Position = 0x20;
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-
-            List<RTDPEntry> Entries = new();
+            List<RTDPEntry> Entries = new(NrEntries);
             for (int i = 0; i < NrEntries; i++)
             {
-                Entries.Add(new RTDPEntry(stream));
+                Entries.Add(new RTDPEntry(source));
             }
 
             foreach (var Entry in Entries)
             {
-                //If Duplicate...
-                if (Root.Items.ContainsKey(Entry.Name))
-                    Entry.Name = Path.GetFileName(Entry.Name) + Entries.IndexOf(Entry) + Path.GetExtension(Entry.Name);
-
-                SubStream subStream = new(stream, Entry.DataSize, Entry.DataOffset + EOH);
+                SubStream subStream = new(source, Entry.DataSize, Entry.DataOffset + EOH);
                 XORStream xORStream = new(subStream, 0x55);
-                Root.AddArchiveFile(xORStream, Entry.Name);
+                FileNode file = new(Entry.Name, xORStream);
+                //If Duplicate...
+                if (Contains(file))
+                    file.Name = Path.GetFileName(Entry.Name) + Entries.IndexOf(Entry) + Path.GetExtension(Entry.Name);
+
+                Add(file);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private class RTDPEntry
         {

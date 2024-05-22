@@ -1,69 +1,84 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PAK_JPS : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Junction Point Studios Archive
+    /// </summary>
+    public sealed class PAK_JPS : ArchiveNode, IHasIdentifier
     {
+        public override bool CanWrite => false;
+
+        public IIdentifier Identifier => _identifier;
+
         private static readonly Identifier32 _identifier = new(0x20, (byte)'K', (byte)'A', (byte)'P');
 
-        public virtual IIdentifier Identifier => _identifier;
+        public PAK_JPS()
+        {
+        }
 
-        public bool CanRead => true;
+        public PAK_JPS(string name) : base(name)
+        {
+        }
 
-        public bool CanWrite => false;
+        public PAK_JPS(FileNode source) : base(source)
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-            int version = stream.ReadInt32(Endian.Big);
-            int zero = stream.ReadInt32(Endian.Big);
-            int size = stream.ReadInt32(Endian.Big);
-            int data_pos = stream.ReadInt32(Endian.Big);
+            source.MatchThrow(_identifier);
+            int version = source.ReadInt32(Endian.Big);
+            int zero = source.ReadInt32(Endian.Big);
+            int size = source.ReadInt32(Endian.Big);
+            int data_pos = source.ReadInt32(Endian.Big);
             data_pos += size;
-            stream.Seek(size, SeekOrigin.Begin);
-            int file_count = stream.ReadInt32(Endian.Big);
-            long string_table_position = file_count * 24 + stream.Position;
+            source.Seek(size, SeekOrigin.Begin);
+            int file_count = source.ReadInt32(Endian.Big);
+            long string_table_position = file_count * 24 + source.Position;
             long current_file_data_position = data_pos;
 
             ZLib zlib = new();
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < file_count; i++)
             {
-                int uncompressed_size = stream.ReadInt32(Endian.Big);
-                int compressed_size = stream.ReadInt32(Endian.Big);
-                int aligned_size = stream.ReadInt32(Endian.Big);
-                int folder_name_offset = stream.ReadInt32(Endian.Big);
-                string file_type = stream.ReadString(4);
-                int file_name_offset = stream.ReadInt32(Endian.Big);
+                int uncompressed_size = source.ReadInt32(Endian.Big);
+                int compressed_size = source.ReadInt32(Endian.Big);
+                int aligned_size = source.ReadInt32(Endian.Big);
+                int folder_name_offset = source.ReadInt32(Endian.Big);
+                string file_type = source.ReadString(4);
+                int file_name_offset = source.ReadInt32(Endian.Big);
 
-                long pos = stream.Position;
-                stream.Seek(string_table_position + file_name_offset, SeekOrigin.Begin);
-                string file_name = stream.ReadString();
+                long pos = source.Position;
+                source.Seek(string_table_position + file_name_offset, SeekOrigin.Begin);
+                string file_name = source.ReadString();
 
-                if (!Root.Items.ContainsKey(file_name))
+                if (!Contains(file_name))
                 {
                     if (compressed_size == uncompressed_size)
                     {
-                        Root.AddArchiveFile(stream, uncompressed_size, current_file_data_position, file_name);
+                        FileNode file = new(file_name, new SubStream(source, uncompressed_size, current_file_data_position));
+                        Add(file);
                     }
                     else
                     {
-                        stream.Seek(current_file_data_position, SeekOrigin.Begin);
+                        source.Seek(current_file_data_position, SeekOrigin.Begin);
                         Stream decompressed_stream = new MemoryPoolStream();
-                        zlib.Decompress(stream, decompressed_stream, compressed_size);
-                        Root.AddArchiveFile(decompressed_stream, file_name);
+                        zlib.Decompress(source, decompressed_stream, compressed_size);
+                        FileNode file = new(file_name, decompressed_stream) { Properties = "ZLib"};
+                        Add(file);
                     }
                 }
                 current_file_data_position += aligned_size;
-                stream.Seek(pos, SeekOrigin.Begin);
+                source.Seek(pos, SeekOrigin.Begin);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

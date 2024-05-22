@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans.Helper;
 using System.Text;
@@ -54,12 +54,12 @@ namespace DolphinTextureExtraction.Scans.Results
                 UnsupportedFormatType.Add(so.Format);
             }
             Unsupported++;
-            UnsupportedSize += so.Stream.Length;
+            UnsupportedSize += so.File.Data.Length;
         }
 
         internal void AddUnknown(ScanObjekt so)
         {
-            if (so.Stream.Length > 128)
+            if (so.File.Data.Length > 128)
             {
                 if (!UnknownFormatType.Contains(so.Format))
                 {
@@ -69,13 +69,13 @@ namespace DolphinTextureExtraction.Scans.Results
 
             if (so.Deep == 0)
             {
-                if (so.Stream.Length > 300)
-                    SkippedSize += so.Stream.Length >> 1;
+                if (so.File.Data.Length > 300)
+                    SkippedSize += so.File.Data.Length >> 1;
             }
             else
             {
-                if (so.Stream.Length > 512)
-                    SkippedSize += so.Stream.Length >> 6;
+                if (so.File.Data.Length > 512)
+                    SkippedSize += so.File.Data.Length >> 6;
             }
             Unknown++;
         }

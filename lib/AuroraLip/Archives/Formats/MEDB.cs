@@ -1,65 +1,49 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    // Rune Factory (Tides) archive format
-    public class MEDB : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Rune Factory (Tides) archive format
+    /// </summary>
+    public sealed class MEDB : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("MEDB");
 
-        public MEDB()
-        { }
-
-        public MEDB(string filename) : base(filename)
-        {
-        }
-
-        public MEDB(Stream stream, string filename = null) : base(stream, filename)
-        {
-        }
-
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            source.MatchThrow(_identifier);
 
             // We know there are textures here, just search for them
-            while (stream.Search("HXTB"))
+            while (source.Search("HXTB"))
             {
-                long entrystart = stream.Position;
-                if (!stream.Match("HXTB"))
+                long entrystart = source.Position;
+                if (!source.Match("HXTB"))
                     continue;
-                stream.Seek(0x14, SeekOrigin.Current);
-                uint total_size = stream.ReadUInt32(Endian.Big);
+                source.Seek(0x14, SeekOrigin.Current);
+                uint total_size = source.ReadUInt32(Endian.Big);
 
-                if (total_size > stream.Length - entrystart)
+                if (total_size > source.Length - entrystart)
                 {
-                    stream.Search("HXTB");
-                    total_size = (uint)(stream.Position - entrystart);
+                    source.Search("HXTB");
+                    total_size = (uint)(source.Position - entrystart);
                 }
 
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = $"entry_{TotalFileCount + 1}.hxtb" };
-                Sub.FileData = new SubStream(stream, total_size, entrystart);
-                Root.Items.Add(Sub.Name, Sub);
+                FileNode Sub = new($"entry_{Count + 1}.hxtb", new SubStream(source, total_size, entrystart));
+                Add(Sub);
 
-                stream.Position = entrystart + total_size;
+                source.Position = entrystart + total_size;
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

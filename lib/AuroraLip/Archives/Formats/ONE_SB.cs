@@ -1,57 +1,57 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.Archives.Formats
 {
     /// <summary>
     /// Archive use in the Sonic Storybook Series
     /// </summary>
-    public class ONE_SB : Archive, IFileAccess
+    public sealed class ONE_SB : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public int Version = -1;
 
-        public static string Extension => ".one";
+        public ONE_SB()
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ONE_SB(string name) : base(name)
+        {
+        }
+
+        public ONE_SB(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
-            => extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase) && stream.At(4, SeekOrigin.Begin, S => S.ReadUInt32(Endian.Big)) == 16;
+            => extension.Contains(".one", StringComparison.InvariantCultureIgnoreCase) && stream.At(4, SeekOrigin.Begin, S => S.ReadUInt32(Endian.Big)) == 16;
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            uint numEntries = stream.ReadUInt32(Endian.Big);
-            uint offset = stream.ReadUInt32(Endian.Big); //16
-            uint unk = stream.ReadUInt32(Endian.Big);
-            int version = stream.ReadInt32(Endian.Big); // 0 Sonic and the Secret Rings or -1 for Sonic and the Black Knight
+            uint numEntries = source.ReadUInt32(Endian.Big);
+            uint offset = source.ReadUInt32(Endian.Big); //16
+            uint unk = source.ReadUInt32(Endian.Big);
+            Version = source.ReadInt32(Endian.Big); // 0 Sonic and the Secret Rings or -1 for Sonic and the Black Knight
 
-            stream.Seek(offset, SeekOrigin.Begin);
+            source.Seek(offset, SeekOrigin.Begin);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < numEntries; i++)
             {
-                string entryFilename = stream.ReadString(32) + ".prs";
+                string entryFilename = source.ReadString(32) + ".prs";
 
-                uint entryIndex = stream.ReadUInt32(Endian.Big);
-                uint entryOffset = stream.ReadUInt32(Endian.Big);
-                uint entryLength = stream.ReadUInt32(Endian.Big);
-                uint entryUnk = stream.ReadUInt32(Endian.Big);
+                uint entryIndex = source.ReadUInt32(Endian.Big);
+                uint entryOffset = source.ReadUInt32(Endian.Big);
+                uint entryLength = source.ReadUInt32(Endian.Big);
+                uint entryUnk = source.ReadUInt32(Endian.Big);
 
-                if (Root.ItemKeyExists(entryFilename))
-                {
-                    Root.AddArchiveFile(stream, entryLength, entryOffset, entryFilename + i);
-                }
-                else
-                {
-                    Root.AddArchiveFile(stream, entryLength, entryOffset, entryFilename);
-                }
+                FileNode Sub = new(entryFilename, new SubStream(source, entryLength, entryOffset));
+                Add(Sub);
             }
         }
 
-        protected override void Write(Stream stream)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

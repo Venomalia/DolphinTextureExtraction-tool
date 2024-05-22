@@ -1,46 +1,43 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    // Used in Harvest Moon: Animal Parade
-    public class pBin : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Natsume Harvest Moon: Animal Parade Archive
+    /// </summary>
+    public sealed class PBin : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("pBin");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            uint unknown1 = stream.ReadUInt32(Endian.Big);
-            uint unknown2 = stream.ReadUInt32(Endian.Big);
-            uint unknown3 = stream.ReadUInt32(Endian.Big);
-            uint unknown4 = stream.ReadUInt32(Endian.Big);
-            uint count = stream.ReadUInt32(Endian.Big);
+            uint unknown1 = source.ReadUInt32(Endian.Big);
+            uint unknown2 = source.ReadUInt32(Endian.Big);
+            uint unknown3 = source.ReadUInt32(Endian.Big);
+            uint unknown4 = source.ReadUInt32(Endian.Big);
+            uint count = source.ReadUInt32(Endian.Big);
 
-            Root = new ArchiveDirectory();
             for (int i = 0; i < count; i++)
             {
-                uint size = stream.ReadUInt32(Endian.Big);
-                uint offset = stream.ReadUInt32(Endian.Big);
-                string type = stream.ReadString(4);
-                uint unknown = stream.ReadUInt32(Endian.Big);
-                Root.AddArchiveFile(stream, size, offset, "Entry" + i);
+                uint size = source.ReadUInt32(Endian.Big);
+                uint offset = source.ReadUInt32(Endian.Big);
+                string type = source.ReadString(4);
+                uint unknown = source.ReadUInt32(Endian.Big);
+                FileNode file = new($"Entry{i}_{type}", new SubStream(source, size, offset));
+                Add(file);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

@@ -1,69 +1,73 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 using System.Text;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class CPK : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// CRIWARE Compact Archive
+    /// </summary>
+    public sealed class CPK : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("CPK ");
 
-        public readonly LibCPK.CPK CpkContent;
+        public readonly LibCPK.CPK CpkContent = new();
 
         public CPK()
         {
-            CpkContent = new LibCPK.CPK();
         }
 
-        public CPK(string filename) : base(filename)
+        public CPK(string name) : base(name)
         {
         }
 
-        public CPK(Stream stream, string fullpath = null) : base(stream, fullpath)
+        public CPK(FileNode source) : base(source)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            CpkContent.ReadCPK(stream, Encoding.UTF8);
+            CpkContent.ReadCPK(source, Encoding.UTF8);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             foreach (var entrie in CpkContent.fileTable)
             {
                 if (entrie.FileType != LibCPK.FileTypeFlag.FILE)
                     continue;
 
-                ArchiveDirectory dir;
+                DirectoryNode dir;
                 if (String.IsNullOrWhiteSpace(entrie.DirName))
-                    dir = Root;
+                {
+                    dir = this;
+                }
                 else
                 {
-                    if (!Root.Items.ContainsKey(entrie.DirName))
-                        Root.Items.Add(entrie.DirName, new ArchiveDirectory(this, Root));
-
-                    dir = (ArchiveDirectory)Root.Items[entrie.DirName];
+                    if (TryGet(entrie.DirName, out ObjectNode objectNode))
+                    {
+                        dir = (DirectoryNode)objectNode;
+                    }
+                    else
+                    {
+                        dir = new DirectoryNode(Path.GetFileName(entrie.DirName));
+                        AddPath(entrie.DirName, dir);
+                    }
                 }
 
                 // important files are available multiple times.
-                if (!dir.Items.ContainsKey($"{entrie.ID}{entrie.FileName}"))
+                FileNode file = new(entrie.FileName, new SubStream(source, UInt32.Parse(entrie.FileSize.ToString()), (long)entrie.FileOffset));
+                if (!dir.TryAdd(file))
                 {
-                    dir.AddArchiveFile(stream, UInt32.Parse(entrie.FileSize.ToString()), (long)entrie.FileOffset, $"{entrie.ID}{entrie.FileName}");
+                    file.Dispose();
                 }
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

@@ -1,4 +1,5 @@
-﻿using AuroraLib.Archives;
+using AuroraLib.Archives;
+using AuroraLib.Common.Node;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -24,33 +25,30 @@ namespace DolphinTextureExtraction.Scans
         }
         protected override void Scan(ScanObjekt so)
         {
-
             if (so.Deep != 0)
             {
                 Save(so);
             }
             else
             {
-                try
-                {
-                    Archive archive;
-                    if (Pattern == null)
-                        archive = new DataCutter(so.Stream);
-                    else
-                        archive = new DataCutter(so.Stream, Pattern);
+                ArchiveNode archive;
+                if (Pattern == null)
+                    archive = new DataCutter(so.File.Data);
+                else
+                    archive = new DataCutter(so.File.Data, Pattern);
 
-                    if (archive.Root.Count > 0)
-                    {
-                        if (archive.Root.Count == 1)
-                            foreach (var item in archive.Root.Items)
-                                Save(((ArchiveFile)item.Value).FileData, so.SubPath, so.Format);
-                        else
-                            Scan(archive, so.SubPath, so.Deep + 1);
-                    }
-                }
-                catch (Exception t)
+                if (archive.Count > 0)
                 {
-                    Log.WriteEX(t, so.GetFullSubPath());
+                    if (archive.Count == 1)
+                    {
+                        foreach (var item in archive)
+                        {
+                            if (item.Value is FileNode file)
+                                Save(file.Data, so.File.GetFullPath(), so.Format);
+                            else
+                                Scan(archive, so.Deep + 1);
+                        }
+                    }
                 }
             }
         }

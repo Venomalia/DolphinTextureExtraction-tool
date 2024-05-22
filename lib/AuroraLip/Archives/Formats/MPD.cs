@@ -1,61 +1,73 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture.Formats;
 
 namespace AuroraLib.Archives.Formats
 {
-    //use in FFCC
-    public class MPD : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Square Enix Crystal Bearers MPD data
+    /// </summary>
+    public sealed class MPD : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new(new byte[] { (byte)'M', (byte)'P', (byte)'D', 0 });
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public MPD()
+        {
+        }
+
+        public MPD(string name) : base(name)
+        {
+        }
+
+        public MPD(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            MPDHeader mpd = stream.Read<MPDHeader>(Endian.Big);
-            stream.Seek(mpd.EntryOffset, SeekOrigin.Begin);
-            Entry[] entries = stream.For((int)mpd.Entrys, s => s.Read<Entry>(Endian.Big));
+            MPDHeader mpd = source.Read<MPDHeader>(Endian.Big);
+            source.Seek(mpd.EntryOffset, SeekOrigin.Begin);
+            Entry[] entries = source.For((int)mpd.Entrys, s => s.Read<Entry>(Endian.Big));
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
 
             for (int i = 0; i < entries.Length; i++)
             {
                 switch (entries[i].Magic)
                 {
                     case 1146110285: //MAPD this is temporary
-                        Root.AddArchiveFile(stream, 0x140, mpd.BaseOffset + entries[i].Offset, "MAP.header");
+                        Add(new FileNode("MAP.header", new SubStream(source, 0x140, mpd.BaseOffset + entries[i].Offset)));
                         int psize = 0x140;
                         int index = 0;
                         do
                         {
-                            stream.Seek(mpd.BaseOffset + entries[i].Offset + psize, SeekOrigin.Begin);
-                            int size = TPL.GetSize(stream);
+                            source.Seek(mpd.BaseOffset + entries[i].Offset + psize, SeekOrigin.Begin);
+                            int size = TPL.GetSize(source);
                             if (size == -1)
                             {
-                                Root.AddArchiveFile(stream, entries[i].Size - psize, mpd.BaseOffset + entries[i].Offset + psize, "MAP_data");
+                                Add(new FileNode("MAP_data", new SubStream(source, entries[i].Size - psize, mpd.BaseOffset + entries[i].Offset + psize)));
                                 break;
                             }
-                            Root.AddArchiveFile(stream, size, mpd.BaseOffset + entries[i].Offset + psize, "MAP_Tex"+ index++);
+                            Add(new FileNode("MAP_Tex" + index++, new SubStream(source, size, mpd.BaseOffset + entries[i].Offset + psize)));
                             psize += size;
 
                         } while (psize < entries[i].Size);
                         break;
                     default:
-                        Root.AddArchiveFile(stream, entries[i].Size, mpd.BaseOffset + entries[i].Offset, "data." + entries[i].Magic.GetString());
+                        Add(new FileNode("data." + entries[i].Magic.GetString(), new SubStream(source, entries[i].Size, mpd.BaseOffset + entries[i].Offset)));
                         break;
                 }
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public struct MPDHeader
         {

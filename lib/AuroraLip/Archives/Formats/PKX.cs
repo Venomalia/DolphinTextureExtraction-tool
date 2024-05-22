@@ -1,34 +1,35 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.Archives.Formats
 {
-    // Genius Senority (Pokémon XD Gale of Darkness) PKX file (pokémon and some models?)
-    public class PKX : Archive, IFileAccess
+    /// <summary>
+    /// Genius Senority (Pokémon XD Gale of Darkness) PKX file (pokémon and some models?)
+    /// </summary>
+    public sealed class PKX : ArchiveNode
     {
-        public bool CanRead => true;
-
-        public bool CanWrite => false;
+        public override bool CanWrite => false;
 
         public PKX()
-        { }
-
-        public PKX(string filename) : base(filename)
         {
         }
 
-        public PKX(Stream stream, string filename = null) : base(stream, filename)
+        public PKX(string name) : base(name)
         {
         }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PKX(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
             => extension.Contains(".pkx", StringComparison.InvariantCultureIgnoreCase) && stream.At(0x1A, s => s.ReadUInt16(Endian.Big) == 0x0C);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            Header header = stream.Read<Header>(Endian.Big);
+            Header header = source.Read<Header>(Endian.Big);
 
             if (header.Unknown1A == 0x0C)
             {
@@ -36,11 +37,8 @@ namespace AuroraLib.Archives.Formats
                 archive_begin = (archive_begin + 31) & ~(uint)31; // Round to next 32-byte boundary
                 archive_begin = (archive_begin + header.Unknown08 + 31) & ~(uint)31;
 
-                Root = new ArchiveDirectory() { OwnerArchive = this };
-                ArchiveFile Sub = new ArchiveFile() { Parent = Root, Name = "thing.GSscene" };
-                stream.Seek(archive_begin, SeekOrigin.Begin);
-                Sub.FileData = new SubStream(stream, header.ArchiveSize);
-                Root.Items.Add(Sub.Name, Sub);
+                FileNode Sub = new("thing.GSscene", new SubStream(source, header.ArchiveSize, archive_begin));
+                Add(Sub);
             }
             else
             {
@@ -48,10 +46,7 @@ namespace AuroraLib.Archives.Formats
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         public struct Header
         {

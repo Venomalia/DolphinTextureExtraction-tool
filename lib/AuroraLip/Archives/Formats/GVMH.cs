@@ -1,67 +1,70 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// SEGA Texture archive
+    /// </summary>
     // ref https://github.com/nickworonekin/puyotools/blob/master/src/PuyoTools.Core/Archives/Formats/GvmArchive.cs
-    public class GVMH : Archive, IHasIdentifier, IFileAccess
+    public sealed class GVMH : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("GVMH");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public GVMH()
+        {
+        }
+
+        public GVMH(string name) : base(name)
+        {
+        }
+
+        public GVMH(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            uint entryOffset = stream.ReadUInt32() + 8;
-            stream.Position++;
-            byte properties = stream.ReadUInt8();
+            uint entryOffset = source.ReadUInt32() + 8;
+            source.Position++;
+            byte properties = source.ReadUInt8();
 
-            ushort numEntries = stream.ReadUInt16(Endian.Big);
+            ushort numEntries = source.ReadUInt16(Endian.Big);
             Entry[] entries = new Entry[numEntries];
             for (int i = 0; i < numEntries; i++)
             {
-                entries[i] = new Entry(stream, properties);
+                entries[i] = new Entry(source, properties);
             }
 
-            stream.Seek(entryOffset, SeekOrigin.Begin);
-            Root = new ArchiveDirectory() { OwnerArchive = this };
+            source.Seek(entryOffset, SeekOrigin.Begin);
             for (int i = 0; i < numEntries; i++)
             {
-                long offset = stream.Position;
-                string Magic = stream.ReadString(4);
-                int length = stream.ReadInt32();
+                long offset = source.Position;
+                string Magic = source.ReadString(4);
+                int length = source.ReadInt32();
 
                 // Some Billy Hatcher textures have an oddity where the last texture length is 16 more than what it
                 // actually should be.
-                if (i == numEntries - 1 && stream.Position + length != stream.Length)
+                if (i == numEntries - 1 && source.Position + length != source.Length)
                     length += 16;
 
-                if (Root.ItemKeyExists(entries[i].Name))
-                {
-                    Root.AddArchiveFile(stream, length + 8, offset, entries[i].Name + i);
-                }
-                else
-                {
-                    Root.AddArchiveFile(stream, length + 8, offset, entries[i].Name);
-                }
+                FileNode file = new(entries[i].Name, new SubStream(source, length + 8, offset));
+                Add(file);
 
-                stream.Seek(length, SeekOrigin.Current);
+                source.Seek(length, SeekOrigin.Current);
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private class Entry
         {

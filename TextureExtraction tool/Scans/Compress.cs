@@ -1,4 +1,4 @@
-﻿using AuroraLib.Compression;
+using AuroraLib.Compression;
 using AuroraLib.Compression.Interfaces;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
@@ -27,19 +27,19 @@ namespace DolphinTextureExtraction.Scans
         protected override void Scan(ScanObjekt so)
         {
             ICompressionAlgorithm algo = (ICompressionAlgorithm)Activator.CreateInstance(algorithm);
-            using FileStream destination = new(GetFullSaveDirectory(so.SubPath), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
-            algo.Compress(so.Stream.ToArray(), destination);
+            using FileStream destination = new(GetFullSaveDirectory(so.File.GetFullPath()), FileMode.CreateNew, FileAccess.ReadWrite, FileShare.Read);
+            algo.Compress(so.File.Data.ToArray(), destination);
             AddResult(so, destination);
         }
 
         private void AddResult(ScanObjekt so, Stream destination)
         {
-            double compressionRate = ((double)destination.Length / so.Stream.Length - 1) * 100;
+            double compressionRate = ((double)destination.Length / so.File.Data.Length - 1) * 100;
             lock (Result)
             {
                 CompressionRate = (CompressionRate + compressionRate) / 2;
             }
-            Log.Write(FileAction.Compress, string.Concat(so.SubPath, so.Extension) + $" ~{PathX.AddSizeSuffix(destination.Length, 2)}", $"Algo:{algorithm.Name} Rate:{compressionRate:+#.##;-#.##;0.00}%");
+            Log.Write(FileAction.Compress, so.File.GetFullPath() + $" ~{PathX.AddSizeSuffix(destination.Length, 2)}", $"Algo:{algorithm.Name} Rate:{compressionRate:+#.##;-#.##;0.00}%");
         }
     }
 }

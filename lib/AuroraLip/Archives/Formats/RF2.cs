@@ -1,45 +1,58 @@
-using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class RF2 : Archive, IHasIdentifier, IFileAccess
+    /// <summary>
+    /// Arika Endless Ocean Archive
+    /// </summary>
+    public sealed class RF2 : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("RF2M");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public RF2()
+        {
+        }
+
+        public RF2(string name) : base(name)
+        {
+        }
+
+        public RF2(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream source)
+        protected override void Deserialize(Stream source)
         {
-            Root = new ArchiveDirectory() { OwnerArchive = this, Name = "Root" };
-            long endpos = source.Position;
+            long lastEndPosition = source.Position;
 
             while (source.Search(_identifier.AsSpan()))
             {
-                if (endpos != source.Position)
-                    Root.AddArchiveFile(source, source.Position - endpos, endpos, "data" + Root.Items.Count);
+                if (lastEndPosition != source.Position)
+                    Add(new FileNode(Count + ".data", new SubStream(source, source.Position - lastEndPosition, lastEndPosition)));
 
-                ArchiveDirectory folder = new() { OwnerArchive = this, Name = "data" + Root.Items.Count, Parent = Root };
-                Root.Items.Add(folder.Name, folder);
+                DirectoryNode folder = new("RF2M_" + Count);
+                Add(folder);
                 ProcessData(source, folder);
                 source.Align(0x800);
-                endpos = source.Position;
+                lastEndPosition = source.Position;
             }
         }
 
-        private static void ProcessData(Stream source, ArchiveDirectory directory)
+        private static void ProcessData(Stream source, DirectoryNode directory)
         {
             long headerPos = source.Position;
             Header header = source.Read<Header>();
-            long endpos = headerPos + header.Size;
-            directory.AddArchiveFile(source, header.DataSize, header.HeaderSize + headerPos, directory.Items.Count + ".data");
+            long lastEndPosition = headerPos + header.Size;
+            directory.Add(new FileNode(directory.Count + ".data", new SubStream(source, header.DataSize, header.HeaderSize + headerPos)));
+
             for (int i = 0; i < header.Files; i++)
             {
                 string name = source.ReadString(0x14);
@@ -52,27 +65,28 @@ namespace AuroraLib.Archives.Formats
                     {
                         if (_identifier == source.Peek<Identifier32>()) // if folder
                         {
-                            ArchiveDirectory folder = new() { OwnerArchive = directory.OwnerArchive, Name = name, Parent = directory };
-                            directory.Items.Add(name, folder);
+                            DirectoryNode folder = new(name);
+                            directory.Add(folder);
                             ProcessData(source, folder);
-                            if (endpos < source.Position)
-                                endpos = source.Position;
+                            if (lastEndPosition < source.Position)
+                                lastEndPosition = source.Position;
                         }
                         else
                         {
-                            if (directory.Items.ContainsKey(name))
-                                name += directory.Items.Count;
-                            directory.AddArchiveFile(source, size, offset, name);
-                            if (endpos < offset + size)
-                                endpos = offset + size;
+                            if (directory.Contains(name))
+                                name += directory.Count;
+
+                            directory.Add(new FileNode(name, new SubStream(source, size, offset)));
+                            if (lastEndPosition < offset + size)
+                                lastEndPosition = offset + size;
                         }
                     });
                 }
             }
-            source.Seek(endpos, SeekOrigin.Begin);
+            source.Seek(lastEndPosition, SeekOrigin.Begin);
         }
 
-        protected override void Write(Stream ArchiveFile) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         private readonly struct Header
         {

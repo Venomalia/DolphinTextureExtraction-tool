@@ -1,4 +1,4 @@
-﻿using AuroraLib.Texture;
+using AuroraLib.Texture;
 using DolphinTextureExtraction.Scans.Helper;
 using DolphinTextureExtraction.Scans.Options;
 using DolphinTextureExtraction.Scans.Results;
@@ -32,12 +32,12 @@ namespace DolphinTextureExtraction.Scans
             try
             {
                 //in case it's not a supported image format.
-                if (!so.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
+                if (!so.File.Extension.Contains(".png", StringComparison.InvariantCultureIgnoreCase) && !so.File.Extension.Contains(".tga", StringComparison.InvariantCultureIgnoreCase) && !so.File.Extension.Contains(".tiff", StringComparison.InvariantCultureIgnoreCase))
                 {
                     return;
                 }
 
-                ReadOnlySpan<char> name = Path.GetFileName(so.SubPath);
+                ReadOnlySpan<char> name = Path.GetFileName(so.File.GetFullPath());
                 if (name.Length > 28 && name[..4].SequenceEqual("tex1") && DolphinTextureHashInfo.TryParse(name.ToString(), out DolphinTextureHashInfo dolphinHash))
                 {
                     if (!dolphinHash.Format.IsPaletteFormat() || !AddHashIfNeeded(dolphinHash))
@@ -45,9 +45,9 @@ namespace DolphinTextureExtraction.Scans
                         return;
                     }
 
-                    using Image<Rgba32> image = Image.Load<Rgba32>(so.Stream);
+                    using Image<Rgba32> image = Image.Load<Rgba32>(so.File.Data);
 
-                    if (ImageHelper.IsGrayscale(image) && so.Stream is FileStream file)
+                    if (ImageHelper.IsGrayscale(image) && so.File.Data is FileStream file)
                     {
                         string directory = Path.GetDirectoryName(file.Name);
                         string searchPattern = Path.GetFileNameWithoutExtension(file.Name).Replace($"{dolphinHash.TlutHash:x16}", "*");
@@ -65,7 +65,7 @@ namespace DolphinTextureExtraction.Scans
                             int trend = AnalyzeImagePairs(image, image2);
 
                             SplitTextureHashInfo hashRGBA;
-                            ReadOnlySpan<char> subPath = so.SubPath;
+                            ReadOnlySpan<char> subPath = so.File.GetFullPath();
 
                             if (trend < 100)
                             {
@@ -89,12 +89,8 @@ namespace DolphinTextureExtraction.Scans
             }
             catch (InvalidImageContentException ie)
             {
-                Log.WriteEX(ie, so.GetFullSubPath());
-                Save(so.Stream, string.Concat(GetFullSaveDirectory(Path.Join("~Corrupt", so.SubPath)), so.Extension));
-            }
-            catch (Exception e)
-            {
-                Log.WriteEX(e, so.GetFullSubPath());
+                Save(so.File.Data, GetFullSaveDirectory(Path.Join("~Corrupt", so.File.GetFullPath())));
+                throw;
             }
         }
 

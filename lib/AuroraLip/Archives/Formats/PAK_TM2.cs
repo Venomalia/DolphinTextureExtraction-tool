@@ -1,21 +1,34 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
+using AuroraLib.Core.Buffers;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class PAK_TM2 : Archive, IFileAccess
+    /// <summary>
+    /// Red Entertainment Tengai Makyō II Archive
+    /// </summary>
+    public sealed class PAK_TM2 : ArchiveNode
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public PAK_TM2()
+        {
+        }
 
-        public const string Extension = ".pak";
+        public PAK_TM2(string name) : base(name)
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public PAK_TM2(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if ((extension.SequenceEqual(Extension) || extension.Length == 0 || extension.SequenceEqual(".cns")) && stream.Length > 0x20)
+            if ((extension.SequenceEqual(".pak") || extension.Length == 0 || extension.SequenceEqual(".cns")) && stream.Length > 0x20)
             {
                 uint entryCount = stream.ReadUInt32(Endian.Big);
                 if (entryCount != 0 && entryCount < 1024 && stream.Position + entryCount * 8 < stream.Length)
@@ -35,25 +48,25 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            uint entryCount = stream.ReadUInt32(Endian.Big);
-            Entry[] entrys = stream.For((int)entryCount, s => s.Read<Entry>(Endian.Big));
+            uint entryCount = source.ReadUInt32(Endian.Big);
+            using SpanBuffer<Entry> entries = new SpanBuffer<Entry>(entryCount);
+            source.Read<Entry>(entries, Endian.Big);
 
-
-            Root = new ArchiveDirectory() { OwnerArchive = this };
-            for (int i = 0; i < entrys.Length; i++)
+            for (int i = 0; i < entries.Length; i++)
             {
-                Root.AddArchiveFile(stream, entrys[i].Size, entrys[i].Offset, $"Entry_{i}");
+                FileNode file = new($"Entry_{i}", new SubStream(source, entries[i].Size, entries[i].Offset));
+                Add(file);
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
-        private struct Entry
+        private readonly struct Entry
         {
-            public uint Offset;
-            public uint Size;
+            public readonly uint Offset;
+            public readonly uint Size;
         }
     }
 }

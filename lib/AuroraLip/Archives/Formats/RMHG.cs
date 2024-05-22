@@ -1,51 +1,61 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Common.Node;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Archives.Formats
 {
+    /// <summary>
+    /// Grasshopper Manufacture RMHG Archive
+    /// </summary>
     // base https://github.com/Zheneq/Noesis-Plugins/blob/b47579012af3b43c1e10e06639325d16ece81f71/fmt_fatalframe_rsl.py
-    public class RMHG : Archive, IHasIdentifier, IFileAccess
+    public sealed class RMHG : ArchiveNode, IHasIdentifier
     {
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
-
-        public virtual IIdentifier Identifier => _identifier;
+        public IIdentifier Identifier => _identifier;
 
         private static readonly Identifier32 _identifier = new("RMHG");
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public RMHG()
+        {
+        }
+
+        public RMHG(string name) : base(name)
+        {
+        }
+
+        public RMHG(FileNode source) : base(source)
+        {
+        }
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => stream.Match(_identifier);
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            stream.MatchThrow(_identifier);
+            source.MatchThrow(_identifier);
 
-            uint count = stream.ReadUInt32();
-            uint DataOffset = stream.ReadUInt32();
-            uint unknown2 = stream.ReadUInt32();
-            uint dataSize = stream.ReadUInt32();
+            uint count = source.ReadUInt32();
+            uint DataOffset = source.ReadUInt32();
+            uint unknown2 = source.ReadUInt32();
+            uint dataSize = source.ReadUInt32();
 
-            stream.Seek(DataOffset, SeekOrigin.Begin);
+            source.Seek(DataOffset, SeekOrigin.Begin);
 
-            Root = new ArchiveDirectory();
             for (int i = 0; i < count; i++)
             {
-                uint offset = stream.ReadUInt32();
-                uint size = stream.ReadUInt32();
+                uint offset = source.ReadUInt32();
+                uint size = source.ReadUInt32();
                 uint[] unknown = new uint[6];// 0-2 unknown | 3-5 padding ?
                 for (int r = 0; r < 6; r++)
                 {
-                    unknown[r] = stream.ReadUInt32();
+                    unknown[r] = source.ReadUInt32();
                 }
                 if (size != 0)
-                    Root.AddArchiveFile(stream, size, offset, "Entry" + i);
+                    Add(new FileNode("Entry" + i, new SubStream(source, size, offset)));
             }
         }
 
-        protected override void Write(Stream ArchiveFile)
-        {
-            throw new NotImplementedException();
-        }
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
     }
 }

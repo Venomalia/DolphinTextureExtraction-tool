@@ -1,21 +1,35 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common.Node;
 
 namespace AuroraLib.Archives.Formats
 {
-    public class ARC_Pit : Archive, IFileAccess
+    /// <summary>
+    /// Edge of Reality Pitfall Archive.
+    /// </summary>
+    public sealed class ARC_Pit : ArchiveNode
     {
-        public const string Extension = ".arc";
+        private const string ExtensionARC = ".arc";
 
-        public bool CanRead => true;
+        public override bool CanWrite => false;
 
-        public bool CanWrite => false;
+        public ARC_Pit()
+        {
+        }
 
-        public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
+        public ARC_Pit(string name) : base(name)
+        {
+        }
+
+        public ARC_Pit(FileNode source) : base(source)
+        {
+        }
+
+
+        public override bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
             => Matcher(stream, extension);
 
         public static bool Matcher(Stream stream, ReadOnlySpan<char> extension = default)
         {
-            if (extension.Contains(Extension, StringComparison.InvariantCultureIgnoreCase))
+            if (extension.Contains(ExtensionARC, StringComparison.InvariantCultureIgnoreCase))
             {
                 try
                 {
@@ -31,26 +45,25 @@ namespace AuroraLib.Archives.Formats
             return false;
         }
 
-        protected override void Read(Stream stream)
+        protected override void Deserialize(Stream source)
         {
-            int fsOffset = stream.ReadInt32();
-            stream.Seek(fsOffset, SeekOrigin.Begin);
-            Endian endian = stream.DetectByteOrder<uint>(3);
-            int filesCount = stream.ReadInt32(endian);
+            int fsOffset = source.ReadInt32();
+            source.Seek(fsOffset, SeekOrigin.Begin);
+            Endian endian = source.DetectByteOrder<uint>(3);
+            int filesCount = source.ReadInt32(endian);
 
-            Root = new ArchiveDirectory() { OwnerArchive = this };
             for (int i = 0; i < filesCount; i++)
             {
-                uint CRC = stream.ReadUInt32(endian);
-                uint Offset = stream.ReadUInt32(endian);
-                uint Size = stream.ReadUInt32(endian);
-                string Name = stream.ReadString();
-                long Timestamp = stream.ReadInt64(endian);
-                Root.AddArchiveFile(stream, Size, Offset, Name);
+                uint CRC = source.ReadUInt32(endian);
+                uint Offset = source.ReadUInt32(endian);
+                uint Size = source.ReadUInt32(endian);
+                string Name = source.ReadString();
+                long Timestamp = source.ReadInt64(endian);
+                Add(new FileNode(Name, new SubStream(source, Size, Offset)));
             }
         }
 
-        protected override void Write(Stream stream) => throw new NotImplementedException();
+        protected override void Serialize(Stream dest) => throw new NotImplementedException();
 
         /// <summary>
         /// currently not needed. to read index.ind

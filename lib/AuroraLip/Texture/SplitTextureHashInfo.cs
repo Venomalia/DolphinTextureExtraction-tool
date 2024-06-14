@@ -1,12 +1,11 @@
-﻿using AuroraLib.Core.Text;
+using AuroraLib.Core.Text;
 using AuroraLib.Texture.Interfaces;
 using System.Text.RegularExpressions;
 
 namespace AuroraLib.Texture
 {
-    public readonly struct SplitTextureHashInfo : IImage
+    public readonly struct SplitTextureHashInfo : IImageInfo
     {
-
         /// <inheritdoc/>
         public int Width { get; }
 

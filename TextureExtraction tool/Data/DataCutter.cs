@@ -82,7 +82,7 @@ namespace DolphinTextureExtraction
                     continue;
                 }
 
-                switch (EncodingX.GetValidString(match))
+                switch (EncodingX.GetDisplayableString(match))
                 {
                     case "CLZ":
                     case "pack":
@@ -99,10 +99,10 @@ namespace DolphinTextureExtraction
                     case "RSTM":
                     case "REFT":
                     case "bres":
-                        uint ByteOrder = BitConverter.ToUInt16(stream.Read(2), 0); //65534 BigEndian
+                        Endian order = stream.ReadBOM();
                         ushort Version = stream.ReadUInt16(Endian.Big);
                         TotalSize = stream.ReadUInt32(Endian.Big);
-                        if (ByteOrder != 65534)
+                        if (order != Endian.Big)
                         {
                             err++;
                             continue;

@@ -1,8 +1,10 @@
-﻿using AuroraLib.Core.Buffers;
+using AuroraLib.Core.Buffers;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Advanced;
+using SixLabors.ImageSharp.Memory;
+using SixLabors.ImageSharp.PixelFormats;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
 
 namespace AuroraLib.Texture
 {
@@ -22,9 +24,6 @@ namespace AuroraLib.Texture
         /// <param name="data">The span to store the encoded data.</param>
         void EncodeBlock(Span<TPixel> pixels, Span<byte> data);
 
-        public Image<TPixel> DecodeImage(ReadOnlySpan<byte> data, int width, int height)
-            => Image.LoadPixelData<TPixel>(DecodePixel(data, width, height), width, height);
-
         public byte[] EncodeImage(Image<TPixel> image)
         {
             using SpanBuffer<TPixel> pixel = new(image.Width * image.Height);
@@ -33,16 +32,28 @@ namespace AuroraLib.Texture
         }
 
         /// <summary>
-        /// Decodes the given <paramref name="data"/> into an array of <typeparamref name="TPixel"/> with the specified <paramref name="width"/> and <paramref name="height"/>.
+        /// Decodes the given <paramref name="data"/> into an <see cref="Image{TPixel}"/> with the specified <paramref name="width"/> and <paramref name="height"/>.
         /// </summary>
         /// <param name="data">The data to decode.</param>
         /// <param name="width">The width of the pixel array.</param>
         /// <param name="height">The height of the pixel array.</param>
         /// <returns>An array of decoded pixels.</returns>
-        public TPixel[] DecodePixel(ReadOnlySpan<byte> data, int width, int height)
+        public Image<TPixel> DecodeImage(ReadOnlySpan<byte> data, int width, int height)
+        {
+            Image<TPixel> image = new(width, height);
+
+            // Get direct access to the pixels
+            MemoryGroupEnumerator<TPixel> pixelGroup = image.GetPixelMemoryGroup().GetEnumerator();
+            pixelGroup.MoveNext();
+            Span<TPixel> pixel = pixelGroup.Current.Span;
+
+            DecodeImage(data, pixel, width, height);
+            return image;
+        }
+
+        private void DecodeImage(ReadOnlySpan<byte> data, Span<TPixel> pixel, int width, int height)
         {
             int BPB = BytePerBlock;
-            TPixel[] pixel = new TPixel[width * height];
             Span<TPixel> blockPixel = stackalloc TPixel[PixelPerBlock];
 
             int block = 0;
@@ -65,8 +76,6 @@ namespace AuroraLib.Texture
                     }
                 }
             }
-
-            return pixel;
         }
 
         /// <summary>
@@ -78,8 +87,14 @@ namespace AuroraLib.Texture
         /// <returns>A byte array containing the encoded data.</returns>
         public byte[] EncodePixel(ReadOnlySpan<TPixel> pixel, int width, int height)
         {
-            int BPB = BytePerBlock;
             byte[] encodedData = new byte[CalculatedDataSize(width, height)];
+            EncodePixel(pixel, encodedData, width, height);
+            return encodedData;
+        }
+
+        private void EncodePixel(ReadOnlySpan<TPixel> pixel, Span<byte> data, int width, int height)
+        {
+            int BPB = BytePerBlock;
             Span<TPixel> blockPixel = stackalloc TPixel[PixelPerBlock];
 
             int block = 0;
@@ -95,8 +110,8 @@ namespace AuroraLib.Texture
 
                         if (pixelX >= width || pixelY >= height)
                         {
-                            //use max value for pixels outside the image
-                            blockPixel[i].FromVector4(Vector4.One);
+                            //for pixels outside of the image
+                            blockPixel[i].FromVector4(Vector4.Zero);
                         }
                         else
                         {
@@ -104,11 +119,9 @@ namespace AuroraLib.Texture
                         }
                     }
 
-                    EncodeBlock(blockPixel, encodedData.AsSpan(block++ * BPB, BPB));
+                    EncodeBlock(blockPixel, data.Slice(block++ * BPB, BPB));
                 }
             }
-
-            return encodedData;
         }
 
         public byte[] EncodePixel(ReadOnlySpan<byte> data, int width, int height)

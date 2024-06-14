@@ -224,7 +224,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
             List<FileNode> fileDVD = new();
 
             // MRAM + sorting
-            Yaz0 yaz = new() { LookAhead = false, EndianOrder = Endian.Big };
+            Yaz0 yaz = new() { LookAhead = false, ExplicitOrder = Endian.Big };
             foreach (FileNode fileNode in GetAllValuesOf<FileNode>())
             {
                 if (fileNode.Properties.Contains("YAZ0") && !fileNode.Data.At(0, s => s.Match("Yaz0")))

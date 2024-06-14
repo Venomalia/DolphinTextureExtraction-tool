@@ -1,5 +1,6 @@
 using AuroraLib.Common;
 using AuroraLib.Common.Node;
+using AuroraLib.Core.Buffers;
 
 namespace AuroraLib.Archives.Formats.Retro
 {
@@ -20,7 +21,8 @@ namespace AuroraLib.Archives.Formats.Retro
             //Header
             uint Version = source.ReadUInt32(Endian.Big);
             uint HeaderSize = source.ReadUInt32(Endian.Big);
-            byte[] MD5hash = source.Read(16);
+            Span<byte> MD5hash = stackalloc byte[16];
+            source.Read(MD5hash);
 
             source.Seek(HeaderSize, SeekOrigin.Begin);
 
@@ -100,7 +102,9 @@ namespace AuroraLib.Archives.Formats.Retro
                         //Copy block if not compressed
                         if (CMPD[i].DeSize == (int)CMPD[i].CoSize)
                         {
-                            MS.Write(source.Read((int)CMPD[i].DeSize), 0, (int)CMPD[i].DeSize);
+                            using SpanBuffer<byte> buffer = new(CMPD[i].DeSize);
+                            source.Read(buffer);
+                            MS.Write(buffer);
                             continue;
                         }
                         // Decompress the data for this block

@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -33,7 +33,7 @@ namespace AuroraLib.Texture.Formats
             ushort Width = stream.ReadUInt16(Endian.Big);
             ushort Height = stream.ReadUInt16(Endian.Big);
 
-            byte[] PaletteData = null;
+            Span<byte> PaletteData = Span<byte>.Empty;
             int Colors = 16;
             if (PixelFormat.IsPaletteFormat())
             {
@@ -42,7 +42,8 @@ namespace AuroraLib.Texture.Formats
                     if (PixelFormat != GXImageFormat.C4)
                         Colors = 256;
 
-                    PaletteData = stream.Read(Colors * 2);
+                    PaletteData = new byte[Colors * 2];
+                    stream.Read(PaletteData);
                 }
                 else
                 {

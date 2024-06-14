@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Text;
 
 namespace AuroraLib.DiscImage.Revolution
@@ -6,50 +6,50 @@ namespace AuroraLib.DiscImage.Revolution
     public class V0Ticket : SignedBlobHeader
     {
         //v0 ticket
-        public readonly byte[] Issuer;
-        public readonly byte[] ECDH;
+        public readonly byte[] Issuer = new byte[64];
+        public readonly byte[] ECDH = new byte[60];
         public byte FormatVersion;
         public ushort Reserved;
-        public readonly byte[] TitleKey;
+        public readonly byte[] TitleKey = new byte[16];
         public byte Unknown;
-        public readonly byte[] TicketId;
+        public readonly byte[] TicketId = new byte[8];
         public uint ConsoleID;
-        public readonly byte[] TitleID;
+        public readonly byte[] TitleID = new byte[8];
         public ushort Unknown2;//mostly 0xFFFF
         public ushort TitleVersion;
         public uint TitlesMask;
         public uint PermitMask;
         public bool UsePRNG;
         public KeyID CommonKeyID;
-        public readonly byte[] Unknown3;//Is all 0 for non-VC, for VC, all 0 except last byte is 1.
-        public readonly byte[] ContentAccessPermissions;
+        public readonly byte[] Unknown3 = new byte[48];//Is all 0 for non-VC, for VC, all 0 except last byte is 1.
+        public readonly byte[] ContentAccessPermissions = new byte[64];
         private readonly ushort Padding;
-        public readonly Limit[] Limits;
+        public readonly Limit[] Limits = new Limit[8];
 
         public TMD.TitleFlags TitleFlag => (TMD.TitleFlags)BitConverterX.Swap(BitConverter.ToUInt32(TitleID, 0));
-        public string TitleString => EncodingX.GetValidString(TitleID.AsSpan()[..4]);
+        public string TitleString => EncodingX.GetDisplayableString(TitleID.AsSpan()[..4]);
 
         public V0Ticket(Stream source) : base(source)
         {
-            Issuer = source.Read(64);
-            ECDH = source.Read(60);
+            source.Read(Issuer);
+            source.Read(ECDH);
             FormatVersion = source.ReadUInt8();
             Reserved = source.ReadUInt16();
-            TitleKey = source.Read(16);
+            source.Read(TitleKey);
             Unknown = source.ReadUInt8();
-            TicketId = source.Read(8);
+            source.Read(TicketId);
             ConsoleID = source.ReadUInt32(Endian.Big);
-            TitleID = source.Read(8);
+            source.Read(TitleID);
             Unknown2 = source.ReadUInt16();
             TitleVersion = source.ReadUInt16(Endian.Big);
             TitlesMask = source.ReadUInt32(Endian.Big);
             PermitMask = source.ReadUInt32(Endian.Big);
             UsePRNG = source.ReadUInt8() == 1;
             CommonKeyID = source.Read<KeyID>();
-            Unknown3 = source.Read(48);
-            ContentAccessPermissions = source.Read(64);
+            source.Read(Unknown3);
+            source.Read(ContentAccessPermissions);
             Padding = source.ReadUInt16();
-            Limits = source.Read<Limit>(8, Endian.Big);
+            source.Read<Limit>(Limits, Endian.Big);
         }
 
         protected override void WriteData(Stream dest)

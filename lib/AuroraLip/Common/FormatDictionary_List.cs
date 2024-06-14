@@ -2,7 +2,6 @@ using AuroraLib.Archives.Formats;
 using AuroraLib.Archives.Formats.Nintendo;
 using AuroraLib.Archives.Formats.Retro;
 using AuroraLib.Compression.Algorithms;
-using AuroraLib.Core.Text;
 using AuroraLib.Texture;
 using AuroraLib.Texture.Formats;
 
@@ -373,7 +372,7 @@ namespace AuroraLib.Common
 
             //Namco Bandai
             new FormatInfo(".dkz", "DKZF", FormatType.Archive, "Donkey Konga"),
-            new FormatInfo(".olk", 4,"olnk".GetBytes(), FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
+            new FormatInfo(".olk", new Identifier32("olnk"),4, FormatType.Archive, "Archive", "Namco"), //https://forum.xentax.com/viewtopic.php?t=22500
             new FormatInfo(".nut", "NUTC", FormatType.Texture, "Namco Universal Texture", "Namco",typeof(NUTC)),
 
             //Silicon Knights

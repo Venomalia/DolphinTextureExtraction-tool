@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Exceptions;
 using AuroraLib.Texture.Formats;
 using AuroraLib.Texture.J3D;
@@ -1782,7 +1782,7 @@ namespace Hack.io
                     for (int i = 0; i < 8; i++)
                     {
                         //if (TextureNames[i] != right.TextureNames[i])
-                        if (Textures[i]?.ImageEquals(right.Textures[i]) ?? true)
+                        //if (Textures[i]?.ImageEquals(right.Textures[i]) ?? true)
                             return false;
                     }
                     for (int i = 0; i < 4; i++)

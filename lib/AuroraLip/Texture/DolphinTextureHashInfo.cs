@@ -8,7 +8,7 @@ namespace AuroraLib.Texture
     /// <summary>
     /// Represents a parsed Dolphin texture hash.
     /// </summary>
-    public readonly struct DolphinTextureHashInfo : IImage
+    public readonly struct DolphinTextureHashInfo : IImageInfo
     {
         /// <inheritdoc/>
         public int Width { get; }

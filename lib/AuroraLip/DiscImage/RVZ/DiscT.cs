@@ -1,4 +1,4 @@
-﻿using AuroraLib.Compression;
+using AuroraLib.Compression;
 using AuroraLib.Compression.Algorithms;
 using AuroraLib.Compression.Interfaces;
 using AuroraLib.Core.Interfaces;
@@ -60,7 +60,8 @@ namespace AuroraLib.DiscImage.RVZ
             long groupsOffset = source.Read<long>(Endian.Big);
             uint groupsComSize = source.Read<uint>(Endian.Big);
             uint algorithmDataSize = source.Read<uint>(Endian.Big);
-            AlgorithmData = source.Read(algorithmDataSize);
+            AlgorithmData = new byte[algorithmDataSize];
+            source.Read(AlgorithmData);
 
             long endPose = source.Position;
             ICompressionDecoder decoder = GetDecoder();
@@ -79,12 +80,14 @@ namespace AuroraLib.DiscImage.RVZ
             }
 
             using MemoryPoolStream rawData = decoder.Decompress(new SubStream(source, rawComSize, rawOffset));
-            RawData = rawData.Read<RawDataT>(rawDataStruct, Endian.Big);
+            RawData = new RawDataT[rawDataStruct];
+            rawData.Read<RawDataT>(RawData, Endian.Big);
             // The first wia_raw_data_t has raw_data_off set to 0x80 and raw_data_size set to 0x4FF80, but it actually contains 0x50000 bytes of data!
             RawData[0] = new(0, RawData[0].DataSize + 0x80, 0, RawData[0].Groups);
 
             using MemoryPoolStream groupData = decoder.Decompress(new SubStream(source, groupsComSize, groupsOffset));
-            Groups = groupData.Read<RvzGroupT>(groups, Endian.Big);
+            Groups = new RvzGroupT[groups];
+            groupData.Read<RvzGroupT>(Groups, Endian.Big);
 
         }
 

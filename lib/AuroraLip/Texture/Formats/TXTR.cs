@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -32,7 +32,7 @@ namespace AuroraLib.Texture.Formats
             int ImageHeight = stream.ReadUInt16(Endian.Big);
             uint Images = stream.ReadUInt32(Endian.Big);
 
-            byte[] palettedata = null;
+            Span<byte> palettedata = Span<byte>.Empty;
             int ColorsCount = 0;
             GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
             if (Format.IsPaletteFormat())
@@ -41,7 +41,8 @@ namespace AuroraLib.Texture.Formats
                 int CWidth = stream.ReadUInt16(Endian.Big);
                 int CHeight = stream.ReadUInt16(Endian.Big);
                 ColorsCount = CHeight * CWidth;
-                palettedata = stream.Read(ColorsCount * 2);
+                palettedata = new byte[ColorsCount * 2];
+                stream.Read(palettedata);
             }
 
             TexEntry current = new TexEntry(stream, palettedata, Format, PaletteFormat, ColorsCount, ImageWidth, ImageHeight, (int)Images - 1)

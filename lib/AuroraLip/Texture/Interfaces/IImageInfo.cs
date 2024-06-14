@@ -1,9 +1,9 @@
-﻿namespace AuroraLib.Texture.Interfaces
+namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Interface representing an image properties with width and height.
     /// </summary>
-    public interface IImage
+    public interface IImageInfo
     {
         /// <summary>
         /// The width of the image.

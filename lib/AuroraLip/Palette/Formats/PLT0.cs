@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture;
 
@@ -31,7 +31,8 @@ namespace AuroraLib.Palette.Formats
             uint PathOffset = stream.ReadUInt32(Endian.Big);
             uint DataOffset = stream.ReadUInt32(Endian.Big);
             stream.Seek(SectionOffsets, SeekOrigin.Begin);
-            Data = stream.Read(colors * 2);
+            Data = new byte[colors * 2];
+            stream.Read(Data);
         }
     }
 }

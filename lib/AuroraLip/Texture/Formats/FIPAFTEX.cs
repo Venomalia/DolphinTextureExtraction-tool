@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Exceptions;
 using AuroraLib.Core.Interfaces;
 
@@ -39,7 +39,7 @@ namespace AuroraLib.Texture.Formats
             while (stream.Search(TPL.Magic.AsSpan().ToArray()))
             {
                 long HeaderStart = stream.Position;
-                stream.Read(4);  // skip TPL magic
+                stream.Skip(4);  // skip TPL magic
                 TPL.ProcessStream(stream, HeaderStart, this);
             }
         }

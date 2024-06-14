@@ -1,4 +1,4 @@
-﻿using Benchmark.Benchmarks;
+using Benchmark.Benchmarks;
 using BenchmarkDotNet.Running;
 using System.Buffers.Binary;
 
@@ -8,7 +8,7 @@ namespace Benchmark
     {
         static void Main(string[] args)
         {
-            var Result = BenchmarkRunner.Run<CopyByte>();
+            var Result = BenchmarkRunner.Run<ReadUInt64>();
         }
     }
 }

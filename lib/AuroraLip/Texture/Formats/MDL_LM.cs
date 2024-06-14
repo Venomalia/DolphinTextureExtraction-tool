@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -95,7 +95,7 @@ namespace AuroraLib.Texture.Formats
                 int pad = stream.ReadByte();
                 ushort width = stream.ReadUInt16(Endian.Big);
                 ushort height = stream.ReadUInt16(Endian.Big);
-                _ = stream.Read(26);
+                stream.Skip(26);
                 return new TexEntry(stream, null, (GXImageFormat)Enum.Parse(typeof(GXImageFormat), format.ToString()), GXPaletteFormat.IA8, 16, width, height, 0);
             }
 

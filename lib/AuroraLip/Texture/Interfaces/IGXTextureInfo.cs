@@ -1,9 +1,9 @@
-﻿namespace AuroraLib.Texture.Interfaces
+namespace AuroraLib.Texture.Interfaces
 {
     /// <summary>
     /// Defines the properties of a texture used by the GX API in the GameCube and Wii consoles.
     /// </summary>
-    public interface IGXTexture : IImage
+    public interface IGXTextureInfo : IImageInfo
     {
         /// <summary>
         /// The image format of the texture.

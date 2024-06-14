@@ -66,7 +66,7 @@ namespace DolphinTextureExtraction.Scans
             Result.IsCompleted = false;
             if (Directory.Exists(ScanPath))
             {
-                DirectoryInfo root = new (ScanPath);
+                DirectoryInfo root = new(ScanPath);
                 using DirectoryNode node = new(root);
                 starttime = DateTime.Now;
                 var files = node.GetAllValuesOf<FileNode>();
@@ -123,18 +123,17 @@ namespace DolphinTextureExtraction.Scans
             {
                 foreach (var file in directory.GetAllValuesOf<FileNode>().ToArray())
                     ArchLength += Scan(file, deep);
-
-                lock (Result)
-                    Result.ProgressLength -= ArchLength;
-                directory.Dispose();
-                return;
             }
+            else
+            {
 #endif
-
-            Parallel.ForEach(directory.GetAllValuesOf<FileNode>().ToArray(), Option.GetSubParallel(deep),(file) =>
+                Parallel.ForEach(directory.GetAllValuesOf<FileNode>().ToArray(), Option.GetSubParallel(deep), (file) =>
                 {
                     ArchLength += Scan(file, deep);
                 });
+#if DEBUG
+            }
+#endif
 
             lock (Result)
                 Result.ProgressLength -= ArchLength;
@@ -405,7 +404,8 @@ namespace DolphinTextureExtraction.Scans
             if (so.Format.Identifier == null)
             {
                 so.File.Data.Seek(0, SeekOrigin.Begin);
-                byte[] infoBytes = so.File.Data.Read(32 > so.File.Data.Length ? (int)so.File.Data.Length : 32);
+                byte[] infoBytes = new byte[32 > so.File.Data.Length ? (int)so.File.Data.Length : 32];
+                so.File.Data.Read(infoBytes);
 
                 Log.Write(FileAction.Unknown, so.File.GetFullPath() + $" ~{PathX.AddSizeSuffix(so.File.Data.Length, 2)}",
                     $"Bytes{infoBytes.Length}:[{BitConverter.ToString(infoBytes)}]");

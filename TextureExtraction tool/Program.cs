@@ -167,7 +167,7 @@ namespace DolphinTextureExtraction
 
                             if (Mode == Modes.Split)
                             {
-                                List<string> patternstrings = Pattern.Select(s => EncodingX.GetValidString(s)).ToList();
+                                List<string> patternstrings = Pattern.Select(s => EncodingX.GetDisplayableString(s)).ToList();
                                 do
                                 {
                                     if (patternstrings.Count > 0)
@@ -176,7 +176,7 @@ namespace DolphinTextureExtraction
                                         Console.WriteLine("Edit identifiers? Yes or (No)");
                                         if (!ConsoleEx.WriteLineBoolPrint(ConsoleEx.ReadBool(false), "Yes", "\tNo", ConsoleColor.Green, ConsoleColor.Red))
                                         {
-                                            Pattern = patternstrings.Select(s => s.GetBytes()).ToList();
+                                            Pattern = patternstrings.Select(s => EncodingX.DefaultEncoding.GetBytes(s)).ToList();
                                             break;
                                         }
                                     }
@@ -207,7 +207,7 @@ namespace DolphinTextureExtraction
                             Console.WriteLine($"Mode: {Mode.GetDescription()}");
                             Console.WriteLine($"Input Path: \"{InputPath}\"");
                             Console.WriteLine($"Output Path: \"{OutputDirectory}\"");
-                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", Pattern.Select(s => EncodingX.GetValidString(s)))}");
+                            if (Mode == Modes.Split) Console.WriteLine($"Pattern: {string.Join(", ", Pattern.Select(s => EncodingX.GetDisplayableString(s)))}");
                             PrintOptions();
                             ConsoleEx.WriteLineColoured(StringEx.Divider(), ConsoleColor.Blue);
 
@@ -279,7 +279,7 @@ namespace DolphinTextureExtraction
                             {
                                 while (args.Length > p)
                                 {
-                                    Pattern.Add(args[p++].GetBytes());
+                                    Pattern.Add(EncodingX.DefaultEncoding.GetBytes(args[p++]));
                                 }
                             }
                             else
@@ -855,7 +855,7 @@ namespace DolphinTextureExtraction
             double ProgressPercentage = ScanProgress.Value / ScanProgress.Max * 100;
             Console.Write($" {ProgressPercentage:00.00}%");
             Console.WriteLine();
-            
+
             if (!result.IsCompleted)
                 Console.SetCursorPosition(0, Cursor);
             else

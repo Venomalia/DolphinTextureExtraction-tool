@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -93,7 +93,7 @@ namespace AuroraLib.Texture.Formats
             byte Format4 = (byte)stream.ReadByte(); //CMPR 0 RGB5A3 3 RGBA32 8 C8 0 || 1 || 4 
 
             GXImageFormat Format = (GXImageFormat)Enum.Parse(typeof(GXImageFormat), PTLGFormat.ToString());
-            ReadOnlySpan<byte> Palette = ReadOnlySpan<byte>.Empty;
+            Memory<byte> Palette = Memory<byte>.Empty;
             ushort ImageWidth, ImageHeight;
             uint Collors = 0;
 
@@ -114,14 +114,15 @@ namespace AuroraLib.Texture.Formats
             if (Collors != 0)
             {
                 Format = GXImageFormat.C8;
-                Palette = stream.At(endPos - Collors * 2, SeekOrigin.Begin, s => s.Read((int)Collors * 2));
+                Palette = new byte[Collors * 2];
+                stream.At(endPos - Collors * 2, SeekOrigin.Begin, s => s.Read(Palette.Span));
             }
 
             //The image files are aligned from end.
             int imageSize = Format.GetCalculatedTotalDataSize(ImageWidth, ImageHeight, (int)Images - 1);
             stream.Seek(endPos - Collors * 2 - imageSize, SeekOrigin.Begin);
 
-            texture = new(stream, Palette, Format, GXPaletteFormat.RGB5A3, (int)Collors, ImageWidth, ImageHeight, (int)Images - 1)
+            texture = new(stream, Palette.Span, Format, GXPaletteFormat.RGB5A3, (int)Collors, ImageWidth, ImageHeight, (int)Images - 1)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,

@@ -1,4 +1,4 @@
-﻿namespace AuroraLib.DiscImage.Dolphin
+namespace AuroraLib.DiscImage.Dolphin
 {
     public class BootBin : GameHeader
     {
@@ -21,7 +21,7 @@
             GameName = source.ReadString(992);
             DebugMonitorOffset = source.ReadUInt32(Endian.Big);
             DebugMonitorAddress = source.ReadUInt32(Endian.Big);
-            source.Read(24);
+            source.Skip(24);
             DolOffset = source.ReadUInt32(Endian.Big); //offset of main executable DOL (bootfile)
             FSTableOffset = source.ReadUInt32(Endian.Big); //offset of the FST ("fst.bin")
             FSTableSize = source.ReadUInt32(Endian.Big);

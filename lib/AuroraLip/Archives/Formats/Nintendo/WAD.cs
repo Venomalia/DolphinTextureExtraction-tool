@@ -1,7 +1,7 @@
 using AuroraLib.Common;
 using AuroraLib.Common.Node;
-using AuroraLib.Core.Cryptography;
 using AuroraLib.Core.Interfaces;
+using AuroraLib.Cryptography.Hash;
 using AuroraLib.DiscImage.Revolution;
 using System.Security.Cryptography;
 

@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -60,14 +60,16 @@ namespace AuroraLib.Texture.Formats
 
                 int ImageWidth = stream.ReadUInt16(Endian.Big);
                 int ImageHeight = stream.ReadUInt16(Endian.Big);
-                byte[] hardwaredata = stream.Read(24);
+                byte[] hardwaredata = new byte[24];
+                stream.Read(hardwaredata);
                 int userDataSize = headerSize - 0x30;
 
-                byte[] userdata = null;
-                if (userDataSize > 0) userdata = stream.Read(userDataSize);
+                byte[] userdata = new byte[userDataSize];
+                if (userDataSize > 0) stream.Read(userdata);
                 long ImageDataAddress = stream.Position;
                 stream.Position += imageSize;
-                byte[] palettedata = stream.Read((int)paletteSize);
+                byte[] palettedata = new byte[paletteSize];
+                stream.Read(palettedata);
                 stream.Position = ImageDataAddress;
 
                 //When the data size is zero these images hold additional data like Palettedata

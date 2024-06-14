@@ -1,4 +1,4 @@
-﻿namespace AuroraLib.DiscImage.Revolution
+namespace AuroraLib.DiscImage.Revolution
 {
     public class CMD
     {
@@ -6,7 +6,7 @@
         public ushort Index;
         public ContentType Type;
         public ulong Size;
-        public readonly byte[] Hash;
+        public readonly byte[] Hash = new byte[20];
 
         public CMD(Stream stream)
         {
@@ -14,7 +14,7 @@
             Index = stream.ReadUInt16(Endian.Big);
             Type = stream.Read<ContentType>(Endian.Big);
             Size = stream.ReadUInt64(Endian.Big);
-            Hash = stream.Read(20);
+            stream.Read(Hash);
         }
 
         public void Write(Stream dest)

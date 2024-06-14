@@ -1,4 +1,5 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
@@ -40,15 +41,15 @@ namespace AuroraLib.Texture.Formats
             ClampLODBias = ImageHeader.ClampLODBias;
             MaxAnisotropy = ImageHeader.MaxAnisotropy;
 
-            ReadOnlySpan<byte> PaletteData = null;
+            using SpanBuffer<byte> paletteData = new(ImageHeader.PaletteCount * 2);
             if (ImageHeader.IsPaletteFormat)
             {
                 stream.Position = HeaderStart + ImageHeader.PaletteDataAddress;
-                PaletteData = stream.Read(ImageHeader.PaletteCount * 2);
+                stream.Read(paletteData.Span);
             }
             stream.Seek(HeaderStart + ImageHeader.ImageDataAddress, SeekOrigin.Begin);
 
-            TexEntry current = new(stream, PaletteData, ImageHeader.Format, ImageHeader.PaletteFormat, ImageHeader.PaletteCount, ImageHeader.Width, ImageHeader.Height, ImageHeader.Mipmaps)
+            TexEntry current = new(stream, paletteData, ImageHeader.Format, ImageHeader.PaletteFormat, ImageHeader.PaletteCount, ImageHeader.Width, ImageHeader.Height, ImageHeader.Mipmaps)
             {
                 LODBias = ImageHeader.LODBias,
                 MagnificationFilter = ImageHeader.MagnificationFilter,

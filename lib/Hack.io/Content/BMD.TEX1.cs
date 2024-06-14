@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Exceptions;
 using AuroraLib.Texture.Formats;
 using AuroraLib.Texture.J3D;
@@ -162,11 +162,11 @@ namespace Hack.io
                     long x = -1;
                     foreach (KeyValuePair<BTI, long> item in WrittenImages)
                     {
-                        if (item.Key.ImageEquals(Textures[i]))
-                        {
-                            x = item.Value;
-                            break;
-                        }
+                        //if (item.Key.ImageEquals(Textures[i]))
+                        //{
+                        //    x = item.Value;
+                        //    break;
+                        //}
                     }
                     if (x == -1)
                     {
@@ -174,7 +174,10 @@ namespace Hack.io
                         Textures[i].Save(stream, ref ImageDataOffset);
                     }
                     else
+                    {
                         Textures[i].Save(stream, ref x);
+                    }
+
                     names.Add(Textures[i].Name);
                 }
 
@@ -192,7 +195,7 @@ namespace Hack.io
             }
 
             public bool Contains(BTI Image) => Textures.Any(I => I.Equals(Image));
-            public bool ContainsImage(BTI Image) => Textures.Any(I => I.ImageEquals(Image));
+
             public int GetTextureIndex(BTI Image)
             {
                 if (Image is null)

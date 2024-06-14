@@ -31,7 +31,8 @@ namespace AuroraLib.Archives.Formats
 
         protected override void Deserialize(Stream source)
         {
-            _ = source.Read(32);
+            Span<byte> unk = stackalloc byte[32];
+            source.Read(unk);
 
             do
             {

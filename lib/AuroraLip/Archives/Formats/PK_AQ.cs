@@ -1,8 +1,7 @@
 using AuroraLib.Common;
 using AuroraLib.Common.Node;
 using AuroraLib.Core.Buffers;
-using AuroraLib.Core.Cryptography;
-using AuroraLib.Core.Text;
+using AuroraLib.Cryptography.Hash;
 
 namespace AuroraLib.Archives.Formats
 {

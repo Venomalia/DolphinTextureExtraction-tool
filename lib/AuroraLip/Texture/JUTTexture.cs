@@ -1,5 +1,3 @@
-﻿using AuroraLib.Common;
-using AuroraLib.Core.Extensions;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture
@@ -46,14 +44,6 @@ namespace AuroraLib.Texture
         protected abstract void Read(Stream stream);
 
         protected abstract void Write(Stream stream);
-
-        public bool ImageEquals(JUTTexture entry) => ListEx.Equals(this, entry);
-
-        public override bool Equals(object obj) => obj is JUTTexture tex && tex.Name.Equals(Name) && ImageEquals(tex);
-
-        public static bool operator ==(JUTTexture texture1, JUTTexture texture2) => texture1.Equals(texture2);
-
-        public static bool operator !=(JUTTexture texture1, JUTTexture texture2) => !(texture1 == texture2);
 
         public override int GetHashCode()
             => HashCode.Combine(base.GetHashCode(), Name);

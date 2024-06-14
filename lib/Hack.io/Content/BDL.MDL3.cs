@@ -1,4 +1,4 @@
-﻿using AuroraLib.Core.Exceptions;
+using AuroraLib.Core.Exceptions;
 using OpenTK.Mathematics;
 
 //Heavily based on the SuperBMD Library.
@@ -98,7 +98,7 @@ namespace Hack.io
                             Arguments.Add(new XFTexMatrix(stream));
                             break;
                         default:
-                            stream.Read(DataLength);
+                            stream.Skip(DataLength);
                             break;
                     }
                 }

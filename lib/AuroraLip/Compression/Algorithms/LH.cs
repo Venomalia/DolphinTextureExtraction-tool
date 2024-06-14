@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Compression.Interfaces;
 using System.Buffers;
 using System.IO.Compression;
@@ -33,33 +33,33 @@ namespace AuroraLib.Compression.Algorithms
 
         public static void Decompress_ALG(Stream source, Stream destination, int decomLength)
         {
-            BitReaderX Reader = new(source, Endian.Big);
             //Read Huff length Byts
-            int Huffsize = (Reader.ReadUInt16(Endian.Little) << 5) + 16;
-            Span<short> Hufflength = stackalloc short[Huffsize / 9 + 1];
+            int Huffsize = (source.ReadUInt16(Endian.Little) << 5) + 16;
+            Span<ushort> Hufflength = stackalloc ushort[Huffsize / 9 + 1];
 
+            BitReader Reader = new(source, Endian.Big);
             for (int i = 1; i < Hufflength.Length; i++)
-                Hufflength[i] = (short)Reader.ReadInt(9);
+                Hufflength[i] = (ushort)Reader.ReadUInt(9);
 
             Reader.BitPosition += Huffsize - (Hufflength.Length - 1) * 9;
 
             //Read Huff offset Byts
-            Huffsize = (Reader.ReadUInt8(Endian.Big) << 5) + 24;
+            Huffsize = (Reader.ReadUInt8() << 5) + 24;
             Span<byte> Huffoffset = stackalloc byte[Huffsize / 5 + 1];
 
             for (int i = 1; i < Huffoffset.Length; i++)
-                Huffoffset[i] = (byte)Reader.ReadInt(5);
+                Huffoffset[i] = (byte)Reader.ReadUInt(5);
 
             Reader.BitPosition += Huffsize - (Huffoffset.Length - 1) * 5;
 
             Decompress_ALG(Reader, destination, decomLength, Hufflength, Huffoffset);
         }
 
-        public static void Decompress_ALG(BitReaderX source, Stream outStream, int decomLength, ReadOnlySpan<short> hufflength, ReadOnlySpan<byte> huffoffset)
+        public static void Decompress_ALG(BitReader source, Stream outStream, int decomLength, ReadOnlySpan<ushort> hufflength, ReadOnlySpan<byte> huffoffset)
         {
             int destinationPointer = 0, huffPointer, offset;
             byte flag;
-            short lengthdata;
+            ushort lengthdata;
 
             byte[] destination = ArrayPool<byte>.Shared.Rent(decomLength);
             try
@@ -70,7 +70,7 @@ namespace AuroraLib.Compression.Algorithms
                     huffPointer = 1;
                     while (true)
                     {
-                        flag = (byte)source.ReadInt(1);
+                        flag = (byte)source.ReadUInt(1);
                         offset = ((hufflength[huffPointer] & 0x7F) + 1 << 1) + flag;
                         offset = (huffPointer * 2 & ~3) / 2 + offset;
 
@@ -90,13 +90,13 @@ namespace AuroraLib.Compression.Algorithms
                     }
                     else
                     {
-                        lengthdata = (short)((lengthdata & 0xFF) + 3);
+                        lengthdata = (ushort)((lengthdata & 0xFF) + 3);
 
                         // Get offsetdata
                         huffPointer = 1;
                         while (true)
                         {
-                            flag = (byte)source.ReadInt(1);
+                            flag = (byte)source.ReadUInt(1);
                             offset = ((huffoffset[huffPointer] & 7) + 1 << 1) + flag;
 
                             if ((huffoffset[huffPointer] & 0x10 >> flag) > 0)
@@ -109,7 +109,7 @@ namespace AuroraLib.Compression.Algorithms
                         }
 
                         if (offset > 1)
-                            offset = (int)source.ReadInt(offset - 1) | 1 << offset - 1;
+                            offset = (int)source.ReadUInt(offset - 1) | 1 << offset - 1;
 
                         offset++;
 

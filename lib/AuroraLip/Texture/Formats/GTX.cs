@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -22,14 +22,15 @@ namespace AuroraLib.Texture.Formats
 
             GXImageFormat GXFormat = GTX2GXImageFormat(header.Format);
             GXPaletteFormat GXPalette = GXPaletteFormat.IA8;
-            byte[] PaletteData = null;
+            Span<byte> PaletteData = Span<byte>.Empty;
             int PaletteCount = 0;
             if (GXFormat.IsPaletteFormat())
             {
                 GXPalette = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), header.PaletteFormat.ToString()); ;
                 stream.Seek(header.PaletteOffset, SeekOrigin.Begin);
                 PaletteCount = GXFormat.GetMaxPaletteColours();
-                PaletteData = stream.Read(PaletteCount * 2);
+                PaletteData = new byte[PaletteCount * 2];
+                stream.Read(PaletteData);
             }
 
             GXFilterMode MagFilter = header.MagFilter == GTXFilterMode.Linear ? GXFilterMode.Linear : GXFilterMode.Nearest;

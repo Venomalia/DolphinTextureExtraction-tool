@@ -1,4 +1,6 @@
-﻿namespace AuroraLib.DiscImage.RVZ
+using AuroraLib.Cryptography;
+
+namespace AuroraLib.DiscImage.RVZ
 {
     public readonly struct ExceptListT
     {

@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -72,7 +72,8 @@ namespace AuroraLib.Texture.Formats
                     uint palette_unknown3 = stream.ReadUInt16(Endian.Big); //always 1
                     uint palette_size = stream.ReadUInt32(Endian.Big);
                     stream.Seek(palette_data_offset, SeekOrigin.Begin);
-                    palette_data = stream.Read(palette_size);
+                    palette_data = new byte[palette_size];
+                    stream.Read(palette_data);
                 }
 
                 stream.Seek(data_offset, SeekOrigin.Begin);

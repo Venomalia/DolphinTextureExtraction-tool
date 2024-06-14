@@ -1,4 +1,5 @@
-﻿using AuroraLib.Compression;
+using AuroraLib.Compression;
+using AuroraLib.Compression.Algorithms;
 using AuroraLib.Compression.Interfaces;
 using System.Buffers;
 using System.Diagnostics;

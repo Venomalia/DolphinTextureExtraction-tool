@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -72,7 +72,8 @@ namespace AuroraLib.Texture.Formats
                     if (palette.Count != 0)
                     {
                         stream.Seek(palSectionOffset + palette.DataOffset, SeekOrigin.Begin);
-                        PaletteData = stream.Read(2 * palette.Count);
+                        PaletteData = new byte[palette.Count *2];
+                        stream.Read(PaletteData);
                     }
                 }
 

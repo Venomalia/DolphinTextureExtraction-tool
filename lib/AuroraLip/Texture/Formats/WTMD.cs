@@ -1,4 +1,4 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Interfaces;
 
 namespace AuroraLib.Texture.Formats
@@ -51,19 +51,20 @@ namespace AuroraLib.Texture.Formats
             int size = (int)(stream.Length - ImagePosition);
             int mipmaps = Format.GetMipmapsFromSize(size, ImageWidth, ImageHeight);
 
-            byte[] PaletteData = null;
-            int PaletteCount = 0;
-            GXPaletteFormat PaletteFormat = GXPaletteFormat.IA8;
+            Span<byte> paletteData = Span<byte>.Empty;
+            int paletteCount = 0;
+            GXPaletteFormat paletteFormat = GXPaletteFormat.IA8;
             if (Format.IsPaletteFormat())
             {
-                PaletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), Palette.ToString());
+                paletteFormat = (GXPaletteFormat)Enum.Parse(typeof(GXPaletteFormat), Palette.ToString());
                 stream.Position = PalettePosition;
-                int PaletteSize = (int)ImagePosition - (int)PalettePosition;
-                PaletteCount = PaletteSize / 2;
-                PaletteData = stream.Read(PaletteSize);
+                int paletteSize = (int)ImagePosition - (int)PalettePosition;
+                paletteCount = paletteSize / 2;
+                paletteData = new byte[paletteSize];
+                stream.Read(paletteData);
             }
             stream.Position = ImagePosition;
-            TexEntry current = new TexEntry(stream, PaletteData, Format, PaletteFormat, PaletteCount, ImageWidth, ImageHeight, mipmaps)
+            TexEntry current = new TexEntry(stream, paletteData, Format, paletteFormat, paletteCount, ImageWidth, ImageHeight, mipmaps)
             {
                 LODBias = 0,
                 MagnificationFilter = GXFilterMode.Nearest,
@@ -77,9 +78,12 @@ namespace AuroraLib.Texture.Formats
             while (stream.Position != stream.Length)
             {
                 int i = (int)Math.Pow(2, current.Count);
-                if (ImageWidth / i < 1 || ImageHeight / i < 1) break;
-                current.RawImages.Add(stream.Read(Format.CalculatedDataSize(ImageWidth, ImageHeight)));
-                //current.Add(DecodeImage(stream, PaletteData, Format, GXPaletteFormat.IA8, PaletteCount, ImageWidth/ i, ImageHeight / i));
+                if (ImageWidth / i < 1 || ImageHeight / i < 1)
+                    break;
+
+                byte[] image = new byte[Format.CalculatedDataSize(ImageWidth, ImageHeight)];
+                stream.Read(image);
+                current.RawImages.Add(image);
             }
             Add(current);
         }

@@ -1,11 +1,11 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Texture.BlockFormats;
 using AuroraLib.Texture.Interfaces;
 using AuroraLib.Texture.PixelFormats;
-using System.Runtime.InteropServices;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture
 {
@@ -14,7 +14,7 @@ namespace AuroraLib.Texture
         /// <summary>
         /// A JUTTexture Entry. ccan contains Mipmaps ant Palettes
         /// </summary>
-        public class TexEntry : IDisposable, IGXTexture
+        public class TexEntry : IDisposable, IGXTextureInfo
         {
             /// <inheritdoc/>
             public int Width { get; set; }
@@ -248,7 +248,9 @@ namespace AuroraLib.Texture
                     }
                     else
                     {
-                        Palettes.Add(stream.Read(palettesize));
+                        byte[] palette = new byte[palettesize];
+                        stream.Read(palette);
+                        Palettes.Add(palette);
                     }
                 }
             }
@@ -286,7 +288,8 @@ namespace AuroraLib.Texture
                         Events.NotificationEvent.Invoke(NotificationType.Info, $"Cannot read mip nummber {i}-{mipmaps} is beyond the end of the stream.");
                         break;
                     }
-                    byte[] imageData = stream.Read(imageSize);
+                    byte[] imageData = new byte[imageSize];
+                    stream.Read(imageData);
                     RawImages.Add(imageData);
 
                     width >>= 1;
@@ -340,6 +343,8 @@ namespace AuroraLib.Texture
                 if (!Format.IsPaletteFormat() || Palette == null) return 0;
 
                 (int start, int length) = Format.GetTlutRange(RawImages[0].AsSpan());
+
+                //if, according to the calculation, the pallete is too short, dolphin will calculate the hash incorrectly.
                 if (Palette.Length < length)
                 {
                     Events.NotificationEvent?.Invoke(NotificationType.Warning, $"Tlut out of range({start}-{length})Tlut_Length:{Palette.Length}");

@@ -1,8 +1,9 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
+using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
 using AuroraLib.Texture.BlockFormats;
-using System.Runtime.InteropServices;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Runtime.InteropServices;
 
 namespace AuroraLib.Texture.Formats
 {
@@ -30,7 +31,7 @@ namespace AuroraLib.Texture.Formats
             //To GXFormat
             var GXFormat = ToGXFormat(Properties.Format);
             var GXPalette = ToGXFormat(Properties.SubFormat);
-            ReadOnlySpan<byte> palettedata = null;
+            Span<byte> palettedata = null;
 
             if (Properties.Format == LFXTFormat.BGRA32)
             {
@@ -39,7 +40,9 @@ namespace AuroraLib.Texture.Formats
                 for (int i = 0; i < Properties.Mipmaps + 1; i++)
                 {
                     int size = GXFormat.CalculatedDataSize(Properties.Width, Properties.Height, i);
-                    byte[] data = stream.Read(size);
+                    using SpanBuffer<byte> data = new(size);
+                    stream.Read(data);
+
                     //BGRA32 To RGBA32
                     for (int p = 0; p < data.Length; p += 4) //Swap R and B channel
                     {
@@ -60,14 +63,11 @@ namespace AuroraLib.Texture.Formats
                 stream.Seek(GXFormat.GetCalculatedTotalDataSize(Properties.Width, Properties.Height, Properties.Mipmaps), SeekOrigin.Current);
 
                 // Is it a two Palette format?
-                if (Properties.Format == LFXTFormat.TwoPalette4 || Properties.Format == LFXTFormat.TwoPalette8)
-                {
-                    palettedata = stream.Read(Properties.Colours * 4);
-                }
-                else
-                {
-                    palettedata = stream.Read(Properties.Colours * 2);
-                }
+                bool isTwoPalette = Properties.Format == LFXTFormat.TwoPalette4 || Properties.Format == LFXTFormat.TwoPalette8;
+                int bpp = isTwoPalette ? 4 : 2;
+                palettedata = new byte[Properties.Colours * bpp];
+                stream.Read(palettedata);
+
                 stream.Seek(startpos, SeekOrigin.Begin);
             }
 

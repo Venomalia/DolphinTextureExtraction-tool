@@ -261,7 +261,7 @@ namespace DolphinTextureExtraction.Scans
 
         private bool LogDuplicatIfNeeded(ref string subPath)
         {
-            int hash = Path.GetFileNameWithoutExtension(subPath.AsSpan()).GetHashCodeFast();
+            int hash = Path.GetFileNameWithoutExtension(subPath.AsSpan()).SequenceGetHashCode();
             bool isDuplicat = Result.AddHashIfNeeded(hash);
             if (isDuplicat)
             {

@@ -1,7 +1,8 @@
-﻿using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Interfaces;
 using AuroraLib.Core.Text;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AuroraLib.Core.Extensions;
 
 namespace AuroraLib.Common
 {
@@ -190,9 +191,9 @@ namespace AuroraLib.Common
         /// <returns>The name of the format.</returns>
         public string GetName()
         {
-            if (Identifier != null && EncodingX.GetValidByteCount(Identifier.AsSpan()) >= 3)
+            if (Identifier != null && Identifier.AsSpan().IndexOf(b => b < 32 || b == 127) >= 3)
             {
-                return EncodingX.GetValidString(Identifier.AsSpan());
+                return EncodingX.GetDisplayableString(Identifier.AsSpan());
             }
 
             return Extension;

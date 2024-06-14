@@ -1,4 +1,4 @@
-﻿using AuroraLib.Core.Interfaces;
+using AuroraLib.Core.Interfaces;
 using AuroraLib.Core.Text;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -88,7 +88,7 @@ namespace AuroraLib.DiscImage.Dolphin
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string GetString()
-            => EncodingX.GetStringFast(AsSpan(), 0x0);
+            => EncodingX.GetString(AsSpan(), 0x0);
 
         /// <inheritdoc />
         [DebuggerStepThrough]
@@ -102,7 +102,7 @@ namespace AuroraLib.DiscImage.Dolphin
         /// <inheritdoc />
         public bool Equals(IIdentifier other) => other != null && other.AsSpan().SequenceEqual(AsSpan());
 
-        public override string ToString() => EncodingX.GetValidByteCount(AsSpan()) > 2 ? GetString() : BitConverter.ToString(AsSpan().ToArray());
+        public override string ToString() => EncodingX.GetDisplayableString(AsSpan());
 
         public string GetMaker()
         {

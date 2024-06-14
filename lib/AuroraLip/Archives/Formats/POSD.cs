@@ -45,7 +45,7 @@ namespace AuroraLib.Archives.Formats
 
                 using SpanBuffer<FolderEntry> folders = new(dir_count);
                 source.Read<FolderEntry>(folders, Endian.Big);
-                byte[] pedding = source.Read(8);
+                ulong pedding = source.ReadUInt64();
 
                 for (int i = 0; i < dir_count; i++)
                 {

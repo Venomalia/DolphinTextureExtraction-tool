@@ -1,4 +1,4 @@
-﻿using AuroraLib.Core.Text;
+using AuroraLib.Core.Text;
 
 namespace AuroraLib.DiscImage.Revolution
 {
@@ -7,19 +7,19 @@ namespace AuroraLib.DiscImage.Revolution
     /// </summary>
     public class TMD : SignedBlobHeader
     {
-        public readonly byte[] Issuer;
+        public readonly byte[] Issuer = new byte[64];
         public byte FormatVersion;
         public byte CA_CRL_Version;
         public byte Signer_CRL_Version;
         public bool IsVWii;
         public ulong IOS;
-        public readonly byte[] TitleID;
+        public readonly byte[] TitleID = new byte[8];
         public TitleTypes TitleType;
         public ushort GroupID;
         private readonly ushort pad1;
         public RegionTyps Region;
         public Ratings Ratings;
-        public readonly byte[] IPCMask;
+        public readonly byte[] IPCMask = new byte[30];
         public uint AccessRights;
         public ushort TitleVersion;
         public ushort bootIndex;
@@ -27,24 +27,24 @@ namespace AuroraLib.DiscImage.Revolution
         public List<CMD> CMDs;
 
         public TitleFlags TitleFlag => (TitleFlags)BitConverterX.Swap(BitConverter.ToUInt32(TitleID, 0));
-        public string TitleString => EncodingX.GetValidString(TitleID.AsSpan()[..4]);
+        public string TitleString => EncodingX.GetDisplayableString(TitleID.AsSpan()[..4]);
 
         public TMD(Stream source) : base(source)
         {
-            Issuer = source.Read(64);
+            source.Read(Issuer);
             FormatVersion = source.ReadUInt8();
             CA_CRL_Version = source.ReadUInt8();
             Signer_CRL_Version = source.ReadUInt8();
             IsVWii = source.ReadUInt8() != 0;
             IOS = source.ReadUInt64(Endian.Big);
-            TitleID = source.Read(8);
+            source.Read(TitleID);
             TitleType = source.Read<TitleTypes>(Endian.Big);
             GroupID = source.ReadUInt16(Endian.Big);
             pad1 = source.ReadUInt16();
             Region = source.Read<RegionTyps>(Endian.Big);
             Ratings = source.Read<Ratings>();
             source.Position += 12;
-            IPCMask = source.Read(30);
+            source.Read(IPCMask);
             AccessRights = source.ReadUInt32(Endian.Big);
             TitleVersion = source.ReadUInt16(Endian.Big);
             ushort content = source.ReadUInt16(Endian.Big);

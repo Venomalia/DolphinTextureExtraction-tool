@@ -144,7 +144,7 @@ namespace AuroraLib.Archives.Formats
             private uint timestamp;
             public string Name;
             public uint Unk1;
-            public byte[] Hash;
+            public readonly byte[] Hash = new byte[32];
             public uint Unk2;
 
             public DateTimeOffset Timestamp
@@ -163,9 +163,10 @@ namespace AuroraLib.Archives.Formats
                 Name = stream.ReadString(64);
                 if (version >= 36)
                     Unk1 = stream.ReadUInt32();
+
                 if (version >= 44)
                 {
-                    Hash = stream.Read(32);
+                    stream.Read(Hash);
                     Unk2 = stream.ReadUInt32();
                 }
             }

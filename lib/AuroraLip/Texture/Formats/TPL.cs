@@ -1,7 +1,6 @@
-﻿using AuroraLib.Common;
+using AuroraLib.Common;
 using AuroraLib.Core.Buffers;
 using AuroraLib.Core.Interfaces;
-using SevenZipExtractor;
 using System.Runtime.CompilerServices;
 
 namespace AuroraLib.Texture.Formats
@@ -62,7 +61,7 @@ namespace AuroraLib.Texture.Formats
 
             for (int i = 0; i < ImageOffsetTable.Length; i++)
             {
-                byte[] PaletteData = null;
+                Span<byte> PaletteData = Span<byte>.Empty;
                 PaletteHeader paletteHeader = default;
                 if (ImageOffsetTable[i].HasPaletteData)
                 {
@@ -76,7 +75,8 @@ namespace AuroraLib.Texture.Formats
                         paletteHeader.Format = GXPaletteFormat.IA8;
                     }
                     stream.Seek(HeaderStart + paletteHeader.PaletteDataAddress, SeekOrigin.Begin);
-                    PaletteData = stream.Read(paletteSize);
+                    PaletteData = new byte[paletteSize];
+                    stream.Read(PaletteData);
                 }
 
                 stream.Seek(HeaderStart + ImageOffsetTable[i].ImageHeaderOffset, SeekOrigin.Begin);

@@ -83,7 +83,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
                 if (group.NameOffset != 0)
                 {
                     source.Seek(StartOfGroup + group.NameOffset, SeekOrigin.Begin);
-                    string Name = source.ReadString();
+                    string Name = source.ReadCString();
 
                     if (group.DataOffset != 0)
                     {

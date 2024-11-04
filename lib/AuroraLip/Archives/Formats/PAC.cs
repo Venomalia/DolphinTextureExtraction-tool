@@ -43,7 +43,7 @@ namespace AuroraLib.Archives.Formats
                 foreach (var entry in entries)
                 {
                     streamPAH.Seek(entry.NameOffset, SeekOrigin.Begin);
-                    string name = streamPAH.ReadString();
+                    string name = streamPAH.ReadCString();
                     FileNode file = new(name, new SubStream(source, entry.Size, entry.Offset));
                     Add(file);
                 }

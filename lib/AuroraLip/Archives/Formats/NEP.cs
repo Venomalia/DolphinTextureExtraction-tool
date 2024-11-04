@@ -30,7 +30,7 @@ namespace AuroraLib.Archives.Formats
             {
                 long pos = source.Position;
                 Entry entry = source.Read<Entry>(Endian.Big);
-                string name = source.ReadString();
+                string name = source.ReadCString();
                 name = name.Replace("..\\", string.Empty);
                 if (!Contains(name))
                 {

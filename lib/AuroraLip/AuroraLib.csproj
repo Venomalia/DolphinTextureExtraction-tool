@@ -24,12 +24,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AuroraLib.Compression" Version="1.1.1" />
-    <PackageReference Include="AuroraLib.Cryptography" Version="1.1.0" />
+    <PackageReference Include="AuroraLib.Compression" Version="1.2.1" />
+    <PackageReference Include="AuroraLib.Cryptography" Version="1.1.0.1" />
     <PackageReference Include="HashDepot" Version="3.1.0" />
-    <PackageReference Include="RenderWareNET" Version="0.6.2" />
+    <PackageReference Include="RenderWareNET" Version="0.6.3" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.4" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
     <PackageReference Include="ZstdSharp.Port" Version="0.8.1" />
   </ItemGroup>
 

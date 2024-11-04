@@ -148,7 +148,7 @@ namespace AuroraLib.Archives.Formats.Retro
 
             public NameEntry(Stream stream)
             {
-                Name = stream.ReadString();
+                Name = stream.ReadCString();
                 Type = stream.ReadString(4);
                 ID = stream.ReadUInt64(Endian.Big);
             }

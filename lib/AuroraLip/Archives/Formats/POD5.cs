@@ -58,7 +58,7 @@ namespace AuroraLib.Archives.Formats
                 long SavedPosition = source.Position;
 
                 source.Seek(NameOffsetForFile + StringTableOffset, SeekOrigin.Begin);
-                string Name = source.ReadString();
+                string Name = source.ReadCString();
 
                 //If Duplicate...
                 if (Contains(Name))

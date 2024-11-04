@@ -44,7 +44,7 @@ namespace AuroraLib.Archives.Formats
             for (int i = 0; i < NrEntries; i++)
             {
                 source.Seek(entries[i].name, SeekOrigin.Begin);
-                string name = source.ReadString();
+                string name = source.ReadCString();
 
                 FileNode file = new(name, new SubStream(source, entries[i].size, entries[i].data));
                 Add(file);

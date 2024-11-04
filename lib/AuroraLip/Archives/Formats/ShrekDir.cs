@@ -90,7 +90,7 @@ namespace AuroraLib.Archives.Formats
                 Offset = stream.ReadUInt32(endian);
                 DecompSize = stream.ReadUInt32(endian);
                 CompSize = stream.ReadUInt32(endian);
-                Name = stream.ReadString();
+                Name = stream.ReadCString();
                 stream.Align(4);
             }
         }

@@ -56,7 +56,7 @@ namespace AuroraLib.Archives.Formats
 
                 long pos = source.Position;
                 source.Seek(string_table_position + file_name_offset, SeekOrigin.Begin);
-                string file_name = source.ReadString();
+                string file_name = source.ReadCString();
 
                 if (!Contains(file_name))
                 {

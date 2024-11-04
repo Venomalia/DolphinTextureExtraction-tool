@@ -43,7 +43,7 @@ namespace AuroraLib.Archives.Formats
             source.Read(FileInfosOffsets.Span, Endian.Big);
 
             source.Seek(header.StringTableOffset, SeekOrigin.Begin);
-            string[] Filenames = source.For((int)header.Entries, s => s.ReadString());
+            string[] Filenames = source.For((int)header.Entries, s => s.ReadCString());
 
             for (int i = 0; i < FileInfosOffsets.Length; i++)
             {

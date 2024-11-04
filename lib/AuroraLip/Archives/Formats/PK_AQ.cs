@@ -89,7 +89,7 @@ namespace AuroraLib.Archives.Formats
                     if (directories[i].ParentIndex != -1)
                     {
                         fsStream.Seek(nameTabelPos + directoryNameOffsets[i], SeekOrigin.Begin);
-                        string name = fsStream.ReadString();
+                        string name = fsStream.ReadCString();
                         dir = new(name);
                         directoryPairs[dirEntry.ParentIndex].Add(dir);
                     }
@@ -100,7 +100,7 @@ namespace AuroraLib.Archives.Formats
                     {
                         int FileIndex = dirEntry.FileStartChild + fi;
                         fsStream.Seek(nameTabelPos + fileNameOffsets[FileIndex], SeekOrigin.Begin);
-                        string filename = fsStream.ReadString();
+                        string filename = fsStream.ReadCString();
                         string filePath = Path.Combine(Path.GetRelativePath(rootPath, dir.GetFullPath()), filename).Replace('\\', '/').ToLower().Replace('?', 'L');
                         //Get CRC32
                         crc32.Reset();

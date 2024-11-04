@@ -41,7 +41,7 @@ namespace AuroraLib.Archives.Formats
             uint unknown2 = source.ReadUInt32(Endian.Big);
             uint file_count = source.ReadUInt32(Endian.Big);
             uint unknown3 = source.ReadUInt32(Endian.Big);
-            string reference_file = source.ReadString();
+            string reference_file = source.ReadCString();
             source.Seek(table_offset, SeekOrigin.Begin);
 
             //try to request an external file.

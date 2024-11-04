@@ -57,7 +57,7 @@ namespace AuroraLib.Archives.Formats
                 uint CRC = source.ReadUInt32(endian);
                 uint Offset = source.ReadUInt32(endian);
                 uint Size = source.ReadUInt32(endian);
-                string Name = source.ReadString();
+                string Name = source.ReadCString();
                 long Timestamp = source.ReadInt64(endian);
                 Add(new FileNode(Name, new SubStream(source, Size, Offset)));
             }
@@ -97,7 +97,7 @@ namespace AuroraLib.Archives.Formats
                 internal ArchiveInfo(Stream stream, Offset offset, Endian endian)
                 {
                     stream.Seek(offset.NameOffsets, SeekOrigin.Begin);
-                    string Name = stream.ReadString();
+                    string Name = stream.ReadCString();
                     stream.Seek(offset.InfoOffsets, SeekOrigin.Begin);
                     uint filesCount = stream.ReadUInt32(endian);
                     for (int i = 0; i < filesCount; i++)

@@ -99,7 +99,7 @@ namespace AuroraLib.Texture.Formats
                 uint symbol_offset = stream.ReadUInt32(Endian.Big);
                 long prevPosition = stream.Position;
                 stream.Seek(base_symbol_name_offset + symbol_offset, SeekOrigin.Begin);
-                string symbol_name = stream.ReadString();
+                string symbol_name = stream.ReadCString();
                 dict.Add(symbol_name, data_offset);
                 stream.Seek(prevPosition, SeekOrigin.Begin);
             }
@@ -245,7 +245,7 @@ namespace AuroraLib.Texture.Formats
                     return GetClassFromName<T>(null, default_class_name);
 
                 stream.Seek(class_name_offset, SeekOrigin.Begin);
-                string class_name = stream.ReadString();
+                string class_name = stream.ReadCString();
                 return GetClassFromName<T>(class_name, default_class_name);
             }
 

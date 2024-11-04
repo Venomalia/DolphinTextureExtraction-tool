@@ -52,7 +52,7 @@ namespace AuroraLib.Texture.Formats
             uint Unknown2 = stream.ReadUInt32(ByteOrder);
             ushort NameLength = stream.ReadUInt16(ByteOrder);
             ushort Unknown3 = stream.ReadUInt16(ByteOrder);
-            string Name = stream.ReadString();
+            string Name = stream.ReadCString();
             stream.Position = SubfilePosition;
 #if DEBUG
             if (Unknown != 0 || Unknown2 != 0 || Unknown3 != 0)

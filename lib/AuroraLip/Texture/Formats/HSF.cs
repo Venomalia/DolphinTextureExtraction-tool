@@ -33,7 +33,7 @@ namespace AuroraLib.Texture.Formats
 
             for (int i = 0; i < texInfos.Length; i++)
             {
-                string textureName = stream.At(header.StringTable.Offset + texInfos[i].NameOffset, S => S.ReadString());
+                string textureName = stream.At(header.StringTable.Offset + texInfos[i].NameOffset, S => S.ReadCString());
                 GXImageFormat format = texInfos[i].GetGXImageFormat();
                 GXPaletteFormat paletteFormat = texInfos[i].GetGXPaletteFormat();
 

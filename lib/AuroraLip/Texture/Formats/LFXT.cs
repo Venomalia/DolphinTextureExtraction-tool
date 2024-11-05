@@ -18,14 +18,14 @@ namespace AuroraLib.Texture.Formats
         private static readonly Identifier32 _identifier = new("LFXT");
 
         public bool IsMatch(Stream stream, ReadOnlySpan<char> extension = default)
-            => stream.Length > 0x30 && stream.Match(_identifier) && stream.ReadString().Length > 3;
+            => stream.Length > 0x30 && stream.Match(_identifier) && stream.ReadCString().Length > 3;
 
         protected override void Read(Stream stream)
         {
             // NOTE: non-Nintendo consoles (PS2, XBox, PC) have the TXFL magic and use Little Endian
             // but that is out of scope for DTE
             stream.MatchThrow(_identifier);
-            string _Name = stream.ReadString();
+            string _Name = stream.ReadCString();
             var Properties = stream.Read<HeaderProperties>(Endian.Big);
 
             //To GXFormat

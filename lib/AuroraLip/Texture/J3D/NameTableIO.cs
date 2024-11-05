@@ -24,7 +24,7 @@
                 long saveReaderPos = stream.Position;
                 stream.Position = offset + nameOffset;
 
-                names.Add(stream.ReadString());
+                names.Add(stream.ReadCString());
 
                 stream.Position = saveReaderPos;
             }

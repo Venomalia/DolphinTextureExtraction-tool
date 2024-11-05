@@ -123,7 +123,7 @@ namespace Hack.io
                     long saveReaderPos = stream.Position;
                     stream.Position = ChunkStart + textureNameTableOffset + nameOffset;
 
-                    names.Add(stream.ReadString());
+                    names.Add(stream.ReadCString());
 
                     stream.Position = saveReaderPos;
                 }

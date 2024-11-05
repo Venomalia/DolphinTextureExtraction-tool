@@ -45,7 +45,7 @@ namespace AuroraLib.Archives.Formats
             foreach (NARCEntry entry in entries)
             {
                 source.Position = nameTableOffset + entry.NameOffset;
-                FileNode Sub = new(source.ReadString(), new SubStream(source, entry.DataSize, dataTableOffset + entry.DataOffset));
+                FileNode Sub = new(source.ReadCString(), new SubStream(source, entry.DataSize, dataTableOffset + entry.DataOffset));
                 Add(Sub);
             }
         }

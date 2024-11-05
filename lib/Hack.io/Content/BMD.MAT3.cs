@@ -175,7 +175,7 @@ namespace Hack.io
                                 long saveReaderPos = stream.Position;
                                 stream.Position = ChunkStart + sectionOffset + nameOffset;
 
-                                m_MaterialNames.Add(stream.ReadString());
+                                m_MaterialNames.Add(stream.ReadCString());
 
                                 stream.Position = saveReaderPos;
                             }

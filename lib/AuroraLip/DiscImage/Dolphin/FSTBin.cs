@@ -25,7 +25,7 @@ namespace AuroraLib.DiscImage.Dolphin
             while (i < l)
             {
                 stream.Seek(stringTableOffset + (int)Entires[i].NameOffset, SeekOrigin.Begin);
-                string name = stream.ReadString();
+                string name = stream.ReadCString();
                 if (Entires[i].IsDirectory)
                 {
                     DirectoryNode subdir = new(name);

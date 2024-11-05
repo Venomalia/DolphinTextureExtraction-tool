@@ -54,7 +54,7 @@ namespace AuroraLib.Archives.Formats
                 long FilePosition = source.Position;
 
                 source.Seek(NameOffsetForFile + NameOffset, SeekOrigin.Begin);
-                string Name = source.ReadString();
+                string Name = source.ReadCString();
 
                 FileNode Sub = new(Name, new SubStream(source, SizeForFile, OffsetForFile));
                 //If Duplicate...

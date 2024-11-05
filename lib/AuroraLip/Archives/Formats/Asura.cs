@@ -51,7 +51,7 @@ namespace AuroraLib.Archives.Formats
                 if (nameoffset != -1)
                 {
                     source.Seek(startpos + nameoffset, SeekOrigin.Begin);
-                    string name = source.ReadString().TrimStart('\\');
+                    string name = source.ReadCString().TrimStart('\\');
 
                     if (magic == "FCSR")
                     {

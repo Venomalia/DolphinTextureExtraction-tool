@@ -75,7 +75,7 @@ namespace AuroraLib.Archives.Formats
                         offset = source.ReadUInt32(Endian.Big);
                         size = source.ReadUInt32(Endian.Big);
                         lixo = source.ReadString(6);
-                        path = source.ReadString();
+                        path = source.ReadCString();
                         name = Path.GetFileName(path);
 
                         Stream data = new SubStream(source, size, offset);

@@ -51,7 +51,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
             {
                 U8Node node = nodes[i];
                 source.Seek(StringTableOffset + node.NameOffset, SeekOrigin.Begin);
-                string name = source.ReadString();
+                string name = source.ReadCString();
 
                 //if there is already an ellement with the names.
                 if (stack.Peek().Item1.Contains(name))

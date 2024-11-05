@@ -1,4 +1,4 @@
-﻿using AuroraLib.Core.Exceptions;
+using AuroraLib.Core.Exceptions;
 using AuroraLib.Texture.J3D;
 using OpenTK.Mathematics;
 
@@ -42,7 +42,7 @@ namespace Hack.io
                     long saveReaderPos = stream.Position;
                     stream.Position = ChunkStart + nameTableOffset + nameOffset;
 
-                    names.Add(stream.ReadString());
+                    names.Add(stream.ReadCString());
 
                     stream.Position = saveReaderPos;
                 }

@@ -72,7 +72,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
             foreach (DirectoryT dir in directories)
             {
                 source.Seek(stringTableOffset + dir.NameOffset, SeekOrigin.Begin);
-                string name = source.ReadString();
+                string name = source.ReadCString();
 
                 DirectoryNode currentNode;
                 if (dir.Type == 1414483794) // is ROOT
@@ -88,7 +88,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
                 for (int n = (int)dir.FirstFileOffset; n < dir.FileCount + dir.FirstFileOffset; n++)
                 {
                     source.Seek(stringTableOffset + files[n].NameOffset, SeekOrigin.Begin);
-                    name = source.ReadString();
+                    name = source.ReadCString();
 
                     if (files[n].Attribute == FileAttribute.DIRECTORY) //IsDirectory
                     {
@@ -224,7 +224,7 @@ namespace AuroraLib.Archives.Formats.Nintendo
             List<FileNode> fileDVD = new();
 
             // MRAM + sorting
-            Yaz0 yaz = new() { LookAhead = false, ExplicitOrder = Endian.Big };
+            Yaz0 yaz = new() { LookAhead = false, FormatByteOrder = Endian.Big };
             foreach (FileNode fileNode in GetAllValuesOf<FileNode>())
             {
                 if (fileNode.Properties.Contains("YAZ0") && !fileNode.Data.At(0, s => s.Match("Yaz0")))

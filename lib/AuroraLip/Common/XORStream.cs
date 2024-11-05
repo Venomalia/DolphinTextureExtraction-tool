@@ -1,4 +1,4 @@
-﻿using AuroraLib.Core.Buffers;
+using AuroraLib.Core.Buffers;
 
 namespace AuroraLib.Common
 {
@@ -36,16 +36,14 @@ namespace AuroraLib.Common
 
         public override int Read(Span<byte> buffer)
         {
-            int r;
+            int r = Base.Read(buffer);
             if (Key.Length == 1)
             {
-                r = Base.Read(buffer);
                 buffer.DataXor(Key[0]);
             }
             else
             {
                 int offset = (int)(Base.Position % (Key.Length / 2));
-                r = Base.Read(buffer);
                 buffer.DataXor(Key.AsSpan(offset, (Key.Length / 2)));
             }
             return r;
@@ -53,7 +51,7 @@ namespace AuroraLib.Common
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            SpanBuffer<byte> rbuffer = new(buffer);
+            using SpanBuffer<byte> rbuffer = new(buffer);
             if (Key.Length == 1)
             {
                 rbuffer.Span.DataXor(Key[0]);

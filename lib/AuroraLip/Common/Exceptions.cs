@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
 namespace AuroraLib.Common
 {
@@ -17,6 +17,7 @@ namespace AuroraLib.Common
         {
         }
 
+        [Obsolete(DiagnosticId = "SYSLIB0051")]
         protected PaletteException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }

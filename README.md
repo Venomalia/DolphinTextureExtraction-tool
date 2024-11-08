@@ -14,7 +14,7 @@ Additionally, the tool supports unpacking all compatible formats and some other 
 Although the most common formats are already supported, the tool is still under development and new functions and other formats will be added over time.
 
 ## Download
-This is a .NET 6.0 application and requires the .NET Runtime 6.0. If you don't have it installed yet, you can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/6.0).
+This is a .NET 8.0 application and requires the .NET Runtime 8.0. If you don't have it installed yet, you can download it from [here](https://dotnet.microsoft.com/en-us/download/dotnet/8.0).
 
 [<img src="https://img.shields.io/github/v/release/Venomalia/DolphinTextureExtraction-tool?style=for-the-badge" alt="Release Download" height="34"/>](https://github.com/Venomalia/DolphinTextureExtraction-tool/releases/latest)
 

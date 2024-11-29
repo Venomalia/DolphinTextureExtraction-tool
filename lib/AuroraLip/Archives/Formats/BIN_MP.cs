@@ -109,7 +109,7 @@ namespace AuroraLib.Archives.Formats
                     case CompressionType.FSLIDE:
                         uint temp_len = source.ReadUInt32(Endian.Big);
                         DeStream = new MemoryPoolStream((int)DeSize);
-                        LZHudson.DecompressHeaderless(source, DeStream, (int)DeSize);
+                        LZHudson.DecompressHeaderless(source, DeStream, DeSize);
                         break;
 
                     case CompressionType.RLE:

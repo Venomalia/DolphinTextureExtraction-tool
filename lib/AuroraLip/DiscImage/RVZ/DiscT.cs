@@ -31,11 +31,13 @@ namespace AuroraLib.DiscImage.RVZ
 
         public ICompressionDecoder GetDecoder() => Compression switch
         {
+            CompressionTypes.None => new None(),
             CompressionTypes.Zstandard => new Zstd(),
             _ => throw new NotImplementedException($"{Compression} compression is currently not supported."),
         };
         public ICompressionEncoder GetEncoder() => Compression switch
         {
+            CompressionTypes.None => new None(),
             CompressionTypes.Zstandard => new Zstd(),
             _ => throw new NotImplementedException(),
         };
